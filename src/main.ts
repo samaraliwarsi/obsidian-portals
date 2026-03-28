@@ -95,6 +95,9 @@ export default class PortalsPlugin extends Plugin {
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {
                 leaf.view.render();
+                if (leaf.view.plugin.settings.activeSplitTab === 'journal') {
+                    leaf.view.refreshJournalTab();
+                }
             }
         });
     }

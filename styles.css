@@ -5918,6 +5918,124 @@ body.portals-dragging {
     padding-left: 10px;
 }
 
+/*============================JOURNAL=================================*/
+
+/* Journal Tab Styles */
+
+.journal-card {
+    flex: 0 0 auto;
+    width: 60px;
+    height: 50px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 0 2px;
+    font-size: 0.7em;
+    text-align: center;
+    transition: transform 0.1s;
+}
+.journal-card:hover {
+    transform: scale(1.05);
+}
+
+.journal-cards-wrapper {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 4px 0;
+    scrollbar-width: thin;
+}
+
+.journal-quote-display {
+    padding: 12px;
+    border-radius: 8px;
+    background-color: transparent;
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+.journal-quote-text {
+    margin: 0 0 8px 0;
+    font-style: italic;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.journal-quote-date {
+    display: block;
+    text-align: right;
+    color: var(--text-muted);
+    font-size: 0.7em;
+}
+
+.journal-progress-container {
+    width: 100%;
+    height: 2px;
+    background-color: var(--background-modifier-border);
+    margin: 8px 0;
+    overflow: hidden;
+}
+
+.journal-progress-bar {
+    height: 100%;
+    background-color: var(--interactive-accent);
+    width: 0%;
+    transition: width 30s linear;
+}
+
+.journal-quote-display {
+    background-color: transparent;
+    padding: 8px;
+    border-radius: 8px;
+    border-left: 3px solid var(--interactive-accent);
+}
+
+.journal-quote-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.journal-btn {
+    all: unset;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9em;
+    padding: 4px 6px;
+    background: var(--background-secondary);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.journal-btn.active {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.journal-btn.journal-filter-btn {
+  margin-bottom: 4px;
+}
+
+.journal-filter-btn i {
+    font-size: 0.85em;
+}
+
+.journal-btn-text {
+    font-size: 0.8em;
+}
+
+
+/*=============================JOURNAL-END============================*/
+
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
 
 .portals-container {

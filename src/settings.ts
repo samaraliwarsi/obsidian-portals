@@ -38,6 +38,7 @@ export interface SpacesSettings {
     compactTree: boolean;
     boldFolderNames: boolean;
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades';
+    journalFolderPath: string;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -56,7 +57,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     secondaryPanelCollapsed: false,
     sidePanelEnabled: true,
     recentFilesList: [],
-    splitViewTabs: ['recent', 'folder-notes', 'bookmarks'],
+    splitViewTabs: ['recent', 'folder-notes', 'bookmarks', 'journal'],
     activeSplitTab: 'recent',
     showFolderNotesInTree: false,
     enableFolderNotes: true,
@@ -67,7 +68,8 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     highlightFolderNotes: true,
     compactTree: false,
     boldFolderNames: false,
-    treeStyle: 'default'
+    treeStyle: 'default',
+    journalFolderPath: '',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -259,9 +261,20 @@ export class SpacesSettingTab extends PluginSettingTab {
                     // Force all portals views to re-render
                     this.plugin.refreshAllViews();
                 }));
+
+        // ---- Journal Settings ----
+        new Setting(containerEl)
+            .setName('Journal folder')
+            .setDesc('Folder containing daily notes. Leave empty to use the folder from the Daily Notes core plugin (if enabled).')
+            .addText(text => text
+                .setPlaceholder('e.g., Journal/Daily')
+                .setValue(this.plugin.settings.journalFolderPath)
+                .onChange(async (value) => {
+                    this.plugin.settings.journalFolderPath = value;
+                    await this.plugin.saveSettings();
+                }));
                     
                    
-
         // ---- PIN VAULT ROOT ----
         const pinSetting = new Setting(containerEl)
             .setName('Pin vault')
@@ -664,7 +677,8 @@ export class SpacesSettingTab extends PluginSettingTab {
             const availableTabs = [
                 { id: 'recent', name: 'Recent Files', icon: 'clock-counter-clockwise' },
                 { id: 'folder-notes', name: 'Folder Notes', icon: 'note' },
-                { id: 'bookmarks', name: 'Bookmarks', icon: 'bookmark' }
+                { id: 'bookmarks', name: 'Bookmarks', icon: 'bookmark' },
+                { id: 'journal', name: 'Journal', icon: 'calendar-heart'}
             ];
 
             const checkboxContainer = contentEl.createDiv({ cls: 'portals-checkbox-container' });

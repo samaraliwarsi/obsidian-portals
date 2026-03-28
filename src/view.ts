@@ -3,7 +3,8 @@ import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './settings';
 import { MarkdownRenderer } from 'obsidian';
-import { GroupTagsModal } from './settings'
+import { GroupTagsModal } from './settings';
+import { JournalRenderer } from 'journalView';
 
 
 interface BookmarkItem {
@@ -44,6 +45,21 @@ export class PortalsView extends ItemView {
     private readonly MAX_FOLDER_NOTE_CACHE = 10;
     private folderNoteScrollPositions = new Map<string, number>();
     private fileElementMap = new Map<string, HTMLElement>();
+    public refreshJournalTab() {
+        const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
+        if (!secondaryPanel) return;
+        if (this.plugin.settings.activeSplitTab === 'journal') {
+            this.renderSplitTabContent(secondaryPanel as HTMLElement, 'journal');
+        }
+    }
+
+    private isFileInJournalFolder(file: TFile): boolean {
+        const folderPath = this.plugin.settings.journalFolderPath;
+        if (!folderPath) return false;
+        return file.path.startsWith(folderPath);
+    }
+
+
     private getCurrentFolderNote(): TFile | null {
         const selectedSpace = this.plugin.settings.selectedSpace;
         if (!selectedSpace || selectedSpace.type !== 'folder') return null;
@@ -306,6 +322,15 @@ export class PortalsView extends ItemView {
             }
         });
         this.folderNoteEventRefs = [folderNoteRenameRef, folderNoteDeleteRef, folderNoteCreateRef, folderNoteModifyRef];
+
+        this.registerEvent(this.app.vault.on('modify', (file) => {
+            if (file instanceof TFile && this.plugin.settings.activeSplitTab === 'journal') {
+                // Check if the file is inside journal folder
+                if (this.isFileInJournalFolder(file)) {
+                    this.refreshJournalTab();
+                }
+            }
+        }));
 
         // Global drag listeners
         document.addEventListener('mousemove', this.handleDragMove);
@@ -1201,6 +1226,9 @@ export class PortalsView extends ItemView {
             this.renderFolderNotesTab(contentEl);
         } else if (tabId === 'bookmarks') {
             this.renderBookmarksTab(contentEl);
+        } else if (tabId === 'journal') {
+            const journalRenderer = new JournalRenderer(this.app, this.plugin, contentEl);
+            journalRenderer.render().catch(e => console.error('Journal render error', e));
         }
     }
 
