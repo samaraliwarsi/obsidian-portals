@@ -178,13 +178,16 @@ export class JournalRenderer {
         const minDate = dates.length ? new Date(Math.min(...dates.map(d => d.getTime()))) : now;
         const maxDate = dates.length ? new Date(Math.max(...dates.map(d => d.getTime()))) : now;
 
+        filteredNotes = filteredNotes.reverse();
+
         filteredNotes.forEach(n => {
             const date = this.parseDateFromFile(n);
             const opacity = this.getOpacity(date, minDate, maxDate);
             const card = cardsWrapper.createDiv({ cls: 'journal-card' });
-            card.style.opacity = opacity.toString();
-            card.style.backgroundColor = `rgba(128, 128, 128, ${opacity})`;
-            card.innerText = date.toLocaleDateString();
+            const titleSpan = card.createSpan({ cls: 'journal-card-title', text: date.toLocaleDateString() });
+            card.style.background = `rgba(100, 100, 100, ${opacity * 0.4})`;
+            card.style.borderBottom = `2px solid rgba(128, 128, 128, ${opacity * 0.25})`;
+            
             card.addEventListener('click', () => {
                 this.app.workspace.getLeaf().openFile(n);
             });
@@ -195,10 +198,11 @@ export class JournalRenderer {
         const range = maxDate.getTime() - minDate.getTime();
         if (range === 0) return 1;
         const position = (date.getTime() - minDate.getTime()) / range;
-        return 0.2 + position * 0.8;
+        return 0.25 + position * 0.25;
     }
 
     private async renderQuotesSection() {
+        this.progressBar = null;
         const quotesContainer = this.container.createDiv({ cls: 'journal-quotes-container' });
 
         // Buttons row
@@ -273,17 +277,18 @@ export class JournalRenderer {
             showQuote(quote);
             // Reset progress bar animation
             if (this.progressBar) {
-                this.progressBar.style.transition = 'none';
-                this.progressBar.style.width = '0%';
+                const bar = this.progressBar;
+                bar.classList.remove('animating');
+                bar.style.width = '0%';
                 // Force reflow
-                void this.progressBar.offsetHeight;
-                this.progressBar.style.transition = 'width 30s linear';
-                this.progressBar.style.width = '100%';
+                void bar.offsetHeight;
+                bar.classList.add('animating');
             }
         };
 
         // Start rotation timer (30s)
         const startRotation = async () => {
+            console.log('[Journal] Starting rotation');
             await updateQuoteAndProgress();
             if (this.quoteTimer) clearInterval(this.quoteTimer);
             this.quoteTimer = window.setInterval(() => {
@@ -312,7 +317,11 @@ export class JournalRenderer {
         onThisDayBtn.addEventListener('click', () => setMode('onThisDay'));
 
         // Start with random mode
-        await startRotation();
+        setTimeout(() => {
+            if (this.container.isConnected) {
+                startRotation();
+            }
+        }, 0);
     }
 
     private async extractQuotesFromFile(file: TFile): Promise<{ text: string; date: Date; file: TFile }[]> {

@@ -5924,38 +5924,41 @@ body.portals-dragging {
 
 .journal-card {
     flex: 0 0 auto;
-    width: 60px;
-    height: 50px;
+    width: 80px;
+    height: 35px;
     display: inline-flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     border-radius: 6px;
     cursor: pointer;
     margin: 0 2px;
-    font-size: 0.7em;
+    font-size: 0.8em;
     text-align: center;
     transition: transform 0.1s;
 }
+
 .journal-card:hover {
     transform: scale(1.05);
+    background-color: var(--background-modifier-hover);
+}
+
+.journal-card-title {
+    font-size: 0.8em;
+    font-weight: bold;
+    text-align: center;
+    text-justify: center;
 }
 
 .journal-cards-wrapper {
     display: flex;
     overflow-x: auto;
     gap: 6px;
-    padding: 4px 0;
+    padding-top: 8px;
+    padding-bottom: 12px;
+    overflow-x: auto;
     scrollbar-width: thin;
 }
 
-.journal-quote-display {
-    padding: 12px;
-    border-radius: 8px;
-    background-color: transparent;
-    margin-top: 8px;
-    cursor: pointer;
-}
 
 .journal-quote-text {
     margin: 0 0 8px 0;
@@ -5975,22 +5978,40 @@ body.portals-dragging {
     width: 100%;
     height: 2px;
     background-color: var(--background-modifier-border);
-    margin: 8px 0;
+    margin: 10px 0;
     overflow: hidden;
 }
 
 .journal-progress-bar {
     height: 100%;
-    background-color: var(--interactive-accent);
+    background-color: color-mix(in srgb, var(--text-normal) 30%, transparent);
     width: 0%;
     transition: width 30s linear;
 }
 
+@keyframes fillProgress {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+.journal-progress-bar.animating {
+    animation: fillProgress 30s linear forwards;
+}
+
 .journal-quote-display {
-    background-color: transparent;
-    padding: 8px;
-    border-radius: 8px;
-    border-left: 3px solid var(--interactive-accent);
+    position: relative;
+    padding: 16px 6px 16px 24px;
+    margin-top: 12px;
+    border-radius: 12px;
+}
+.journal-quote-display::before {
+    content: "“";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 2.5em;
+    font-family: serif;
+    color: var(--text-faint);
 }
 
 .journal-quote-buttons {
@@ -6002,30 +6023,35 @@ body.portals-dragging {
     flex-wrap: wrap;
 }
 
-.journal-btn {
+button.journal-btn:not(.clickable-icon) {
     all: unset;
     display: flex;
     align-items: center;
     gap: 4px;
     font-size: 0.9em;
     padding: 4px 6px;
-    background: var(--background-secondary);
+    background: transparent;
     border: none;
-    border-radius: 10px;
+    border-radius: 4px;
     cursor: pointer;
     line-height: 1;
 }
 
-.journal-btn.active {
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
+button.journal-btn.active:not(.clickable-icon) {
+    border-left: 2px solid var(--interactive-accent);
 }
 
-.journal-btn.journal-filter-btn {
+button.journal-btn:not(.clickable-icon):hover {
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--text-normal);
+}
+
+button.journal-btn.journal-filter-btn:not(.clickable-icon) {
   margin-bottom: 4px;
+  border-left: 2px solid var(--interactive-accent);
 }
 
-.journal-filter-btn i {
+button.journal-filter-btn i {
     font-size: 0.85em;
 }
 
