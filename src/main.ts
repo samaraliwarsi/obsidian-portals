@@ -96,7 +96,7 @@ export default class PortalsPlugin extends Plugin {
             if (leaf.view instanceof PortalsView) {
                 leaf.view.render();
                 if (leaf.view.plugin.settings.activeSplitTab === 'journal') {
-                    leaf.view.refreshJournalTab();
+                    void leaf.view.refreshJournalTab();
                 }
             }
         });

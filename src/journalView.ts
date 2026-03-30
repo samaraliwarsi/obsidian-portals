@@ -8,11 +8,34 @@ export class JournalRenderer {
     private journalFolder: TFolder | null = null;
     private notes: TFile[] = [];
     private quotesCache = new Map<string, { text: string; date: Date; file: TFile }[]>(); // cache quotes per file
-    private quoteTimer: number | null = null;
     private currentQuoteFile: TFile | null = null;
     private currentMode: 'random' | 'onThisDay' = 'random';
     private progressBar: HTMLElement | null = null;
     private progressInterval: number | null = null;
+    private _updateQuoteAndProgress: (() => Promise<void>) | null = null;
+    private startProgressTimer = () => {
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+            this.progressInterval = null;
+        }
+        const startTime = Date.now();
+        const updateProgress = () => {
+            const elapsed = Date.now() - startTime;
+            const percent = Math.min(100, (elapsed / 30000) * 100);
+            if (this.progressBar) {
+                this.progressBar.style.width = `${percent}%`;
+            }
+            if (elapsed >= 30000) {
+                clearInterval(this.progressInterval!);
+                this.progressInterval = null;
+                if (this._updateQuoteAndProgress) {
+                    this._updateQuoteAndProgress().catch(console.error);
+                }
+            }
+        };
+        this.progressInterval = window.setInterval(updateProgress, 100);
+        updateProgress();
+    }
 
 
     constructor(app: App, plugin: PortalsPlugin, container: HTMLElement) {
@@ -58,11 +81,6 @@ export class JournalRenderer {
             return;
         }
 
-        if (this.quoteTimer) {
-            clearInterval(this.quoteTimer);
-            this.quoteTimer = null;
-        }
-
         // Sort notes by date
         this.sortNotesByDate();
 
@@ -72,14 +90,14 @@ export class JournalRenderer {
     }
 
     private stopRotation() {
-        if (this.quoteTimer) {
-            clearInterval(this.quoteTimer);
-            this.quoteTimer = null;
-        }
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
             this.progressInterval = null;
         }
+    }
+
+    public destroy() {
+        this.stopRotation();
     }
 
     private async getQuotesFromNotes(notes: TFile[]): Promise<{ text: string; date: Date; file: TFile }[]> {
@@ -275,25 +293,13 @@ export class JournalRenderer {
                 return;
             }
             showQuote(quote);
-            // Reset progress bar animation
-            if (this.progressBar) {
-                const bar = this.progressBar;
-                bar.classList.remove('animating');
-                bar.style.width = '0%';
-                // Force reflow
-                void bar.offsetHeight;
-                bar.classList.add('animating');
-            }
+            this.startProgressTimer();
         };
+        this._updateQuoteAndProgress = updateQuoteAndProgress;
 
         // Start rotation timer (30s)
         const startRotation = async () => {
-            console.log('[Journal] Starting rotation');
             await updateQuoteAndProgress();
-            if (this.quoteTimer) clearInterval(this.quoteTimer);
-            this.quoteTimer = window.setInterval(() => {
-                updateQuoteAndProgress();
-            }, 30000);
         };
 
         // Switch mode, reset timer
@@ -302,10 +308,6 @@ export class JournalRenderer {
             this.currentMode = mode;
             randomBtn.classList.toggle('active', mode === 'random');
             onThisDayBtn.classList.toggle('active', mode === 'onThisDay');
-            if (this.quoteTimer) {
-                clearInterval(this.quoteTimer);
-                this.quoteTimer = null;
-            }
             await startRotation();
         };
 

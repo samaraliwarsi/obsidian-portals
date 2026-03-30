@@ -5986,16 +5986,6 @@ body.portals-dragging {
     height: 100%;
     background-color: color-mix(in srgb, var(--text-normal) 30%, transparent);
     width: 0%;
-    transition: width 30s linear;
-}
-
-@keyframes fillProgress {
-    from { width: 0%; }
-    to { width: 100%; }
-}
-
-.journal-progress-bar.animating {
-    animation: fillProgress 30s linear forwards;
 }
 
 .journal-quote-display {

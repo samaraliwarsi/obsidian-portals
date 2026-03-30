@@ -45,11 +45,25 @@ export class PortalsView extends ItemView {
     private readonly MAX_FOLDER_NOTE_CACHE = 10;
     private folderNoteScrollPositions = new Map<string, number>();
     private fileElementMap = new Map<string, HTMLElement>();
-    public refreshJournalTab() {
+    private journalRenderer: JournalRenderer | null = null;
+    private journalFolderPath: string = '';
+    private journalContainer: HTMLElement | null = null;
+    public async refreshJournalTab() {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
         if (this.plugin.settings.activeSplitTab === 'journal') {
-            this.renderSplitTabContent(secondaryPanel as HTMLElement, 'journal');
+            const currentFolderPath = this.plugin.settings.journalFolderPath;
+            // Only invalidate if folder path has changed
+            if (this.journalFolderPath !== currentFolderPath) {
+                if (this.journalRenderer) {
+                    this.journalRenderer.destroy();
+                    this.journalRenderer = null;
+                }
+                this.journalRenderer = null;
+                this.journalContainer = null;
+                this.journalFolderPath = currentFolderPath;
+                await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'journal');
+            }
         }
     }
 
@@ -396,6 +410,14 @@ export class PortalsView extends ItemView {
         document.removeEventListener('touchmove', this.handleDragMove);
         document.removeEventListener('mouseup', this.handleDragEnd);
         document.removeEventListener('touchend', this.handleDragEnd);
+
+        if (this.journalRenderer) {
+            this.journalRenderer.destroy();
+            this.journalRenderer = null;
+        }
+        this.journalContainer = null;
+        this.journalRenderer = null;
+        this.journalContainer = null;
 
         await Promise.resolve();
     }
@@ -948,7 +970,7 @@ export class PortalsView extends ItemView {
 
 
             // Initial content
-            this.renderSplitTabContent(secondaryPanel, activeTab);
+            void this.renderSplitTabContent(secondaryPanel, activeTab);
 
             // Now put the main panel content (folder tree / tag space) inside treeContainer
             const selectedSpace = spaces.find(s => 
@@ -1167,7 +1189,7 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private renderSplitTabContent(secondaryPanel: HTMLElement, tabId: string) {
+    private async renderSplitTabContent(secondaryPanel: HTMLElement, tabId: string) {
         const contentEl = secondaryPanel.querySelector('.portals-split-content') as HTMLElement;
         if (!contentEl) return;
         contentEl.empty();
@@ -1227,8 +1249,21 @@ export class PortalsView extends ItemView {
         } else if (tabId === 'bookmarks') {
             this.renderBookmarksTab(contentEl);
         } else if (tabId === 'journal') {
-            const journalRenderer = new JournalRenderer(this.app, this.plugin, contentEl);
-            journalRenderer.render().catch(e => console.error('Journal render error', e));
+            const currentFolderPath = this.plugin.settings.journalFolderPath;
+            if (this.journalRenderer && this.journalFolderPath === currentFolderPath && this.journalContainer) {
+                //reuse existing container
+                contentEl.appendChild(this.journalContainer);
+            } else {
+                if (this.journalRenderer) {
+                    this.journalRenderer.destroy();
+                    this.journalRenderer = null;
+                }
+                // create new renderer
+                this.journalContainer = contentEl.createDiv();
+                this.journalRenderer = new JournalRenderer(this.app, this.plugin, this.journalContainer);
+                this.journalFolderPath = currentFolderPath;
+                await this.journalRenderer.render();
+            }
         }
     }
 
