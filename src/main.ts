@@ -49,6 +49,14 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
             if (file instanceof TFile) {
                 void this.updateRecentFilesOnRename(oldPath, file.path);
+                if (this.settings.journalFolderPath && file.path.startsWith(this.settings.journalFolderPath)) {
+                    const marks = this.settings.markedJournalNotes;
+                    const index = marks.indexOf(oldPath);
+                    if (index !== -1) {
+                        marks[index] = file.path;
+                        void this.saveSettings();
+                    }
+                }
             }
         }));
 
@@ -56,6 +64,12 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.vault.on('delete', (file) => {
             if (file instanceof TFile) {
                 void this.removeRecentFile(file.path);
+                const marks = this.settings.markedJournalNotes;
+                const index = marks.indexOf(file.path);
+                if (index !== -1) {
+                    marks.splice(index, 1);
+                    void this.saveSettings();
+                }
             }
         }));
     }

@@ -39,6 +39,7 @@ export interface SpacesSettings {
     boldFolderNames: boolean;
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades';
     journalFolderPath: string;
+    markedJournalNotes: string[];
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -70,6 +71,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     boldFolderNames: false,
     treeStyle: 'default',
     journalFolderPath: '',
+    markedJournalNotes: [],
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

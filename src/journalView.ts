@@ -13,6 +13,8 @@ export class JournalRenderer {
     private progressBar: HTMLElement | null = null;
     private progressInterval: number | null = null;
     private _updateQuoteAndProgress: (() => Promise<void>) | null = null;
+    private currentPeriod:  string = 'All files';
+    private isTogglingMark: boolean = false;
     private startProgressTimer = () => {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -35,6 +37,24 @@ export class JournalRenderer {
         };
         this.progressInterval = window.setInterval(updateProgress, 100);
         updateProgress();
+    }
+
+    private async toggleMark(file: TFile) {
+        if (this.isTogglingMark) return;
+        this.isTogglingMark = true;
+        try {
+            const marks = this.plugin.settings.markedJournalNotes;
+            const index = marks.indexOf(file.path);
+            if (index === -1) {
+                marks.push(file.path);
+            } else {
+                marks.splice(index, 1);
+            }
+            await this.plugin.saveSettings();
+            this.updateCards(this.currentPeriod);
+        } finally {
+            this.isTogglingMark = false;
+        }
     }
 
 
@@ -163,6 +183,7 @@ export class JournalRenderer {
             const period = periods[currentPeriodIndex];
             if (period) {
                 periodSpan.textContent = period;
+                this.currentPeriod = period;
                 this.updateCards(period);
             }
         });
@@ -202,12 +223,22 @@ export class JournalRenderer {
             const date = this.parseDateFromFile(n);
             const opacity = this.getOpacity(date, minDate, maxDate);
             const card = cardsWrapper.createDiv({ cls: 'journal-card' });
+            card.dataset.path = n.path
+            if (this.plugin.settings.markedJournalNotes.includes(n.path)) {
+                card.addClass('journal-card-marked');
+            }
             const titleSpan = card.createSpan({ cls: 'journal-card-title', text: date.toLocaleDateString() });
             card.style.background = `rgba(100, 100, 100, ${opacity * 0.4})`;
-            card.style.borderBottom = `2px solid rgba(128, 128, 128, ${opacity * 0.25})`;
+            // set css for border opacity only used when not marked 
+            card.style.setProperty('--journal-border-opacity', String(opacity * 0.25));
             
             card.addEventListener('click', () => {
                 this.app.workspace.getLeaf().openFile(n);
+            });
+            card.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                this.toggleMark(n);
             });
         });
     }
@@ -216,7 +247,7 @@ export class JournalRenderer {
         const range = maxDate.getTime() - minDate.getTime();
         if (range === 0) return 1;
         const position = (date.getTime() - minDate.getTime()) / range;
-        return 0.25 + position * 0.25;
+        return 0.25 + position * 0.4;
     }
 
     private async renderQuotesSection() {
