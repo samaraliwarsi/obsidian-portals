@@ -5178,7 +5178,7 @@ vertical-align: middle;
 position: fixed;
 background: var(--background-secondary);
 color: var(--text-normal);
-font-size: 12px;
+font-size: 10px;
 padding: 4px 8px;
 border-radius: 4px;
 white-space: nowrap;
@@ -6054,6 +6054,12 @@ button.journal-filter-btn i {
     font-size: 0.8em;
 }
 
+.journal-hint {
+    font-size: 0.7em;
+    color: var(--text-muted);
+    margin-left: 8px;
+    white-space: nowrap;
+}
 
 /*=============================JOURNAL-END============================*/
 

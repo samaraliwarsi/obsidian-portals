@@ -15,6 +15,8 @@ export class JournalRenderer {
     private _updateQuoteAndProgress: (() => Promise<void>) | null = null;
     private currentPeriod:  string = 'All files';
     private isTogglingMark: boolean = false;
+    private tooltipEl: HTMLElement | null = null;
+    private tooltipShown = false;
     private startProgressTimer = () => {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -118,6 +120,11 @@ export class JournalRenderer {
 
     public destroy() {
         this.stopRotation();
+        if (this.tooltipEl) {
+            this.tooltipEl.remove();
+            this.tooltipEl = null;
+        }
+        this.tooltipShown = false;
     }
 
     private async getQuotesFromNotes(notes: TFile[]): Promise<{ text: string; date: Date; file: TFile }[]> {
@@ -174,6 +181,7 @@ export class JournalRenderer {
         const filterButton = cardsContainer.createEl('button', { cls: 'journal-btn journal-filter-btn' });
         const filterIcon = filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
         const periodSpan = filterButton.createEl('span', { text: 'All files', cls: 'journal-btn-text' });
+
 
         const periods = ['This month', 'This year', 'All files'] as const;
         let currentPeriodIndex = 2; // start with "All files"
@@ -232,9 +240,34 @@ export class JournalRenderer {
             // set css for border opacity only used when not marked 
             card.style.setProperty('--journal-border-opacity', String(opacity * 0.25));
             
+            let hoverTimeout: number | null = null;
+            card.addEventListener('mouseenter', () => {
+                if (!this.tooltipEl) return;
+                if (this.tooltipShown) return;
+                hoverTimeout = window.setTimeout(() => {
+                    this.tooltipEl!.setText('Toggle mark (right-click)');
+                    const rect = card.getBoundingClientRect();
+                    this.tooltipEl!.style.top = `${rect.bottom + 6}px`;
+                    this.tooltipEl!.style.left = `${rect.left + rect.width / 2}px`;
+                    this.tooltipEl!.classList.add('is-visible');
+                    this.tooltipShown = true;
+                    hoverTimeout = null;     
+                }, 300);  
+            });
+            card.addEventListener('mouseleave', () => {
+                if (hoverTimeout) {
+                    clearTimeout(hoverTimeout);
+                    hoverTimeout = null;
+                }
+                if (this.tooltipEl) {
+                    this.tooltipEl.classList.remove('is-visible');
+                }
+            });
+
             card.addEventListener('click', () => {
                 this.app.workspace.getLeaf().openFile(n);
             });
+
             card.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -266,6 +299,10 @@ export class JournalRenderer {
         // Progress bar
         const progressContainer = quotesContainer.createDiv({ cls: 'journal-progress-container' });
         this.progressBar = progressContainer.createDiv({ cls: 'journal-progress-bar' });
+
+        if (!this.tooltipEl) {
+            this.tooltipEl = document.body.createDiv({ cls: 'portals-floating-tooltip' });
+        }
         
         // Quote display
         const quoteDisplay = quotesContainer.createDiv({ cls: 'journal-quote-display' });

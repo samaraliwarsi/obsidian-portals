@@ -20,7 +20,8 @@ const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
     recent: 'clock-counter-clockwise',
     'folder-notes': 'note',
-    bookmarks: 'bookmark'
+    bookmarks: 'bookmark',
+    journal: 'calendar-heart',
 };
 
 export const VIEW_TYPE_PORTALS = 'portals-view';
@@ -839,30 +840,36 @@ export class PortalsView extends ItemView {
                 const span = tabBtn.createEl('span', { cls: 'tab-label' });
                 span.textContent = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-', ' ');
 
-                // Add tab inactice & setting off, hide label
-                if (tabId !== activeTab && !this.plugin.settings.showInactiveTabNames) {
-                    span.addClass('hide');
-                }
-
-                // Set initial active state
-                if (tabId === activeTab) {
+                // handle active state and label visibility
+                const isActive = (tabId === activeTab);
+                if (isActive) {
                     tabBtn.addClass('is-active');
                     if (rootColor) {
                         tabBtn.style.setProperty('--split-tab-active-color', rootColor);
                     }
                     span.removeClass('hide');
                 } else {
-                    // Hover tool tips for inactive (non-mobile)
-                    if (!Platform.isMobile && tabId !== activeTab && !this.plugin.settings.showInactiveTabNames) {
-                        const displayName = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-',' ');
-                        tabBtn.addEventListener('mouseenter', () => {
-                            this.showTooltip(displayName, tabBtn);
-                        });
-                        tabBtn.addEventListener('mouseleave', () => {
-                            this.hideTooltip(100);
-                        });
+                    // inactive: hide label if settings says so
+                    if (!this.plugin.settings.showInactiveTabNames) {
+                        span.addClass('hide');
+                    } else {
+                        span.removeClass('hide');
                     }
                 }
+                
+                // tooltip listeners
+                if (!Platform.isMobile && !this.plugin.settings.showInactiveTabNames) {
+                    const displayName = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-',' ');
+                    tabBtn.addEventListener('mouseenter', () => {
+                        if (!tabBtn.hasClass('is-active')) {
+                            this.showTooltip(displayName, tabBtn);
+                        }
+                    });
+                    tabBtn.addEventListener('mouseleave', () => {
+                        this.hideTooltip(100);
+                    });
+                }
+            
                 // Click handler
                 tabBtn.addEventListener('click', () => {
                     this.expandPanel();
