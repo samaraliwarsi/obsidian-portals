@@ -40,6 +40,7 @@ export interface SpacesSettings {
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades';
     journalFolderPath: string;
     markedJournalNotes: string[];
+    quoteDelimiter: string;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -72,6 +73,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     treeStyle: 'default',
     journalFolderPath: '',
     markedJournalNotes: [],
+    quoteDelimiter: '==',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -275,6 +277,25 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.plugin.settings.journalFolderPath = value;
                     await this.plugin.saveSettings();
                 }));
+
+        new Setting(containerEl)
+            .setName('Quote delimiter')
+            .setDesc('Symbols used to mark quotes in your notes.')
+            .addDropdown(dropdown => {
+                dropdown
+                    .addOption('==', '== (double equals)')
+                    .addOption('**', '** (double asterisk)')
+                    .addOption('++', '++ (double plus)')
+                    .addOption('||', '|| (double pipe)')
+                setTimeout(() => {
+                    dropdown.setValue(this.plugin.settings.quoteDelimiter);
+                }, 0);
+                dropdown.onChange(async (value) => {
+                    this.plugin.settings.quoteDelimiter = value;
+                    await this.plugin.saveSettings();
+                });
+                return dropdown;
+            });
                     
                    
         // ---- PIN VAULT ROOT ----

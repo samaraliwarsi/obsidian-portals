@@ -6054,13 +6054,6 @@ button.journal-filter-btn i {
     font-size: 0.8em;
 }
 
-.journal-hint {
-    font-size: 0.7em;
-    color: var(--text-muted);
-    margin-left: 8px;
-    white-space: nowrap;
-}
-
 /*=============================JOURNAL-END============================*/
 
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */

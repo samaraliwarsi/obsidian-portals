@@ -400,14 +400,16 @@ export class JournalRenderer {
         }
 
         const content = await this.app.vault.read(file);
+        const delimiter = this.plugin.settings.quoteDelimiter;
+        const escapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`${escapedDelimiter}(.*?)${escapedDelimiter}`, 'g');
         const lines = content.split('\n');
         const quotes: { text: string; date: Date; file: TFile }[] = [];
         const date = this.parseDateFromFile(file);
-        const highlightRegex = /==(.*?)==/g;
 
         for (const line of lines) {
             let match;
-            while ((match = highlightRegex.exec(line)) !== null) {
+            while ((match = regex.exec(line)) !== null) {
                 if (match[1]) {
                     const quoteText = match[1].trim();
                     quotes.push({ text: quoteText, date, file });
