@@ -6033,7 +6033,7 @@ button.journal-btn:not(.clickable-icon) {
 }
 
 button.journal-btn.active:not(.clickable-icon) {
-    border-left: 2px solid var(--interactive-accent);
+    border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
 
 button.journal-btn:not(.clickable-icon):hover {
@@ -6043,7 +6043,7 @@ button.journal-btn:not(.clickable-icon):hover {
 
 button.journal-btn.journal-filter-btn:not(.clickable-icon) {
   margin-bottom: 4px;
-  border-left: 2px solid var(--interactive-accent);
+  border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
 
 button.journal-filter-btn i {
@@ -6052,6 +6052,10 @@ button.journal-filter-btn i {
 
 .journal-btn-text {
     font-size: 0.8em;
+}
+
+.journal-card-marked {
+  border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent)) !important;
 }
 
 /*=============================JOURNAL-END============================*/

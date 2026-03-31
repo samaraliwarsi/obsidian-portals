@@ -98,6 +98,15 @@ export class JournalRenderer {
             }
         }
 
+        const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+        const tabColorEnabled = this.plugin.settings.tabColorEnabled;
+        const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
+        if (rootColor) {
+            this.container.style.setProperty('--journal-accent-color', rootColor);
+        } else {
+            this.container.style.removeProperty('--journal-accent-color');
+        }
+
         if (this.notes.length === 0) {
             this.container.createEl('p', { text: 'No journal notes found.' });
             return;

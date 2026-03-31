@@ -49,21 +49,37 @@ export class PortalsView extends ItemView {
     private journalRenderer: JournalRenderer | null = null;
     private journalFolderPath: string = '';
     private journalContainer: HTMLElement | null = null;
+    private lastJournalAccentColor: string | null = null;
     public async refreshJournalTab() {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
         if (this.plugin.settings.activeSplitTab === 'journal') {
             const currentFolderPath = this.plugin.settings.journalFolderPath;
-            // Only invalidate if folder path has changed
-            if (this.journalFolderPath !== currentFolderPath) {
-                if (this.journalRenderer) {
-                    this.journalRenderer.destroy();
-                    this.journalRenderer = null;
-                }
-                this.journalRenderer = null;
-                this.journalContainer = null;
+            // compute current accent color from root vault
+            const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+            const tabColorEnabled = this.plugin.settings.tabColorEnabled;
+            const currentColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
+            // Determine if we need to refresh
+            const folderChanged = (this.journalFolderPath !== currentFolderPath);
+            const colorChanged = (currentColor !== this.lastJournalAccentColor);
+
+            if (folderChanged || colorChanged) {
+                // Update cache
                 this.journalFolderPath = currentFolderPath;
-                await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'journal');
+                this.lastJournalAccentColor = currentColor;
+                // Only invalidate if folder path has changed
+                if (this.journalFolderPath !== currentFolderPath) {
+                    if (this.journalRenderer) {
+                        this.journalRenderer.destroy();
+                        this.journalRenderer = null;
+                    }
+                    this.journalRenderer = null;
+                    this.journalContainer = null;
+                    this.journalFolderPath = currentFolderPath;
+                    await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'journal');
+                } else if (this.journalRenderer) {
+                    void this.journalRenderer.render();
+                }
             }
         }
     }
@@ -419,6 +435,7 @@ export class PortalsView extends ItemView {
         this.journalContainer = null;
         this.journalRenderer = null;
         this.journalContainer = null;
+        this.lastJournalAccentColor = null;
 
         await Promise.resolve();
     }
