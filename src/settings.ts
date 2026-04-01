@@ -41,6 +41,7 @@ export interface SpacesSettings {
     journalFolderPath: string;
     markedJournalNotes: string[];
     quoteDelimiter: string;
+    customIcons: Record<string, string>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -74,6 +75,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     journalFolderPath: '',
     markedJournalNotes: [],
     quoteDelimiter: '==',
+    customIcons: {},
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

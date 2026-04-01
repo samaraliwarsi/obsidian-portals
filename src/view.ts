@@ -5,6 +5,8 @@ import { SpaceConfig } from './settings';
 import { MarkdownRenderer } from 'obsidian';
 import { GroupTagsModal } from './settings';
 import { JournalRenderer } from 'journalView';
+import { IconPickerModal } from 'iconPicker';
+import path from 'path';
 
 
 interface BookmarkItem {
@@ -50,6 +52,7 @@ export class PortalsView extends ItemView {
     private journalFolderPath: string = '';
     private journalContainer: HTMLElement | null = null;
     private lastJournalAccentColor: string | null = null;
+    private scrollToRestore: number | null = null;
     public async refreshJournalTab() {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
@@ -82,6 +85,37 @@ export class PortalsView extends ItemView {
                 }
             }
         }
+    }
+
+    private getCustomIcon(path: string): string | null {
+        return this.plugin.settings.customIcons[path] || null;
+    }
+
+    private async setCustomIcon(path: string, displayName: string) {
+        new IconPickerModal(this.app, (iconName) => {
+            this.plugin.settings.customIcons[path] = iconName;
+            this.plugin.saveSettings().then(() => {
+                // capture scroll position
+                const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+                if (treeContainer) {
+                    this.scrollToRestore = treeContainer.scrollTop;
+                }
+                this.renderContent();
+                new Notice(`Icon set for ${displayName}`);
+            });
+        }).open();
+    }
+
+    private async removeCustomIcon(path: string) {
+        delete this.plugin.settings.customIcons[path];
+        await this.plugin.saveSettings();
+        // capture scroll position
+        const treeContainer = this.containerEl.querySelector('.portal-tree-container');
+        if (treeContainer) {
+            this.scrollToRestore = treeContainer.scrollTop;
+        }
+        this.renderContent();
+        new Notice('Custom icon removed');
     }
 
     private isFileInJournalFolder(file: TFile): boolean {
@@ -170,21 +204,28 @@ export class PortalsView extends ItemView {
     }
 
     private handleRename(file: TAbstractFile, oldPath: string) {
+        // update the custom icon mapping first 
+        if (this.plugin.settings.customIcons[oldPath]) {
+            const icon = this.plugin.settings.customIcons[oldPath]!;
+            this.plugin.settings.customIcons[file.path] = icon;
+            delete this.plugin.settings.customIcons[oldPath];
+            void this.plugin.saveSettings();
+        }
         // Handle folder rename
         if (file instanceof TFolder) {
-            // Update openFolders: replace old path with new path
             const openFolders = this.plugin.settings.openFolders;
             const index = openFolders.indexOf(oldPath);
             if (index !== -1) {
                 openFolders[index] = file.path;
                 void this.plugin.saveSettings();
             }
-            // Update selectedSpace if it was this folder
             if (this.plugin.settings.selectedSpace?.type === 'folder' && 
                 this.plugin.settings.selectedSpace.path === oldPath) {
                 this.plugin.settings.selectedSpace.path = file.path;
                 void this.plugin.saveSettings();
             }
+            const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+            if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
             // Force a full render to update the UI with the new name
             this.scheduleRender();
             return;
@@ -192,21 +233,30 @@ export class PortalsView extends ItemView {
 
         // Handle file rename (existing logic)
         if (!(file instanceof TFile)) {
+            if (this.plugin.settings.customIcons[oldPath]) {
+                const icon = this.plugin.settings.customIcons[oldPath]!;
+                this.plugin.settings.customIcons[file.path] = icon;
+                delete this.plugin.settings.customIcons[oldPath];
+                void this.plugin.saveSettings();
+            }
             this.scheduleRender();
             return;
         }
-
-        // If the file moved to a different folder, fall back to full render
+        //not a file? fallback to full render
+        if (!(file instanceof TFile)) {
+            this.scheduleRender();
+            return;
+        }
+        // file rename: check if it moved to a different folder
         const oldDir = oldPath.substring(0, oldPath.lastIndexOf('/'));
         const newDir = file.parent?.path || '';
         if (oldDir !== newDir) {
             this.scheduleRender();
             return;
         }
-
+        // same folder rename - try in place update to preserve scroll
         const element = this.fileElementMap.get(oldPath);
         if (!element) {
-            // Element not in current space; fall back to full render
             this.scheduleRender();
             return;
         }
@@ -436,6 +486,7 @@ export class PortalsView extends ItemView {
         this.journalRenderer = null;
         this.journalContainer = null;
         this.lastJournalAccentColor = null;
+        this.scrollToRestore = null;
 
         await Promise.resolve();
     }
@@ -1033,6 +1084,16 @@ export class PortalsView extends ItemView {
                     this.buildTagSpace(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, 0, 0, groupCount);
                 }
             }
+            // restore scroll position if we stored one after icon change
+            if (this.scrollToRestore !== null) {
+                requestAnimationFrame(() => {
+                    const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+                    if (treeContainer && typeof this.scrollToRestore === 'number') {
+                        treeContainer.scrollTop = this.scrollToRestore;
+                        this.scrollToRestore = null;
+                    }
+                });
+            }
 
             // Floating buttons (attached to mainPanel)
             const createFloatingButton = (
@@ -1228,8 +1289,10 @@ export class PortalsView extends ItemView {
             const openFiles = this.getOpenFilePaths();
             for (const file of existingRecentFiles) {
                 const fileEl = contentEl.createDiv({ cls: 'file-item recent-file-item' });
+                const customIcon = this.getCustomIcon(file.path);
+                const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
                 const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-                iconSpan.createEl('i', { cls: 'ph ph-file' });
+                iconSpan.createEl('i', { cls: fileIconClass });
                 const nameSpan = fileEl.createSpan({ text: this.getDisplayName(file) });
                 nameSpan.addClass('portals-item-name');
                 fileEl.dataset.path = file.path;
@@ -1777,8 +1840,10 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
         // Local function to create a file item (copied from your existing loop)
         const createFileItem = (file: TFile, parent: HTMLElement) => {
             const fileEl = parent.createDiv({ cls: 'file-item' });
+            const customIcon = this.getCustomIcon(file.path);
+            const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-            iconSpan.createEl('i', { cls: 'ph ph-file' });
+            iconSpan.createEl('i', { cls: fileIconClass });
             const nameSpan = fileEl.createSpan({ text: this.getDisplayName(file) });
             nameSpan.addClass('portals-item-name');
             fileEl.dataset.path = file.path;
@@ -1954,6 +2019,20 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
             .setTitle('Rename')
             .setIcon('pencil')
             .onClick(() => this.startRenameFile(file, fileEl)));
+        
+        menu.addSeparator();
+
+        menu.addItem(item => item
+            .setTitle('Set custom icon')
+            .setIcon('image')
+            .onClick(() => this.setCustomIcon(file.path, file.name)));
+
+        if (this.getCustomIcon(file.path)) {
+            menu.addItem(item => item
+                .setTitle('Remove custom icon')
+                .setIcon('trash')
+                .onClick(() => this.removeCustomIcon(file.path)));
+        }
 
         menu.addSeparator();
 
@@ -2012,6 +2091,20 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
             .setTitle('Rename')
             .setIcon('pencil')
             .onClick(() => this.startRenameFolder(folder, summaryEl)));
+
+        menu.addSeparator();
+
+        menu.addItem(item => item
+            .setTitle('Set custom icon')
+            .setIcon('image')
+            .onClick(() => this.setCustomIcon(folder.path, folder.name)));
+
+        if (this.getCustomIcon(folder.path)) {
+            menu.addItem(item => item
+                .setTitle('Remove custom icon')
+                .setIcon('trash')
+                .onClick(() => this.removeCustomIcon(folder.path)));
+        }
 
         menu.addSeparator();
 
@@ -2195,6 +2288,8 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
     private async deleteFile(file: TFile) {
         try {
             await this.app.fileManager.trashFile(file);
+            delete this.plugin.settings.customIcons[file.path];
+            await this.plugin.saveSettings();
             new Notice(`File "${file.name}" moved to trash`, 2000); // auto-hide after 2s
             this.renderContent();
         } catch (err) {
@@ -2206,6 +2301,11 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
     private async deleteFolder(folder: TFolder) {
         try {
             await this.app.fileManager.trashFile(folder);
+            const toDelete = Object.keys(this.plugin.settings.customIcons).filter(path => path === folder.path || path.startsWith(folder.path + '/'));
+            for (const path of toDelete) {
+                delete this.plugin.settings.customIcons[folder.path];
+            }
+            await this.plugin.saveSettings();
             new Notice(`Folder "${folder.name}" moved to trash`, 2000);
             this.renderContent();
         } catch (err) {
@@ -2379,8 +2479,10 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
         const summary = details.createEl('summary');
         summary.addClass('folder-summary');
 
+        const customIcon = this.getCustomIcon(folder.path);
+        const folderIcon = customIcon || iconName;
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-        iconSpan.createEl('i', { cls: `ph ph-${iconName}` });
+        iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
         if (this.plugin.settings.enableFolderNotes && this.plugin.settings.highlightFolderNotes && this.hasFolderNote(folder)) {
             iconSpan.addClass('has-folder-note');
             summary.addClass('has-folder-note');
@@ -2471,8 +2573,10 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
                         if (!this.plugin.settings.showFolderNotesInTree) continue;
                     }
                     const fileEl = childrenContainer.createDiv({ cls: 'file-item' });
+                    const customIcon = this.getCustomIcon(child.path);
+                    const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
                     const fileIcon = fileEl.createSpan({ cls: 'file-icon' });
-                    fileIcon.createEl('i', { cls: 'ph ph-file' });
+                    fileIcon.createEl('i', { cls: fileIconClass });
                     const nameSpan = fileEl.createSpan({ text: this.getDisplayName(child) });
                     nameSpan.addClass('portals-item-name');
                     fileEl.dataset.path = child.path;
