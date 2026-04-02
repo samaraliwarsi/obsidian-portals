@@ -5176,27 +5176,39 @@ vertical-align: middle;
 
 .portals-floating-tooltip {
 position: fixed;
-background: var(--background-secondary);
-color: var(--text-normal);
-font-size: 10px;
+background: var(--background-modifier-message);
+color: var(--text-on-accent, #fff);
+text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+font-size: var(--font-ui-smaller);
 padding: 4px 8px;
-border-radius: 4px;
+border-radius: var(--radius-s);
 white-space: nowrap;
 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 z-index: 10000;
 pointer-events: none;
-transition: opacity 0.15s ease;
+transition: opacity 0.15s ease, transform 0.15s ease;
 opacity: 0;
 display: block;
-transform: translateX(-50%);
+transform: translateX(-50%) scale(0.8);
+display: block;
 }
 
 .portals-floating-tooltip.is-visible {
   opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
-.portals-floating-tooltip[style*="display: block"] {
-opacity: 1;
+
+.portals-floating-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent var(--background-modifier-message) transparent;
 }
+
 
 /* ----- Tag Tree / Space Content ----- */
 

@@ -33,6 +33,7 @@ export class PortalsView extends ItemView {
     private lastRenderHash: string = '';
     private tooltipEl: HTMLElement | null = null;
     private tooltipTimeout: number | null = null;
+    private tooltipShowTimeout: number | null = null;
     private vaultEventRef: (() => void) | null = null;
     private renaming: boolean = false;
     private selectedFiles: Set<string> = new Set();
@@ -435,6 +436,10 @@ export class PortalsView extends ItemView {
             window.clearTimeout(this.tooltipTimeout);
             this.tooltipTimeout = null;
         }
+        if (this.tooltipShowTimeout) {
+            window.clearTimeout(this.tooltipShowTimeout);
+            this.tooltipShowTimeout = null;
+        }
         if (this.vaultEventRef) {
             this.vaultEventRef();
             this.vaultEventRef = null;
@@ -498,22 +503,32 @@ export class PortalsView extends ItemView {
         return this.tooltipEl;
     }
 
-    private showTooltip(text: string, target: HTMLElement) {
-        const tooltip = this.getTooltipEl();
-        tooltip.setText(text);
-
-        const rect = target.getBoundingClientRect();
-        tooltip.style.top = (rect.bottom + 6) + 'px';
-        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
-        tooltip.classList.add('is-visible');
-
+    private showTooltip(text: string, target: HTMLElement, delay: number = 0) {
+        if (delay > 0) {
+            if (this.tooltipShowTimeout) window.clearTimeout(this.tooltipShowTimeout);
+            this.tooltipShowTimeout = window.setTimeout(() => {
+                this.showTooltip(text, target, 0);
+                this.tooltipShowTimeout = null;
+            }, delay);
+            return;
+        }
         if (this.tooltipTimeout) {
             window.clearTimeout(this.tooltipTimeout);
             this.tooltipTimeout = null;
         }
+        const tooltip = this.getTooltipEl();
+        tooltip.setText(text);
+        const rect = target.getBoundingClientRect();
+        tooltip.style.top = (rect.bottom + 6) + 'px';
+        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+        tooltip.classList.add('is-visible');
     }
 
     private hideTooltip(delay = 0) {
+        if (this.tooltipShowTimeout) {
+            window.clearTimeout(this.tooltipShowTimeout);
+            this.tooltipShowTimeout = null;
+        }
         if (this.tooltipTimeout) {
             window.clearTimeout(this.tooltipTimeout);
             this.tooltipTimeout = null;
@@ -760,7 +775,7 @@ export class PortalsView extends ItemView {
                     }
                     if (!Platform.isMobile && !this.plugin.settings.showInactiveTabNames) {
                         tab.addEventListener('mouseenter', () => {
-                            this.showTooltip(displayName, tab);
+                            this.showTooltip(displayName, tab, 300);
                         });
                         tab.addEventListener('mouseleave', () => {
                             this.hideTooltip(100);
@@ -930,7 +945,7 @@ export class PortalsView extends ItemView {
                     const displayName = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-',' ');
                     tabBtn.addEventListener('mouseenter', () => {
                         if (!tabBtn.hasClass('is-active')) {
-                            this.showTooltip(displayName, tabBtn);
+                            this.showTooltip(displayName, tabBtn, 300);
                         }
                     });
                     tabBtn.addEventListener('mouseleave', () => {
@@ -1108,7 +1123,7 @@ export class PortalsView extends ItemView {
                 btn.empty();
                 btn.createEl('i', { cls: `ph ph-${icon}` });
                 if (!Platform.isMobile) {
-                    btn.addEventListener('mouseenter', () => this.showTooltip(tooltip, btn));
+                    btn.addEventListener('mouseenter', () => this.showTooltip(tooltip, btn, 300));
                     btn.addEventListener('mouseleave', () => this.hideTooltip(100));
                 }
                 btn.addEventListener('click', (e) => {
