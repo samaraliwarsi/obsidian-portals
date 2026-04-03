@@ -4872,6 +4872,107 @@
   margin: 4px 0; 
 }
 
+/*----------------------------------------*/
+/*---Hues Style---*/
+
+.portals-tree-style-hues .folder-summary.hued-folder-summary {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end), 40%, 70%, var(--hue-opacity, 0.15))
+    );
+    border-radius: 4px;
+    margin: 2px 0;
+    padding: 4px 8px !important;
+}
+
+.portals-tree-style-hues details[open] > .folder-summary.hued-folder-summary {
+    border-radius: 4px 4px 0 0;
+    margin-bottom: 0;
+}
+
+.portals-tree-style-hues .folder-children.hued-folder-children {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start), 40%, 70%, var(--hue-opacity, 0.08)),
+        hsla(var(--hue-end), 40%, 70%, var(--hue-opacity, 0.08))
+    );
+    border-radius: 0 0 4px 4px;
+    margin: 0 0 4px 0;
+    padding: 4px 0 4px 16px;
+    border-left: none;
+}
+
+.portals-tree-style-hues .folder-summary.hued-folder-summary:hover {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start), 40%, 70%, min(calc(var(--hue-opacity, 0.15) + 0.1), 0.9)),
+        hsla(var(--hue-end), 40%, 70%, min(calc(var(--hue-opacity, 0.15) + 0.1), 0.9))
+    );
+}
+
+.portals-tree-style-hues .folder-children {
+    border-left: none;
+    margin-left: 16px;
+    padding-left: 8px;
+}
+
+.portals-tree-style-hues details[open] > .folder-children > .folder-details:first-child > .folder-summary {
+    margin-top: 0;
+}
+
+.portals-tree-style-hues .portals-space-content > .folder-details > .folder-children {
+    border-left: 1px dashed var(--background-modifier-border);
+}
+
+.portals-tree-style-hues .hued-folder-summary .folder-icon i {
+    text-shadow: 0 0 2px var(--background-primary);
+}
+
+/* Hues - compact tree support */
+.portals-tree-container.portals-compact-tree.portals-tree-style-hues .folder-children.hued-folder-children {
+    margin-left: 0 !important;
+    padding-left: 14px !important;
+}
+
+.portals-tree-container.portals-compact-tree.portals-tree-style-hues .folder-children {
+    margin-left: 12px;
+    padding-left: 8px;
+}
+
+/* Split tab file items */
+.portals-split-content.portals-tree-style-hues .file-item {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+    );
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+/* Light mode overrides */
+body.theme-light .portals-tree-style-hues .hued-folder-summary {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.3)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.3))
+    ) !important;
+}
+body.theme-light .portals-tree-style-hues .folder-children.hued-folder-children {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, calc(var(--hue-opacity, 0.3) * 0.5)),
+        hsla(var(--hue-end, 260), 100%, 40%, calc(var(--hue-opacity, 0.3) * 0.5))
+    ) !important;
+}
+body.theme-light .portals-tree-style-hues .hued-folder-summary:hover {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9)),
+        hsla(var(--hue-end, 260), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9))
+    ) !important;
+}
+body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.3)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.3))
+    ) !important;
+}
+
 /*---------IconPicker Modal-----------*/
 
 .portals-icon-grid {

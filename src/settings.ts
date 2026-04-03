@@ -37,7 +37,7 @@ export interface SpacesSettings {
     highlightFolderNotes: boolean;
     compactTree: boolean;
     boldFolderNames: boolean;
-    treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades';
+    treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
     journalFolderPath: string;
     markedJournalNotes: string[];
     quoteDelimiter: string;
@@ -123,8 +123,9 @@ export class SpacesSettingTab extends PluginSettingTab {
             .addOption('boxed', 'Boxed')
             .addOption('portals', 'Portals')
             .addOption('shades', 'Shades')
+            .addOption('hues', 'Hues')
             .setValue(this.plugin.settings.treeStyle)
-            .onChange(async (value: 'default' | 'minimal' | 'boxed' | 'portals') => {
+            .onChange(async (value: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues') => {
                 this.plugin.settings.treeStyle = value;
                 await this.plugin.saveSettings();
                 this.display();

@@ -1955,7 +1955,7 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
             const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
             const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
 
-            // Shading
+            // Shades Style
             if (depth === 0 && this.plugin.settings.treeStyle === 'shades') {
                 const minOpacity = .1;
                 const maxOpacity = .4;
@@ -1973,6 +1973,31 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
                 summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
                 groupChildren.classList.add('shaded-folder-children');
                 groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+            }
+
+            // Hue Style
+            if (depth === 0 && this.plugin.settings.treeStyle === 'hues') {
+                const total = totalGroups > 0 ? totalGroups : 1;
+                let progress = groupIndex / (total - 1);
+                if (total <= 1) progress = 0.5;
+                const hue = progress * 360;
+                const minOpacity = 0.1;
+                const maxOpacity = 0.3;
+                let opacity;
+                if (total <= 1) {
+                    opacity = minOpacity;
+                } else {
+                    opacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                    opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
+                }
+                summary.classList.add('hued-folder-summary');
+                summary.style.setProperty('--hue-start', String(hue));
+                summary.style.setProperty('--hue-end', String((hue + 30) % 360));
+                summary.style.setProperty('--hue-opacity', String(opacity));
+                groupChildren.classList.add('hued-folder-children');
+                groupChildren.style.setProperty('--hue-start', String(hue));
+                groupChildren.style.setProperty('--hue-end', String((hue + 30) % 360));
+                groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
             }
 
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
@@ -2568,8 +2593,37 @@ private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () =
             childrenContainer.classList.add('shaded-folder-children');
             childrenContainer.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
         }
-    
-        
+
+        // For first-level folders (depth === 1) when using hues style
+        if (depth === 1 && this.plugin.settings.treeStyle === 'hues') {
+            const total = totalFirstLevelFolders > 0 ? totalFirstLevelFolders : 1;
+            let progress = index / (total - 1);
+            if (total <= 1) progress = 0.5; // middle
+
+            // Compute hue (0 to 360)
+            const hue = progress * 360;
+            // Compute opacity (same as shades logic)
+            const minOpacity = 0.1;
+            const maxOpacity = 0.3;
+            let opacity;
+            if (total <= 1) {
+                opacity = minOpacity;
+            } else {
+                opacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
+            }
+
+            summary.classList.add('hued-folder-summary');
+            summary.style.setProperty('--hue-start', String(hue));
+            summary.style.setProperty('--hue-end', String((hue + 30) % 360)); // offset 60°
+            summary.style.setProperty('--hue-opacity', String(opacity));
+
+            childrenContainer.classList.add('hued-folder-children');
+            childrenContainer.style.setProperty('--hue-start', String(hue));
+            childrenContainer.style.setProperty('--hue-end', String((hue + 30) % 360));
+            childrenContainer.style.setProperty('--hue-opacity', String(opacity * 0.6)); // children lighter
+        }
+
 
         const loadChildren = () => {
             if (childrenContainer.children.length > 0) return;
