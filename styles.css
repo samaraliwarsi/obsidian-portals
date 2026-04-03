@@ -4627,8 +4627,8 @@
 
 /* =========== PORTAL PLUGIN CORE STYLES =========== */
 
-/* -------------------- Tree Styles -------------------- */
-/*-Minimal: no Icons/ lines. bullets, low spacing-*/
+/* ------------------------------ Tree Styles ------------------------------------ */
+/*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------*/
 
 .portals-tree-style-minimal .folder-icon,
 .portals-tree-style-minimal .file-icon {
@@ -4681,8 +4681,8 @@
     vertical-align: middle;
     line-height: 1;
 }
-/*----------------------------------------*/
-/*-Portals: Styled Left Border-*/
+/*----------------------------------------------------------------------------------*/
+/*------------------------Portals: Styled Left Border------------------------------*/
 
 .portals-tree-style-portals .folder-details {
   border-left: 1px solid var(--space-border-color, var(--interactive-accent));
@@ -4729,8 +4729,8 @@
   box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 10%, transparent);
 }
 
-/*----------------------------------------*/
-/*---Boxed Style---*/
+/*------------------------------------------------------------------------------------*/
+/*-----------------------------------Boxed Style--------------------------------------*/
 .portals-tree-style-boxed details {
     border: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
     border-radius: 8px;
@@ -4788,8 +4788,8 @@
   margin: 2px 0; 
 }
 
-/*----------------------------------------*/
-/*---Shades Style---*/
+/*------------------------------------------------------------------------------*/
+/*---------------------------Shades Style-------------------------------------*/
 
 .portals-tree-style-shades .folder-summary.shaded-folder-summary {
     background-color: rgba(128, 128, 128, var(--folder-shade-opacity, 0.15));
@@ -4872,8 +4872,8 @@
   margin: 4px 0; 
 }
 
-/*----------------------------------------*/
-/*---Hues Style---*/
+/*------------------------------------------------------------------------*/
+/*-----------------------------Hues Style---------------------------------*/
 
 .portals-tree-style-hues .folder-summary.hued-folder-summary {
     background: linear-gradient(135deg,
@@ -4937,7 +4937,7 @@
     padding-left: 8px;
 }
 
-/* Split tab file items */
+/* Hues - split tab file items */
 .portals-split-content.portals-tree-style-hues .file-item {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
@@ -4946,7 +4946,7 @@
     border-radius: 4px;
     margin: 4px 0;
 }
-
+/*-----------------------*/
 /* Light mode overrides */
 body.theme-light .portals-tree-style-hues .hued-folder-summary {
     background: linear-gradient(135deg,
@@ -4966,6 +4966,7 @@ body.theme-light .portals-tree-style-hues .hued-folder-summary:hover {
         hsla(var(--hue-end, 260), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9))
     ) !important;
 }
+/* Light mode split tab */
 body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.3)),
@@ -4973,7 +4974,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     ) !important;
 }
 
-/*---------IconPicker Modal-----------*/
+/*---------------------------------------------------------------------------------------*/
+/*---------------------------IconPicker Modal--------------------------------------------*/
 
 .portals-icon-grid {
     display: grid;
@@ -5691,14 +5693,40 @@ body.portals-dragging {
     align-items: center;
     background: transparent;
     height: 40px;
+    gap: 8px;
+    padding-right: 4px;
+
 }
 
 .portals-split-tabs {
     display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 4px;
     align-items: center;
     padding: 0 4px;
+    padding-bottom: 2px;
+    flex: 1;
+    min-width: 0;
+    scrollbar-width: auto;
 }
+.portals-split-tabs::-webkit-scrollbar {
+    height: 8px;
+}
+
+.portals-split-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.portals-split-tabs::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.portals-split-tabs::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
 
 .portals-split-tab {
   display: flex;
@@ -5734,8 +5762,9 @@ body.portals-dragging {
 }
 
 .portals-collapse-icon {
+    flex-shrink: 0;
     font-size: 12px;
-    padding: 0 12px;
+    padding: 0 8px;
     cursor: pointer;
 }
 

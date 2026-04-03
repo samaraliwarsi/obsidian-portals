@@ -5693,14 +5693,40 @@ body.portals-dragging {
     align-items: center;
     background: transparent;
     height: 40px;
+    gap: 8px;
+    padding-right: 4px;
+
 }
 
 .portals-split-tabs {
     display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 4px;
     align-items: center;
     padding: 0 4px;
+    padding-bottom: 2px;
+    flex: 1;
+    min-width: 0;
+    scrollbar-width: auto;
 }
+.portals-split-tabs::-webkit-scrollbar {
+    height: 8px;
+}
+
+.portals-split-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.portals-split-tabs::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.portals-split-tabs::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
 
 .portals-split-tab {
   display: flex;
@@ -5736,8 +5762,9 @@ body.portals-dragging {
 }
 
 .portals-collapse-icon {
+    flex-shrink: 0;
     font-size: 12px;
-    padding: 0 12px;
+    padding: 0 8px;
     cursor: pointer;
 }
 
