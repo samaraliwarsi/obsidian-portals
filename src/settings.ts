@@ -283,7 +283,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Quote delimiter')
-            .setDesc('Symbols used to mark quotes in your notes.')
+            .setDesc('Symbols used to mark quotes in your notes. Changes made to selected quotes or symbols will reflect after obsidian reload.')
             .addDropdown(dropdown => {
                 dropdown
                     .addOption('==', '== (double equals)')

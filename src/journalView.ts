@@ -366,7 +366,7 @@ export class JournalRenderer {
         const updateQuoteAndProgress = async () => {
             const quote = await getNextQuote();
             if (!quote) {
-                quoteDisplay.setText('No quotes found.');
+                quoteDisplay.setText('No quotes found. Please link your Daily Notes folder in settings & mark text in daily note files using the delimeter that you selected in settings.');
                 return;
             }
             showQuote(quote);
