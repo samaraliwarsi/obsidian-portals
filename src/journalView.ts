@@ -17,6 +17,7 @@ export class JournalRenderer {
     private isTogglingMark: boolean = false;
     private tooltipEl: HTMLElement | null = null;
     private tooltipShown = false;
+    private cardsWrapper: HTMLElement | null = null;
     private startProgressTimer = () => {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -188,7 +189,7 @@ export class JournalRenderer {
 
         // Compact filter button with icon
         const filterButton = cardsContainer.createEl('button', { cls: 'journal-btn journal-filter-btn' });
-        const filterIcon = filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
+        filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
         const periodSpan = filterButton.createEl('span', { text: 'All files', cls: 'journal-btn-text' });
 
 
@@ -206,16 +207,13 @@ export class JournalRenderer {
         });
 
         const cardsWrapper = cardsContainer.createDiv({ cls: 'journal-cards-wrapper' });
-
-        // Store wrapper for later updates
-        (cardsContainer as any).cardsWrapper = cardsWrapper;
+        this.cardsWrapper = cardsWrapper;
         this.updateCards('All files');
     }
 
     private updateCards(period: string) {
-        const cardsWrapper = this.container.querySelector('.journal-cards-wrapper');
-        if (!cardsWrapper) return;
-        cardsWrapper.empty();
+        if(!this.cardsWrapper) return;
+        this.cardsWrapper.empty();
 
         let filteredNotes = [...this.notes];
         const now = new Date();
@@ -239,12 +237,12 @@ export class JournalRenderer {
         filteredNotes.forEach(n => {
             const date = this.parseDateFromFile(n);
             const opacity = this.getOpacity(date, minDate, maxDate);
-            const card = cardsWrapper.createDiv({ cls: 'journal-card' });
+            const card = this.cardsWrapper!.createDiv({ cls: 'journal-card' });
             card.dataset.path = n.path
             if (this.plugin.settings.markedJournalNotes.includes(n.path)) {
                 card.addClass('journal-card-marked');
             }
-            const titleSpan = card.createSpan({ cls: 'journal-card-title', text: date.toLocaleDateString() });
+            card.createSpan({ cls: 'journal-card-title', text: date.toLocaleDateString() });
             card.style.background = `rgba(100, 100, 100, ${opacity * 0.4})`;
             // set css for border opacity only used when not marked 
             card.style.setProperty('--journal-border-opacity', String(opacity * 0.25));
@@ -277,7 +275,7 @@ export class JournalRenderer {
                 this.app.workspace.getLeaf().openFile(n);
             });
 
-            card.addEventListener('contextmenu', (e) => {
+            card.addEventListener('contextmenu', (e: MouseEvent) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 this.toggleMark(n);

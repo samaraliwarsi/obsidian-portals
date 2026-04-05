@@ -181,7 +181,7 @@ export default class PortalsPlugin extends Plugin {
     }
 
     async updateRecentFilesOnRename(oldPath: string, newPath: string) {
-        let recent = this.settings.recentFilesList || [];
+        const recent = this.settings.recentFilesList || [];
         const index = recent.indexOf(oldPath);
         if (index !== -1) {
             recent[index] = newPath;
