@@ -125,8 +125,8 @@ export class SpacesSettingTab extends PluginSettingTab {
             .addOption('shades', 'Shades')
             .addOption('hues', 'Hues')
             .setValue(this.plugin.settings.treeStyle)
-            .onChange(async (value: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues') => {
-                this.plugin.settings.treeStyle = value;
+            .onChange(async (value) => {
+                this.plugin.settings.treeStyle = value as 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
                 await this.plugin.saveSettings();
                 this.display();
             }));
@@ -139,8 +139,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .addOption('solid', 'Solid')
                 .addOption('none', 'No color (transparent)')
                 .setValue(this.plugin.settings.filePaneColorStyle)
-                .onChange(async (value: 'gradient' | 'solid' | 'none') => {
-                    this.plugin.settings.filePaneColorStyle = value;
+                .onChange(async (value) => {
+                    this.plugin.settings.filePaneColorStyle = value as 'gradient' | 'solid' | 'none';
                     await this.plugin.saveSettings();
                     this.display();
                 }));
@@ -761,8 +761,8 @@ export class SpacesSettingTab extends PluginSettingTab {
 class AddPortalModal extends Modal {
     private selectedPath: string = '';
     private currentTab: 'root' | 'sub' | 'tag' = 'root';
-    private searchInput: HTMLInputElement;
-    private resultsContainer: HTMLElement;
+    private searchInput!: HTMLInputElement;
+    private resultsContainer!: HTMLElement;
     private rootFolders: TFolder[] = [];
     private subFolders: TFolder[] = [];
     private allTags: string[] = [];

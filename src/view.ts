@@ -4,9 +4,9 @@ import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './settings';
 import { MarkdownRenderer } from 'obsidian';
 import { GroupTagsModal } from './settings';
-import { JournalRenderer } from 'journalView';
-import { IconPickerModal } from 'iconPicker';
-import path from 'path';
+import { JournalRenderer } from './journalView';
+import { IconPickerModal } from './iconPicker';
+import * as path from 'path';
 
 
 interface BookmarkItem {

@@ -1,10 +1,10 @@
 {
 	"compilerOptions": {
-		"baseUrl": "src",
 		"inlineSourceMap": true,
 		"inlineSources": true,
 		"module": "ESNext",
-		"target": "ES6",
+		"target": "ES2020",
+		"types": ["node"],
 		"allowJs": true,
 		"noImplicitAny": true,
 		"noImplicitThis": true,
@@ -17,12 +17,7 @@
 		"strictBindCallApply": true,
 		"allowSyntheticDefaultImports": true,
 		"useUnknownInCatchVariables": true,
-		"lib": [
-			"DOM",
-			"ES5",
-			"ES6",
-			"ES7"
-		]
+		"lib": ["DOM", "ES2020"],
 	},
 	"include": [
 		"src/**/*.ts"
