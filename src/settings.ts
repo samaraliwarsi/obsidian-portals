@@ -21,6 +21,7 @@ export interface SpacesSettings {
     sortBy: 'name' | 'created' | 'modified';
     sortOrder: 'asc' | 'desc';
     showInactiveTabNames: boolean;
+    tabNameDisplay: 'none' | 'activeOnly' | 'all';
     secondaryPanelHeight: number;
     lastExpandedHeight: number;
     secondaryPanelCollapsed: boolean;
@@ -54,6 +55,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     tabColorEnabled: true,
     sortBy: 'name',
     showInactiveTabNames: false,
+    tabNameDisplay: 'activeOnly',
     sortOrder: 'asc',
     secondaryPanelHeight: 200,
     lastExpandedHeight: 200,
@@ -168,12 +170,15 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Show inactive tab names')
-            .setDesc('Always display the name of inactive tabs (may increase tab bar width).')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showInactiveTabNames)
+            .setName('Tab name display')
+            .setDesc('Control when tab names are shown. Tooltips always appear on hover when a name is hidden.')
+            .addDropdown(dropdown => dropdown
+                .addOption('none', 'Icons only')
+                .addOption('activeOnly', 'Show active tab name')
+                .addOption('all', 'Show all tab names')
+                .setValue(this.plugin.settings.tabNameDisplay)
                 .onChange(async (value) => {
-                    this.plugin.settings.showInactiveTabNames = value;
+                    this.plugin.settings.tabNameDisplay = value as 'none' | 'activeOnly' | 'all';
                     await this.plugin.saveSettings();
                     this.display();
                 }));

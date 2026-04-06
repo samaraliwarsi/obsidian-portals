@@ -125,7 +125,6 @@ export class PortalsView extends ItemView {
         return file.path.startsWith(folderPath);
     }
 
-
     private getCurrentFolderNote(): TFile | null {
         const selectedSpace = this.plugin.settings.selectedSpace;
         if (!selectedSpace || selectedSpace.type !== 'folder') return null;
@@ -679,7 +678,7 @@ export class PortalsView extends ItemView {
             selectedSpace: s.selectedSpace ? `${s.selectedSpace.type}:${s.selectedSpace.path}` : '',
             filePaneColorStyle: s.filePaneColorStyle,
             tabColorEnabled: s.tabColorEnabled,
-            showInactiveTabNames: s.showInactiveTabNames,
+            tabNameDisplay: s.tabNameDisplay,
             sortBy: s.sortBy,
             sortOrder: s.sortOrder,
             secondaryPanelCollapsed: s.secondaryPanelCollapsed,
@@ -763,24 +762,28 @@ export class PortalsView extends ItemView {
                 }
 
                 const isActive = (space.path === this.plugin.settings.selectedSpace?.path && space.type === this.plugin.settings.selectedSpace?.type);
+                if (isActive) tab.addClass('is-active');
 
-                if (isActive) {
-                    tab.addClass('is-active');
-                    if (space.path !== '/') {
-                        tab.createSpan({ text: displayName });
-                    }
+                const displayMode = this.plugin.settings.tabNameDisplay;
+
+                let shouldShowname = false;
+                if (displayMode === 'all') {
+                    shouldShowname = true && space.path !=='/';
+                } else if (displayMode === 'activeOnly') {
+                    shouldShowname = isActive && space.path !== '/';
                 } else {
-                    if (this.plugin.settings.showInactiveTabNames) {
-                        tab.createSpan({ text: displayName })
-                    }
-                    if (!Platform.isMobile && !this.plugin.settings.showInactiveTabNames) {
-                        tab.addEventListener('mouseenter', () => {
-                            this.showTooltip(displayName, tab, 300);
-                        });
-                        tab.addEventListener('mouseleave', () => {
-                            this.hideTooltip(100);
-                        });
-                    }
+                    shouldShowname = false;
+                }
+
+                if (shouldShowname) {
+                    tab.createSpan({ text: displayName });
+                } else if (!Platform.isMobile) {
+                    tab.addEventListener('mouseenter', () => {
+                        this.showTooltip(displayName, tab, 300);
+                    });
+                    tab.addEventListener('mouseleave', () => {
+                        this.hideTooltip(100);
+                    });
                 }
 
                 if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
@@ -825,42 +828,42 @@ export class PortalsView extends ItemView {
                 });
             }
 
-           this.sortableInstance = new Sortable(tabBar, {
-            animation: 150,
-            delay: 400,
-            delayOnTouchOnly: true,
-            touchStartThreshold: 5,
-            scrollSensitivity: 30,
-             
-            onEnd: async (_evt: SortableEvent) => {
-                const newOrder: SpaceConfig[] = [];
-                const tabElements = tabBar.querySelectorAll('.portals-tab');
-                tabElements.forEach(el => {
-                    const path = (el as HTMLElement).dataset.path;
-                    const type = (el as HTMLElement).dataset.type;
-                    if (path && (type === 'folder' || type === 'tag')) {
-                        const found = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
-                        if (found) {
-                            newOrder.push(found);
+            this.sortableInstance = new Sortable(tabBar, {
+                animation: 150,
+                delay: 400,
+                delayOnTouchOnly: true,
+                touchStartThreshold: 5,
+                scrollSensitivity: 30,
+                
+                onEnd: async (_evt: SortableEvent) => {
+                    const newOrder: SpaceConfig[] = [];
+                    const tabElements = tabBar.querySelectorAll('.portals-tab');
+                    tabElements.forEach(el => {
+                        const path = (el as HTMLElement).dataset.path;
+                        const type = (el as HTMLElement).dataset.type;
+                        if (path && (type === 'folder' || type === 'tag')) {
+                            const found = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
+                            if (found) {
+                                newOrder.push(found);
+                            }
                         }
-                    }
-                });
+                    });
 
-                if (this.plugin.settings.pinVaultRoot) {
-                    const rootIndex = newOrder.findIndex(s => s.path === '/' && s.type === 'folder');
-                    if (rootIndex > 0) {
-                        const root = newOrder.splice(rootIndex, 1)[0];
-                        if (root) {
-                            newOrder.unshift(root);
+                    if (this.plugin.settings.pinVaultRoot) {
+                        const rootIndex = newOrder.findIndex(s => s.path === '/' && s.type === 'folder');
+                        if (rootIndex > 0) {
+                            const root = newOrder.splice(rootIndex, 1)[0];
+                            if (root) {
+                                newOrder.unshift(root);
+                            }
                         }
                     }
+
+                    this.plugin.settings.spaces = newOrder;
+                    await this.plugin.saveData(this.plugin.settings);
+                    this.lastRenderHash = this.getSettingsHash();
                 }
-
-                this.plugin.settings.spaces = newOrder;
-                await this.plugin.saveData(this.plugin.settings);
-                this.lastRenderHash = this.getSettingsHash();
-            }
-        });
+            });
 
             setTimeout(() => {
                 const activeTab = tabBar.querySelector('.portals-tab.is-active');
@@ -922,35 +925,46 @@ export class PortalsView extends ItemView {
                 // Always create the span with class 'tab-label'
                 const span = tabBtn.createEl('span', { cls: 'tab-label' });
                 span.textContent = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-', ' ');
+                span.addClass('hide');
 
                 // handle active state and label visibility
                 const isActive = (tabId === activeTab);
+                const displayMode = this.plugin.settings.tabNameDisplay;
+
+                // determine whether to show the label
+                let showlabel = false;
+                if (displayMode === 'all') {
+                    showlabel = true;
+                } else if (displayMode === 'activeOnly') {
+                    showlabel = isActive;
+                } else {
+                    showlabel = false;
+                }
+
+                if (showlabel) {
+                    span.removeClass('hide');
+                } else {
+                    span.addClass('hide');
+                }
+
                 if (isActive) {
                     tabBtn.addClass('is-active');
                     if (rootColor) {
                         tabBtn.style.setProperty('--split-tab-active-color', rootColor);
                     }
-                    span.removeClass('hide');
-                } else {
-                    // inactive: hide label if settings says so
-                    if (!this.plugin.settings.showInactiveTabNames) {
-                        span.addClass('hide');
-                    } else {
-                        span.removeClass('hide');
-                    }
                 }
-                
-                // tooltip listeners
-                if (!Platform.isMobile && !this.plugin.settings.showInactiveTabNames) {
+
+                if (!Platform.isMobile) {
                     const displayName = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-',' ');
                     tabBtn.addEventListener('mouseenter', () => {
-                        if (!tabBtn.hasClass('is-active')) {
+                        const labelSpan = tabBtn.querySelector('span.tab-label');
+                        if (labelSpan && labelSpan.hasClass('hide')) {
                             this.showTooltip(displayName, tabBtn, 300);
                         }
                     });
                     tabBtn.addEventListener('mouseleave', () => {
                         this.hideTooltip(100);
-                    });
+                    });   
                 }
             
                 // Click handler
@@ -958,6 +972,8 @@ export class PortalsView extends ItemView {
                     this.expandPanel();
                     this.plugin.settings.activeSplitTab = tabId;
                     void this.plugin.saveData(this.plugin.settings);
+
+                    const currentDisplayMode = this.plugin.settings.tabNameDisplay;
 
                     // Update all split tabs
                     tabContainer.querySelectorAll('.portals-split-tab').forEach(t => {
@@ -972,10 +988,15 @@ export class PortalsView extends ItemView {
                         // get span label
                         const labelSpan = currentTab.querySelector('span.tab-label');
                         if (labelSpan) {
-                            if (!this.plugin.settings.showInactiveTabNames) {
-                                labelSpan.addClass('hide');
-                            } else {
+                            const newisActive = (currentId === tabId);
+                            let newShowLabel = false;
+                            if (currentDisplayMode === 'all') newShowLabel = true;
+                            else if (currentDisplayMode === 'activeOnly') newShowLabel = newisActive;
+                            else newShowLabel = false;
+                            if (newShowLabel) {
                                 labelSpan.removeClass('hide');
+                            } else {
+                                labelSpan.addClass('hide');
                             }
                         }
                     });
@@ -983,12 +1004,6 @@ export class PortalsView extends ItemView {
                     tabBtn.addClass('is-active');
                     if (rootColor) {
                         tabBtn.style.setProperty('--split-tab-active-color', rootColor);
-                    }
-
-                    // Ensure active tab has a label (if missing)
-                    const activeLabel = tabBtn.querySelector('span.tab-label');
-                    if (activeLabel) {
-                        activeLabel.removeClass('hide');
                     }
                     // Render new content
                     this.renderSplitTabContent(secondaryPanel, tabId);
