@@ -3,7 +3,7 @@ import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 
 export default class PortalsPlugin extends Plugin {
-    settings: SpacesSettings;
+    settings!: SpacesSettings;
 
     async onload() {
         await this.loadSettings();

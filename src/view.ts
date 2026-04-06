@@ -2106,7 +2106,7 @@ export class PortalsView extends ItemView {
             if (folderNote) {
                 menu.addItem(item => item
                     .setTitle('Open folder note')
-                    .setIcon('note')
+                    .setIcon('document')
                     .onClick(() => void this.app.workspace.getLeaf().openFile(folderNote)));
             } else {
                 menu.addItem(item => item
