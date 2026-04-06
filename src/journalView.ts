@@ -18,6 +18,7 @@ export class JournalRenderer {
     private tooltipEl: HTMLElement | null = null;
     private tooltipShown = false;
     private cardsWrapper: HTMLElement | null = null;
+    private allQuotes: { text: string; date: Date; file: TFile }[] = [];
     private startProgressTimer = () => {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -40,6 +41,13 @@ export class JournalRenderer {
         };
         this.progressInterval = window.setInterval(updateProgress, 100);
         updateProgress();
+    }
+
+    private async extractAllQuotes(): Promise<{ text: string; date: Date; file: TFile }[]> {
+        const promises = this.notes.map(n => this.extractQuotesFromFile(n));
+        const results = await Promise.all(promises);
+        // Flatten using reduce with explicit accumulator type
+        return results.reduce((acc, val) => acc.concat(val), [] as { text: string; date: Date; file: TFile }[]);
     }
 
     private async toggleMark(file: TFile) {
@@ -99,6 +107,10 @@ export class JournalRenderer {
             }
         }
 
+        // Pre‑extract all quotes once
+        this.allQuotes = await this.extractAllQuotes();
+
+
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
         const tabColorEnabled = this.plugin.settings.tabColorEnabled;
         const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
@@ -135,12 +147,6 @@ export class JournalRenderer {
             this.tooltipEl = null;
         }
         this.tooltipShown = false;
-    }
-
-    private async getQuotesFromNotes(notes: TFile[]): Promise<{ text: string; date: Date; file: TFile }[]> {
-        const promises = notes.map(n => this.extractQuotesFromFile(n));
-        const results = await Promise.all(promises);
-        return results.flat();
     }
 
     private sortNotesByDate() {
@@ -324,47 +330,46 @@ export class JournalRenderer {
         };
 
         // Helper to get a random quote based on current mode
-        const getNextQuote = async (): Promise<{ text: string; date: Date; file: TFile } | null> => {
+        const getNextQuote = (): { text: string; date: Date; file: TFile } | null => {
             if (this.currentMode === 'random') {
-                const allQuotes = await this.extractQuotes(this.notes);
-                if (allQuotes.length === 0) return null;
-                const randomIndex = Math.floor(Math.random() * allQuotes.length);
-                const quote = allQuotes[randomIndex];
-                return quote ?? null;
-            } else { // onThisDay
+                if (this.allQuotes.length === 0) return null;
+                const randomIndex = Math.floor(Math.random() * this.allQuotes.length);
+                return this.allQuotes[randomIndex]!;
+            } else {
+                // onThisDay – preserve original logic
                 const today = new Date();
                 const todayDay = today.getDate();
                 const todayMonth = today.getMonth();
                 const currentYear = today.getFullYear();
                 const oneYearAgo = new Date(today);
-                oneYearAgo.setFullYear(today.getFullYear() - 1);
+                oneYearAgo.setFullYear(currentYear - 1);
 
-                const sameDayNotes = this.notes.filter(n => {
-                    const date = this.parseDateFromFile(n);
-                    return date.getDate() === todayDay && date >= oneYearAgo && date <= today;
-                });
-                const sameDateNotes = this.notes.filter(n => {
-                    const date = this.parseDateFromFile(n);
-                    const year = date.getFullYear();
-                    return date.getMonth() === todayMonth && date.getDate() === todayDay &&
-                        year >= currentYear - 10 && year <= currentYear;
+                // Filter allQuotes using same criteria as original
+                const matchingQuotes = this.allQuotes.filter(quote => {
+                    const date = quote.date;
+                    // Same day (any month) within last year
+                    const sameDayLastYear = date.getDate() === todayDay && date >= oneYearAgo && date <= today;
+                    // Same month and day within last 10 years
+                    const sameMonthDayLast10Years = date.getMonth() === todayMonth && date.getDate() === todayDay &&
+                        date.getFullYear() >= currentYear - 10 && date.getFullYear() <= currentYear;
+                    return sameDayLastYear || sameMonthDayLast10Years;
                 });
 
-                const dayQuotes = await this.getQuotesFromNotes(sameDayNotes);
-                const dateQuotes = await this.getQuotesFromNotes(sameDateNotes);
-                const allQuotes = [...dayQuotes, ...dateQuotes];
-                if (allQuotes.length === 0) return null;
-                const randomIndex = Math.floor(Math.random() * allQuotes.length);
-                const quote = allQuotes[randomIndex];
-                return quote ?? null;
+                if (matchingQuotes.length === 0) return null;
+                const randomIndex = Math.floor(Math.random() * matchingQuotes.length);
+                return matchingQuotes[randomIndex]!;
             }
         };
 
         // Update quote and reset progress bar
         const updateQuoteAndProgress = async () => {
-            const quote = await getNextQuote();
+            const quote = getNextQuote();
             if (!quote) {
+                if (this.currentMode === 'onThisDay' && this.allQuotes.length > 0) {
+                    quoteDisplay.setText('No quotes from this day in previous months of this year, or from this date & month in the last 10 years.');
+                } else {
                 quoteDisplay.setText('No quotes found. Please link your Daily Notes folder in settings & mark text in daily note files using the delimeter that you selected in settings.');
+                }
                 return;
             }
             showQuote(quote);
@@ -426,11 +431,5 @@ export class JournalRenderer {
 
         this.quotesCache.set(file.path, quotes);
         return quotes;
-    }
-
-    private async extractQuotes(files: TFile[]): Promise<{ text: string; date: Date; file: TFile }[]> {
-        const promises = files.map(f => this.extractQuotesFromFile(f));
-        const results = await Promise.all(promises);
-        return results.flat();
     }
 }
