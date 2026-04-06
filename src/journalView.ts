@@ -19,6 +19,7 @@ export class JournalRenderer {
     private tooltipShown = false;
     private cardsWrapper: HTMLElement | null = null;
     private allQuotes: { text: string; date: Date; file: TFile }[] = [];
+    private quoteAnimationTimout: number | null = null;
     private startProgressTimer = () => {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -147,6 +148,11 @@ export class JournalRenderer {
             this.tooltipEl = null;
         }
         this.tooltipShown = false;
+        
+        if (this.quoteAnimationTimout) {
+            clearTimeout(this.quoteAnimationTimout);
+            this.quoteAnimationTimout = null;
+        }
     }
 
     private sortNotesByDate() {
@@ -321,12 +327,21 @@ export class JournalRenderer {
         const quoteDisplay = quotesContainer.createDiv({ cls: 'journal-quote-display' });
 
         const showQuote = (quote: { text: string; date: Date; file: TFile }) => {
-            quoteDisplay.empty();
-            quoteDisplay.createEl('p', { text: quote.text, cls: 'journal-quote-text' });
-            quoteDisplay.createEl('small', { text: `— ${quote.date.toLocaleDateString()}`, cls: 'journal-quote-date' });
-            quoteDisplay.onclick = () => {
-                this.app.workspace.getLeaf().openFile(quote.file);
-            };
+            if (this.quoteAnimationTimout) {
+                clearTimeout(this.quoteAnimationTimout);
+                this.quoteAnimationTimout = null;
+            }
+            quoteDisplay.classList.add('animation');
+            this.quoteAnimationTimout = window.setTimeout(() => {
+                quoteDisplay.empty();
+                quoteDisplay.createEl('p', { text: quote.text, cls: 'journal-quote-text' });
+                quoteDisplay.createEl('small', { text: `— ${quote.date.toLocaleDateString()}`, cls: 'journal-quote-date' });
+                quoteDisplay.onclick = () => {
+                    this.app.workspace.getLeaf().openFile(quote.file);
+                };
+                quoteDisplay.classList.remove('animation');
+                this.quoteAnimationTimout = null;
+            }, 150);
         };
 
         // Helper to get a random quote based on current mode

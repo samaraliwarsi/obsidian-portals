@@ -6140,6 +6140,7 @@ body.portals-dragging {
     padding: 16px 6px 16px 24px;
     margin-top: 12px;
     border-radius: 12px;
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
 }
 .journal-quote-display::before {
     content: "“";
@@ -6149,6 +6150,24 @@ body.portals-dragging {
     font-size: 2.5em;
     font-family: serif;
     color: var(--text-faint);
+}
+
+.journal-quote-display.animation {
+  opacity: 0;
+  transform: translateY(8px);
+  filter: blur(2px)
+}
+
+/*For users prefering reduced motion in OS*/
+@media (prefers-reduced-motion: reduce) {
+  .journal-quote-display,
+  .journal-quote-display.animation {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
 }
 
 .journal-quote-buttons {
