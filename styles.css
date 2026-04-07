@@ -5789,6 +5789,11 @@ body.portals-dragging {
 
 /* ===== Settings page ===== */
 
+.portals-setting-hr {
+    margin: 24px auto;
+    border-top: 1px dashed var(--background-modifier-border);
+}
+
 /*--Portal Selection Modal Styles--*/
 
 .add-portal-item.portals-already-used {

@@ -93,7 +93,9 @@ export class SpacesSettingTab extends PluginSettingTab {
         const scrollTop = containerEl.scrollTop;
         containerEl.empty();
 
-        // ---- Settings toggles ----
+        // -------------------- EXPLORER SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Explorer settings').setHeading();
+
         new Setting(containerEl)
             .setName('Replace file explorer in left sidebar')
             .setDesc('Portals replaces the default file explorer on startup. The file explorer remains accessible via commands or Obsidian tabs.')
@@ -137,9 +139,9 @@ export class SpacesSettingTab extends PluginSettingTab {
             .setName('Background color type')
             .setDesc('How to apply active tab colors to the file area.')
             .addDropdown(dropdown => dropdown
-                .addOption('gradient', 'Gradient (25% solid → fade)')
+                .addOption('gradient', 'Gradient')
                 .addOption('solid', 'Solid')
-                .addOption('none', 'No color (transparent)')
+                .addOption('none', 'No color')
                 .setValue(this.plugin.settings.filePaneColorStyle)
                 .onChange(async (value) => {
                     this.plugin.settings.filePaneColorStyle = value as 'gradient' | 'solid' | 'none';
@@ -194,45 +196,11 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        // -- Folder Notes Global Toggle
-        new Setting(containerEl)
-            .setName('Enable folder notes')
-            .setDesc('When disabled, folder notes are treated as normal files (always in tree), the side panel tab shows a notice, and folder note context menu items are removed.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableFolderNotes)
-                .onChange(async (value) => {
-                    this.plugin.settings.enableFolderNotes = value;
-                    await this.plugin.saveSettings();
-                    this.display(); // refresh settings UI if needed
-                }));
-        
-        //-- Folder Notes in Side Portal
-        new Setting(containerEl)
-            .setName('Show folder notes in file tree')
-            .setDesc('When folder notes are enabled, controls if they appear in file tree. If folder notes are disabled, this setting has no effect.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFolderNotesInTree)
-                .setDisabled(!this.plugin.settings.enableFolderNotes)
-                .onChange(async (value) => {
-                    this.plugin.settings.showFolderNotesInTree = value;
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
-        
-        // - Highlight Folder Notes
-        new Setting(containerEl)
-        .setName('Highlight folder notes')
-        .setDesc('If enabled, folders with a folder note will have a highlighted icon/ badge depending on the chosen style.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.highlightFolderNotes)
-            .setDisabled(!this.plugin.settings.enableFolderNotes)
-            .onChange(async (value) => {
-                this.plugin.settings.highlightFolderNotes = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
+        containerEl.createEl('hr');
 
-        // --- SIDE PORTAL SETTINGS ---
+        // -------------------- SIDE PORTAL SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Side portal').setHeading();
+
         new Setting(containerEl)
             .setName('Side portal')
             .setDesc('Show a collapsible panel at the bottom with additional tabs.')
@@ -246,6 +214,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.display();
                 }));
+
         new Setting(containerEl)
             .setName('Choose side portals')
             .setDesc('Select which tabs appear in the side portal.')
@@ -274,7 +243,52 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.plugin.refreshAllViews();
                 }));
 
-        // ---- Journal Settings ----
+        containerEl.createEl('hr');
+
+        // -------------------- FOLDER NOTES SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Folder Notes').setHeading();
+
+        new Setting(containerEl)
+            .setName('Enable folder notes')
+            .setDesc('When disabled, folder notes are treated as normal files (always in tree), the side panel tab shows a notice, and folder note context menu items are removed.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableFolderNotes)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableFolderNotes = value;
+                    await this.plugin.saveSettings();
+                    this.display(); // refresh settings UI if needed
+                }));
+        
+        //-- Folder Notes in Side Portal
+        new Setting(containerEl)
+            .setName('Show folder notes in file tree')
+            .setDesc('When folder notes are enabled, controls if they appear in file tree. If folder notes are disabled, this setting has no effect.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showFolderNotesInTree)
+                .setDisabled(!this.plugin.settings.enableFolderNotes)
+                .onChange(async (value) => {
+                    this.plugin.settings.showFolderNotesInTree = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+        
+        new Setting(containerEl)
+        .setName('Highlight folder notes')
+        .setDesc('If enabled, folders with a folder note will have a highlighted icon/ badge depending on the chosen style.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.highlightFolderNotes)
+            .setDisabled(!this.plugin.settings.enableFolderNotes)
+            .onChange(async (value) => {
+                this.plugin.settings.highlightFolderNotes = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        containerEl.createEl('hr');
+
+        // -------------------- JOURNAL SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Journal').setHeading();
+
         new Setting(containerEl)
             .setName('Journal folder')
             .setDesc('Folder containing daily notes. Leave empty to use the folder from the Daily Notes core plugin (if enabled).')
@@ -305,8 +319,11 @@ export class SpacesSettingTab extends PluginSettingTab {
                 return dropdown;
             });
                     
-                   
-        // ---- PIN VAULT ROOT ----
+        containerEl.createEl('hr');
+
+        // -------------------- TAB SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Portal tabs').setHeading();
+            
         const pinSetting = new Setting(containerEl)
             .setName('Pin vault')
             .setDesc('Show the vault root as the first tab (always on the left). You can customize its icon and color below.');
@@ -351,7 +368,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
             const controlEl = rootCustomSetting.controlEl;
             controlEl.empty();
-            controlEl.addClass('portals-portal-controls'); // reuse the same class for consistency
+            controlEl.addClass('portals-portal-controls'); 
 
             // ---- Icon row (icon button only) ----
             const iconRow = controlEl.createDiv({ cls: 'portals-icon-row' });
@@ -451,7 +468,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     }).open();
                 }));
 
-        containerEl.createEl('hr');
+        const hr = containerEl.createEl('hr', { cls: 'portals-setting-hr' });
 
         // ---- CATEGORIZED PORTALS ----
         const getPortalDisplayName = (portal: SpaceConfig): string => {
@@ -604,6 +621,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 });
             }
         };
+        
 
         new Setting(containerEl).setName('Active tabs').setHeading();
 
@@ -613,7 +631,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         containerEl.createEl('hr');
 
-        // ---- Backup / Restore ----
+        // --------------------------- BACKUP / RESTORE  -----------------------------
         new Setting(containerEl).setName('Backup / restore').setHeading();
 
         new Setting(containerEl)
@@ -626,8 +644,11 @@ export class SpacesSettingTab extends PluginSettingTab {
             .setDesc('Load settings from a JSON file. This will replace your current configuration.')
             .addButton(button => button.setButtonText('Import').onClick(() => this.importSettings()));
 
-        // ---- Maintenance ----
-        new Setting(containerEl).setName('Maintenance').setHeading();
+        containerEl.createEl('hr');
+
+        // --------------------------- MAINTENANCE & HELP -----------------------------
+
+        new Setting(containerEl).setName('Maintenance & help').setHeading();
 
         new Setting(containerEl)
             .setName('Clean up dead portals')
@@ -640,6 +661,15 @@ export class SpacesSettingTab extends PluginSettingTab {
                     new Notice(removed > 0 ? `Removed ${removed} dead portal(s)` : 'No dead portals found');
                     this.display();
                 }));
+
+        new Setting(containerEl)
+        .setName('User guide')
+        .setDesc('Open the full documentation online, downloadable file on github.')
+        .addButton(button => button
+            .setButtonText('Open guide')
+            .onClick(() => {
+                window.open('https://github.com/samaraliwarsi/obsidian-portals/blob/main/GUIDE.md', '_blank');
+            }));
 
         setTimeout(() => {
             const maxScroll = containerEl.scrollHeight - containerEl.clientHeight;
