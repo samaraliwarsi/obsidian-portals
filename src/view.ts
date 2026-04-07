@@ -1679,6 +1679,25 @@ export class PortalsView extends ItemView {
                 await MarkdownRenderer.render(this.app, content, noteContainer, targetFile.path, component);
                 await this.processEmbeds(noteContainer, component, targetFile.path);
 
+                // handle internal links
+                noteContainer.addEventListener('click', (e) => {
+                    const target = e.target as HTMLElement;
+                    const link = target.closest('a');
+                    if (!link) return;
+                    // check if its internal link (not external http/https)
+                    const href = link.getAttribute('href');
+                    const dataHref = link.getAttribute('date-href');
+                    const targetPath = href || dataHref;
+                    if (targetPath && !targetPath.startsWith('http://') && !targetPath.startsWith('http://')) {
+                        e.preventDefault();
+                        // resolve link relative to current folder note's path
+                        const resolved = this.app.metadataCache.getFirstLinkpathDest(targetPath, targetFile.path);
+                        if (resolved instanceof TFile) {
+                            void this.app.workspace.getLeaf().openFile(resolved);
+                        }
+                    }
+                });
+
                 // Store in cache
                 this.folderNoteCache.set(filePath, { element: noteContainer, component });
                 this.folderNoteAccessOrder.push(filePath);
