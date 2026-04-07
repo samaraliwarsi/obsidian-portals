@@ -164,6 +164,15 @@ export class PortalsView extends ItemView {
         }
     }
 
+    private async handleFolderNoteCreation(folder: TFolder) {
+        const existingNote = this.getFolderNote(folder);
+        if (existingNote) {
+            new Notice('Folder note already exists', 3000);
+            return;
+        }
+        await this.createFolderNote(folder);
+    }
+
     private isFileView(view: View): view is View & { file: TFile } {
         return 'file' in view && (view as { file?: unknown }).file instanceof TFile;
     }
@@ -2619,6 +2628,12 @@ export class PortalsView extends ItemView {
         this.makeDropTarget(summary, folder, true);
 
         summary.addEventListener('click', (e) => {
+            if (e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                void this.handleFolderNoteCreation(folder);
+                return;
+            }
             if (e.metaKey || e.ctrlKey) {
                 e.preventDefault()
                 e.stopPropagation()
@@ -2626,6 +2641,8 @@ export class PortalsView extends ItemView {
                 const folderNote = this.getFolderNote(folder);
                 if (folderNote) {
                     void this.app.workspace.getLeaf('tab').openFile(folderNote);
+                } else {
+                    new Notice('No folder note exists for this folder', 2000);
                 }
             }
         });
