@@ -247,6 +247,20 @@ export default class PortalsPlugin extends Plugin {
             }
         }
 
+        // cleanup customicons for remove tag groups in tag portals
+        for (const key of Object.keys(this.settings.customIcons)) {
+            if (key.startsWith('tag:') && key.includes('/groups:')) {
+                const parts = key.split('/')
+                if (parts.length < 2) continue;
+                const mainTagPart = parts[0];
+                if (!mainTagPart?.startsWith('tag:')) continue;
+                const mainTag = mainTagPart.slice(4);
+                if (!existingTagPaths.has(mainTag)) {
+                    delete this.settings.customIcons[key];
+                }
+            }
+        }
+
         // Save if anything changed
         if (beforeCount !== this.settings.spaces.length) {
             await this.saveSettings();

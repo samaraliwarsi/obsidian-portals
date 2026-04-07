@@ -6,6 +6,7 @@ import { MarkdownRenderer } from 'obsidian';
 import { GroupTagsModal } from './settings';
 import { JournalRenderer } from './journalView';
 import { IconPickerModal } from './iconPicker';
+import { group } from 'console';
 
 
 interface BookmarkItem {
@@ -54,6 +55,9 @@ export class PortalsView extends ItemView {
     private journalContainer: HTMLElement | null = null;
     private lastJournalAccentColor: string | null = null;
     private scrollToRestore: number | null = null;
+    private getTagGroupKey(mainTag: string, groupTag: string): string {
+        return `tag:${mainTag}/group:${groupTag}`;
+    }
     public async refreshJournalTab() {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
@@ -115,6 +119,24 @@ export class PortalsView extends ItemView {
         if (treeContainer) {
             this.scrollToRestore = treeContainer.scrollTop;
         }
+        this.renderContent();
+        new Notice('Custom icon removed');
+    }
+
+    private async setCustomIconForTagGroup(mainTag: string, groupTag: string, groupKey: string) {
+        const displayName = `#${groupTag}`;
+        new IconPickerModal(this.app, (iconName) => {
+            this.plugin.settings.customIcons[groupKey] = iconName;
+            this.plugin.saveSettings().then(() => {
+                this.renderContent();
+                new Notice(`Icon set for group ${displayName}`);
+            });
+        }).open();
+    }
+
+    private async removeCustomIconForTagGroup(groupKey: string) {
+        delete this.plugin.settings.customIcons[groupKey];
+        await this.plugin.saveSettings();
         this.renderContent();
         new Notice('Custom icon removed');
     }
@@ -1240,7 +1262,13 @@ export class PortalsView extends ItemView {
                     const relevantTags = Array.from(tagSet).sort();
 
                     createFloatingButton('funnel-simple', 'Tag groups', 94, (_e) => {
+                        const oldGroups = currentSpace.groupTags || [];
                         new GroupTagsModal(this.app, this.plugin, currentSpace, (tags) => {
+                            const removed = oldGroups.filter(g => !tags.includes(g));
+                            for (const group of removed) {
+                                const key = this.getTagGroupKey(currentSpace.path, group);
+                                delete this.plugin.settings.customIcons[key];
+                            }
                             currentSpace.groupTags = tags;
 
                             // cleanup expandedGroups for this space
@@ -1962,6 +1990,10 @@ export class PortalsView extends ItemView {
         for (const [gTag, files] of groups.entries()) {
             if (files.length === 0) continue;
             const groupDetails = childrenContainer.createEl('details', { cls: 'folder-details' });
+            const groupKey = this.getTagGroupKey(tagName, gTag);
+            groupDetails.dataset.groupKey = groupKey; // for potential future use
+
+            // open state based on expanded groups
             const saveExpanded = this.plugin.settings.expandedGroups[tagName] || [];
             if (saveExpanded.includes(gTag)) {
                 groupDetails.open = true;
@@ -2016,9 +2048,29 @@ export class PortalsView extends ItemView {
                 groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
             }
 
+            // icon with custom support
+            const customIcon = this.getCustomIcon(groupKey);
+            const iconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-tag-simple';
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-            iconSpan.createEl('i', { cls: 'ph ph-tag-simple' });
+            iconSpan.createEl('i', { cls: iconClass });
             summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
+
+            // contex menu for group
+            summary.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const menu = new Menu();
+                menu.addItem(item => item
+                    .setTitle('Set custom icon')
+                    .setIcon('image')
+                    .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
+                if (this.getCustomIcon(groupKey)) {
+                    menu.addItem(item => item
+                        .setTitle('Remove custom icon')
+                        .setIcon('trash')
+                        .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                }
+                menu.showAtPosition({ x: e.clientX, y: e.clientY });
+            });
             
             for (const file of sortFiles(files)) {
                 createFileItem(file, groupChildren);

@@ -134,7 +134,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             }));
 
         new Setting(containerEl)
-            .setName('Background color style')
+            .setName('Background color type')
             .setDesc('How to apply active tab colors to the file area.')
             .addDropdown(dropdown => dropdown
                 .addOption('gradient', 'Gradient (25% solid → fade)')
