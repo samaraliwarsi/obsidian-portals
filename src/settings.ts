@@ -120,7 +120,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
         .setName('Styles')
-        .setDesc('Choose a visual theme for file tree, recents & bookmarks. The last theme can carry tab colors, if enabled.')
+        .setDesc('Choose a visual theme for file tree, recents & bookmarks.')
         .addDropdown(dropdown => dropdown
             .addOption('default', 'Default')
             .addOption('minimal', 'Minimal')
@@ -137,7 +137,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Background color type')
-            .setDesc('How to apply active tab colors to the file area.')
+            .setDesc('Choose how to apply active tab colors to the file area.')
             .addDropdown(dropdown => dropdown
                 .addOption('gradient', 'Gradient')
                 .addOption('solid', 'Solid')
@@ -151,7 +151,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Tab colors')
-            .setDesc('Show background colors on portal tab bottom border.')
+            .setDesc('Show active tab color on bottom borders of active tabs. Portals style uses the same color when enabled.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.tabColorEnabled)
                 .onChange(async (value) => {
@@ -162,7 +162,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Bold folder names')
-            .setDesc('Make folder names bold in the tree.')
+            .setDesc('Make folder names and tag group names bold in the file tree.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.boldFolderNames)
                 .onChange(async (value) => {
@@ -173,7 +173,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Tab name display')
-            .setDesc('Control when tab names are shown. Tooltips always appear on hover when a name is hidden.')
+            .setDesc('Control how tab names are shown. Tooltips always appear on hover when a name is hidden.')
             .addDropdown(dropdown => dropdown
                 .addOption('none', 'Icons only')
                 .addOption('activeOnly', 'Show active tab name')
@@ -233,7 +233,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Disable side portal on mobile')
-            .setDesc('If enabled, the side portal will be hidden on mobile devices.')
+            .setDesc('Hide side portal on mobile devices.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.disableSidePanelOnMobile)
                 .onChange(async (value) => {
@@ -250,7 +250,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Enable folder notes')
-            .setDesc('When disabled, folder notes are treated as normal files (always in tree), the side panel tab shows a notice, and folder note context menu items are removed.')
+            .setDesc('When disabled, folder notes are treated as normal files (always in tree), the side panel tab shows a notice, and folder note context menu items, listeners and cache are removed.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.enableFolderNotes)
                 .onChange(async (value) => {
@@ -291,7 +291,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Journal folder')
-            .setDesc('Folder containing daily notes. Leave empty to use the folder from the Daily Notes core plugin (if enabled).')
+            .setDesc('Folder containing daily notes. Type the path or choose from the list. Leave empty to use the folder from the Daily Notes core plugin (if enabled).')
             .addText(text => {
                 text.setPlaceholder('e.g., Journal/Daily')
                     .setValue(this.plugin.settings.journalFolderPath)
@@ -646,7 +646,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Export settings')
-            .setDesc('Download your current portals configuration as a JSON file.')
+            .setDesc('Export your current portals configuration as a JSON file.')
             .addButton(button => button.setButtonText('Export').onClick(() => this.exportSettings()));
 
         new Setting(containerEl)
