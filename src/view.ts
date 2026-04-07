@@ -1595,8 +1595,20 @@ export class PortalsView extends ItemView {
     // Folder note
 
     private async createFolderNote(folder: TFolder) {
-        const noteName = folder.name + '.md';
-        const notePath = folder.path === '/' ? noteName : `${folder.path}/${noteName}`;
+        let noteName: string;
+        let notePath: string;
+        let displayName: string;
+
+        if (folder.path === '/') {
+            const vaultName = this.app.vault.getName();
+            noteName = vaultName + '.md';
+            notePath = noteName;
+            displayName = vaultName;
+        } else {
+            noteName = folder.name + '.md';
+            notePath = `${folder.path}/${noteName}`;
+            displayName = folder.name;
+        }
 
         try {
             const file = await this.app.vault.create(notePath, `# ${folder.name}\n\n`);
@@ -2176,7 +2188,7 @@ export class PortalsView extends ItemView {
             .setIcon('layout-dashboard')
             .onClick(() => void this.newCanvasInFolder(folder)));
 
-        if (this.plugin.settings.enableFolderNotes && folder.path !== '/') {
+        if (this.plugin.settings.enableFolderNotes) {
             const folderNote = folder.children.find((child): child is TFile =>
                 child instanceof TFile && this.isFolderNote(child, folder));
             if (folderNote) {
