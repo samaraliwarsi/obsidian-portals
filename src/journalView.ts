@@ -353,20 +353,26 @@ export class JournalRenderer {
             } else {
                 // onThisDay – preserve original logic
                 const today = new Date();
-                const todayDay = today.getDate();
-                const todayMonth = today.getMonth();
-                const currentYear = today.getFullYear();
+                const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+                const oneYearAgoUTC = new Date(todayUTC);
+                oneYearAgoUTC.setUTCFullYear(todayUTC.getUTCFullYear() - 1);
+                const currentYear = todayUTC.getFullYear();
                 const oneYearAgo = new Date(today);
                 oneYearAgo.setFullYear(currentYear - 1);
 
                 // Filter allQuotes using same criteria as original
                 const matchingQuotes = this.allQuotes.filter(quote => {
                     const date = quote.date;
+                    const quoteUTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
                     // Same day (any month) within last year
-                    const sameDayLastYear = date.getDate() === todayDay && date >= oneYearAgo && date <= today;
+                    const sameDayLastYear = quoteUTC.getUTCDate() === todayUTC.getUTCDate() &&
+                            quoteUTC >= oneYearAgoUTC &&
+                            quoteUTC <= todayUTC;
                     // Same month and day within last 10 years
-                    const sameMonthDayLast10Years = date.getMonth() === todayMonth && date.getDate() === todayDay &&
-                        date.getFullYear() >= currentYear - 10 && date.getFullYear() <= currentYear;
+                    const sameMonthDayLast10Years = quoteUTC.getUTCMonth() === todayUTC.getUTCMonth() &&
+                                    quoteUTC.getUTCDate() === todayUTC.getUTCDate() &&
+                                    quoteUTC.getUTCFullYear() >= currentYear - 10 &&
+                                    quoteUTC.getUTCFullYear() <= currentYear;
                     return sameDayLastYear || sameMonthDayLast10Years;
                 });
 

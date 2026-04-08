@@ -323,11 +323,7 @@ export class PortalsView extends ItemView {
             this.scheduleRender();
             return;
         }
-        //not a file? fallback to full render
-        if (!(file instanceof TFile)) {
-            this.scheduleRender();
-            return;
-        }
+    
         // file rename: check if it moved to a different folder
         const oldDir = oldPath.substring(0, oldPath.lastIndexOf('/'));
         const newDir = file.parent?.path || '';
