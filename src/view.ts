@@ -2220,7 +2220,7 @@ export class PortalsView extends ItemView {
         });
 
         // Helper to group and render files under a container, using the same groupTags logic
-        const groupAndRenderFiles = (files: TFile[], parentEl: HTMLElement, level: number) => {
+        const groupAndRenderFiles = (files: TFile[], parentEl: HTMLElement, level: number, startIndex: number = 0, total: number = 1) => {
             if (!groupTags || groupTags.length === 0) {
                 // No groups – just list files
                 for (const file of sortFiles(files)) {
@@ -2266,30 +2266,29 @@ export class PortalsView extends ItemView {
                 if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
                     const minOpacity = 0.1, maxOpacity = 0.4;
                     let shadeOpacity;
-                    const total = totalGroups > 0 ? totalGroups : 1;
-                    if (total <= 1) shadeOpacity = minOpacity;
-                    else {
-                        const progress = groupIndex / (total - 1);
+                    if (total > 1) {
+                        const progress = (startIndex + groupIndex) / (total - 1);
                         shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                        shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
+                    } else {
+                        shadeOpacity = minOpacity;
                     }
+                    shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
                     summary.classList.add('shaded-folder-summary');
                     summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
                     groupChildren.classList.add('shaded-folder-children');
                     groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
-                }
-                if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
-                    const total = totalGroups > 0 ? totalGroups : 1;
-                    let progress = groupIndex / (total - 1);
-                    if (total <= 1) progress = 0.5;
-                    const hue = progress * 360;
+                } else if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
                     const minOpacity = 0.1, maxOpacity = 0.3;
-                    let opacity;
-                    if (total <= 1) opacity = minOpacity;
-                    else {
+                    let hue, opacity;
+                    if (total > 1) {
+                        const progress = (startIndex + groupIndex) / (total - 1);
+                        hue = progress * 360;
                         opacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                        opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
+                    } else {
+                        hue = 0;
+                        opacity = minOpacity;
                     }
+                    opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
                     summary.classList.add('hued-folder-summary');
                     summary.style.setProperty('--hue-start', String(hue));
                     summary.style.setProperty('--hue-end', String((hue + 30) % 360));
@@ -2345,7 +2344,7 @@ export class PortalsView extends ItemView {
             }
         };
 
-        const renderNode = (node: TagNode, parentEl: HTMLElement, level: number) => {
+        const renderNode = (node: TagNode, parentEl: HTMLElement, level: number, index: number = 0, total: number = 1) => {
             const details = parentEl.createEl('details', { cls: 'folder-details' });
             const expandedSet = this.plugin.settings.expandedTagHierarchy[tagName] || [];
             if (expandedSet.includes(node.fullPath)) {
@@ -2382,6 +2381,43 @@ export class PortalsView extends ItemView {
 
             const childrenContainer = details.createDiv({ cls: 'folder-children' });
 
+            // Apply shades/hues styling only at level 1
+            if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
+                const minOpacity = 0.1, maxOpacity = 0.4;
+                let shadeOpacity;
+                if (total > 1) {
+                    const progress = index / (total - 1);
+                    shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                } else {
+                    shadeOpacity = minOpacity;
+                }
+                shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
+                summary.classList.add('shaded-folder-summary');
+                summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+                childrenContainer.classList.add('shaded-folder-children');
+                childrenContainer.style.setProperty('--folder-shade-opacity', String(shadeOpacity * 0.6));
+            } else if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
+                const minOpacity = 0.1, maxOpacity = 0.3;
+                let hue, opacity;
+                if (total > 1) {
+                    const progress = index / (total - 1);
+                    hue = progress * 360;
+                    opacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                } else {
+                    hue = 0;
+                    opacity = minOpacity;
+                }
+                opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
+                summary.classList.add('hued-folder-summary');
+                summary.style.setProperty('--hue-start', String(hue));
+                summary.style.setProperty('--hue-end', String((hue + 30) % 360));
+                summary.style.setProperty('--hue-opacity', String(opacity));
+                childrenContainer.classList.add('hued-folder-children');
+                childrenContainer.style.setProperty('--hue-start', String(hue));
+                childrenContainer.style.setProperty('--hue-end', String((hue + 30) % 360));
+                childrenContainer.style.setProperty('--hue-opacity', String(opacity * 0.6));
+            }
+
             // Render child tags
             const sortedChildren = Array.from(node.children.values()).sort((a, b) => a.name.localeCompare(b.name));
             for (const child of sortedChildren) {
@@ -2417,15 +2453,162 @@ export class PortalsView extends ItemView {
         mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
         const mainChildren = mainDetails.createDiv({ cls: 'folder-children' });
 
-        // Render top-level children
-        const topChildren = Array.from(root.children.values()).sort((a, b) => a.name.localeCompare(b.name));
-        for (const child of topChildren) {
-            renderNode(child, mainChildren, 1);
+        // Build unified list of top-level items (subtags + groups from root files)
+        interface TopLevelItem {
+            type: 'subtag' | 'group';
+            name: string;
+            data: TagNode | { tag: string; files: TFile[] };
         }
 
-        // Render files directly under the main tag (if any), with grouping
-        if (root.files.length > 0) {
-            groupAndRenderFiles(root.files, mainChildren, 1);
+        const topLevelItems: TopLevelItem[] = [];
+
+        // Add subtag nodes
+        const topChildren = Array.from(root.children.values()).sort((a, b) => a.name.localeCompare(b.name));
+        for (const child of topChildren) {
+            topLevelItems.push({ type: 'subtag', name: child.name, data: child });
+        }
+
+        // Add groups from root files (if any groupTags)
+        if (groupTags && groupTags.length > 0) {
+            // Build groups map from root.files (files directly under main tag, not under subtags)
+            const groupsMap = new Map<string, TFile[]>();
+            groupTags.forEach(t => groupsMap.set(t, []));
+            for (const file of root.files) {
+                const cache = this.app.metadataCache.getFileCache(file);
+                const fileTags = new Set([
+                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                    ...(cache?.frontmatter?.tags || [])
+                ]);
+                for (const gTag of groupTags) {
+                    if (fileTags.has(gTag)) {
+                        groupsMap.get(gTag)!.push(file);
+                    }
+                }
+            }
+            for (const [gTag, files] of groupsMap.entries()) {
+                if (files.length) {
+                    topLevelItems.push({ type: 'group', name: gTag, data: { tag: gTag, files } });
+                }
+            }
+        }
+
+        // Sort alphabetically
+        topLevelItems.sort((a, b) => a.name.localeCompare(b.name));
+
+        // Helper to render a single group (extracted from groupAndRenderFiles)
+        const renderSingleGroup = (gTag: string, files: TFile[], parentEl: HTMLElement, level: number, idx: number, total: number) => {
+            if (files.length === 0) return;
+            const groupDetails = parentEl.createEl('details', { cls: 'folder-details' });
+            const groupKey = this.getTagGroupKey(tagName, gTag);
+            groupDetails.dataset.groupKey = groupKey;
+            const savedExpanded = this.plugin.settings.expandedGroups[tagName] || [];
+            groupDetails.open = savedExpanded.includes(gTag);
+            const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
+            const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
+
+            // Apply styling for level 1
+            if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
+                const minOpacity = 0.1, maxOpacity = 0.4;
+                let shadeOpacity;
+                if (total > 1) {
+                    const progress = idx / (total - 1);
+                    shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                } else {
+                    shadeOpacity = minOpacity;
+                }
+                shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
+                summary.classList.add('shaded-folder-summary');
+                summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+                groupChildren.classList.add('shaded-folder-children');
+                groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+            } else if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
+                const minOpacity = 0.1, maxOpacity = 0.3;
+                let hue, opacity;
+                if (total > 1) {
+                    const progress = idx / (total - 1);
+                    hue = progress * 360;
+                    opacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                } else {
+                    hue = 0;
+                    opacity = minOpacity;
+                }
+                opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
+                summary.classList.add('hued-folder-summary');
+                summary.style.setProperty('--hue-start', String(hue));
+                summary.style.setProperty('--hue-end', String((hue + 30) % 360));
+                summary.style.setProperty('--hue-opacity', String(opacity));
+                groupChildren.classList.add('hued-folder-children');
+                groupChildren.style.setProperty('--hue-start', String(hue));
+                groupChildren.style.setProperty('--hue-end', String((hue + 30) % 360));
+                groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
+            }
+
+            const customIconGroup = this.getCustomIcon(groupKey);
+            const iconClass = customIconGroup ? `ph ph-${customIconGroup}` : 'ph ph-tag-simple';
+            const iconSpan = summary.createSpan({ cls: 'folder-icon' });
+            iconSpan.createEl('i', { cls: iconClass });
+            summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
+
+            summary.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const menu = new Menu();
+                menu.addItem(item => item
+                    .setTitle('Set custom icon')
+                    .setIcon('image')
+                    .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
+                if (this.getCustomIcon(groupKey)) {
+                    menu.addItem(item => item
+                        .setTitle('Remove custom icon')
+                        .setIcon('trash')
+                        .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                }
+                menu.showAtPosition({ x: e.clientX, y: e.clientY });
+            });
+
+            for (const file of sortFiles(files)) {
+                this.createFileItem(file, groupChildren, openFiles);
+            }
+
+            groupDetails.addEventListener('toggle', () => {
+                let expanded = this.plugin.settings.expandedGroups[tagName] || [];
+                if (groupDetails.open) {
+                    if (!expanded.includes(gTag)) expanded = [...expanded, gTag];
+                } else {
+                    expanded = expanded.filter(t => t !== gTag);
+                }
+                this.plugin.settings.expandedGroups[tagName] = expanded;
+                this.plugin.saveData(this.plugin.settings).catch(console.error);
+            });
+        };
+
+        // Render all top-level items with global index
+        const totalTop = topLevelItems.length;
+        topLevelItems.forEach((item, idx) => {
+            if (item.type === 'subtag') {
+                renderNode(item.data as TagNode, mainChildren, 1, idx, totalTop);
+            } else {
+                const groupData = item.data as { tag: string; files: TFile[] };
+                renderSingleGroup(groupData.tag, groupData.files, mainChildren, 1, idx, totalTop);
+            }
+        });
+
+        // Render ungrouped root files (files directly under main tag that are not in any group)
+        const ungroupedRootFiles: TFile[] = [];
+        if (groupTags && groupTags.length > 0) {
+            const groupedFiles = new Set<TFile>();
+            for (const item of topLevelItems) {
+                if (item.type === 'group') {
+                    for (const f of (item.data as { files: TFile[] }).files) groupedFiles.add(f);
+                }
+            }
+            for (const file of root.files) {
+                if (!groupedFiles.has(file)) ungroupedRootFiles.push(file);
+            }
+        } else {
+            ungroupedRootFiles.push(...root.files);
+        }
+        for (const file of sortFiles(ungroupedRootFiles)) {
+            this.createFileItem(file, mainChildren, openFiles);
         }
     }
 
