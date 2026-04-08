@@ -1737,7 +1737,7 @@ export class PortalsView extends ItemView {
                     if (!link) return;
                     // check if its internal link (not external http/https)
                     const href = link.getAttribute('href');
-                    const dataHref = link.getAttribute('date-href');
+                    const dataHref = link.getAttribute('data-href');
                     const targetPath = href || dataHref;
                     if (targetPath && !targetPath.startsWith('http://') && !targetPath.startsWith('http://')) {
                         e.preventDefault();
@@ -2583,7 +2583,7 @@ export class PortalsView extends ItemView {
         menu.addItem(item => item
             .setTitle('Duplicate')
             .setIcon('copy')
-            .onClick(() => this.executeCommand('file-explorer:copy-folder')));
+            .onClick(() => void this.duplicateFolder(folder)));
 
         menu.addItem(item => item
             .setTitle('Rename')
@@ -2757,10 +2757,53 @@ export class PortalsView extends ItemView {
         return activeFile ? activeFile.path : null;
     }
 
+    private async duplicateFolder(folder: TFolder) {
+        const parent = folder.parent;
+        const parentPath = parent ? parent.path : '';
+        let newName = `${folder.name} copy`;
+        let newPath = parentPath ? `${parentPath}/${newName}` : newName;
+        let counter = 1;
+        while (this.app.vault.getAbstractFileByPath(newPath)) {
+            counter++;
+            newName = `${folder.name} copy ${counter}`;
+            newPath = parentPath ? `${parentPath}/${newName}` : newName;
+        }
+
+        try {
+            await this.app.vault.createFolder(newPath);
+            await this.copyFolderContents(folder, newPath);
+            new Notice(`Folder duplicated to ${newName}`);
+            this.renderContent();
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            new Notice(`Duplicate failed: ${message}`);
+        }
+    }
+
+    private async copyFolderContents(source: TFolder, destPath: string) {
+        for (const child of source.children) {
+            const childDestPath = `${destPath}/${child.name}`;
+            if (child instanceof TFolder) {
+                await this.app.vault.createFolder(childDestPath);
+                await this.copyFolderContents(child, childDestPath);
+            } else if (child instanceof TFile) {
+                await this.app.vault.copy(child, childDestPath);
+            }
+        }
+    }
+
     private async duplicateFile(file: TFile) {
         const dir = file.parent?.path || '';
-        const newName = this.getDuplicateName(file.name);
-        const newPath = `${dir}/${newName}`;
+        const ext = file.extension;
+        const baseName = file.basename;
+        let newName = `${baseName} copy.${ext}`;
+        let newPath = dir ? `${dir}/${newName}` : newName;
+        let counter = 1;
+        while (this.app.vault.getAbstractFileByPath(newPath)) {
+            counter++;
+            newName = `${baseName} copy ${counter}.${ext}`;
+            newPath = dir ? `${dir}/${newName}` : newName;
+        }
         try {
             await this.app.vault.copy(file, newPath);
             new Notice(`Duplicated to ${newName}`);
@@ -2769,18 +2812,6 @@ export class PortalsView extends ItemView {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Duplicate failed: ${message}`);
         }
-    }
-
-    private getDuplicateName(original: string): string {
-        const ext = original.includes('.') ? original.slice(original.lastIndexOf('.')) : '';
-        const base = original.includes('.') ? original.slice(0, original.lastIndexOf('.')) : original;
-        let counter = 1;
-        let candidate = `${base} ${counter}${ext}`;
-        while (this.app.vault.getAbstractFileByPath(candidate)) {
-            counter++;
-            candidate = `${base} ${counter}${ext}`;
-        }
-        return candidate;
     }
 
     private async deleteFile(file: TFile) {
@@ -2876,7 +2907,7 @@ export class PortalsView extends ItemView {
             counter++;
         }
         try {
-            await this.app.vault.create(candidate, '');
+            await this.app.vault.create(candidate, '{"nodes":[],"edges":[]}');
             new Notice('Canvas created');
             this.renderContent();
         } catch (err) {
