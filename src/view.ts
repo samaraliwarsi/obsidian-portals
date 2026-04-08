@@ -2353,8 +2353,11 @@ export class PortalsView extends ItemView {
             }
 
             const summary = details.createEl('summary', { cls: 'folder-summary' });
+            const nodeKey = `tag:${tagName}/node:${node.fullPath}`;
+            const customIcon = this.getCustomIcon(nodeKey);
+            const iconClass = customIcon ? `ph ph-${customIcon}` : `ph ph-${iconName || 'tag'}`;
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-            iconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
+            iconSpan.createEl('i', { cls: iconClass });
             const nameSpan = summary.createSpan({ text: node.name });
             nameSpan.addClass('portals-item-name');
             summary.dataset.tagPath = node.fullPath;
