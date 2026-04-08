@@ -2172,7 +2172,7 @@ export class PortalsView extends ItemView {
             return;
         }
 
-            // ----- HIERARCHICAL TAGS (subtags exist) -----
+        // ----- HIERARCHICAL TAGS (subtags exist) -----
         // Build a tree structure
         interface TagNode {
             fullPath: string;
@@ -2426,7 +2426,9 @@ export class PortalsView extends ItemView {
 
             // Render files belonging to this node, possibly grouped
             if (node.files.length > 0) {
-                groupAndRenderFiles(node.files, childrenContainer, level);
+                for (const file of sortFiles(node.files)) {
+                    this.createFileItem(file, childrenContainer, openFiles);
+                }
             }
 
             // Save expand/collapse state
