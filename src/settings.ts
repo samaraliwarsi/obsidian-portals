@@ -482,7 +482,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     }).open();
                 }));
 
-        const hr = containerEl.createEl('hr', { cls: 'portals-setting-hr' });
+        containerEl.createEl('hr', { cls: 'portals-setting-hr' });
 
         // ---- CATEGORIZED PORTALS ----
         const getPortalDisplayName = (portal: SpaceConfig): string => {

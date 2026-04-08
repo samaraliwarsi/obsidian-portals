@@ -6,8 +6,6 @@ import { MarkdownRenderer } from 'obsidian';
 import { GroupTagsModal } from './settings';
 import { JournalRenderer } from './journalView';
 import { IconPickerModal } from './iconPicker';
-import { group } from 'console';
-
 
 interface BookmarkItem {
     title?: string;
@@ -851,7 +849,7 @@ export class PortalsView extends ItemView {
 
                 let shouldShowname = false;
                 if (displayMode === 'all') {
-                    shouldShowname = true && space.path !=='/';
+                    shouldShowname = space.path !=='/';
                 } else if (displayMode === 'activeOnly') {
                     shouldShowname = isActive && space.path !== '/';
                 } else {
@@ -1659,6 +1657,7 @@ export class PortalsView extends ItemView {
         } else {
             noteName = folder.name + '.md';
             notePath = `${folder.path}/${noteName}`;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             displayName = folder.name;
         }
 
@@ -2218,131 +2217,6 @@ export class PortalsView extends ItemView {
             if (sortOrder === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
             else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
         });
-
-        // Helper to group and render files under a container, using the same groupTags logic
-        const groupAndRenderFiles = (files: TFile[], parentEl: HTMLElement, level: number, startIndex: number = 0, total: number = 1) => {
-            if (!groupTags || groupTags.length === 0) {
-                // No groups – just list files
-                for (const file of sortFiles(files)) {
-                    this.createFileItem(file, parentEl, openFiles);
-                }
-                return;
-            }
-
-            // Build groups
-            const groups = new Map<string, TFile[]>();
-            groupTags.forEach(t => groups.set(t, []));
-            const ungrouped: TFile[] = [];
-
-            for (const file of files) {
-                const cache = this.app.metadataCache.getFileCache(file);
-                const fileTags = new Set([
-                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                    ...(cache?.frontmatter?.tags || [])
-                ]);
-                let hasGroup = false;
-                for (const gTag of groupTags) {
-                    if (fileTags.has(gTag)) {
-                        groups.get(gTag)!.push(file);
-                        hasGroup = true;
-                    }
-                }
-                if (!hasGroup) ungrouped.push(file);
-            }
-
-            let groupIndex = 0;
-            const totalGroups = groups.size;
-            for (const [gTag, groupFiles] of groups.entries()) {
-                if (groupFiles.length === 0) continue;
-                const groupDetails = parentEl.createEl('details', { cls: 'folder-details' });
-                const groupKey = this.getTagGroupKey(tagName, gTag);
-                groupDetails.dataset.groupKey = groupKey;
-                const savedExpanded = this.plugin.settings.expandedGroups[tagName] || [];
-                groupDetails.open = savedExpanded.includes(gTag);
-                const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
-                const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
-
-                // Apply styling (shades/hues) similar to original
-                if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
-                    const minOpacity = 0.1, maxOpacity = 0.4;
-                    let shadeOpacity;
-                    if (total > 1) {
-                        const progress = (startIndex + groupIndex) / (total - 1);
-                        shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                    } else {
-                        shadeOpacity = minOpacity;
-                    }
-                    shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
-                    summary.classList.add('shaded-folder-summary');
-                    summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
-                    groupChildren.classList.add('shaded-folder-children');
-                    groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
-                } else if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
-                    const minOpacity = 0.1, maxOpacity = 0.3;
-                    let hue, opacity;
-                    if (total > 1) {
-                        const progress = (startIndex + groupIndex) / (total - 1);
-                        hue = progress * 360;
-                        opacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                    } else {
-                        hue = 0;
-                        opacity = minOpacity;
-                    }
-                    opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
-                    summary.classList.add('hued-folder-summary');
-                    summary.style.setProperty('--hue-start', String(hue));
-                    summary.style.setProperty('--hue-end', String((hue + 30) % 360));
-                    summary.style.setProperty('--hue-opacity', String(opacity));
-                    groupChildren.classList.add('hued-folder-children');
-                    groupChildren.style.setProperty('--hue-start', String(hue));
-                    groupChildren.style.setProperty('--hue-end', String((hue + 30) % 360));
-                    groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
-                }
-
-                const customIconGroup = this.getCustomIcon(groupKey);
-                const iconClass = customIconGroup ? `ph ph-${customIconGroup}` : 'ph ph-tag-simple';
-                const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-                iconSpan.createEl('i', { cls: iconClass });
-                summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
-
-                summary.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    const menu = new Menu();
-                    menu.addItem(item => item
-                        .setTitle('Set custom icon')
-                        .setIcon('image')
-                        .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
-                    if (this.getCustomIcon(groupKey)) {
-                        menu.addItem(item => item
-                            .setTitle('Remove custom icon')
-                            .setIcon('trash')
-                            .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
-                    }
-                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
-                });
-
-                for (const file of sortFiles(groupFiles)) {
-                    this.createFileItem(file, groupChildren, openFiles);
-                }
-
-                groupDetails.addEventListener('toggle', () => {
-                    let expanded = this.plugin.settings.expandedGroups[tagName] || [];
-                    if (groupDetails.open) {
-                        if (!expanded.includes(gTag)) expanded = [...expanded, gTag];
-                    } else {
-                        expanded = expanded.filter(t => t !== gTag);
-                    }
-                    this.plugin.settings.expandedGroups[tagName] = expanded;
-                    this.plugin.saveData(this.plugin.settings).catch(console.error);
-                });
-                groupIndex++;
-            }
-
-            // Ungrouped files
-            for (const file of sortFiles(ungrouped)) {
-                this.createFileItem(file, parentEl, openFiles);
-            }
-        };
 
         const renderNode = (node: TagNode, parentEl: HTMLElement, level: number, index: number = 0, total: number = 1) => {
             const details = parentEl.createEl('details', { cls: 'folder-details' });
