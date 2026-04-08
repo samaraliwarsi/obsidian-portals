@@ -2028,69 +2028,10 @@ export class PortalsView extends ItemView {
             mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
             const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
 
-            // Local function to create a file item
-            const createFileItem = (file: TFile, parent: HTMLElement) => {
-                const fileEl = parent.createDiv({ cls: 'file-item' });
-                const customIcon = this.getCustomIcon(file.path);
-                const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
-                const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-                iconSpan.createEl('i', { cls: fileIconClass });
-                const nameSpan = fileEl.createSpan({ text: this.getDisplayName(file) });
-                nameSpan.addClass('portals-item-name');
-                fileEl.dataset.path = file.path;
-
-                const isOpen = openFiles.has(file.path);
-                let openDotSpan: HTMLSpanElement | null = null;
-                if (isOpen) {
-                    openDotSpan = fileEl.createSpan({ cls: 'open-dot' });
-                }
-
-                if (this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md') {
-                    const extSpan = fileEl.createSpan({ cls: 'file-extension' });
-                    extSpan.setText('.' + file.extension.toUpperCase());
-                    if (openDotSpan) {
-                        openDotSpan.style.display = 'none';
-                    }
-                    if (isOpen) {
-                        extSpan.addClass('is-open');
-                    }
-                }
-
-                if (!Platform.isMobile) {
-                    fileEl.draggable = true;
-                    fileEl.addEventListener('dragstart', (e) => {
-                        e.dataTransfer?.setData('text/plain', file.path);
-                    });
-                }
-
-                fileEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (e.altKey) {
-                        e.preventDefault();
-                        if (this.selectedFiles.has(file.path)) {
-                            this.selectedFiles.delete(file.path);
-                            fileEl.removeClass('is-selected');
-                        } else {
-                            this.selectedFiles.add(file.path);
-                            fileEl.addClass('is-selected');
-                        }
-                    } else {
-                        void this.app.workspace.getLeaf().openFile(file);
-                    }
-                });
-
-                fileEl.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    this.showFileContextMenu(e, file, fileEl);
-                });
-                this.fileElementMap.set(file.path, fileEl);
-                return fileEl;
-            };
-
             // If no groups, just list all files under the main tag
             if (!groupTags || groupTags.length === 0) {
                 for (const file of sortFiles(taggedFiles)) {
-                    createFileItem(file, childrenContainer);
+                    this.createFileItem(file, childrenContainer, openFiles);
                 }
                 return;
             }
@@ -2205,7 +2146,7 @@ export class PortalsView extends ItemView {
                 });
                 
                 for (const file of sortFiles(files)) {
-                    createFileItem(file, groupChildren);
+                    this.createFileItem(file, groupChildren, openFiles);
                 }
 
                 groupDetails.addEventListener('toggle', () => {
@@ -2219,14 +2160,14 @@ export class PortalsView extends ItemView {
                         expanded = expanded.filter(t => t !== gTag);
                     }
                     this.plugin.settings.expandedGroups[tagName] = expanded;
-                    void this.plugin.saveSettings(); // no re‑render because hash unchanged
+                    this.plugin.saveData(this.plugin.settings).catch(console.error);
                 });
                 groupIndex++;
             }
 
             // Render ungrouped files directly under main tag
             for (const file of sortFiles(ungrouped)) {
-                createFileItem(file, childrenContainer);
+                this.createFileItem(file, childrenContainer, openFiles);
             }
             return;
         }
