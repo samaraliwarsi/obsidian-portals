@@ -4662,7 +4662,7 @@
     gap: 4px;
 }
 
-.portals-tree-style-minimal .folder-summary.has-folder-note::before {
+.portals-tree-style-minimal .folder-summary.has-folder-note-icon::before {
     color: var(--interactive-accent);
 }
 
@@ -4837,7 +4837,7 @@
     transform: rotate(0deg);
 }
 
-.portals-tree-style-shades .folder-summary.has-folder-note::before {
+.portals-tree-style-shades .folder-summary.has-folder-note-icon::before {
     color: var(--interactive-accent);
 }
 
@@ -6032,10 +6032,16 @@ body.portals-dragging {
     cursor: pointer;
 }
 
-.folder-icon.has-folder-note i {
+.folder-icon.has-folder-note-icon i {
     color: var(--interactive-accent);
 }
 
+.folder-summary.has-folder-note-underline .portals-item-name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--text-muted);
+  text-underline-offset: 2px;
+}
 /*====COMPACT TREE STYLES====*/
 
 .portals-tree-container.portals-compact-tree {

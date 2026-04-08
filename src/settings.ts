@@ -35,7 +35,7 @@ export interface SpacesSettings {
     expandedGroups: Record<string, string[]>;
     disableSidePanelOnMobile: boolean;
     enableFileExtensionNonMD: boolean;
-    highlightFolderNotes: boolean;
+    folderNoteHighlightStyle: 'icon' | 'underline' | 'none';
     compactTree: boolean;
     boldFolderNames: boolean;
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
@@ -70,7 +70,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     expandedGroups: {},
     disableSidePanelOnMobile: false,
     enableFileExtensionNonMD: true,
-    highlightFolderNotes: true,
+    folderNoteHighlightStyle: 'icon',
     compactTree: false,
     boldFolderNames: false,
     treeStyle: 'default',
@@ -273,15 +273,17 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
         
         new Setting(containerEl)
-        .setName('Highlight folder notes')
-        .setDesc('If enabled, folders with a folder note will have a highlighted icon/ badge depending on the chosen style.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.highlightFolderNotes)
-            .setDisabled(!this.plugin.settings.enableFolderNotes)
+        .setName('Folder note highlight type')
+        .setDesc('How to visually indicate folders that have a folder note.')
+        .addDropdown(dropdown => dropdown
+            .addOption('icon', 'Icon highlight')
+            .addOption('underline', 'Text underline')
+            .addOption('none', 'Off')
+            .setValue(this.plugin.settings.folderNoteHighlightStyle)
             .onChange(async (value) => {
-                this.plugin.settings.highlightFolderNotes = value;
-                await this.plugin.saveSettings();
-                this.display();
+                    this.plugin.settings.folderNoteHighlightStyle = value as 'icon' | 'underline' | 'none';
+                    await this.plugin.saveSettings();
+                    this.display();
             }));
 
         containerEl.createEl('hr');

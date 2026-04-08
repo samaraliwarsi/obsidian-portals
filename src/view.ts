@@ -723,7 +723,7 @@ export class PortalsView extends ItemView {
             floatingButtonsCollapsed: s.floatingButtonsCollapsed,
             disableSidePanelOnMobile: s.disableSidePanelOnMobile,
             enableFileExtensionNonMD: s.enableFileExtensionNonMD,
-            highlightFolderNotes: s.highlightFolderNotes,
+            folderNoteHighlightStyle: s.folderNoteHighlightStyle,
             compactTree: s.compactTree,
             boldFolderNames: s.boldFolderNames,
             treeStyle: s.treeStyle,
@@ -2631,9 +2631,19 @@ export class PortalsView extends ItemView {
         const folderIcon = customIcon || iconName;
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
         iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
-        if (this.plugin.settings.enableFolderNotes && this.plugin.settings.highlightFolderNotes && this.hasFolderNote(folder)) {
-            iconSpan.addClass('has-folder-note');
-            summary.addClass('has-folder-note');
+        const hasNote = this.hasFolderNote(folder);
+        if (this.plugin.settings.enableFolderNotes && hasNote) {
+            const style = this.plugin.settings.folderNoteHighlightStyle;
+            if (style === 'icon') {
+                iconSpan.addClass('has-folder-note-icon')
+                if (this.plugin.settings.treeStyle === 'minimal' || this.plugin.settings.treeStyle === 'shades') {
+                    summary.addClass('has-folder-note-icon');
+                }
+            } else if (style === 'underline') {
+                summary.addClass('has-folder-note-underline');
+                const nameSpan = summary.querySelector('.portals-item-name');
+                nameSpan?.addClass('has-folder-note-underline');
+            }
         }
 
         const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
