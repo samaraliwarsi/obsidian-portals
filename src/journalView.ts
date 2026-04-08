@@ -165,35 +165,49 @@ export class JournalRenderer {
 
     private parseDateFromFile(file: TFile): Date {
         const name = file.name;
-        // Try YYYY-MM-DD first
-        let match = name.match(/(\d{4})-(\d{2})-(\d{2})/);
-        if (match) {
-            return new Date(`${match[1]}-${match[2]}-${match[3]}`);
+        const format = this.plugin.settings.journalDateFormat;
+        const match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
+        if (!match) {
+            console.warn(`[Journal] Could not parse date from filename: ${name} using format ${format}, falling back to ctime`);
+            return new Date(file.stat.ctime);
         }
-        // Try DD-MM-YYYY
-        match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
-        if (match) {
-            // Convert to YYYY-MM-DD
-            const dateStr = `${match[3]}-${match[2]}-${match[1]}`;
-            const date = new Date(dateStr);
-            // Check if it's a valid date (not NaN)
-            if (!isNaN(date.getTime())) {
-                return date;
+
+        const first = match[1];
+        const second = match[2];
+        const yearStr = match[3];
+        if (!first || !second || !yearStr) {
+            console.warn(`[Journal] Invalid date parts in filename: ${name}, falling back to ctime`);
+            return new Date(file.stat.ctime);
+        }
+
+        let year: number, month: number, day: number;
+        if (format === 'DD-MM-YYYY') {
+            day = parseInt(first, 10);
+            month = parseInt(second, 10) - 1;
+            year = parseInt(yearStr, 10);
+            // Validate day (1-31) and month (0-11)
+            if (day < 1 || day > 31 || month < 0 || month > 11) {
+                console.warn(`[Journal] Invalid date (day=${day+1}, month=${month+1}) in filename: ${name}, falling back to ctime`);
+                return new Date(file.stat.ctime);
+            }
+        } else { // MM-DD-YYYY
+            month = parseInt(first, 10) - 1;
+            day = parseInt(second, 10);
+            year = parseInt(yearStr, 10);
+            // Validate month (0-11) and day (1-31)
+            if (month < 0 || month > 11 || day < 1 || day > 31) {
+                console.warn(`[Journal] Invalid date (month=${month+1}, day=${day}) in filename: ${name}, falling back to ctime`);
+                return new Date(file.stat.ctime);
             }
         }
-        // Try MM-DD-YYYY (if second part <=12 and first part <=12, may be ambiguous)
-        match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
-        if (match) {
-            // Try as MM-DD-YYYY
-            const dateStr = `${match[3]}-${match[1]}-${match[2]}`;
-            const date = new Date(dateStr);
-            if (!isNaN(date.getTime())) {
-                return date;
-            }
+
+        const date = new Date(year, month, day);
+        // Additional safety: if the date object doesn't match the expected components (e.g., Feb 31)
+        if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+            console.warn(`[Journal] Date rollover detected for ${name}, falling back to ctime`);
+            return new Date(file.stat.ctime);
         }
-        // Fallback to creation time
-        console.warn(`[Journal] Could not parse date from filename: ${name}, using ctime`);
-        return new Date(file.stat.ctime);
+        return date;
     }
 
     private renderDateCards() {

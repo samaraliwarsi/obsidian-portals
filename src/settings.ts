@@ -40,6 +40,7 @@ export interface SpacesSettings {
     boldFolderNames: boolean;
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
     journalFolderPath: string;
+    journalDateFormat: 'DD-MM-YYYY' | 'MM-DD-YYYY';
     markedJournalNotes: string[];
     quoteDelimiter: string;
     customIcons: Record<string, string>;
@@ -76,6 +77,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     boldFolderNames: false,
     treeStyle: 'default',
     journalFolderPath: '',
+    journalDateFormat: 'DD-MM-YYYY',
     markedJournalNotes: [],
     quoteDelimiter: '==',
     customIcons: {},
@@ -294,8 +296,22 @@ export class SpacesSettingTab extends PluginSettingTab {
         new Setting(containerEl).setName('Journal').setHeading();
 
         new Setting(containerEl)
+        .setName('Journal date format')
+        .setDesc('Choose date formatted used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.')
+        .addDropdown(dropdown => dropdown
+            .addOption('DD-MM-YYYY', 'DD-MM-YYYY')
+            .addOption('MM-DD-YYYY', 'MM-DD-YYYY')
+            .setValue(this.plugin.settings.journalDateFormat)
+            .onChange(async (value) => {
+                this.plugin.settings.journalDateFormat = value as 'DD-MM-YYYY' | 'MM-DD-YYYY';
+                await this.plugin.saveSettings();
+                // Refresh journal tab if open
+                this.plugin.refreshAllViews();
+            }));
+
+        new Setting(containerEl)
             .setName('Journal folder')
-            .setDesc('Folder containing daily notes. Type the path or choose from the list. Leave empty to use the folder from the Daily Notes core plugin (if enabled).')
+            .setDesc('Folder containing daily notes. Type the path or choose from the list. Leave empty to use the folder from the Daily Notes core plugin.')
             .addText(text => {
                 text.setPlaceholder('e.g., Journal/Daily')
                     .setValue(this.plugin.settings.journalFolderPath)
