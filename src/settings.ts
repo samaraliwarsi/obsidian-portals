@@ -43,6 +43,7 @@ export interface SpacesSettings {
     markedJournalNotes: string[];
     quoteDelimiter: string;
     customIcons: Record<string, string>;
+    expandedTagHierarchy: Record<string, string[]>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -78,6 +79,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     markedJournalNotes: [],
     quoteDelimiter: '==',
     customIcons: {},
+    expandedTagHierarchy: {},
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

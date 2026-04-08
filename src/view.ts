@@ -92,6 +92,58 @@ export class PortalsView extends ItemView {
         }
     }
 
+    private createFileItem(file: TFile, container: HTMLElement, openFiles: Set<string>) {
+        const fileEl = container.createDiv({ cls: 'file-item' });
+        const customIcon = this.getCustomIcon(file.path);
+        const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
+        const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
+        iconSpan.createEl('i', { cls: fileIconClass });
+        const nameSpan = fileEl.createSpan({ text: this.getDisplayName(file) });
+        nameSpan.addClass('portals-item-name');
+        fileEl.dataset.path = file.path;
+
+        const isOpen = openFiles.has(file.path);
+        let openDotSpan: HTMLSpanElement | null = null;
+        if (isOpen) openDotSpan = fileEl.createSpan({ cls: 'open-dot' });
+
+        if (this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md') {
+            const extSpan = fileEl.createSpan({ cls: 'file-extension' });
+            extSpan.setText('.' + file.extension.toUpperCase());
+            if (openDotSpan) openDotSpan.style.display = 'none';
+            if (isOpen) extSpan.addClass('is-open');
+        }
+
+        if (!Platform.isMobile) {
+            fileEl.draggable = true;
+            fileEl.addEventListener('dragstart', (e) => {
+                e.dataTransfer?.setData('text/plain', file.path);
+            });
+        }
+
+        fileEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (e.altKey) {
+                e.preventDefault();
+                if (this.selectedFiles.has(file.path)) {
+                    this.selectedFiles.delete(file.path);
+                    fileEl.removeClass('is-selected');
+                } else {
+                    this.selectedFiles.add(file.path);
+                    fileEl.addClass('is-selected');
+                }
+            } else {
+                void this.app.workspace.getLeaf().openFile(file);
+            }
+        });
+
+        fileEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.showFileContextMenu(e, file, fileEl);
+        });
+        this.fileElementMap.set(file.path, fileEl);
+        return fileEl;
+    }
+
     private getCustomIcon(path: string): string | null {
         return this.plugin.settings.customIcons[path] || null;
     }
@@ -1899,19 +1951,319 @@ export class PortalsView extends ItemView {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private buildTagSpace(tagName: string, container: HTMLElement, iconName: string, openFiles: Set<string>, groupTags?: string[], depth: number = 0, index: number = 0, totalGroups: number = 0) {
-        const tag = '#' + tagName;
+        const mainTag = '#' + tagName;
         const allFiles = this.app.vault.getMarkdownFiles();
-        const taggedFiles = allFiles.filter(file => {
+
+        // collect all files that have the main tag or any subtag (tagname/anything)
+        const relevantFiles = allFiles.filter(file => {
             const cache = this.app.metadataCache.getFileCache(file);
-            return cache?.tags?.some(t => t.tag === tag) || cache?.frontmatter?.tags?.includes(tagName);
+            const fileTags = [
+            ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+            ...(cache?.frontmatter?.tags || [])
+        ];
+            return fileTags.some(t => t === tagName || t.startsWith(tagName + '/'));
         });
 
-        if (taggedFiles.length === 0) {
-            container.createEl('p', { text: 'No files with this tag.' });
+        if (relevantFiles.length === 0) {
+            container.createEl('p', { text: 'No files with this tag or its subtags.' });
             return;
         }
 
-        // Sort helper (already in your method)
+        // build a map : full tag path > array of files that have that tag
+        const tagToFiles = new Map<string, TFile[]>();
+        const allTags = new Set<string>();
+
+        for (const file of relevantFiles) {
+            const cache = this.app.metadataCache.getFileCache(file);
+            const fileTags = [
+                ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                ...(cache?.frontmatter?.tags || [])
+            ];
+            for (const tag of fileTags) {
+                if (tag === tagName || tag.startsWith(tagName + '/')) {
+                    allTags.add(tag);
+                    if (!tagToFiles.has(tag)) tagToFiles.set(tag, []);
+                    tagToFiles.get(tag)!.push(file);
+                }
+            }
+        }
+
+        // Determine if there are any subtags (i.e., tags longer than the main tag)
+        const hasSubtags = Array.from(allTags).some(t => t !== tagName && t.startsWith(tagName + '/'));
+
+        // If no subtags, use the original logic (group tags or flat list)
+        if (!hasSubtags) {
+            // Original flat/group logic (unchanged from your current method)
+            const taggedFiles = allFiles.filter(file => {
+                const cache = this.app.metadataCache.getFileCache(file);
+                return cache?.tags?.some(t => t.tag === mainTag) || cache?.frontmatter?.tags?.includes(tagName);
+            });
+            if (taggedFiles.length === 0) {
+                container.createEl('p', { text: 'No files with this tag.' });
+                return;
+            }
+
+            // Sort helper 
+            const sortFiles = (files: TFile[]) => files.sort((a, b) => {
+                const sortBy = this.plugin.settings.sortBy;
+                const sortOrder = this.plugin.settings.sortOrder;
+                let aVal: string | number, bVal: string | number;
+                switch (sortBy) {
+                    case 'name': aVal = a.name; bVal = b.name; break;
+                    case 'created': aVal = a.stat.ctime; bVal = b.stat.ctime; break;
+                    case 'modified': aVal = a.stat.mtime; bVal = b.stat.mtime; break;
+                    default: aVal = a.name; bVal = b.name;
+                }
+                if (sortOrder === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+            });
+        
+
+            // Create main details element for the tag
+            const mainDetails = container.createEl('details', { cls: 'folder-details' });
+            mainDetails.setAttr('open', 'true');
+            const mainSummary = mainDetails.createEl('summary', { cls: 'folder-summary' });
+            const mainIconSpan = mainSummary.createSpan({ cls: 'folder-icon' });
+            mainIconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
+            mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
+            const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
+
+            // Local function to create a file item
+            const createFileItem = (file: TFile, parent: HTMLElement) => {
+                const fileEl = parent.createDiv({ cls: 'file-item' });
+                const customIcon = this.getCustomIcon(file.path);
+                const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
+                const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
+                iconSpan.createEl('i', { cls: fileIconClass });
+                const nameSpan = fileEl.createSpan({ text: this.getDisplayName(file) });
+                nameSpan.addClass('portals-item-name');
+                fileEl.dataset.path = file.path;
+
+                const isOpen = openFiles.has(file.path);
+                let openDotSpan: HTMLSpanElement | null = null;
+                if (isOpen) {
+                    openDotSpan = fileEl.createSpan({ cls: 'open-dot' });
+                }
+
+                if (this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md') {
+                    const extSpan = fileEl.createSpan({ cls: 'file-extension' });
+                    extSpan.setText('.' + file.extension.toUpperCase());
+                    if (openDotSpan) {
+                        openDotSpan.style.display = 'none';
+                    }
+                    if (isOpen) {
+                        extSpan.addClass('is-open');
+                    }
+                }
+
+                if (!Platform.isMobile) {
+                    fileEl.draggable = true;
+                    fileEl.addEventListener('dragstart', (e) => {
+                        e.dataTransfer?.setData('text/plain', file.path);
+                    });
+                }
+
+                fileEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (e.altKey) {
+                        e.preventDefault();
+                        if (this.selectedFiles.has(file.path)) {
+                            this.selectedFiles.delete(file.path);
+                            fileEl.removeClass('is-selected');
+                        } else {
+                            this.selectedFiles.add(file.path);
+                            fileEl.addClass('is-selected');
+                        }
+                    } else {
+                        void this.app.workspace.getLeaf().openFile(file);
+                    }
+                });
+
+                fileEl.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    this.showFileContextMenu(e, file, fileEl);
+                });
+                this.fileElementMap.set(file.path, fileEl);
+                return fileEl;
+            };
+
+            // If no groups, just list all files under the main tag
+            if (!groupTags || groupTags.length === 0) {
+                for (const file of sortFiles(taggedFiles)) {
+                    createFileItem(file, childrenContainer);
+                }
+                return;
+            }
+
+            // Build groups map
+            const groups = new Map<string, TFile[]>();
+            groupTags.forEach(t => groups.set(t, []));
+            const ungrouped: TFile[] = [];
+
+            for (const file of taggedFiles) {
+                const cache = this.app.metadataCache.getFileCache(file);
+                const fileTags = new Set([
+                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                    ...(cache?.frontmatter?.tags || [])
+                ]);
+
+                let hasGroup = false;
+                for (const gTag of groupTags) {
+                    if (fileTags.has(gTag)) {
+                        groups.get(gTag)!.push(file);
+                        hasGroup = true;
+                    }
+                }
+                if (!hasGroup) ungrouped.push(file);
+            }
+
+            // Render each group as a nested details element (always open)
+            let groupIndex = 0;
+            for (const [gTag, files] of groups.entries()) {
+                if (files.length === 0) continue;
+                const groupDetails = childrenContainer.createEl('details', { cls: 'folder-details' });
+                const groupKey = this.getTagGroupKey(tagName, gTag);
+                groupDetails.dataset.groupKey = groupKey; // for potential future use
+
+                // open state based on expanded groups
+                const saveExpanded = this.plugin.settings.expandedGroups[tagName] || [];
+                if (saveExpanded.includes(gTag)) {
+                    groupDetails.open = true;
+                } else {
+                    groupDetails.open = false; // default closed
+                }
+                const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
+                const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
+
+                // Shades Style
+                if (depth === 0 && this.plugin.settings.treeStyle === 'shades') {
+                    const minOpacity = 0.1;
+                    const maxOpacity = 0.4;
+                    let shadeOpacity;
+                    const total = totalGroups > 0 ? totalGroups : 1;
+                    if (total <= 1) {
+                        shadeOpacity = minOpacity
+                    } else {
+                        const progress = groupIndex / (total -1);
+                        shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                    }
+                    shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
+
+                    summary.classList.add('shaded-folder-summary');
+                    summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+                    groupChildren.classList.add('shaded-folder-children');
+                    groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+                }
+
+                // Hue Style
+                if (depth === 0 && this.plugin.settings.treeStyle === 'hues') {
+                    const total = totalGroups > 0 ? totalGroups : 1;
+                    let progress = groupIndex / (total - 1);
+                    if (total <= 1) progress = 0.5;
+                    const hue = progress * 360;
+                    const minOpacity = 0.1;
+                    const maxOpacity = 0.3;
+                    let opacity;
+                    if (total <= 1) {
+                        opacity = minOpacity;
+                    } else {
+                        opacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                        opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
+                    }
+                    summary.classList.add('hued-folder-summary');
+                    summary.style.setProperty('--hue-start', String(hue));
+                    summary.style.setProperty('--hue-end', String((hue + 30) % 360));
+                    summary.style.setProperty('--hue-opacity', String(opacity));
+                    groupChildren.classList.add('hued-folder-children');
+                    groupChildren.style.setProperty('--hue-start', String(hue));
+                    groupChildren.style.setProperty('--hue-end', String((hue + 30) % 360));
+                    groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
+                }
+
+                // icon with custom support
+                const customIcon = this.getCustomIcon(groupKey);
+                const iconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-tag-simple';
+                const iconSpan = summary.createSpan({ cls: 'folder-icon' });
+                iconSpan.createEl('i', { cls: iconClass });
+                summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
+
+                // contex menu for group
+                summary.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    const menu = new Menu();
+                    menu.addItem(item => item
+                        .setTitle('Set custom icon')
+                        .setIcon('image')
+                        .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
+                    if (this.getCustomIcon(groupKey)) {
+                        menu.addItem(item => item
+                            .setTitle('Remove custom icon')
+                            .setIcon('trash')
+                            .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                    }
+                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
+                });
+                
+                for (const file of sortFiles(files)) {
+                    createFileItem(file, groupChildren);
+                }
+
+                groupDetails.addEventListener('toggle', () => {
+                    const isOpen = groupDetails.open;
+                    let expanded = this.plugin.settings.expandedGroups[tagName] || [];
+                    if (isOpen) {
+                        if (!expanded.includes(gTag)) {
+                            expanded = [...expanded, gTag];
+                        }
+                    } else {
+                        expanded = expanded.filter(t => t !== gTag);
+                    }
+                    this.plugin.settings.expandedGroups[tagName] = expanded;
+                    void this.plugin.saveSettings(); // no re‑render because hash unchanged
+                });
+                groupIndex++;
+            }
+
+            // Render ungrouped files directly under main tag
+            for (const file of sortFiles(ungrouped)) {
+                createFileItem(file, childrenContainer);
+            }
+            return;
+        }
+
+            // ----- HIERARCHICAL TAGS (subtags exist) -----
+        // Build a tree structure
+        interface TagNode {
+            fullPath: string;
+            name: string;
+            children: Map<string, TagNode>;
+            files: TFile[];
+        }
+
+        const root: TagNode = { fullPath: tagName, name: tagName, children: new Map(), files: tagToFiles.get(tagName) || [] };
+
+        // Insert each tag into the tree
+        for (const tag of allTags) {
+            if (tag === tagName) continue;
+            const parts = tag.split('/');
+            let current = root;
+            let currentPath = tagName;
+            for (let i = 1; i < parts.length; i++) {
+                const part = parts[i];
+                if (!part) continue;
+                currentPath = currentPath + '/' + part;
+                if (!current.children.has(part)) {
+                    current.children.set(part, {
+                        fullPath: currentPath,
+                        name: part,
+                        children: new Map(),
+                        files: tagToFiles.get(currentPath) || []
+                    });
+                }
+                current = current.children.get(part)!;
+            }
+        }
+
         const sortFiles = (files: TFile[]) => files.sort((a, b) => {
             const sortBy = this.plugin.settings.sortBy;
             const sortOrder = this.plugin.settings.sortOrder;
@@ -1925,184 +2277,156 @@ export class PortalsView extends ItemView {
             if (sortOrder === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
             else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
         });
-        
 
-        // Create main details element for the tag
-        const mainDetails = container.createEl('details', { cls: 'folder-details' });
-        mainDetails.setAttr('open', 'true');
-        const mainSummary = mainDetails.createEl('summary', { cls: 'folder-summary' });
-        const mainIconSpan = mainSummary.createSpan({ cls: 'folder-icon' });
-        mainIconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
-        mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
-        const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
-
-        // Local function to create a file item (copied from your existing loop)
-        const createFileItem = (file: TFile, parent: HTMLElement) => {
-            const fileEl = parent.createDiv({ cls: 'file-item' });
-            const customIcon = this.getCustomIcon(file.path);
-            const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
-            const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-            iconSpan.createEl('i', { cls: fileIconClass });
-            const nameSpan = fileEl.createSpan({ text: this.getDisplayName(file) });
-            nameSpan.addClass('portals-item-name');
-            fileEl.dataset.path = file.path;
-
-            const isOpen = openFiles.has(file.path);
-            let openDotSpan: HTMLSpanElement | null = null;
-            if (isOpen) {
-                openDotSpan = fileEl.createSpan({ cls: 'open-dot' });
-            }
-
-            if (this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md') {
-                const extSpan = fileEl.createSpan({ cls: 'file-extension' });
-                extSpan.setText('.' + file.extension.toUpperCase());
-                if (openDotSpan) {
-                    openDotSpan.style.display = 'none';
+        // Helper to group and render files under a container, using the same groupTags logic
+        const groupAndRenderFiles = (files: TFile[], parentEl: HTMLElement, level: number) => {
+            if (!groupTags || groupTags.length === 0) {
+                // No groups – just list files
+                for (const file of sortFiles(files)) {
+                    this.createFileItem(file, parentEl, openFiles);
                 }
-                if (isOpen) {
-                    extSpan.addClass('is-open');
-                }
+                return;
             }
 
-            if (!Platform.isMobile) {
-                fileEl.draggable = true;
-                fileEl.addEventListener('dragstart', (e) => {
-                    e.dataTransfer?.setData('text/plain', file.path);
-                });
-            }
+            // Build groups
+            const groups = new Map<string, TFile[]>();
+            groupTags.forEach(t => groups.set(t, []));
+            const ungrouped: TFile[] = [];
 
-            fileEl.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (e.altKey) {
-                    e.preventDefault();
-                    if (this.selectedFiles.has(file.path)) {
-                        this.selectedFiles.delete(file.path);
-                        fileEl.removeClass('is-selected');
-                    } else {
-                        this.selectedFiles.add(file.path);
-                        fileEl.addClass('is-selected');
+            for (const file of files) {
+                const cache = this.app.metadataCache.getFileCache(file);
+                const fileTags = new Set([
+                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                    ...(cache?.frontmatter?.tags || [])
+                ]);
+                let hasGroup = false;
+                for (const gTag of groupTags) {
+                    if (fileTags.has(gTag)) {
+                        groups.get(gTag)!.push(file);
+                        hasGroup = true;
                     }
-                } else {
-                    void this.app.workspace.getLeaf().openFile(file);
                 }
-            });
+                if (!hasGroup) ungrouped.push(file);
+            }
 
-            fileEl.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                this.showFileContextMenu(e, file, fileEl);
-            });
-            this.fileElementMap.set(file.path, fileEl);
-            return fileEl;
+            let groupIndex = 0;
+            const totalGroups = groups.size;
+            for (const [gTag, groupFiles] of groups.entries()) {
+                if (groupFiles.length === 0) continue;
+                const groupDetails = parentEl.createEl('details', { cls: 'folder-details' });
+                const groupKey = this.getTagGroupKey(tagName, gTag);
+                groupDetails.dataset.groupKey = groupKey;
+                const savedExpanded = this.plugin.settings.expandedGroups[tagName] || [];
+                groupDetails.open = savedExpanded.includes(gTag);
+                const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
+                const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
+
+                // Apply styling (shades/hues) similar to original
+                if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
+                    const minOpacity = 0.1, maxOpacity = 0.4;
+                    let shadeOpacity;
+                    const total = totalGroups > 0 ? totalGroups : 1;
+                    if (total <= 1) shadeOpacity = minOpacity;
+                    else {
+                        const progress = groupIndex / (total - 1);
+                        shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                        shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
+                    }
+                    summary.classList.add('shaded-folder-summary');
+                    summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+                    groupChildren.classList.add('shaded-folder-children');
+                    groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+                }
+                if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
+                    const total = totalGroups > 0 ? totalGroups : 1;
+                    let progress = groupIndex / (total - 1);
+                    if (total <= 1) progress = 0.5;
+                    const hue = progress * 360;
+                    const minOpacity = 0.1, maxOpacity = 0.3;
+                    let opacity;
+                    if (total <= 1) opacity = minOpacity;
+                    else {
+                        opacity = maxOpacity - progress * (maxOpacity - minOpacity);
+                        opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
+                    }
+                    summary.classList.add('hued-folder-summary');
+                    summary.style.setProperty('--hue-start', String(hue));
+                    summary.style.setProperty('--hue-end', String((hue + 30) % 360));
+                    summary.style.setProperty('--hue-opacity', String(opacity));
+                    groupChildren.classList.add('hued-folder-children');
+                    groupChildren.style.setProperty('--hue-start', String(hue));
+                    groupChildren.style.setProperty('--hue-end', String((hue + 30) % 360));
+                    groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
+                }
+
+                const customIconGroup = this.getCustomIcon(groupKey);
+                const iconClass = customIconGroup ? `ph ph-${customIconGroup}` : 'ph ph-tag-simple';
+                const iconSpan = summary.createSpan({ cls: 'folder-icon' });
+                iconSpan.createEl('i', { cls: iconClass });
+                summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
+
+                summary.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    const menu = new Menu();
+                    menu.addItem(item => item
+                        .setTitle('Set custom icon')
+                        .setIcon('image')
+                        .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
+                    if (this.getCustomIcon(groupKey)) {
+                        menu.addItem(item => item
+                            .setTitle('Remove custom icon')
+                            .setIcon('trash')
+                            .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                    }
+                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
+                });
+
+                for (const file of sortFiles(groupFiles)) {
+                    this.createFileItem(file, groupChildren, openFiles);
+                }
+
+                groupDetails.addEventListener('toggle', () => {
+                    let expanded = this.plugin.settings.expandedGroups[tagName] || [];
+                    if (groupDetails.open) {
+                        if (!expanded.includes(gTag)) expanded = [...expanded, gTag];
+                    } else {
+                        expanded = expanded.filter(t => t !== gTag);
+                    }
+                    this.plugin.settings.expandedGroups[tagName] = expanded;
+                    this.plugin.saveData(this.plugin.settings).catch(console.error);
+                });
+                groupIndex++;
+            }
+
+            // Ungrouped files
+            for (const file of sortFiles(ungrouped)) {
+                this.createFileItem(file, parentEl, openFiles);
+            }
         };
 
-        // If no groups, just list all files under the main tag
-        if (!groupTags || groupTags.length === 0) {
-            for (const file of sortFiles(taggedFiles)) {
-                createFileItem(file, childrenContainer);
-            }
-            return;
-        }
-
-        // Build groups map
-        const groups = new Map<string, TFile[]>();
-        groupTags.forEach(t => groups.set(t, []));
-        const ungrouped: TFile[] = [];
-
-        for (const file of taggedFiles) {
-            const cache = this.app.metadataCache.getFileCache(file);
-            const fileTags = new Set([
-                ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                ...(cache?.frontmatter?.tags || [])
-            ]);
-
-            let hasGroup = false;
-            for (const gTag of groupTags) {
-                if (fileTags.has(gTag)) {
-                    groups.get(gTag)!.push(file);
-                    hasGroup = true;
-                }
-            }
-            if (!hasGroup) ungrouped.push(file);
-        }
-
-        // Render each group as a nested details element (always open)
-        let groupIndex = 0;
-        for (const [gTag, files] of groups.entries()) {
-            if (files.length === 0) continue;
-            const groupDetails = childrenContainer.createEl('details', { cls: 'folder-details' });
-            const groupKey = this.getTagGroupKey(tagName, gTag);
-            groupDetails.dataset.groupKey = groupKey; // for potential future use
-
-            // open state based on expanded groups
-            const saveExpanded = this.plugin.settings.expandedGroups[tagName] || [];
-            if (saveExpanded.includes(gTag)) {
-                groupDetails.open = true;
-            } else {
-                groupDetails.open = false; // default closed
-            }
-            const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
-            const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
-
-            // Shades Style
-            if (depth === 0 && this.plugin.settings.treeStyle === 'shades') {
-                const minOpacity = .1;
-                const maxOpacity = .4;
-                let shadeOpacity;
-                const total = totalGroups > 0 ? totalGroups : 1;
-                if (total <= 1) {
-                    shadeOpacity = minOpacity
-                } else {
-                    const progress = groupIndex / (total -1);
-                    shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                }
-                shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
-
-                summary.classList.add('shaded-folder-summary');
-                summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
-                groupChildren.classList.add('shaded-folder-children');
-                groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
+        const renderNode = (node: TagNode, parentEl: HTMLElement, level: number) => {
+            const details = parentEl.createEl('details', { cls: 'folder-details' });
+            const expandedSet = this.plugin.settings.expandedTagHierarchy[tagName] || [];
+            if (expandedSet.includes(node.fullPath)) {
+                details.open = true;
             }
 
-            // Hue Style
-            if (depth === 0 && this.plugin.settings.treeStyle === 'hues') {
-                const total = totalGroups > 0 ? totalGroups : 1;
-                let progress = groupIndex / (total - 1);
-                if (total <= 1) progress = 0.5;
-                const hue = progress * 360;
-                const minOpacity = 0.1;
-                const maxOpacity = 0.3;
-                let opacity;
-                if (total <= 1) {
-                    opacity = minOpacity;
-                } else {
-                    opacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                    opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
-                }
-                summary.classList.add('hued-folder-summary');
-                summary.style.setProperty('--hue-start', String(hue));
-                summary.style.setProperty('--hue-end', String((hue + 30) % 360));
-                summary.style.setProperty('--hue-opacity', String(opacity));
-                groupChildren.classList.add('hued-folder-children');
-                groupChildren.style.setProperty('--hue-start', String(hue));
-                groupChildren.style.setProperty('--hue-end', String((hue + 30) % 360));
-                groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
-            }
-
-            // icon with custom support
-            const customIcon = this.getCustomIcon(groupKey);
-            const iconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-tag-simple';
+            const summary = details.createEl('summary', { cls: 'folder-summary' });
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-            iconSpan.createEl('i', { cls: iconClass });
-            summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
+            iconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
+            const nameSpan = summary.createSpan({ text: node.name });
+            nameSpan.addClass('portals-item-name');
+            summary.dataset.tagPath = node.fullPath;
 
-            // contex menu for group
+            // Context menu for custom icon on tag node
             summary.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 const menu = new Menu();
+                const groupKey = `tag:${tagName}/node:${node.fullPath}`;
                 menu.addItem(item => item
                     .setTitle('Set custom icon')
                     .setIcon('image')
-                    .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
+                    .onClick(() => this.setCustomIconForTagGroup(tagName, node.fullPath, groupKey)));
                 if (this.getCustomIcon(groupKey)) {
                     menu.addItem(item => item
                         .setTitle('Remove custom icon')
@@ -2111,30 +2435,53 @@ export class PortalsView extends ItemView {
                 }
                 menu.showAtPosition({ x: e.clientX, y: e.clientY });
             });
-            
-            for (const file of sortFiles(files)) {
-                createFileItem(file, groupChildren);
+
+            const childrenContainer = details.createDiv({ cls: 'folder-children' });
+
+            // Render child tags
+            const sortedChildren = Array.from(node.children.values()).sort((a, b) => a.name.localeCompare(b.name));
+            for (const child of sortedChildren) {
+                renderNode(child, childrenContainer, level + 1);
             }
 
-            groupDetails.addEventListener('toggle', () => {
-                const isOpen = groupDetails.open;
-                let expanded = this.plugin.settings.expandedGroups[tagName] || [];
-                if (isOpen) {
-                    if (!expanded.includes(gTag)) {
-                        expanded = [...expanded, gTag];
+            // Render files belonging to this node, possibly grouped
+            if (node.files.length > 0) {
+                groupAndRenderFiles(node.files, childrenContainer, level);
+            }
+
+            // Save expand/collapse state
+            details.addEventListener('toggle', () => {
+                let expanded = this.plugin.settings.expandedTagHierarchy[tagName] || [];
+                if (details.open) {
+                    if (!expanded.includes(node.fullPath)) {
+                        expanded = [...expanded, node.fullPath];
                     }
                 } else {
-                    expanded = expanded.filter(t => t !== gTag);
+                    expanded = expanded.filter(p => p !== node.fullPath);
                 }
-                this.plugin.settings.expandedGroups[tagName] = expanded;
-                void this.plugin.saveSettings(); // no re‑render because hash unchanged
+                this.plugin.settings.expandedTagHierarchy[tagName] = expanded;
+                this.plugin.saveData(this.plugin.settings).catch(console.error);
             });
-            groupIndex++;
+        };
+
+        // Main wrapper details for the portal
+        const mainDetails = container.createEl('details', { cls: 'folder-details' });
+        mainDetails.open = true;
+        const mainSummary = mainDetails.createEl('summary', { cls: 'folder-summary' });
+        const mainIconSpan = mainSummary.createSpan({ cls: 'folder-icon' });
+        mainIconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
+        mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
+        const mainChildren = mainDetails.createDiv({ cls: 'folder-children' });
+
+        // Render top-level children
+        const topChildren = Array.from(root.children.values()).sort((a, b) => a.name.localeCompare(b.name));
+        for (const child of topChildren) {
+            renderNode(child, mainChildren, 1);
         }
 
-        // Render ungrouped files directly under main tag
-        for (const file of sortFiles(ungrouped)) {
-            createFileItem(file, childrenContainer);
+        // Render files directly under the main tag (if any), with grouping
+        if (root.files.length > 0) {
+            groupAndRenderFiles(root.files, mainChildren, 1);
         }
     }
 
