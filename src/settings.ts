@@ -833,7 +833,10 @@ class AddPortalModal extends Modal {
         this.subFolders.sort((a, b) => a.name.localeCompare(b.name));
 
         const tagsObj = (app.metadataCache as unknown as { getTags(): Record<string, number> }).getTags();
-        this.allTags = Object.keys(tagsObj).map(t => t.slice(1)).sort();
+        this.allTags = Object.keys(tagsObj)
+            .map(t => t.slice(1))
+            .filter(tag => !tag.includes('/'))
+            .sort()
     }
 
     onOpen() {
@@ -969,7 +972,8 @@ export class GroupTagsModal extends Modal {
         contentEl.createEl('h2', { text: 'Select group tags' });
 
         const container = contentEl.createDiv({ cls: 'portals-checkbox-container' });
-        this.availableTags.forEach(tag => {
+        const filteredTags = this.availableTags.filter(tag => !tag.includes('/'));
+        filteredTags.forEach(tag => {
             const div = container.createDiv({ cls: 'portals-checkbox-item' });
             const checkbox = div.createEl('input', { type: 'checkbox', value: tag });
             checkbox.checked = this.selectedTags.has(tag);
