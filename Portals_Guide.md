@@ -1,6 +1,6 @@
 # Portals Plugin User Guide
 
-Welcome to **Portals** – an Obsidian plugin to enhance your file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into your selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.1.6.**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.1.6.**
 
 ---
 ## Installation
@@ -13,13 +13,20 @@ Welcome to **Portals** – an Obsidian plugin to enhance your file navigation. T
 
 2. **Manual Installation**
 	-  Download the latest release from the [releases page](https://github.com/samaraliwarsi/obsidian-portals/releases).
-	- Extract the `manifest.json`, `styles.css` and `main.js` files into your vault’s `.obsidian/plugins/obsidian-portals/` folder.
+	- Extract the `manifest.json`, `styles.css` and `main.js` files into obsidian vault’s `.obsidian/plugins/obsidian-portals/` folder.
 	- Enable the plugin in Obsidian settings.
-	
+
+---
+
+>[!important] 
+>fter setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways, 
+> - Copy the `data.json` file at `.obsidian/Plugins/Portals` and save it at a secure location. 
+> - Open `Settings → Portals`, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
+
 ---
 ## Portal Tabs
 
-Transform your **folders** and **tags** into tabs at the top of the file pane.
+Transform **folders** and **tags** into tabs at the top of the file pane.
 
 1. **Adding a Portal**
 	-  Open `Settings → Portals`. Scroll down to the **Portal tabs** section
@@ -27,26 +34,26 @@ Transform your **folders** and **tags** into tabs at the top of the file pane.
 	- Choose **Root Folders**, **Sub Folders**, or **Tags**. 
 - Select a folder or tag from the list and click `Add`. Once selected, the folder or tag will be greyed out.
 
-> **Pin Vault Root** – enable in settings to pin your vault’s root as a permanent tab on the left. Vault root will always be on the left, the setting of `Tab name display` will have no effect on it. 
+> **Pin Vault Root** – enable in settings to pin obsidian vault’s root as a permanent tab on the left. Vault root will always be on the left, the setting of `Tab name display` will have no effect on it. 
 
 2. **Reordering Tabs**
-	- Drag and drop tabs with your mouse (hold for a moment on touch devices).
+	- Drag and drop tabs with mouse (hold for a moment on touch devices).
 	
 3. **Active Tab Behaviour**
 	 - The active tab is highlighted with a coloured bottom border. This color will be the theme accent color, or if `Tab colors` setting is enabled, match the color chosen by the user for this particular portal. 
-	 - By default the active tab shows its name; you can change this in settings using `Tab name display`. Any tab names hidden using this setting will always show tooltips on mouse hover. Tooltips, as of now, are only available on desktop. 
+	 - By default the active tab shows its name; users can change this in settings using `Tab name display`. Any tab names hidden using this setting will always show tooltips on mouse hover. Tooltips, as of now, are only available on desktop. 
 
 ---
 ## Customizations
 
 The portal view can be customized in many ways, here we will explain each of them. 
 ### Replace file explorer
-To make portals the default explorer when opening Obsidian, use the `Replace explorer in sidebar` setting inside the **Explorer settings** in `Settings → Portals`. This will ensure portals remains the focused view every time you enter Obsidian. The default Obsidian explorer will still be available via Obsidian tabs. 
+To make portals the default explorer when opening Obsidian, use the `Replace explorer in sidebar` setting inside the **Explorer settings** in `Settings → Portals`. This will ensure portals remains the focused view every time Obsidian reloads. The default Obsidian explorer will still be available via Obsidian tabs. 
 ### Colors
 Each portal can have its own **icon** and **background color**. It can be applied to the tab's bottom border and/ or the entire file area, depending on user preferences.
 
 - Go to `Settings → Portals`. 
-- In the section of **Explorer Settings**, set your color preferences in `Tab colors` and `Background color type` options.
+- In the section of **Explorer Settings**, set user color preferences in `Tab colors` and `Background color type` options.
 - Scroll down to **Portal tabs** section.
 - Find enabled portals in the list (Root Folders, Sub Folders, or Tags).
 - Click the icon displayed with the tooltip *Choose Icon*. Use the pop-up modal to choose from hundreds of icons from the embedded Phosphor icon set.
@@ -54,15 +61,15 @@ Each portal can have its own **icon** and **background color**. It can be applie
 
 > The pinned vault root tab gets its own colour and a special left border showing its pinned status. 
 ### Tab Name Display
-You can control how tab names appear in `Tab name display` setting in the **Explorer settings**:
+Users can control how tab names appear in `Tab name display` setting in the **Explorer settings**:
 - Icons only – never show names; tooltip on hover.
 - Show only active tab name – name appears only on the active tab.
 - Show all tab names – always visible.
 This setting applies to both the main tab bar and the side portal tabs.
 ### Compact Tree View
-Compact tree view can help reduce the spacing between folders and file items. To enable, go to `Settings → Portals`, in the **Explorer settings**, find `Compact tree view`, turn it on/ off based on your preferences. 
+Compact tree view can help reduce the spacing between folders and file items. To enable, go to `Settings → Portals`, in the **Explorer settings**, find `Compact tree view`, turn it on/ off based on personal preferences. 
 ### Styles
-Portals offers several visual styles for the file/tag tree. Choose your preferences in `Settings → Portals`, go to **Explorer settings** to open the dropdown options in `Styles`. The options are, 
+Portals offers several visual styles for the file/tag tree. Choose a style in `Settings → Portals`, go to **Explorer settings** to open the dropdown options in `Styles`. The options are, 
 
 | Style       | Description                                                                                 |
 | ----------- | ------------------------------------------------------------------------------------------- |
@@ -101,9 +108,9 @@ Mobile display of side portal may be affected by elements based on themes. On de
 
 The tabs available to be displayed in **Side Portal** are* as described below. 
 ### Recent Files
-- Shows the last 20 files you opened.
+- Shows the last 20 files opened in editor.
 - Right‑click for context menu, Click to open.
-- Live updates as you open files.
+- Updates live and shows active dot on all files open in the editor.
 ### Bookmarks
 - Mirrors Obsidian’s built‑in bookmarks.
 - Right‑click on any bookmark or group to delete.
@@ -128,7 +135,7 @@ The folder note tab shows the folder note of the currently active portal (if it 
 - Users can choose if they want to see the folder note file inside a folder. To enable, go to `Settings → Portals`, scroll down to the **Folder Note** section and turn on `Show folder notes in a tree`. If `Enable folder notes` setting is off, all folder notes are displayed in file tree regardless of the other settings. 
 - Note that bases preview is not supported as of now in folder notes. Bases markdown links are shown as clickable links right now, future updates will include bases preview support. 
 ### Journal
-A dedicated side portal tab for sneak peak into daily notes. For it to work, users need to point it to their daily notes folder and select the correct date format. To do this, go to `Settings → Portals`, scroll down to the **Journal** section, set the date format used in their daily notes using `Journal date format` and select your `Journal folder`, it must be the same as daily notes folder. Users can type the path exactly or use the `Browse files` option to select from a modal.  When using the Daily Notes core plugin, and if the folder is the same as defined in core plugin settings, users can leave the `Journal folder` setting empty. 
+A dedicated side portal tab for sneak peak into daily notes. For it to work, users need to point it to their daily notes folder and select the correct date format. To do this, go to `Settings → Portals`, scroll down to the **Journal** section, set the date format used in their daily notes using `Journal date format` and select a `Journal folder`, it must be the same as daily notes folder. Users can type the path exactly or use the `Browse files` option to select from a modal.  When using the Daily Notes core plugin, and if the folder is the same as defined in core plugin settings, users can leave the `Journal folder` setting empty. 
 
 > Note: The feature is designed to work with daily notes core plugin. While support is extended to other plugins/ methods of daily notes, the most reliable behaviour can be expected with the core plugin. 
 
@@ -139,7 +146,7 @@ The **Journal** side portal has two areas in display,
 #### Quotes
 Quotes area is used to display snippets of text that user marks in their daily notes, in the dedicated folder as defined in settings or by daily notes plugin. The quotes are displayed using a 30 second timer and auto refresh. There are two buttons for this, 
 ##### Quote buttons
-- **Random** – shows random quotes from your all daily notes.
+- **Random** – shows random quotes from all the daily notes available in the user pointed folder.
 - **On this day** – shows quotes from the same day in all the months of the previous year, and on the same day and same month in previous 10 years. 
 ##### Marking Quotes
 Quotes are extracted using a delimiter. Users must manually mark the snippets of text they wish to display, all their daily notes, using the set delimiter. The default delimiter used is ` == `.  Example: ` ==This is a quote== `. This is the same as default obsidian highlight syntax. Users can change the delimiter. To do this, go to `Settings → Portals`, scroll down to the **Journals** section and select from the dropdown list in `Quote delimiter`
@@ -165,6 +172,12 @@ Folder and Tag trees exhibit certain differences.
 
 1. **Drag and Drop** : This is only available in folder trees and only on desktop. Drag and drop between portals is not available right now and planned for a future release. 
 2. **Buttons** : Tag trees omit the `New Folder` button and display a `Tag group` button that can be used to add grouped separation to tag views based on secondary tags. 
+
+### Important points about Folder trees
+- Any folder can be added as a portal tab via `Settings → Portals`. 
+- If the name of a folder that was added changes, the portal tab will not show any contents as portals are right now kept simply as direct paths. 
+- For any issues faced during removing a portal that has been renamed/ deleted, use the `Clean up dead portals` options in **Maintenance and help** ad the bottom of settings page. 
+
 ### Important points about Tag trees
 Tag trees can be added using the same method as folder trees via `Settings → Portals`. The view of a tag tree depends on the type of tag usage. 
 - For users with **simple tags**, eg. `#Writing`, the tag trees will show a simple list of files matching their tags. 
@@ -174,7 +187,12 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 - Tag groups & nested tags/ subtags are displayed in the same file tree. Tag groups can be turned on and off, but nested tags always appear in the list, if files carry those tags. File drop downs in tag portal using # before a name are simple tags, the drop downs that appear without a # are subtags/nested tags. 
 	- Nested tags or subtags cannot themselves be used as a portal space, or added as a group tag. This logic is maintained for simplicity. 
 	- Files carrying subtags as well nested tags can appear at two places, in the nested dropdown as well as the tag group (if chosen). This is a viewing consistency, not a bug. 
-
+- Tag names are linked directly to form portal tabs. If the name or spelling of a tag on a file changes, the file will not be populated in the tag view. 
+---
+## Renaming Portal Tabs
+Portal tabs can have display name that doesn't need to match the folder or the tag name. Renaming only works in main portal tabs and not side portal. To set a **Display name*, 
+- `Right-click` on an active portal, click on `Rename portal`, enter a name. 
+- Display name can be reset using `Reset name`
 
 ---
 ## Foldable floating Action Buttons
@@ -240,33 +258,33 @@ Right‑click on any file or folder in the tree to open a menu with actions:
 ## Troubleshooting & Tips
 
 - **My custom icon disappeared after rename** – it should persist; if not, restart Obsidian.  
-- **Journal quotes not showing** – ensure your journal folder is set correctly and your notes use the chosen delimiter.  
+- **Journal quotes not showing** – ensure journal folder is set correctly and daily notes use the chosen delimiter.  
 - **Side portal not visible** – check that `Side portal` is enabled and not disabled on mobile.  
 - **Shift+Click doesn’t create folder note** – verify that folder notes are enabled in settings. 
 - **Drag & drop not working on mobile** – Drag and drop is disabled on mobile for now to implement properly later on. Use context menu “Move to” instead.
-- **Backup your data file** - After setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. You can do this two ways, 
+- **Backup data file** - After setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways, 
 	- Copy the `data.json` file at `.obsidian/Plugins/Portals` and save it at a secure location. 
 	- Open `Settings → Portals`, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
 
 ---
 ## Migration Guide
-###  Important: Required for 1.1.1, if you are updating from any previous version (v1.1.0 or earlier)
-The plugin ID has changed from `obsidian-portals` to `portals` to follow Obsidian's guidelines. Your settings won't be updated automatically for this round. If you are updating from an older version (1.1.0 or earlier), please follow these steps to keep your settings. There are two ways to do this, 
+###  Important: Required for 1.1.1,  for users who are updating from any previous version (v1.1.0 or earlier)
+The plugin ID has changed from `obsidian-portals` to `portals` to follow Obsidian's guidelines. User settings won't be updated automatically for this round. For users updating from an older version (1.1.0 or earlier), please follow these steps to migrate previous settings. There are two ways to do this, 
 ### Export/Import of json file
 1. **Export** using the older version. Use the feature provided at the bottom of the settings page. Save the json file at a safe location.
 2. **Unintall Portals**
 3. **Reinstall** the latest version
-4. **Import** using the newer version. Use the feature provided at the bottom of the settings page. Select the json file you saved earlier.
+4. **Import** using the newer version. Use the feature provided at the bottom of the settings page. Select a saved json file.
 
 ### Use Data File
 1. **Close Obsidian** completely.
->2. **Navigate to your vault's `.obsidian/plugins/` folder**.
->3. You will see an old folder named `obsidian-portals`. Inside it, find the file `data.json` – this contains all your portal configurations.
+>2. **Navigate to vault's `.obsidian/plugins/` folder**.
+>3. Find the old folder named `obsidian-portals`. Inside it, find the file `data.json` – this contains all the portal configurations.
 >4. **Create a new folder** named `portals` in the same location (if it doesn't already exist).
 >5. **Copy the `data.json` file** from the `obsidian-portals` folder into the new `portals` folder.
->6. (Optional) After confirming everything works, you may delete the old `obsidian-portals` folder.
->7. **Restart Obsidian** and enable the new plugin (`Portals`). Your settings should now be restored.
->8. If you prefer, you can start fresh – your old settings will not be used automatically.
+>6. (Optional) After confirming everything works, users may delete the old `obsidian-portals` folder.
+>7. **Restart Obsidian** and enable the new plugin (`Portals`). User settings should now be restored.
+>8. Users can prefer to start fresh – old settings will not be used automatically.
 
 ---
 ## Need More Help?

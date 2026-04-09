@@ -8,6 +8,7 @@ export interface SpaceConfig {
     icon: string;
     color: string;
     groupTags?: string[];
+    displayName?: string;
 }
 
 export interface SpacesSettings {

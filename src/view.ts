@@ -6,6 +6,7 @@ import { MarkdownRenderer } from 'obsidian';
 import { GroupTagsModal } from './settings';
 import { JournalRenderer } from './journalView';
 import { IconPickerModal } from './iconPicker';
+import { RenamePortalModal } from './modals';
 
 interface BookmarkItem {
     title?: string;
@@ -25,6 +26,7 @@ const SIDE_TAB_ICONS: Record<string, string> = {
 };
 
 export const VIEW_TYPE_PORTALS = 'portals-view';
+
 
 export class PortalsView extends ItemView {
     plugin: PortalsPlugin;
@@ -282,6 +284,34 @@ export class PortalsView extends ItemView {
             this.renderContent();
             this.renderTimer = null;
         }, 50); // 50ms delay – adjust as needed
+    }
+
+    private renamePortal(space: SpaceConfig) {
+        const currentDisplay = space.displayName || this.getDefaultSpaceName(space);
+        new RenamePortalModal(this.app, currentDisplay, (newName) => {
+            if (newName && newName.trim()) {
+                space.displayName = newName.trim();
+            } else {
+                delete space.displayName;
+            }
+            this.plugin.saveSettings().then(() => this.render());
+        }).open();
+    }
+
+    private resetPortalName(space: SpaceConfig) {
+        delete space.displayName;
+        this.plugin.saveSettings().then(() => this.render());
+    }
+
+    private getDefaultSpaceName(space: SpaceConfig): string {
+        const vaultName = this.app.vault.getName();
+        if (space.type === 'folder') {
+            if (space.path === '/') return vaultName;
+            const folder = this.app.vault.getAbstractFileByPath(space.path);
+            return folder instanceof TFolder ? folder.name : space.path;
+        } else {
+            return '#' + space.path;
+        }
     }
 
     private handleRename(file: TAbstractFile, oldPath: string) {
@@ -750,7 +780,7 @@ export class PortalsView extends ItemView {
     private getSettingsHash(): string {
         const s = this.plugin.settings;
         return JSON.stringify({
-            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.groupTags?.join(',') || ''}`).join(','),
+            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.displayName || ''}${sp.groupTags?.join(',') || ''}`).join(','),
             openFolders: s.openFolders.join(','),
             selectedSpace: s.selectedSpace ? `${s.selectedSpace.type}:${s.selectedSpace.path}` : '',
             filePaneColorStyle: s.filePaneColorStyle,
@@ -814,18 +844,19 @@ export class PortalsView extends ItemView {
             const tabBar = container.createEl('div', { cls: 'portals-tab-bar' });
 
             for (const space of spaces) {
-                let displayName = '';
-                const vaultName = this.app.vault.getName();
-
-                if (space.type === 'folder') {
-                    if (space.path === '/') {
-                        displayName = vaultName; // root shows vault name
+                let displayName = space.displayName
+                if (!displayName) {
+                    const vaultName = this.app.vault.getName();
+                    if (space.type === 'folder') {
+                        if (space.path === '/') {
+                            displayName = vaultName; // root shows vault name
+                        } else {
+                            const folder = this.app.vault.getAbstractFileByPath(space.path);
+                            displayName = folder instanceof TFolder ? folder.name : space.path;
+                        }
                     } else {
-                        const folder = this.app.vault.getAbstractFileByPath(space.path);
-                        displayName = folder instanceof TFolder ? folder.name : space.path;
+                        displayName = '#' + space.path;
                     }
-                } else {
-                    displayName = '#' + space.path;
                 }
 
                 const tab = tabBar.createEl('div', { cls: 'portals-tab' });
@@ -880,6 +911,22 @@ export class PortalsView extends ItemView {
                     const iconSpan = tab.createSpan({ cls: 'portals-tab-icon' });
                     iconSpan.createEl('i', { cls: `ph ph-${space.icon}` });
                 }
+
+                tab.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    const menu = new Menu();
+                    menu.addItem(item => item
+                        .setTitle('Rename portal')
+                        .setIcon('pencil')
+                        .onClick(() => this.renamePortal(space)));
+                    if (space.displayName) {
+                        menu.addItem(item => item
+                            .setTitle('Reset name')
+                            .setIcon('undo')
+                            .onClick(() => this.resetPortalName(space)));
+                    }
+                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
+                });
 
                 tab.addEventListener('click', () => {
                     this.hideTooltip(0);
