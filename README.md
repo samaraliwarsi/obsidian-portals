@@ -33,7 +33,6 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - **Mobile friendly** – Responsive design that works on small screens. Tested on Android (more platforms coming).
 - **Export/Import settings** – Backup your tab configuration or transfer it to another vault using json files from `Settings`.
 
->[!Information] 
 > For a detailed guide, go to [Portals guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md)
 
 > [!Note]
