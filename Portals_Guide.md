@@ -19,7 +19,7 @@ Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. T
 ---
 
 >[!important] 
->fter setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways, 
+>After setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways, 
 > - Copy the `data.json` file at `.obsidian/Plugins/Portals` and save it at a secure location. 
 > - Open `Settings → Portals`, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
 
