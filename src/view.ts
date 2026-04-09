@@ -1749,7 +1749,7 @@ export class PortalsView extends ItemView {
                 this.folderNoteCache.set(filePath, { element: noteContainer, component });
                 this.folderNoteAccessOrder.push(filePath);
                 
-                // evit least reent used if cache exceeds limit
+                // evict least reent used if cache exceeds limit
                 if (this.folderNoteCache.size > this.MAX_FOLDER_NOTE_CACHE) {
                     const oldest = this.folderNoteAccessOrder.shift();
                     if (oldest) {
