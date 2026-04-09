@@ -19,9 +19,11 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - **Custom icons & colors** – Choose from hundreds of icons from the Phosphor set for the tabs and set any background color with an opacity slider. Option to use gradients. Control tab and file pane colors separately.
 - **Styles** - Folder trees or Tag grouped lists in each portal tab can be styled with several predefined styles such. The styles available are `Default`, `Minimal`, `Boxed`, `Portals`, `Shades` & `Hues`. 
 - **Tag Grouping** - Use existing tags in listed files to enabled grouped view in tag list for, delivering a better layout for tag portal tabs.
+- **Subtags** - Subtags/ nested tags, eg. `Writing/Poetry`, displayed as hierarchal trees.
 - **Complete context menus** – Right‑click files or folders to get the same menu as the default file explorer.
 - **Foldable floating action buttons** – Quick‑create notes, folders, collapse all subfolders, and change sort order. Floating buttons are foldable on `Right Click/Long Press` for those wanting a cleaner folder pane view.
 - **Native sorting** – Choose how files are sorted (by name, creation time, or modification time, ascending/descending). Your choice is saved between sessions.
+- **Custom display names** - Tabs can have user defined display names without affecting folders or tabs.
 - **Side Portal** - A modular, collapsable, resizable pane for new views and more ways to access content. Toggle it on in settings to find options inside. **Side Portal** has tabs containing, **Bookmarks**, **Recent Files**, **Folder Notes** and **Journal**. To use **Side Portal,** at least one tab is required to be on in settings. Side portal can be turned off on mobile to help smaller screen devices.
 	- **Folder Notes** – Each folder can have an associated note (markdown file with the same name). The note can be displayed in a side panel, and folders with a note are marked with a small dot. Global toggle to enable/disable folder notes. **Folder notes** can be used without side portal as well.
 	- **Recents** - Live update recent files list from across the vault. 
@@ -30,6 +32,9 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - **Safe deletion** – Files are moved to Obsidian’s `.trash` folder, if such are the preferences set by user in obsidian `settings`.
 - **Mobile friendly** – Responsive design that works on small screens. Tested on Android (more platforms coming).
 - **Export/Import settings** – Backup your tab configuration or transfer it to another vault using json files from `Settings`.
+
+>[!Information] 
+> For a detailed guide, go to [Portals guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md)
 
 > [!Note]
 > Please make sure to backup your data file after a full setup of your preferences, color & icon choices. You can backup by copying the file `.obsidian/Plugins/Portals/data.json` to safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates for safe measure. 
@@ -63,16 +68,21 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - Hover over an inactive tab to see a tooltip with its name.
 - For **Side Portal** choose the tabs you want in settings.
 - **Side Portal** can be turned off for mobile devices.
+- Set custom display name for any tab.
 ### Folder Notes
 
 - Each folder can have an associated **folder note** – a markdown file with the same name as the folder (case‑insensitive).
-- For non‑root folders, use the folder’s context menu to **Create folder note** or **Open folder note**.
-- For the vault root, and also for any folder, create a note manually with the same name as your vault (e.g., `MyVault.md`). The root folder note is not created automatically via context menu.
+- Use the folder’s context menu to **Create folder note** or press `Shift+Click` to quick create. 
+- Use the folder’s context menu to **Open folder note** or press `Cmd/Ctrl+Click` to open a folder note in editor.. 
 - The **Folder Notes** side portal (bottom of the file pane) displays the content of the folder note for the currently active portal.
 - **Folder Notes** in side portal have a cache for performance improvements. This can accommodate 10 tabs with folder notes. Any further tabs will also support folder notes but the cache is valid for the most recent 10 used. 
-- An accent color highlight is used to show folders that have a folder note (including the root). This can be turned off from settings.
-- **Cmd/Ctrl + click** on a folder (in the tree) opens its folder note in a new editor tab.
+- An accent color highlight is used to show folders that have a folder note (including the root). This can be changed to underline or turned off from settings.
+- Clickable markdown links in folder notes side portal tab. 
 - Settings let you globally enable/disable folder notes and control whether they appear in the file tree.
+### Journal
+- A dedicated side portal tab for sneak peak into daily notes. 
+- File area displays daily notes inside the selected folder for daily notes. 
+- Quotes area displays text snippets from previous notes based on `Random` or `On this day` logic. Text snippets have to manually marked by user using settings chosen delimiter. 
 ### Floating action buttons
 
 Four collapsible floating buttons appear at the bottom‑left of the file panel. They can be folded, unfolded using the Right-Click or Long press on mobile. The collapse button works even in the folded state with Left-Click/ Tap on mobile. The four buttons are, 
@@ -97,37 +107,46 @@ Four collapsible floating buttons appear at the bottom‑left of the file panel.
 - Compact Tree is available for users with large vaults or for those who wish for a packed file/ tag tree appearance. Compact view works with all available styles. 
 - Bold folder names can be turned on from settings to further add a visual differentiator between files and folders/ tab groups. 
 - Non-markdown files can show a extension badge at the right hand side for visual separation. This can be turned on from settings.
-- Seven predesigned styles to display folder, tag trees. Choose your favourite style based on your theme and design choices.
- 
-## ⚙️ Settings
+- Six predesigned styles to display folder, tag trees. Choose your favourite style based on your theme and design choices.
 
-- **Replace file explorer** – If enabled, Portals will open in the left sidebar on startup (the original file explorer is still there on a different tab of left sidebar).
-- **Compact Tree View** - Reduce spacing to display more items in a single view of a file/ tag tree. This doesn't apply to recents or bookmarks.
-- **Styles** - Choose a visual theme for file/ tag tree, recents and bookmarks. Works with compact mode. 
-- **Background color style** – Choose how tab background colors are applied: **Gradient** (fades from solid to transparent), **Solid**, or **None**.
-- **Tab colors** – Toggle whether tabs use their assigned background color.
-- **Bold folder names** - Make folder/group names bold in a tree. 
-- **Show inactive tab names** - Inactive tab names can be turned on. It's off by default. 
-- **Enable folder notes** – Global toggle for the folder notes feature. When disabled, folder notes are treated as normal files (always visible), the side panel shows a notice, and folder‑note context menu items are removed.
-- **Show folder notes in file tree** – When folder notes are enabled, this controls whether they appear in the tree. If disabled, they are hidden.
-- **Highlight folder notes** - If enabled, folders with folder notes will have their icons highlighted by accent color. 
-- **Pin vault root** – Pins the vault root as the first tab (always on the left). You can customize its icon and color separately.
-- **Sort defaults** – Choose the default sort method and order for new vaults (users can still change it via the floating button).
-- **Side Portal** – Enable or disable the bottom panel with additional tabs (Recent, Folder Notes, Bookmarks). You can also choose which tabs appear. Side Portal can be disabled on mobile for theme compatibility. For perfect compatibility use theme [Baseline](https://github.com/aaaaalexis/obsidian-baseline).
-- **Journal Folder** - set a specific folder to read for daily notes. Leave empty if its based on the default core daily notes plugin. Compatibility outside the core plugin has not been tested fully.
-- **Quote Delimiter** - Choose the syntax in markdown that will be used by journal side portal to read the daily notes. Default delimiter is set to == i.e. the default obsidian highlight.
-- **Backup / Restore** – Export your entire settings to a JSON file, or import from a previously saved file.
-- **Clean up Dead Portals** - If you delete a folder that was assigned as a Portal Tab, use settings to clean up the remnants from the display.
+## ⚙️ Settings Overview
+
+| Setting                                    | Description                                                                  |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| **Replace file explorer**                  | Opens Portals in the left sidebar on startup.                                |
+| **Compact tree view**                      | Reduces spacing to show more items.                                          |
+| **Styles**                                 | Choose tree visual theme.                                                    |
+| **Background color style**                 | How tab colours are applied to the file area (Gradient/Solid/None).          |
+| **Tab colors**                             | Global toggle for tab border colours.                                        |
+| **Bold folder names**                      | Makes folder names bold.                                                     |
+| **Show extensions for non‑markdown files** | Displays a badge (e.g., `.PDF`) instead of a dot.                            |
+| **Enable folder notes**                    | Master switch for all folder note features.                                  |
+| **Show folder notes in file tree**         | If disabled, folder notes are hidden from the tree.                          |
+| **Highlight folder notes**                 | Adds a coloured accent to folders that have a note.                          |
+| **Side portal**                            | Enable/disable the bottom panel.                                             |
+| **Choose side portals**                    | Select which tabs appear (Recent, Folder Notes, Bookmarks, Journal).         |
+| **Disable side portal on mobile**          | Hides side portal on small screens.                                          |
+| **Journal folder**                         | Folder where daily notes live.                                               |
+| **Quote delimiter**                        | Symbols used to mark quotes, e.g, `double-equal(==)` or `double-asterix(**)` |
+| **Pin vault root**                         | Always show the root as the first tab.                                       |
+| **Backup / Restore**                       | Export/import all settings (including custom icons).                         |
+| **Clean up dead portals**                  | Remove tabs for folders/tags that no longer exist.                           |
+| **User Guide**                             | Opens this user guide on GitHub                                              |
 
 ## 🧑‍💻 Development
 
 Clone the repository, install dependencies, and build:
 
 ```bash
+
 git clone https://github.com/samaraliwarsi/obsidian-portals.git
+
 cd obsidian-portals
+
 npm install
+
 npm run build
+
 ```
 
 The built `main.js` and `styles.css` will be in the root folder. Copy them into your test vault’s `.obsidian/plugins/obsidian-portals/` directory.
