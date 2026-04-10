@@ -20,6 +20,7 @@ export class JournalRenderer {
     private cardsWrapper: HTMLElement | null = null;
     private allQuotes: { text: string; date: Date; file: TFile }[] = [];
     private quoteAnimationTimout: number | null = null;
+
     private startProgressTimer = () => {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -108,6 +109,28 @@ export class JournalRenderer {
             }
         }
 
+       // Check for filename format mismatches – show warning if any
+        if (this.notes.length > 0) {
+            const format = this.plugin.settings.journalDateFormat;
+            let mismatched = false;
+            for (const note of this.notes) {
+                const name = note.name;
+                if (format === 'YYYY-MM-DD') {
+                    if (!/^\d{4}-\d{2}-\d{2}/.test(name)) mismatched = true;
+                } else {
+                    if (!/^\d{2}-\d{2}-\d{4}/.test(name)) mismatched = true;
+                }
+                if (mismatched) break;
+            }
+            if (mismatched) {
+                const warningEl = this.container.createDiv({ cls: 'journal-warning' });
+                warningEl.createSpan({
+                    text: `⚠️ Some filenames do not match the settings selected date format "${format}". Please change the format in Portals settings.`
+                });
+                // No dismiss button – warning persists
+            }
+        }
+
         // Pre‑extract all quotes once
         this.allQuotes = await this.extractAllQuotes();
 
@@ -166,48 +189,51 @@ export class JournalRenderer {
     private parseDateFromFile(file: TFile): Date {
         const name = file.name;
         const format = this.plugin.settings.journalDateFormat;
-        const match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
-        if (!match) {
-            console.warn(`[Journal] Could not parse date from filename: ${name} using format ${format}, falling back to ctime`);
-            return new Date(file.stat.ctime);
-        }
-
-        const first = match[1];
-        const second = match[2];
-        const yearStr = match[3];
-        if (!first || !second || !yearStr) {
-            console.warn(`[Journal] Invalid date parts in filename: ${name}, falling back to ctime`);
-            return new Date(file.stat.ctime);
-        }
-
+        let match: RegExpMatchArray | null = null;
         let year: number, month: number, day: number;
-        if (format === 'DD-MM-YYYY') {
-            day = parseInt(first, 10);
-            month = parseInt(second, 10) - 1;
-            year = parseInt(yearStr, 10);
-            // Validate day (1-31) and month (0-11)
-            if (day < 1 || day > 31 || month < 0 || month > 11) {
-                console.warn(`[Journal] Invalid date (day=${day+1}, month=${month+1}) in filename: ${name}, falling back to ctime`);
-                return new Date(file.stat.ctime);
+
+        if (format === 'YYYY-MM-DD') {
+            match = name.match(/(\d{4})-(\d{2})-(\d{2})/);
+            if (match && match[1] && match[2] && match[3]) {
+                year = parseInt(match[1], 10);
+                month = parseInt(match[2], 10) - 1;
+                day = parseInt(match[3], 10);
+                if (this.isValidDate(year, month, day)) {
+                    return new Date(year, month, day);
+                }
             }
-        } else { // MM-DD-YYYY
-            month = parseInt(first, 10) - 1;
-            day = parseInt(second, 10);
-            year = parseInt(yearStr, 10);
-            // Validate month (0-11) and day (1-31)
-            if (month < 0 || month > 11 || day < 1 || day > 31) {
-                console.warn(`[Journal] Invalid date (month=${month+1}, day=${day}) in filename: ${name}, falling back to ctime`);
-                return new Date(file.stat.ctime);
+        } else if (format === 'DD-MM-YYYY') {
+            match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
+            if (match && match[1] && match[2] && match[3]) {
+                day = parseInt(match[1], 10);
+                month = parseInt(match[2], 10) - 1;
+                year = parseInt(match[3], 10);
+                if (this.isValidDate(year, month, day)) {
+                    return new Date(year, month, day);
+                }
+            }
+        } else if (format === 'MM-DD-YYYY') {
+            match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
+            if (match && match[1] && match[2] && match[3]) {
+                month = parseInt(match[1], 10) - 1;
+                day = parseInt(match[2], 10);
+                year = parseInt(match[3], 10);
+                if (this.isValidDate(year, month, day)) {
+                    return new Date(year, month, day);
+                }
             }
         }
 
+        // Fallback to creation time
+        console.warn(`[Journal] Filename "${name}" does not match format "${format}". Using file creation date.`);
+        return new Date(file.stat.ctime);
+    }
+
+    // Add helper (place after parseDateFromFile)
+    private isValidDate(year: number, month: number, day: number): boolean {
+        if (month < 0 || month > 11 || day < 1 || day > 31) return false;
         const date = new Date(year, month, day);
-        // Additional safety: if the date object doesn't match the expected components (e.g., Feb 31)
-        if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
-            console.warn(`[Journal] Date rollover detected for ${name}, falling back to ctime`);
-            return new Date(file.stat.ctime);
-        }
-        return date;
+        return date.getFullYear() === year && date.getMonth() === month && date.getDate() === day;
     }
 
     private renderDateCards() {

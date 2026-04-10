@@ -41,7 +41,7 @@ export interface SpacesSettings {
     boldFolderNames: boolean;
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
     journalFolderPath: string;
-    journalDateFormat: 'DD-MM-YYYY' | 'MM-DD-YYYY';
+    journalDateFormat: 'DD-MM-YYYY' | 'MM-DD-YYYY' | 'YYYY-MM-DD';
     markedJournalNotes: string[];
     quoteDelimiter: string;
     customIcons: Record<string, string>;
@@ -302,6 +302,7 @@ export class SpacesSettingTab extends PluginSettingTab {
         .addDropdown(dropdown => dropdown
             .addOption('DD-MM-YYYY', 'DD-MM-YYYY')
             .addOption('MM-DD-YYYY', 'MM-DD-YYYY')
+            .addOption('YYYY-MM-DD', 'YYYY-MM-DD')
             .setValue(this.plugin.settings.journalDateFormat)
             .onChange(async (value) => {
                 this.plugin.settings.journalDateFormat = value as 'DD-MM-YYYY' | 'MM-DD-YYYY';

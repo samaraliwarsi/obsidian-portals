@@ -6073,6 +6073,18 @@ body.portals-dragging {
 
 /*============================JOURNAL=================================*/
 
+.journal-warning {
+    color: var(--text-warning);
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 2px solid var(--text-warning);
+}
+
 /* Journal Tab Styles */
 
 .journal-card {
