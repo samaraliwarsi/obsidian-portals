@@ -2098,10 +2098,8 @@ export class PortalsView extends ItemView {
     }
 
     private getDisplayName(file: TFile): string {
-        if (file.extension === 'md') {
-            return file.basename;
-        }
-        return file.name;
+        if (file.extension === 'md') return file.basename;
+        return this.plugin.settings.enableFileExtensionNonMD ? file.basename : file.name;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -2974,12 +2972,28 @@ export class PortalsView extends ItemView {
         if (!nameSpan) return;
 
         const isMd = file.extension === 'md';
-        const base = isMd ? file.basename : file.name;
+        const hideExtension = this.plugin.settings.enableFileExtensionNonMD;
+        
+        let base: string;
+        if (isMd) {
+            base = file.basename;
+        } else {
+            base = hideExtension ? file.basename : file.name;
+        }
 
         const input = this.createRenameInput(base, (newBase) => {
             (async () => {
                 if (!newBase || newBase === base) return;
-                const newName = isMd ? newBase + '.' + file.extension : newBase;
+                let newName: string;
+                if (isMd) {
+                    newName = newBase + '.' + file.extension;
+                } else {
+                    if (hideExtension) {
+                        newName = newBase + '.' + file.extension;
+                    } else {
+                        newName = newBase;
+                    }
+                }
                 const newPath = file.parent ? `${file.parent.path}/${newName}` : newName;
                 try {
                     await this.app.vault.rename(file, newPath);

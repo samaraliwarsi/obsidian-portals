@@ -192,8 +192,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Show extensions for non-markdown files')
-            .setDesc('Display extensions badge on non-markdown files. Active non-markdown files now use accent over badge instead of dot.')
+            .setName('Extension badge for non-markdown files')
+            .setDesc('Display extensions badge on non-markdown files. When extension badge is on, non-markdown files do not show extension after file name.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.enableFileExtensionNonMD)
                 .onChange(async (value) => {
