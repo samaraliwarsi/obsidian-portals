@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, TFile, TFolder, TAbstractFile, Menu, Notice, Platform, Component, debounce, View } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, TFolder, TAbstractFile, Menu, Notice, Platform, Component, debounce, View, Modal, App } from 'obsidian';
 import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './settings';
@@ -7,6 +7,7 @@ import { GroupTagsModal } from './settings';
 import { JournalRenderer } from './journalView';
 import { IconPickerModal } from './iconPicker';
 import { RenamePortalModal } from './modals';
+import { SelectFolderModal } from './modals';
 
 interface BookmarkItem {
     title?: string;
@@ -36,7 +37,7 @@ export class PortalsView extends ItemView {
     private tooltipShowTimeout: number | null = null;
     private vaultEventRef: (() => void) | null = null;
     private renaming: boolean = false;
-    private selectedFiles: Set<string> = new Set();
+    private selectedItems: Set<string> = new Set();
     private isDraggingSplitter: boolean = false;
     private contextMenuFiredMap = new WeakMap<HTMLElement, boolean>();
     private currentSecondaryPanel: HTMLElement | null = null;
@@ -55,9 +56,11 @@ export class PortalsView extends ItemView {
     private journalContainer: HTMLElement | null = null;
     private lastJournalAccentColor: string | null = null;
     private scrollToRestore: number | null = null;
+    private multiSelectToolbar: HTMLElement | null = null;
     private getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
+
     public async refreshJournalTab() {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
@@ -89,6 +92,50 @@ export class PortalsView extends ItemView {
                     void this.journalRenderer.render();
                 }
             }
+        }
+    }
+
+    private updateMultiSelectToolbar() {
+        const splitContainer = this.containerEl.querySelector('.portals-split-container');
+        if (!splitContainer) return;
+
+        // Remove existing toolbar
+        if (this.multiSelectToolbar) {
+            this.multiSelectToolbar.remove();
+            this.multiSelectToolbar = null;
+        }
+
+        if (this.selectedItems.size === 0) return;
+
+        // Create toolbar
+        const toolbar = splitContainer.createDiv({ cls: 'portals-multiselect-toolbar' });
+        this.multiSelectToolbar = toolbar;
+
+        // Add buttons (same as before)
+        const deleteBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Delete selected' } });
+        deleteBtn.createEl('i', { cls: 'ph ph-trash' });
+        deleteBtn.addEventListener('click', () => this.deleteSelectedItems());
+
+        const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Move selected' } });
+        moveBtn.createEl('i', { cls: 'ph ph-arrow-square-out' });
+        moveBtn.addEventListener('click', () => this.moveSelectedItemsToFolder());
+
+        const folderBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Create folder from selected' } });
+        folderBtn.createEl('i', { cls: 'ph ph-folder-plus' });
+        folderBtn.addEventListener('click', () => this.createFolderFromSelected());
+
+        const clearBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Clear selection' } });
+        clearBtn.createEl('i', { cls: 'ph ph-x' });
+        clearBtn.addEventListener('click', () => this.clearSelection());
+
+        toolbar.createSpan({ cls: 'portals-selection-count', text: `${this.selectedItems.size}` });
+
+        // Insert the toolbar before the splitter
+        const splitter = splitContainer.querySelector('.portals-splitter');
+        if (splitter) {
+            splitContainer.insertBefore(toolbar, splitter);
+        } else {
+            splitContainer.appendChild(toolbar);
         }
     }
 
@@ -124,19 +171,21 @@ export class PortalsView extends ItemView {
             e.stopPropagation();
             if (e.altKey) {
                 e.preventDefault();
-                if (this.selectedFiles.has(file.path)) {
-                    this.selectedFiles.delete(file.path);
+                if (this.selectedItems.has(file.path)) {
+                    this.selectedItems.delete(file.path);
                     fileEl.removeClass('is-selected');
                 } else {
-                    this.selectedFiles.add(file.path);
+                    this.selectedItems.add(file.path);
                     fileEl.addClass('is-selected');
                 }
             } else {
                 void this.app.workspace.getLeaf().openFile(file);
             }
+            this.updateMultiSelectToolbar();
         });
 
         fileEl.addEventListener('contextmenu', (e) => {
+            e.stopPropagation();
             e.preventDefault();
             this.showFileContextMenu(e, file, fileEl);
         });
@@ -1479,6 +1528,7 @@ export class PortalsView extends ItemView {
                 });
 
                 fileEl.addEventListener('contextmenu', (e) => {
+                    e.stopPropagation();
                     e.preventDefault();
                     this.showFileContextMenu(e, file, fileEl);
                 });
@@ -2654,6 +2704,177 @@ export class PortalsView extends ItemView {
         menu.showAtPosition({ x: event.clientX, y: event.clientY });
     }
 
+    private clearSelection() {
+    // Remove classes from all selected items
+    this.containerEl.querySelectorAll('.file-item.is-selected, .folder-summary.is-selected').forEach(el => {
+        el.removeClass('is-selected');
+    });
+    this.selectedItems.clear();
+    this.updateMultiSelectToolbar();
+}
+
+    private async deleteSelectedItems() {
+        if (this.selectedItems.size === 0) return;
+        const confirmMsg = `Delete ${this.selectedItems.size} item(s) permanently?`;
+        if (!confirm(confirmMsg)) return;
+        
+        for (const path of this.selectedItems) {
+            const item = this.app.vault.getAbstractFileByPath(path);
+            if (!item) continue;
+            try {
+                await this.app.fileManager.trashFile(item);
+                if (item instanceof TFile) {
+                    delete this.plugin.settings.customIcons[path];
+                } else if (item instanceof TFolder) {
+                    // Remove custom icons for all files inside folder
+                    const toDelete = Object.keys(this.plugin.settings.customIcons).filter(p => p === path || p.startsWith(path + '/'));
+                    for (const iconPath of toDelete) {
+                        delete this.plugin.settings.customIcons[iconPath];
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                new Notice(`Failed to delete ${item.name}`);
+            }
+        }
+        await this.plugin.saveSettings();
+        this.clearSelection();
+        this.renderContent();
+        new Notice(`Deleted ${this.selectedItems.size} item(s)`);
+    }
+
+    private async moveSelectedItemsToFolder() {
+        if (this.selectedItems.size === 0) return;
+        new SelectFolderModal(this.app, async (targetFolder) => {
+            let movedCount = 0;
+            for (const path of this.selectedItems) {
+                const item = this.app.vault.getAbstractFileByPath(path);
+                if (!item) continue;
+                const newPath = `${targetFolder.path}/${item.name}`;
+                if (this.app.vault.getAbstractFileByPath(newPath)) {
+                    new Notice(`${item.name} already exists in destination, skipped.`);
+                    continue;
+                }
+                try {
+                    await this.app.vault.rename(item, newPath);
+                    movedCount++;
+                    // Update custom icon mapping if exists
+                    if (this.plugin.settings.customIcons[path]) {
+                        this.plugin.settings.customIcons[newPath] = this.plugin.settings.customIcons[path];
+                        delete this.plugin.settings.customIcons[path];
+                    }
+                } catch (err) {
+                    console.error(err);
+                    new Notice(`Failed to move ${item.name}`);
+                }
+            }
+            await this.plugin.saveSettings();
+            this.clearSelection();
+            this.renderContent();
+            new Notice(`Moved ${movedCount} item(s) to ${targetFolder.path}`);
+        }).open();
+    }
+
+    private async createFolderFromSelected() {
+        if (this.selectedItems.size === 0) return;
+        
+        const parentFolder = this.getCommonParentFolder();
+        if (!parentFolder) {
+            new Notice('Selected items are not in a common parent folder');
+            return;
+        }
+        
+        const folderName = await this.promptForFolderName();
+        if (!folderName) return;
+        
+        const newFolderPath = `${parentFolder.path}/${folderName}`;
+        if (this.app.vault.getAbstractFileByPath(newFolderPath)) {
+            new Notice('Folder already exists');
+            return;
+        }
+        
+        try {
+            await this.app.vault.createFolder(newFolderPath);
+            let movedCount = 0;
+            for (const path of this.selectedItems) {
+                const item = this.app.vault.getAbstractFileByPath(path);
+                if (!item) continue;
+                const newPath = `${newFolderPath}/${item.name}`;
+                if (this.app.vault.getAbstractFileByPath(newPath)) {
+                    new Notice(`${item.name} already exists in new folder, skipped.`);
+                    continue;
+                }
+                await this.app.vault.rename(item, newPath);
+                movedCount++;
+                // Update custom icon mapping if exists
+                if (this.plugin.settings.customIcons[path]) {
+                    this.plugin.settings.customIcons[newPath] = this.plugin.settings.customIcons[path];
+                    delete this.plugin.settings.customIcons[path];
+                }
+            }
+            await this.plugin.saveSettings();
+            this.clearSelection();
+            this.renderContent();
+            new Notice(`Created folder "${folderName}" and moved ${movedCount} item(s)`);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            new Notice(`Failed to create folder: ${message}`);
+        }
+    }
+
+    private getCommonParentFolder(): TFolder | null {
+        let commonParent: TFolder | null = null;
+        for (const path of this.selectedItems) {
+            const item = this.app.vault.getAbstractFileByPath(path);
+            if (!item) return null;
+            
+            // Get parent folder – for root folder, parent is null, but we treat the root itself as the parent
+            let parent = item.parent;
+            if (!parent && item instanceof TFolder && item.path === '/') {
+                parent = item; // root folder is its own parent for this purpose
+            }
+            
+            console.log(`Item: ${path}, parent: ${parent?.path || 'null'}`);
+            
+            if (!commonParent) commonParent = parent;
+            else if (commonParent !== parent) return null;
+        }
+        return commonParent;
+    }
+
+    private async promptForFolderName(): Promise<string | null> {
+        return new Promise((resolve) => {
+            class FolderNameModal extends Modal {
+                constructor(app: App) {
+                    super(app);
+                }
+                onOpen() {
+                    const { contentEl } = this;
+                    contentEl.createEl('h3', { text: 'Create new folder' });
+                    const input = contentEl.createEl('input', { type: 'text', placeholder: 'Folder name', cls: 'portals-search-input' });
+                    const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
+                    const okBtn = buttonDiv.createEl('button', { text: 'Create', cls: 'mod-cta' });
+                    const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
+                    okBtn.addEventListener('click', () => {
+                        const val = input.value.trim();
+                        resolve(val || null);
+                        this.close();
+                    });
+                    cancelBtn.addEventListener('click', () => {
+                        resolve(null);
+                        this.close();
+                    });
+                    input.focus();
+                    input.select();
+                }
+                onClose() {
+                    this.contentEl.empty();
+                }
+            }
+            new FolderNameModal(this.app).open();
+        });
+    }
+
     private executeCommand(commandId: string) {
         try {
             // @ts-expect-error - accessing commands API which is not typed
@@ -3093,6 +3314,20 @@ export class PortalsView extends ItemView {
         this.makeDropTarget(summary, folder, true);
 
         summary.addEventListener('click', (e) => {
+            if (e.altKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                const path = folder.path;
+                if (this.selectedItems.has(path)) {
+                    this.selectedItems.delete(path);
+                    summary.removeClass('is-selected');
+                } else {
+                    this.selectedItems.add(path);
+                    summary.addClass('is-selected');
+                }
+                this.updateMultiSelectToolbar();
+                return;
+            }
             if (e.shiftKey) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -3114,6 +3349,7 @@ export class PortalsView extends ItemView {
 
 
         summary.addEventListener('contextmenu', (e) => {
+            e.stopPropagation();
             e.preventDefault();
             this.showFolderContextMenu(e, folder, summary);
         });
@@ -3186,68 +3422,15 @@ export class PortalsView extends ItemView {
                 if (child instanceof TFolder) {
                     this.buildFolderTree(child, childrenContainer, openFiles, 'folder', depth +1, childIndex, totalFirstLevelFolders);
                     childIndex++;
-                }   else if (child instanceof TFile) {
+                } else if (child instanceof TFile) {
                     const isFolderNoteFile = this.isFolderNote(child, folder);
                     if (isFolderNoteFile && this.plugin.settings.enableFolderNotes) {
                         if (!this.plugin.settings.showFolderNotesInTree) continue;
                     }
-                    const fileEl = childrenContainer.createDiv({ cls: 'file-item' });
-                    const customIcon = this.getCustomIcon(child.path);
-                    const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
-                    const fileIcon = fileEl.createSpan({ cls: 'file-icon' });
-                    fileIcon.createEl('i', { cls: fileIconClass });
-                    const nameSpan = fileEl.createSpan({ text: this.getDisplayName(child) });
-                    nameSpan.addClass('portals-item-name');
-                    fileEl.dataset.path = child.path;
-
-                    const isOpen = openFiles.has(child.path);
-                    let openDotSpan: HTMLSpanElement | null = null;
-                    if (isOpen) {
-                        openDotSpan = fileEl.createSpan({ cls: 'open-dot' });
-                    }
-
-                    if (this.plugin.settings.enableFileExtensionNonMD && child.extension && child.extension !== 'md') {
-                        const extSpan = fileEl.createSpan({ cls: 'file-extension' });
-                        extSpan.setText('.' + child.extension.toUpperCase());
-                        if (openDotSpan) {
-                            openDotSpan.style.display = 'none'
-                        }
-                        if (isOpen) {
-                            extSpan.addClass('is-open');
-                        }
-                    }
-
-                    if (!Platform.isMobile) {
-                        fileEl.draggable = true;
-                        fileEl.addEventListener('dragstart', (e) => {
-                            e.dataTransfer?.setData('text/plain', child.path);
-                        });
-                    }
-
-                    fileEl.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (e.altKey) {
-                            e.preventDefault();
-                            if (this.selectedFiles.has(child.path)) {
-                                this.selectedFiles.delete(child.path);
-                                fileEl.removeClass('is-selected');
-                            } else {
-                                this.selectedFiles.add(child.path);
-                                fileEl.addClass('is-selected');
-                            }
-                        } else {
-                            void this.app.workspace.getLeaf().openFile(child);
-                        }
-                    });
-
-                    fileEl.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        this.showFileContextMenu(e, child, fileEl);
-                    });
-                    this.fileElementMap.set(child.path, fileEl);
+                    this.createFileItem(child, childrenContainer,openFiles);
                 }
-            }
-        };
+            };
+        }
 
         if (details.open) {
             loadChildren();

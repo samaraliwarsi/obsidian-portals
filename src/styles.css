@@ -5313,9 +5313,36 @@ display: block;
 }
 
 
-/* ----- Tag Tree / Space Content ----- */
+/* ----- Alt Select ----- */
 
+.portals-tree-container .file-item.is-selected {
+    border: 1px dashed var(--interactive-accent) !important;
+}
 
+.portals-tree-container .file-item.is-selected .file-icon,
+.portals-tree-container .file-item.is-selected .portals-item-name {
+    color: var(--text-accent);
+}
+
+.portals-tree-container .folder-summary.is-selected {
+    border: 1px dashed var(--interactive-accent) !important;
+}
+
+.portals-multiselect-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-top: 1px solid var(--background-modifier-border);
+    z-index: 5;
+    flex-shrink: 0;
+}
+
+.portals-selection-count {
+    margin-left: auto;
+    font-size: 0.8em;
+    color: var(--text-muted);
+}
 
 /* ----- File tree / space content ----- */
 

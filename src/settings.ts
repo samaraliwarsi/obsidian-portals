@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting, TFolder, Notice, Modal } from 'obsidian';
 import PortalsPlugin from './main';
 import { IconPickerModal } from './iconPicker';
+import { SelectFolderModal } from './modals';
 
 export interface SpaceConfig {
     path: string;
@@ -325,8 +326,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .addButton(button => button
                 .setButtonText('Browse folders')
                 .onClick(() => {
-                    new SelectFolderModal(this.app, (path) => {
-                        this.plugin.settings.journalFolderPath = path;
+                    new SelectFolderModal(this.app, (targetFolder) => {
+                        this.plugin.settings.journalFolderPath = targetFolder.path;
                         this.plugin.saveSettings();
                         this.display(); // refresh the setting UI to show the new path
                     }).open();
@@ -1011,55 +1012,6 @@ export class GroupTagsModal extends Modal {
             this.onSave(Array.from(this.selectedTags));
             this.close();
         };
-    }
-
-    onClose() {
-        this.contentEl.empty();
-    }
-}
-
-//===================== SELECT FOLDER MODAL=======================
-class SelectFolderModal extends Modal {
-    private folders: TFolder[];
-    private onSelect: (path: string) => void;
-
-    constructor(app: App, onSelect: (path: string) => void) {
-        super(app);
-        this.onSelect = onSelect;
-        // Get all folders in the vault
-        this.folders = this.app.vault.getAllLoadedFiles().filter(f => f instanceof TFolder) as TFolder[];
-        this.folders.sort((a, b) => a.path.localeCompare(b.path));
-    }
-
-    onOpen() {
-        const { contentEl } = this;
-        contentEl.empty();
-        contentEl.createEl('h3', { text: 'Select Journal Folder' });
-
-        const input = contentEl.createEl('input', {
-            type: 'text',
-            placeholder: 'Search folders...',
-            cls: 'portals-search-input'
-        });
-        const resultsContainer = contentEl.createDiv({ cls: 'portals-results-container' });
-
-        const render = (search: string) => {
-            resultsContainer.empty();
-            const filtered = this.folders.filter(f => 
-                f.path.toLowerCase().includes(search.toLowerCase())
-            );
-            for (const folder of filtered) {
-                const item = resultsContainer.createDiv({ cls: 'add-portal-item' });
-                item.setText(folder.path === '/' ? '/' : folder.path);
-                item.addEventListener('click', () => {
-                    this.onSelect(folder.path);
-                    this.close();
-                });
-            }
-        };
-
-        input.addEventListener('input', () => render(input.value));
-        render('');
     }
 
     onClose() {

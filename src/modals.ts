@@ -1,4 +1,4 @@
-import { App, Modal } from 'obsidian';
+import { App, Modal, TFolder } from 'obsidian';
 
 export class RenamePortalModal extends Modal {
     constructor(
@@ -36,4 +36,39 @@ export class RenamePortalModal extends Modal {
     onClose() {
         this.contentEl.empty();
     }
+}
+
+//===================== SELECT FOLDER MODAL=======================
+export class SelectFolderModal extends Modal {
+    private folders: TFolder[];
+    private onSelect: (folder: TFolder) => void;  // ← must be TFolder
+
+    constructor(app: App, onSelect: (folder: TFolder) => void) {
+        super(app);
+        this.onSelect = onSelect;
+        this.folders = app.vault.getAllLoadedFiles().filter((f): f is TFolder => f instanceof TFolder);
+        this.folders.sort((a, b) => a.path.localeCompare(b.path));
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+        contentEl.createEl('h3', { text: 'Select folder' });
+        const input = contentEl.createEl('input', { type: 'text', placeholder: 'Search...', cls: 'portals-search-input' });
+        const results = contentEl.createDiv({ cls: 'portals-results-container' });
+        const render = (search: string) => {
+            results.empty();
+            const filtered = this.folders.filter(f => f.path.toLowerCase().includes(search.toLowerCase()));
+            for (const folder of filtered) {
+                const item = results.createDiv({ cls: 'add-portal-item', text: folder.path });
+                item.addEventListener('click', () => {
+                    this.onSelect(folder);  // folder is TFolder
+                    this.close();
+                });
+            }
+        };
+        input.addEventListener('input', () => render(input.value));
+        render('');
+    }
+
+    onClose() { this.contentEl.empty(); }
 }
