@@ -114,6 +114,7 @@ export class PortalsView extends ItemView {
         // Add buttons (same as before)
         const deleteBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Delete selected' } });
         deleteBtn.createEl('i', { cls: 'ph ph-trash' });
+        deleteBtn.addClass('portals-delete-btn-warn');
         deleteBtn.addEventListener('click', () => this.deleteSelectedItems());
 
         const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Move selected' } });
@@ -2661,6 +2662,7 @@ export class PortalsView extends ItemView {
         menu.addItem(item => item
             .setTitle('Delete')
             .setIcon('trash')
+            .setWarning(true)
             .onClick(() => void this.deleteFile(file)));
 
         menu.addItem(item => item
@@ -2733,6 +2735,7 @@ export class PortalsView extends ItemView {
         menu.addItem(item => item
             .setTitle('Delete')
             .setIcon('trash')
+            .setWarning(true)
             .onClick(() => void this.deleteFolder(folder)));
 
         menu.addItem(item => item

@@ -5352,6 +5352,10 @@ display: block;
     color: var(--text-muted);
 }
 
+.portals-multiselect-toolbar .portals-delete-btn-warn i {
+    color: var(--text-error);
+}
+
 /* ----- File tree / space content ----- */
 
 .portals-space-content {
