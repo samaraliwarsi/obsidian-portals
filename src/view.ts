@@ -167,6 +167,56 @@ export class PortalsView extends ItemView {
             });
         }
 
+        let touchStartPos: { x: number; y: number } | null = null;
+        let isSwiping = false;
+
+        // Touch swipe for mobile selection
+        fileEl.addEventListener('touchstart', (e: TouchEvent) => {
+            const touch = e.touches[0];
+            if (touch) {
+                touchStartPos = { x: touch.clientX, y: touch.clientY };
+                isSwiping = false;
+            }
+        }, { passive: true });
+
+        fileEl.addEventListener('touchmove', (e: TouchEvent) => {
+            if (!touchStartPos) return;
+            const touch = e.touches[0];
+            if (!touch) return;
+            const deltaX = touch.clientX - touchStartPos.x;
+            const deltaY = touch.clientY - touchStartPos.y;
+            if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
+                isSwiping = true;
+                fileEl.addClass('swipe-active');
+            }
+        }, { passive: true });
+
+        fileEl.addEventListener('touchend', (e: TouchEvent) => {
+            if (!touchStartPos) {
+                if (isSwiping) fileEl.removeClass('swipe-active');
+                touchStartPos = null;
+                isSwiping = false;
+                return;
+            }
+            const changedTouch = e.changedTouches[0];
+            if (changedTouch && isSwiping) {
+                const deltaX = changedTouch.clientX - touchStartPos.x;
+                const deltaY = changedTouch.clientY - touchStartPos.y;
+                if (deltaX > 30 && Math.abs(deltaY) < 30) {
+                    this.toggleSelection(file, fileEl);
+                }
+            }
+            if (isSwiping) fileEl.removeClass('swipe-active');
+            touchStartPos = null;
+            isSwiping = false;
+        });
+
+        fileEl.addEventListener('touchcancel', () => {
+            if (isSwiping) fileEl.removeClass('swipe-active');
+            touchStartPos = null;
+            isSwiping = false;
+        });
+
         fileEl.addEventListener('click', (e) => {
             e.stopPropagation();
             if (e.altKey) {
@@ -191,6 +241,18 @@ export class PortalsView extends ItemView {
         });
         this.fileElementMap.set(file.path, fileEl);
         return fileEl;
+    }
+
+    private toggleSelection(item: TFile | TFolder, element: HTMLElement) {
+        const path = item.path;
+        if (this.selectedItems.has(path)) {
+            this.selectedItems.delete(path);
+            element.removeClass('is-selected');
+        } else {
+            this.selectedItems.add(path);
+            element.addClass('is-selected');
+        }
+        this.updateMultiSelectToolbar();
     }
 
     private getCustomIcon(path: string): string | null {
@@ -3312,6 +3374,55 @@ export class PortalsView extends ItemView {
         }
 
         this.makeDropTarget(summary, folder, true);
+
+        let touchStartPos: { x: number; y: number } | null = null;
+        let isSwiping = false;
+
+        summary.addEventListener('touchstart', (e: TouchEvent) => {
+            const touch = e.touches[0];
+            if (touch) {
+                touchStartPos = { x: touch.clientX, y: touch.clientY };
+                isSwiping = false;
+            }
+        }, { passive: true });
+
+        summary.addEventListener('touchmove', (e: TouchEvent) => {
+            if (!touchStartPos) return;
+            const touch = e.touches[0];
+            if (!touch) return;
+            const deltaX = touch.clientX - touchStartPos.x;
+            const deltaY = touch.clientY - touchStartPos.y;
+            if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
+                isSwiping = true;
+                summary.addClass('swipe-active');
+            }
+        }, { passive: true });
+
+        summary.addEventListener('touchend', (e: TouchEvent) => {
+            if (!touchStartPos) {
+                if (isSwiping) summary.removeClass('swipe-active');
+                touchStartPos = null;
+                isSwiping = false;
+                return;
+            }
+            const changedTouch = e.changedTouches[0];
+            if (changedTouch && isSwiping) {
+                const deltaX = changedTouch.clientX - touchStartPos.x;
+                const deltaY = changedTouch.clientY - touchStartPos.y;
+                if (deltaX > 30 && Math.abs(deltaY) < 30) {
+                    this.toggleSelection(folder, summary);
+                }
+            }
+            if (isSwiping) summary.removeClass('swipe-active');
+            touchStartPos = null;
+            isSwiping = false;
+        });
+
+        summary.addEventListener('touchcancel', () => {
+            if (isSwiping) summary.removeClass('swipe-active');
+            touchStartPos = null;
+            isSwiping = false;
+        });
 
         summary.addEventListener('click', (e) => {
             if (e.altKey) {

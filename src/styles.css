@@ -5315,17 +5315,25 @@ display: block;
 
 /* ----- Alt Select ----- */
 
-.portals-tree-container .file-item.is-selected {
-    border: 1px dashed var(--interactive-accent) !important;
+.file-item, .folder-summary {
+    transition: background-color 0.1s ease, transform 0.05s ease;
+}
+
+@media (hover: none) {
+  .file-item.swipe-active, .folder-summary.swipe-active {
+      transform: translateX(4px);
+      background-color: var(--background-modifier-hover);
+  }
+}
+
+.portals-tree-container .file-item.is-selected,
+.portals-tree-container .folder-summary.is-selected {
+    border: 1px dashed var(--interactive-accent);
 }
 
 .portals-tree-container .file-item.is-selected .file-icon,
 .portals-tree-container .file-item.is-selected .portals-item-name {
     color: var(--text-accent);
-}
-
-.portals-tree-container .folder-summary.is-selected {
-    border: 1px dashed var(--interactive-accent) !important;
 }
 
 .portals-multiselect-toolbar {
