@@ -8,6 +8,7 @@ import { JournalRenderer } from './journalView';
 import { IconPickerModal } from './iconPicker';
 import { RenamePortalModal } from './modals';
 import { SelectFolderModal } from './modals';
+import { ColorPickerModal } from './modals';
 
 interface BookmarkItem {
     title?: string;
@@ -303,6 +304,40 @@ export class PortalsView extends ItemView {
         await this.plugin.saveSettings();
         this.renderContent();
         new Notice('Custom icon removed');
+    }
+
+    private setCustomColor(folder: TFolder, summaryEl: HTMLElement) {
+        const currentColor = this.plugin.settings.customColors[folder.path];
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
+        const savedScrollTop = treeContainer ? treeContainer.scrollTop: 0;
+
+        new ColorPickerModal(this.app, (color) => {
+            this.plugin.settings.customColors[folder.path] = color;
+            this.plugin.saveSettings().then(() => {
+                this.render();
+                if (savedScrollTop > 0) {
+                    requestAnimationFrame(() => {
+                        const newContainer = this.containerEl.querySelector('.portals-tree-container');
+                        if (newContainer) newContainer.scrollTop = savedScrollTop;
+                    });
+                }
+            });
+        }, summaryEl, currentColor).open();
+    }
+
+    private resetCustomColor(folder: TFolder) {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
+        const savedScrollTop = treeContainer ? treeContainer.scrollTop: 0;
+        delete this.plugin.settings.customColors[folder.path];
+        this.plugin.saveSettings().then(() => {
+            this.render()
+            if (savedScrollTop > 0) {
+                requestAnimationFrame(() => {
+                    const newContainer = this.containerEl.querySelector('.portals-tree-container');
+                    if (newContainer) newContainer.scrollTop = savedScrollTop;   
+                });
+            }
+        });       
     }
 
     private isFileInJournalFolder(file: TFile): boolean {
@@ -915,6 +950,7 @@ export class PortalsView extends ItemView {
             compactTree: s.compactTree,
             boldFolderNames: s.boldFolderNames,
             treeStyle: s.treeStyle,
+            customColor: JSON.stringify(s.customColors),
         });
     }
 
@@ -2761,6 +2797,21 @@ export class PortalsView extends ItemView {
         }
 
         menu.addSeparator();
+        const style = this.plugin.settings.treeStyle
+        const canSetColor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled)
+        const detailsEl = summaryEl.parentElement
+        if (canSetColor && detailsEl && detailsEl.hasClass('folder-details')) {
+            menu.addItem(item => item
+                .setTitle('Set color')
+                .setIcon('palette')
+                .onClick(() => this.setCustomColor(folder, summaryEl)));
+            if (this.plugin.settings.customColors[folder.path]) {
+                menu.addItem(item => item
+                    .setTitle('Reset folder color')
+                    .setIcon('undo')
+                    .onClick(() => this.resetCustomColor(folder)));
+            }
+        }
 
         this.app.workspace.trigger('file-menu', menu, folder, 'file-explorer');
 
@@ -3483,6 +3534,28 @@ export class PortalsView extends ItemView {
         });
                 
         const childrenContainer = details.createDiv({ cls: 'folder-children' });
+
+        const customColor = this.plugin.settings.customColors[folder.path];
+        const style = this.plugin.settings.treeStyle;
+        const shouldApplyColor = customColor &&
+            style !== 'shades' && 
+            style !== 'hues' &&
+            !(style === 'portals' && this.plugin.settings.tabColorEnabled);
+
+        if (shouldApplyColor) {
+            summary.classList.add('has-folder-color');
+            details.classList.add('has-folder-color')
+            childrenContainer.classList.add('has-folder-color');
+            details.style.setProperty('--folder-color', customColor);
+            summary.style.setProperty('--folder-color', customColor);
+        } else {
+            summary.classList.remove('has-folder-color');
+            summary.style.removeProperty('--folder-color');
+            details.classList.remove('has-folder-color');
+            details.style.removeProperty('--folder-color')
+            childrenContainer.classList.add('--remove-folder-color');
+        }
+        
 
         // For first-level folders (depth === 1) when using shades style
         if (depth === 1 && this.plugin.settings.treeStyle === 'shades') {

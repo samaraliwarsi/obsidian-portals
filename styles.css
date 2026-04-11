@@ -4628,6 +4628,16 @@
 /* =========== PORTAL PLUGIN CORE STYLES =========== */
 
 /* ------------------------------ Tree Styles ------------------------------------ */
+
+/*---Default style custom colors--*/
+.portals-tree-style-default .folder-summary.has-folder-color {
+    background-color: var(--folder-color);
+    border-radius: var(--radius-s, 0);
+}
+.portals-tree-style-default .folder-children.has-folder-color {
+    border-left: 1px dashed var(--folder-color);
+}
+
 /*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------*/
 
 .portals-tree-style-minimal .folder-icon,
@@ -4652,9 +4662,9 @@
 }
 
 .portals-tree-style-minimal .folder-children {
-    border-left: none;
-    margin-left: 20px;
-    padding-left: 6px;
+    border-left: 1px solid var(--background-modifier-border);
+    margin-left: 16px;
+    padding-left: 8px;
 }
 
 .portals-tree-style-minimal .folder-summary,
@@ -4670,6 +4680,21 @@
     font-family: inherit;
     font-size: 0.9em;
 }
+
+.portals-tree-container.portals-tree-container.portals-compact-tree .folder-children {
+  margin-left: 12px;
+}
+
+/*---Minimal style custom colors--*/
+.portals-tree-style-minimal .folder-summary.has-folder-color {
+    color: var(--folder-color);
+}
+
+.portals-tree-style-minimal .folder-children.has-folder-color {
+  border-left: 1px solid var(--folder-color);
+}
+/*----*/
+
 /*Minimal: Split Tab*/
 .portals-split-content.portals-tree-style-minimal .file-item::before {
   content: "•";
@@ -4684,6 +4709,13 @@
 /*----------------------------------------------------------------------------------*/
 /*------------------------Portals: Styled Left Border------------------------------*/
 
+/*---Portals style custom colors--*/
+.portals-tree-style-portals .folder-details.has-folder-color {
+    border-left: 1px solid var(--folder-color);
+}
+
+/*----*/
+
 .portals-tree-style-portals .folder-details {
   border-left: 1px solid var(--space-border-color, var(--interactive-accent));
   border-radius: 4px;
@@ -4694,7 +4726,7 @@
     margin-left: 0;
     padding-left: 12px !important;
     transition: background-color 0.1s;
-    box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 10%, transparent);
+    box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 1%, transparent);
 }
 
 .portals-tree-style-portals .folder-summary:hover,
@@ -4731,54 +4763,31 @@
 
 /*------------------------------------------------------------------------------------*/
 /*-----------------------------------Boxed Style--------------------------------------*/
-.portals-tree-style-boxed details {
-    border: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
-    border-radius: 8px;
-    margin: 2px 0;
+
+.portals-tree-style-boxed .portals-space-content > .folder-details {
+    border-right: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+    border-radius: 0px 8px 8px 0;
 }
 
-.portals-tree-style-boxed summary {
-    padding: 4px 8px !important;
-    margin: 0;
-    border-radius: 6px 6px 0 6px;
-}
 
 .portals-tree-style-boxed .folder-summary {
-  background-color: transparent !important;
-}
-
-.portals-tree-style-boxed .folder-summary:hover {
-  background-color: var(--background-modifier-hover) !important;
-}
-
-.portals-tree-style-boxed details[open] summary {
-    border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent) !important;
-}
-
-.portals-tree-style-boxed .folder-children details {
-    border: none;
-    border-radius: 0px 0px 6px 0px;
-    margin: 1px 0;
-    padding-left: 6px;
-}
-
-.portals-tree-style-boxed .folder-children details summary {
-    border: none;
-    padding: 4px 8px 4px 4px !important;
-}
-
-.portals-tree-style-boxed .folder-children details[open] summary {
-    border-bottom: none;
-}
-
-.portals-tree-style-boxed .file-item {
+    border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+    border-radius: 8px 8px 8px 0;
     margin: 2px 0;
-    padding: 4px 8px !important;
+}
+
+.portals-tree-style-boxed .folder-summary.has-folder-color {
+  border-bottom-color: var(--folder-color);
 }
 
 .portals-tree-style-boxed .folder-children {
-    margin-left: 18px;
-    border-left: none;
+  border-left: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+}
+
+.portals-tree-style-boxed .folder-children.has-folder-color {
+  border-left: 1px solid var(--folder-color);
 }
 
 /*Boxed: Split Tab*/
@@ -4787,6 +4796,7 @@
   border-radius: 0 0 0 6px;
   margin: 2px 0; 
 }
+
 
 /*------------------------------------------------------------------------------*/
 /*---------------------------Shades Style-------------------------------------*/
@@ -5354,6 +5364,17 @@ display: block;
 
 .portals-multiselect-toolbar .portals-delete-btn-warn i {
     color: var(--text-error);
+}
+
+/*--------------------CUSTOM COLORS -----------------*/
+
+.portals-tree-container .folder-summary.has-custom-color {
+    background-color: var(--folder-color);
+    border-radius: var(--radius-s);
+}
+.portals-tree-container .folder-children.has-custom-color-children {
+    background-color: var(--folder-color);
+    opacity: 0.6;
 }
 
 /* ----- File tree / space content ----- */

@@ -47,6 +47,7 @@ export interface SpacesSettings {
     quoteDelimiter: string;
     customIcons: Record<string, string>;
     expandedTagHierarchy: Record<string, string[]>;
+    customColors: Record<string, string>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -84,6 +85,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     quoteDelimiter: '==',
     customIcons: {},
     expandedTagHierarchy: {},
+    customColors: {},
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
