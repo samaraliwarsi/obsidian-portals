@@ -82,6 +82,11 @@ export class ColorPickerModal extends Modal {
     private opacity: number;
     private onSave: (color: string) => void;
     private targetElement: HTMLElement;
+    private summaryElement: HTMLElement | null;
+    private childrenContainer: HTMLElement | null;
+    private originalDetailsClass: boolean;
+    private originalChildrenClass: boolean;
+    private originalSummaryClass: boolean;
     private originalColor: string;
     
 
@@ -89,7 +94,13 @@ export class ColorPickerModal extends Modal {
         super(app);
         this.onSave = onSave;
         this.targetElement = targetElement;
+        this.summaryElement = targetElement.querySelector('.folder-summary');
+        this.childrenContainer = targetElement.querySelector('.folder-children');
+        this.originalDetailsClass = targetElement.classList.contains('has-folder-color');
+        this.originalSummaryClass = this.summaryElement ? this.summaryElement.classList.contains('has-folder-color') : false;
+        this.originalChildrenClass = this.childrenContainer ? this.childrenContainer.classList.contains('has-folder-color') : false;
         this.originalColor = targetElement.style.getPropertyValue('--folder-color') || '';
+
         if (currentColor) {
             const match = currentColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
             if (match && match[1] && match[2] && match[3]) {
@@ -99,12 +110,12 @@ export class ColorPickerModal extends Modal {
                 this.color = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
                 this.opacity = match[4] ? parseFloat(match[4]) : 1;
             } else {
-                this.color = '#ff0000';
-                this.opacity = 0.3;
+                this.color = '#328cec';
+                this.opacity = 1;
             }
         } else {
-            this.color = '#ff0000';
-            this.opacity = 0.3;
+            this.color = '#328cec';
+            this.opacity = 1;
         }
     }
 
@@ -129,19 +140,38 @@ export class ColorPickerModal extends Modal {
             const newOpacity = parseFloat(opacityInput.value);
             const newColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${newOpacity})`;
             preview.style.backgroundColor = newColor;
-            this.targetElement.style.setProperty('--folder-color', newColor);
+            // Add class to all elements that need it
             this.targetElement.classList.add('has-folder-color');
+            if (this.summaryElement) this.summaryElement.classList.add('has-folder-color');
+            if (this.childrenContainer) this.childrenContainer.classList.add('has-folder-color');
+            this.targetElement.style.setProperty('--folder-color', newColor);
+            // Force reflow
+            void this.targetElement.offsetHeight;
         };
 
         colorInput.addEventListener('input', updatePreview);
         opacityInput.addEventListener('input', updatePreview);
 
         const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
-        buttonDiv.createEl('button', { text: 'Cancel' }).onclick = () => {
+        const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
+        cancelBtn.onclick = () => {
+            // Restore original class states
+            if (!this.originalDetailsClass) this.targetElement.classList.remove('has-folder-color');
+            else this.targetElement.classList.add('has-folder-color');
+            if (this.summaryElement) {
+                if (!this.originalSummaryClass) this.summaryElement.classList.remove('has-folder-color');
+                else this.summaryElement.classList.add('has-folder-color');
+            }
+            if (this.childrenContainer) {
+                if (!this.originalChildrenClass) this.childrenContainer.classList.remove('has-folder-color');
+                else this.childrenContainer.classList.add('has-folder-color');
+            }
             this.targetElement.style.setProperty('--folder-color', this.originalColor);
             this.close();
         };
-        buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' }).onclick = () => {
+        
+        const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });
+        saveBtn.onclick = () => {
             const rgb = this.hexToRgb(colorInput.value);
             const newColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacityInput.value})`;
             this.onSave(newColor);

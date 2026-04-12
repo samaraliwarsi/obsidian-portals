@@ -4631,7 +4631,7 @@
 
 /*---Default style custom colors--*/
 .portals-tree-style-default .folder-summary.has-folder-color {
-    background-color: var(--folder-color);
+    background-color: var(--folder-color) !important;
     border-radius: var(--radius-s, 0);
 }
 .portals-tree-style-default .folder-children.has-folder-color {
@@ -4781,9 +4781,6 @@
 
 /*------------------------------------------------------------------------------------*/
 /*-----------------------------------Boxed Style--------------------------------------*/
-
-
-
 
 .portals-tree-style-boxed .folder-summary {
     border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
