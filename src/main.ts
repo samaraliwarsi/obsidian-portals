@@ -121,6 +121,10 @@ export default class PortalsPlugin extends Plugin {
         await this.saveData(this.settings);
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {
+                const treeContainer = leaf.view.containerEl.querySelector('.portals-tree-container');
+                if (treeContainer) {
+                    leaf.view.scrollToRestore = treeContainer.scrollTop;
+                }
                 leaf.view.render();
                 if (leaf.view.plugin.settings.activeSplitTab === 'journal') {
                     void leaf.view.refreshJournalTab();

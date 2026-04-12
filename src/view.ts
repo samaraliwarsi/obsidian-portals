@@ -57,7 +57,7 @@ export class PortalsView extends ItemView {
     private journalFolderPath: string = '';
     private journalContainer: HTMLElement | null = null;
     private lastJournalAccentColor: string | null = null;
-    private scrollToRestore: number | null = null;
+    public scrollToRestore: number | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
     private getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
@@ -489,6 +489,8 @@ export class PortalsView extends ItemView {
     }
 
     private renamePortal(space: SpaceConfig) {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
         const currentDisplay = space.displayName || this.getDefaultSpaceName(space);
         new RenamePortalModal(this.app, currentDisplay, (newName) => {
             if (newName && newName.trim()) {
@@ -501,6 +503,8 @@ export class PortalsView extends ItemView {
     }
 
     private resetPortalName(space: SpaceConfig) {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
         delete space.displayName;
         this.plugin.saveSettings().then(() => this.render());
     }
@@ -1134,6 +1138,8 @@ export class PortalsView extends ItemView {
                         .setIcon('image')
                         .onClick(() => {
                             new IconPickerModal(this.app, (iconName) => {
+                                const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+                                this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
                                 space.icon = iconName;
                                 this.plugin.saveSettings().then(() => this.render());
                             }).open();
@@ -2958,6 +2964,9 @@ export class PortalsView extends ItemView {
 }
 
     private async deleteSelectedItems() {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
+        
         if (this.selectedItems.size === 0) return;
         const confirmMsg = `Delete ${this.selectedItems.size} item(s) permanently?`;
         if (!confirm(confirmMsg)) return;
@@ -3339,12 +3348,14 @@ export class PortalsView extends ItemView {
     }
 
     private async deleteFile(file: TFile) {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
         try {
             await this.app.fileManager.trashFile(file);
             delete this.plugin.settings.customIcons[file.path];
             await this.plugin.saveSettings();
-            new Notice(`File "${file.name}" moved to trash`, 2000); // auto-hide after 2s
             this.renderContent();
+            new Notice(`File "${file.name}" moved to trash`, 2000);
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Delete failed: ${message}`, 3000);
@@ -3352,6 +3363,8 @@ export class PortalsView extends ItemView {
     }
 
     private async deleteFolder(folder: TFolder) {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
         try {
             await this.app.fileManager.trashFile(folder);
             const toDelete = Object.keys(this.plugin.settings.customIcons).filter(path => path === folder.path || path.startsWith(folder.path + '/'));
