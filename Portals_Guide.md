@@ -1,6 +1,12 @@
+---
+tags:
+  - portals
+created: 2026-04-07
+Status: 5
+---
 # Portals Plugin User Guide
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.1.6.**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.1.7.**
 
 ---
 ## Installation
@@ -19,7 +25,7 @@ Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. T
 ---
 
 >[!important] 
->After setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways, 
+>fter setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways, 
 > - Copy the `data.json` file at `.obsidian/Plugins/Portals` and save it at a secure location. 
 > - Open `Settings → Portals`, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
 
@@ -50,6 +56,8 @@ The portal view can be customized in many ways, here we will explain each of the
 ### Replace file explorer
 To make portals the default explorer when opening Obsidian, use the `Replace explorer in sidebar` setting inside the **Explorer settings** in `Settings → Portals`. This will ensure portals remains the focused view every time Obsidian reloads. The default Obsidian explorer will still be available via Obsidian tabs. 
 ### Colors
+
+#### Background & Active Tab colors
 Each portal can have its own **icon** and **background color**. It can be applied to the tab's bottom border and/ or the entire file area, depending on user preferences.
 
 - Go to `Settings → Portals`. 
@@ -60,6 +68,12 @@ Each portal can have its own **icon** and **background color**. It can be applie
 - Use the colour picker + opacity slider to set a background colour.
 
 > The pinned vault root tab gets its own colour and a special left border showing its pinned status. 
+
+#### Custom Folder Colors
+
+**Custom folder colors** are available from version 1.1.7. These specifically apply to summary, details of folders, tag groups, subtags depending upon the chosen style. To set a custom color, `Right-click` to open context menu of a folder, tag group or subtag, choose your colors and desire opacity from the `Pick custom color` modal and save. User saved colors will be saved in the data file. In the styles section, it is described how custom colors apply differently to each style. User set colors in one style are consistent across custom color activated styles, i.e. users can switch styles and the colors will stay as chosen. 
+
+> Note: Custom colors do not apply `Shades` and `Hues` style as they carry their own gradients and hues which are set based on the total number of folders/ tag groups/ subtags. Context menu option for changing colors on those styles is disabled. 
 ### Tab Name Display
 Users can control how tab names appear in `Tab name display` setting in the **Explorer settings**:
 - Icons only – never show names; tooltip on hover.
@@ -71,18 +85,18 @@ Compact tree view can help reduce the spacing between folders and file items. To
 ### Styles
 Portals offers several visual styles for the file/tag tree. Choose a style in `Settings → Portals`, go to **Explorer settings** to open the dropdown options in `Styles`. The options are, 
 
-| Style       | Description                                                                                 |
-| ----------- | ------------------------------------------------------------------------------------------- |
-| **Default** | Standard Obsidian look with icons and borders.                                              |
-| **Minimal** | No icons; uses `•` and `◦` for bullets, less spacing.                                       |
-| **Boxed**   | Each folder has a rounded border; files have a subtle bottom border.                        |
-| **Portals** | Left border accent lines on folders and files.                                              |
-| **Shades**  | First‑level folders get progressively lighter gray backgrounds.                             |
-| **Hues**    | First‑level folders get a rainbow gradient (cyan to pink) with opacity decreasing by index. |
+| Style       | Description                                                                                 | Custom colors application                                            |
+| ----------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **Default** | Standard Obsidian look with icons and borders.                                              | Folder summary background color + folder children dashed left border |
+| **Minimal** | No icons; uses `•` and `◦` for bullets, less spacing.                                       | Folder name + folder children dotted left border                     |
+| **Boxed**   | Each folder has a rounded border; files have a subtle bottom border.                        | Border bottom + solid folder children left border                    |
+| **Portals** | Left border accent lines on folders and files.                                              | Folder summary left border (if `Tab colors` setting is off)          |
+| **Shades**  | First‑level folders get progressively lighter gray backgrounds.                             | None                                                                 |
+| **Hues**    | First‑level folders get a rainbow gradient (cyan to pink) with opacity decreasing by index. | None                                                                 |
 ### Background color type
 Each portal tab can have its own color, transparency setting. The `Background color type` setting in **Explorer settings** can define if portal views have `No color`, `Solid` or `Gradient`. This setting will apply to all active tabs. 
 
-> Note: these don't apply to side portal
+> Note: these don't apply to side portal. 
 ### Tab colors 
 Tab colors define whether the bottom border of an active tab, or the left border of the pinned tab will carry the user defined color respective to each active portal defined in **Active Tabs** section. It can be found in the **Explorer settings** inside `Settings → Portals`. 
 
@@ -94,7 +108,7 @@ This setting is available inside **Explorer settings** in `Settings → Portals`
 ### Active Dot
 The files that are open in any editor tab show an accent color dot on the right hand side of each file. The same applies to the entire folder chain of the file open in the active editor tab. Inactive editor tabs do no show accent dot for folder chain. This is a default state and cannot be changed. Active dot also works in **Recents** in **Side Portal**.
 ### Extension Badge
-Non-markdown files can display an extension badge. To turn this on, go to **Explorer settings** inside `Settings → Portals`, find the setting named `Show extension for non-markdown files`. The extensions are always shown on the right hand side of each file. Non-markdown files do not show `active dot` if the setting is enabled. When they're opened, the extension badge turns to accent color, serving the same purpose. 
+Non-markdown files can display an extension badge. To turn this on, go to **Explorer settings** inside `Settings → Portals`, find the setting named `Show extension for non-markdown files`. The extensions are always shown on the right hand side of each file. Non-markdown files do not show `active dot` if the setting is enabled. When they're opened, the extension badge turns to accent color, serving the same purpose. If the setting for `Extension badge for non-markdown files` is on, the file's own extension in `.ext` will be hidden. If the setting is off, the `.ext` extension it will be visible. 
 
 ---
 ## Side Portal
@@ -125,9 +139,10 @@ A folder note is a markdown file with the **same name as the folder**, placed in
 > Note: Folder notes as a feature can function without being displayed on the side portal. However, the folder note side portal tab will not display anything if the folder note feature is off. 
 
 The folder note tab shows the folder note of the currently active portal (if it exists) and shows a notice, if it doesn't exist. 
-- To create a folder note, use `Shift+Click` on any folder, or create from `Context Menu`. 
+- To create a folder note, use `Shift+Click` on any folder, or create from `Context Menu`. If a folder note already exits for the target folder, the key combo opens the folder note in current active tab. 
 - The folders that have a folder note can be highlighted in two ways, using an accent color icon or an underline. To toggle this off, go to `Settings → Portals`, scroll down to the **Folder Note** section and choose `Folder note highlight type`
-- `Cmd/Ctr+Click` on a folder to open an existing folder note in editor. If side portal tab of folder note is active, clicking anywhere inside that will also open the folder note. 
+- `Cmd/Ctr+Click` on a folder to open an existing folder note in a new editor tab editor. 
+- Click anywhere inside side portal tab of folder note to open the folder note in a new tab. 
 - Folder note tab view renders markdown, including embeds (up to 5 levels deep). 
 - It supports [Dataview](https://github.com/blacksmithgu/obsidian-dataview) to help query the notes inside a folder. This needs the Dataview plugin, downloadable from community plugins or GitHub. 
 - For users new to Dataview, some queries can be found in the file [Portals_FolderNote_Guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/templates/Portals_FolderNote_Guide.md). A quick start template is also available, [Sample_FolderNote](https://github.com/samaraliwarsi/obsidian-portals/blob/main/templates/Sample_FolderNote.md). Both files can be downloaded from GitHub. 
@@ -135,9 +150,11 @@ The folder note tab shows the folder note of the currently active portal (if it 
 - Users can choose if they want to see the folder note file inside a folder. To enable, go to `Settings → Portals`, scroll down to the **Folder Note** section and turn on `Show folder notes in a tree`. If `Enable folder notes` setting is off, all folder notes are displayed in file tree regardless of the other settings. 
 - Note that bases preview is not supported as of now in folder notes. Bases markdown links are shown as clickable links right now, future updates will include bases preview support. 
 ### Journal
-A dedicated side portal tab for sneak peak into daily notes. For it to work, users need to point it to their daily notes folder and select the correct date format. To do this, go to `Settings → Portals`, scroll down to the **Journal** section, set the date format used in their daily notes using `Journal date format` and select a `Journal folder`, it must be the same as daily notes folder. Users can type the path exactly or use the `Browse files` option to select from a modal.  When using the Daily Notes core plugin, and if the folder is the same as defined in core plugin settings, users can leave the `Journal folder` setting empty. 
+A dedicated side portal tab for sneak peak into daily notes. For it consistent performance, users need to point it to their daily notes folder and select the correct date format. To do this, go to `Settings → Portals`, scroll down to the **Journal** section, set the date format used in their daily notes using `Journal date format` and select a `Journal folder`, it must be the same as daily notes folder. Users can type the path exactly or use the `Browse files` option to select from a modal.  When using the Daily Notes core plugin, and if the folder is the same as defined in core plugin settings, users can leave the `Journal folder` setting empty. 
 
-> Note: The feature is designed to work with daily notes core plugin. While support is extended to other plugins/ methods of daily notes, the most reliable behaviour can be expected with the core plugin. 
+> **Note:** 
+> 1. The feature is designed to work with daily notes core plugin. While support is extended to other plugins/ methods of daily notes, the most reliable behaviour can be expected with the core plugin. 
+> 2. Date format matching, is critical. While the plugin is designed to use fall back date create time, its output can be inaccurate in quotes and file sorting. Hence, if date format does not match **All files** in the `Journal folder`, a warning will be displayed inside journal. Once `Journal date format` setting is applied correctly, or files are renamed to match that setting, warning will go away. 
 
 The **Journal** side portal has two areas in display, 
 #### File area
@@ -165,6 +182,7 @@ Portals comes with Phosphor icon set embedded into the code, this works complete
 - Right‑click on the item → **Set custom icon** → choose an icon from the picker.
 - If an icon is already set, the menu shows **Remove custom icon**.
 
+> Since there are no icons in the styles `Shades` or `Minimal`, the context menu options for icon change in those are muted. This doesn't change user set preferences of icons per folder/ file/ tag group/ subtag. 
 ---
 ## The Folder / Tag Tree differences
 
@@ -188,11 +206,24 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 	- Nested tags or subtags cannot themselves be used as a portal space, or added as a group tag. This logic is maintained for simplicity. 
 	- Files carrying subtags as well nested tags can appear at two places, in the nested dropdown as well as the tag group (if chosen). This is a viewing consistency, not a bug. 
 - Tag names are linked directly to form portal tabs. If the name or spelling of a tag on a file changes, the file will not be populated in the tag view. 
+
 ---
-## Renaming Portal Tabs
+## Multi-select files and folders
+Multi-select is available from version 1.1.7. Use `Alt+Click` on desktop or `Swipe-right`  on touch devices to select multiple files or folders. This feature works through a pop-out toolbar attached on top of the side portal (if enabled) or at the bottom of the file container. All actions related to the feature will be available in the pop-out toolbar and not in context menu. Context menu on multi-select still acts on the first selected file or folder. The current options available are `Delete`, `Move`, `Create folder using selected` and `Deselect` chosen items. 
+
+---
+## Portal Tab Actions
+
+Here are some of the portal tab actions available directly from context menu or obsidian command palette, without going into settings. 
+### Renaming Portal tabs
 Portal tabs can have display name that doesn't need to match the folder or the tag name. Renaming only works in main portal tabs and not side portal. To set a **Display name*, 
 - `Right-click` on an active portal, click on `Rename portal`, enter a name. 
 - Display name can be reset using `Reset name`
+### Change Portal tab icon
+Icons of portal tabs can be changed using `Right-click` context menu. This feature syncs with the settings page, any changes made here are updated in settings and vice-versa. 
+
+### Add portal from command palette
+Users can add new portals without going into the settings. Press `Cmd/Ctr+P` or `/` on desktop to open **Obsidian command palette**, type the words *Portal*, select the option `Portals: Add portal tab`, use the same modal as settings page to add a new tag or folder portal space. 
 
 ---
 ## Foldable floating Action Buttons

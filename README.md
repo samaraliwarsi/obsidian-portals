@@ -16,10 +16,12 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 ## ✨ Features
 
 - **Pin any folder or tag** – Turn your most‑used folders and tags into tabs at the top of the file pane.
-- **Custom icons & colors** – Choose from hundreds of icons from the Phosphor set for the tabs and set any background color with an opacity slider. Option to use gradients. Control tab and file pane colors separately.
+- **Custom icons & colors** – Choose from hundreds of icons from the Phosphor set for the tabs and set any background color to file area or folder/ tag color with an opacity slider. Option to use gradients. Control tab and file pane colors separately.
 - **Styles** - Folder trees or Tag grouped lists in each portal tab can be styled with several predefined styles such. The styles available are `Default`, `Minimal`, `Boxed`, `Portals`, `Shades` & `Hues`. 
 - **Tag Grouping** - Use existing tags in listed files to enabled grouped view in tag list for, delivering a better layout for tag portal tabs.
 - **Subtags** - Subtags/ nested tags, eg. `Writing/Poetry`, displayed as hierarchal trees.
+- **Multi-select** - `Alt+Click` to multi-select files and folders.
+- **Command palette** - add portals from commands.
 - **Complete context menus** – Right‑click files or folders to get the same menu as the default file explorer.
 - **Foldable floating action buttons** – Quick‑create notes, folders, collapse all subfolders, and change sort order. Floating buttons are foldable on `Right Click/Long Press` for those wanting a cleaner folder pane view.
 - **Native sorting** – Choose how files are sorted (by name, creation time, or modification time, ascending/descending). Your choice is saved between sessions.
@@ -33,6 +35,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - **Mobile friendly** – Responsive design that works on small screens. Tested on Android (more platforms coming).
 - **Export/Import settings** – Backup your tab configuration or transfer it to another vault using json files from `Settings`.
 
+>[!Information] 
 > For a detailed guide, go to [Portals guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md)
 
 > [!Note]
