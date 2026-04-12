@@ -830,7 +830,7 @@ export class SpacesSettingTab extends PluginSettingTab {
     }
 
 // ==================== ADD PORTAL MODAL ====================
-class AddPortalModal extends Modal {
+export class AddPortalModal extends Modal {
     private selectedPath: string = '';
     private currentTab: 'root' | 'sub' | 'tag' = 'root';
     private searchInput!: HTMLInputElement;

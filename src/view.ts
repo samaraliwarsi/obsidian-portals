@@ -9,6 +9,7 @@ import { IconPickerModal } from './iconPicker';
 import { RenamePortalModal } from './modals';
 import { SelectFolderModal } from './modals';
 import { ColorPickerModal } from './modals';
+import { AddPortalModal } from './settings';
 
 interface BookmarkItem {
     title?: string;
@@ -371,6 +372,27 @@ export class PortalsView extends ItemView {
                 });
             }
         });
+    }
+
+    public showAddPortalModal() {
+        new AddPortalModal(this.app, this.plugin, (path: string, type: 'folder' | 'tag') => {
+            if (this.plugin.settings.spaces.some(s => s.path === path && s.type === type)) {
+                new Notice('This portal already exists.');
+                return;
+            }
+            this.plugin.settings.spaces.push({
+                path,
+                type,
+                icon: type === 'folder' ? 'folder-simple' : 'tag',
+                color: 'transparent'
+            });
+            if (this.plugin.settings.spaces.length === 1 && !this.plugin.settings.pinVaultRoot) {
+                this.plugin.settings.selectedSpace = { path, type };
+            }
+            this.plugin.saveSettings().then(() => {
+                this.render();
+            });
+        }).open();
     }
 
     private isFileInJournalFolder(file: TFile): boolean {

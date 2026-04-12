@@ -1,4 +1,4 @@
-import { Plugin, TFolder, TFile } from 'obsidian';
+import { Plugin, TFolder, TFile, Notice } from 'obsidian';
 import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 
@@ -19,6 +19,19 @@ export default class PortalsPlugin extends Plugin {
                 await this.saveSettings();
             }
         }
+
+        this.addCommand({
+            id: 'add-portal-tab',
+            name: 'Add portal tab',
+            callback: () => {
+                const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+                if (leaf && leaf.view instanceof PortalsView) {
+                    leaf.view.showAddPortalModal();
+                } else {
+                    new Notice('Please open the Portals view first.');
+                }
+            }
+        });
 
         this.registerView(
             VIEW_TYPE_PORTALS,
