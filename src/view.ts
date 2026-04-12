@@ -2395,18 +2395,22 @@ export class PortalsView extends ItemView {
                 // contex menu for group
                 summary.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    const menu = new Menu();
-                    menu.addItem(item => item
-                        .setTitle('Set custom icon')
-                        .setIcon('image')
-                        .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
-                    if (this.getCustomIcon(groupKey)) {
+                    const style = this.plugin.settings.treeStyle;
+                    const canSetIcon = style !== 'minimal' && style !== 'shades';
+                    if (canSetIcon) {
+                        const menu = new Menu();
                         menu.addItem(item => item
-                            .setTitle('Remove custom icon')
-                            .setIcon('trash')
-                            .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                            .setTitle('Set custom icon')
+                            .setIcon('image')
+                            .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
+                        if (this.getCustomIcon(groupKey)) {
+                            menu.addItem(item => item
+                                .setTitle('Remove custom icon')
+                                .setIcon('trash')
+                                .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                            menu.showAtPosition({ x: e.clientX, y: e.clientY });
+                        }
                     }
-                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
                 });
                 
                 for (const file of sortFiles(files)) {
@@ -2572,15 +2576,18 @@ export class PortalsView extends ItemView {
                 e.preventDefault();
                 const menu = new Menu();
                 const groupKey = `tag:${tagName}/node:${node.fullPath}`;
-                menu.addItem(item => item
-                    .setTitle('Set custom icon')
-                    .setIcon('image')
-                    .onClick(() => this.setCustomIconForTagGroup(tagName, node.fullPath, groupKey)));
-                if (this.getCustomIcon(groupKey)) {
+                const canSetIcon = style !== 'minimal' && style !== 'shades';
+                if (canSetIcon) {
                     menu.addItem(item => item
-                        .setTitle('Remove custom icon')
-                        .setIcon('trash')
-                        .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                        .setTitle('Set custom icon')
+                        .setIcon('image')
+                        .onClick(() => this.setCustomIconForTagGroup(tagName, node.fullPath, groupKey)));
+                    if (this.getCustomIcon(groupKey)) {
+                        menu.addItem(item => item
+                            .setTitle('Remove custom icon')
+                            .setIcon('trash')
+                            .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                    }
                 }
                 const canSetColor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
                 if (canSetColor) {
@@ -2739,15 +2746,18 @@ export class PortalsView extends ItemView {
             summary.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 const menu = new Menu();
-                menu.addItem(item => item
-                    .setTitle('Set custom icon')
-                    .setIcon('image')
-                    .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
-                if (this.getCustomIcon(groupKey)) {
+                const canSetIcon = this.plugin.settings.treeStyle !== 'minimal' && this.plugin.settings.treeStyle !== 'shades';
+                    if (canSetIcon) {
                     menu.addItem(item => item
-                        .setTitle('Remove custom icon')
-                        .setIcon('trash')
-                        .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                        .setTitle('Set custom icon')
+                        .setIcon('image')
+                        .onClick(() => this.setCustomIconForTagGroup(tagName, gTag, groupKey)));
+                    if (this.getCustomIcon(groupKey)) {
+                        menu.addItem(item => item
+                            .setTitle('Remove custom icon')
+                            .setIcon('trash')
+                            .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                    }
                 }
                 const canSetcolor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
                 if (canSetcolor) {
@@ -2845,20 +2855,24 @@ export class PortalsView extends ItemView {
             .setIcon('pencil')
             .onClick(() => this.startRenameFile(file, fileEl)));
         
-        menu.addSeparator();
+        const style = this.plugin.settings.treeStyle;
+        const canSetIcon = style !== 'minimal' && style !== 'shades'
+        if (canSetIcon) {
+            menu.addSeparator();
 
-        menu.addItem(item => item
-            .setTitle('Set custom icon')
-            .setIcon('image')
-            .onClick(() => this.setCustomIcon(file.path, file.name)));
-
-        if (this.getCustomIcon(file.path)) {
             menu.addItem(item => item
-                .setTitle('Remove custom icon')
-                .setIcon('trash')
-                .onClick(() => this.removeCustomIcon(file.path)));
-        }
+                .setTitle('Set custom icon')
+                .setIcon('image')
+                .onClick(() => this.setCustomIcon(file.path, file.name)));
 
+            if (this.getCustomIcon(file.path)) {
+                menu.addItem(item => item
+                    .setTitle('Remove custom icon')
+                    .setIcon('trash')
+                    .onClick(() => this.removeCustomIcon(file.path)));
+            }
+        }
+        
         menu.addSeparator();
 
         this.app.workspace.trigger('file-menu', menu, file, 'file-explorer');
@@ -2918,18 +2932,22 @@ export class PortalsView extends ItemView {
             .setIcon('pencil')
             .onClick(() => this.startRenameFolder(folder, summaryEl)));
 
-        menu.addSeparator();
+        const canSetIcon = this.plugin.settings.treeStyle !== 'minimal' && this.plugin.settings.treeStyle !== 'shades';
 
-        menu.addItem(item => item
-            .setTitle('Set custom icon')
-            .setIcon('image')
-            .onClick(() => this.setCustomIcon(folder.path, folder.name)));
+        if (canSetIcon) {
+            menu.addSeparator();
 
-        if (this.getCustomIcon(folder.path)) {
             menu.addItem(item => item
-                .setTitle('Remove custom icon')
-                .setIcon('trash')
-                .onClick(() => this.removeCustomIcon(folder.path)));
+                .setTitle('Set custom icon')
+                .setIcon('image')
+                .onClick(() => this.setCustomIcon(folder.path, folder.name)));
+
+            if (this.getCustomIcon(folder.path)) {
+                menu.addItem(item => item
+                    .setTitle('Remove custom icon')
+                    .setIcon('trash')
+                    .onClick(() => this.removeCustomIcon(folder.path)));
+            }
         }
 
         menu.addSeparator();
