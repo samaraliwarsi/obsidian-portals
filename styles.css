@@ -4782,12 +4782,7 @@
 /*------------------------------------------------------------------------------------*/
 /*-----------------------------------Boxed Style--------------------------------------*/
 
-.portals-tree-style-boxed .portals-space-content > .folder-details {
-    border-right: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
-    border-top: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
-    border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
-    border-radius: 0px 8px 8px 0;
-}
+
 
 
 .portals-tree-style-boxed .folder-summary {

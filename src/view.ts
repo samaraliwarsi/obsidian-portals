@@ -1107,6 +1107,17 @@ export class PortalsView extends ItemView {
                             .setIcon('undo')
                             .onClick(() => this.resetPortalName(space)));
                     }
+                    menu.addItem(item => item
+                        .setTitle('Change icon')
+                        .setIcon('image')
+                        .onClick(() => {
+                            new IconPickerModal(this.app, (iconName) => {
+                                space.icon = iconName;
+                                this.plugin.saveSettings().then(() => this.render());
+                            }).open();
+                        })
+                        
+                    )
                     menu.showAtPosition({ x: e.clientX, y: e.clientY });
                 });
 
