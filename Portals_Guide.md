@@ -1,9 +1,3 @@
----
-tags:
-  - portals
-created: 2026-04-07
-Status: 5
----
 # Portals Plugin User Guide
 
 Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.1.7.**
