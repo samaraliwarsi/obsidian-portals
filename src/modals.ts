@@ -147,10 +147,12 @@ export class ColorPickerModal extends Modal {
             this.targetElement.style.setProperty('--folder-color', newColor);
             if (this.summaryElement) {
                 this.summaryElement.classList.add('has-folder-color');
+                this.summaryElement.style.setProperty('--folder-color', newColor);
                 void this.summaryElement.offsetHeight;
             }
             if (this.childrenContainer) {
                 this.childrenContainer.classList.add('has-folder-color');
+                
                 void this.childrenContainer.offsetHeight;
             }
             // Force reflow
@@ -162,22 +164,25 @@ export class ColorPickerModal extends Modal {
 
         const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
         const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
-        cancelBtn.onclick = () => {
+       cancelBtn.onclick = () => {
             // Restore original class states
             if (!this.originalDetailsClass) this.targetElement.classList.remove('has-folder-color');
             else this.targetElement.classList.add('has-folder-color');
             if (this.summaryElement) {
                 if (!this.originalSummaryClass) this.summaryElement.classList.remove('has-folder-color');
                 else this.summaryElement.classList.add('has-folder-color');
+                // Remove any inline variable set during preview
+                this.summaryElement.style.removeProperty('--folder-color');
             }
             if (this.childrenContainer) {
                 if (!this.originalChildrenClass) this.childrenContainer.classList.remove('has-folder-color');
                 else this.childrenContainer.classList.add('has-folder-color');
+                this.childrenContainer.style.removeProperty('--folder-color');
             }
+            // Restore the original variable on the details
             this.targetElement.style.setProperty('--folder-color', this.originalColor);
             this.close();
         };
-        
         const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });
         saveBtn.onclick = () => {
             const rgb = this.hexToRgb(colorInput.value);
