@@ -48,6 +48,7 @@ export interface SpacesSettings {
     customIcons: Record<string, string>;
     expandedTagHierarchy: Record<string, string[]>;
     customColors: Record<string, string>;
+    tagColors: Record<string, string>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -86,6 +87,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     customIcons: {},
     expandedTagHierarchy: {},
     customColors: {},
+    tagColors: {},
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

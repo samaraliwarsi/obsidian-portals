@@ -4638,6 +4638,10 @@
     border-left: 1px dashed var(--folder-color);
 }
 
+.portals-tree-style-default .folder-summary.has-folder-color:hover{
+  background-color: color-mix(in srgb, var(--folder-color) 50%, var(--background-modifier-hover) 50%)
+}
+
 /*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------*/
 
 .portals-tree-style-minimal .folder-icon,
@@ -4662,9 +4666,16 @@
 }
 
 .portals-tree-style-minimal .folder-children {
-    border-left: 1px solid var(--background-modifier-border);
+    border-left: none;
     margin-left: 16px;
-    padding-left: 8px;
+    padding-left: 10px;
+    background: repeating-linear-gradient(
+        to bottom,
+        var(--text-faint) 0,
+        var(--text-faint) 1px,
+        transparent 1px,
+        transparent 8px
+    ) left center / 1px 100% no-repeat;
 }
 
 .portals-tree-style-minimal .folder-summary,
@@ -4691,7 +4702,14 @@
 }
 
 .portals-tree-style-minimal .folder-children.has-folder-color {
-  border-left: 1px solid var(--folder-color);
+  border-left: none;
+  background: repeating-linear-gradient(
+        to bottom,
+        var(--folder-color) 0,
+        var(--folder-color) 1px,
+        transparent 1px,
+        transparent 8px
+    ) left center / 1px 100% no-repeat;
 }
 /*----*/
 

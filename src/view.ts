@@ -340,6 +340,39 @@ export class PortalsView extends ItemView {
         });       
     }
 
+    private setTagColor(key: string, targetElement: HTMLElement) {
+        const currentColor = this.plugin.settings.tagColors[key];
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
+        const savedScrollTop = treeContainer ? treeContainer.scrollTop : 0;
+        new ColorPickerModal(this.app, (color) => {
+            this.plugin.settings.tagColors[key] = color;
+            this.plugin.saveSettings().then(() => {
+                this.render();
+                if (savedScrollTop > 0) {
+                    requestAnimationFrame(() => {
+                        const newContainer = this.containerEl.querySelector('.portals-tree-container');
+                        if (newContainer) newContainer.scrollTop = savedScrollTop;
+                    });
+                }
+            });
+        }, targetElement, currentColor).open();
+    }
+
+    private resetTagColor(key: string, _targetElement: HTMLElement) {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
+        const savedScrollTop = treeContainer ? treeContainer.scrollTop : 0;
+        delete this.plugin.settings.tagColors[key];
+        this.plugin.saveSettings().then(() => {
+            this.render();
+            if (savedScrollTop > 0) {
+                requestAnimationFrame(() => {
+                    const newContainer = this.containerEl.querySelector('.portals-tree-container');
+                    if (newContainer) newContainer.scrollTop = savedScrollTop;
+                });
+            }
+        });
+    }
+
     private isFileInJournalFolder(file: TFile): boolean {
         const folderPath = this.plugin.settings.journalFolderPath;
         if (!folderPath) return false;
@@ -951,6 +984,7 @@ export class PortalsView extends ItemView {
             boldFolderNames: s.boldFolderNames,
             treeStyle: s.treeStyle,
             customColor: JSON.stringify(s.customColors),
+            tagColors: JSON.stringify(s.tagColors),
         });
     }
 
@@ -2317,6 +2351,8 @@ export class PortalsView extends ItemView {
                 iconSpan.createEl('i', { cls: iconClass });
                 summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
 
+
+
                 // contex menu for group
                 summary.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
@@ -2425,25 +2461,22 @@ export class PortalsView extends ItemView {
             nameSpan.addClass('portals-item-name');
             summary.dataset.tagPath = node.fullPath;
 
-            // Context menu for custom icon on tag node
-            summary.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                const menu = new Menu();
-                const groupKey = `tag:${tagName}/node:${node.fullPath}`;
-                menu.addItem(item => item
-                    .setTitle('Set custom icon')
-                    .setIcon('image')
-                    .onClick(() => this.setCustomIconForTagGroup(tagName, node.fullPath, groupKey)));
-                if (this.getCustomIcon(groupKey)) {
-                    menu.addItem(item => item
-                        .setTitle('Remove custom icon')
-                        .setIcon('trash')
-                        .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
-                }
-                menu.showAtPosition({ x: e.clientX, y: e.clientY });
-            });
-
             const childrenContainer = details.createDiv({ cls: 'folder-children' });
+
+            const savedColor = this.plugin.settings.tagColors[nodeKey];
+            const style = this.plugin.settings.treeStyle;
+            const canApplyColor = savedColor && style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
+            if (canApplyColor) {
+                details.classList.add('has-folder-color');
+                summary.classList.add('has-folder-color');
+                details.style.setProperty('--folder-color', savedColor);
+                childrenContainer.classList.add('has-folder-color');
+            } else {
+                summary.classList.remove('has-folder-color');
+                details.classList.remove('has-folder-color');
+                details.style.removeProperty('--folder-color');
+                childrenContainer.classList.remove('has-folder-color');
+            }
 
             // Apply shades/hues styling only at level 1
             if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
@@ -2494,6 +2527,40 @@ export class PortalsView extends ItemView {
                     this.createFileItem(file, childrenContainer, openFiles);
                 }
             }
+
+            // Context menu for custom icon on tag node
+            summary.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const menu = new Menu();
+                const groupKey = `tag:${tagName}/node:${node.fullPath}`;
+                menu.addItem(item => item
+                    .setTitle('Set custom icon')
+                    .setIcon('image')
+                    .onClick(() => this.setCustomIconForTagGroup(tagName, node.fullPath, groupKey)));
+                if (this.getCustomIcon(groupKey)) {
+                    menu.addItem(item => item
+                        .setTitle('Remove custom icon')
+                        .setIcon('trash')
+                        .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                }
+                const canSetColor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
+                if (canSetColor) {
+                    menu.addSeparator();
+                    const nodeKey = `tag:${tagName}/node:${node.fullPath}`;
+                    const currentColor = this.plugin.settings.tagColors[groupKey];
+                    menu.addItem(item => item
+                        .setTitle('Set color')
+                        .setIcon('palette')
+                        .onClick(() => this.setTagColor(nodeKey, details)));
+                    if (currentColor) {
+                        menu.addItem(item => item
+                            .setTitle('Reset color')
+                            .setIcon('undo')
+                            .onClick(() => this.resetTagColor(nodeKey, details)));
+                        }
+                    }
+                menu.showAtPosition({ x: e.clientX, y: e.clientY });
+            });
 
             // Save expand/collapse state
             details.addEventListener('toggle', () => {
@@ -2572,6 +2639,21 @@ export class PortalsView extends ItemView {
             const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
             const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
 
+            const savedColor = this.plugin.settings.tagColors[groupKey];
+            const style = this.plugin.settings.treeStyle;
+            const canApplyColor = savedColor && style !== 'shades' && style !== 'hues' && !(style == 'portals' && this.plugin.settings.tabColorEnabled);
+            if (canApplyColor) {
+                groupDetails.classList.add('has-folder-color');
+                summary.classList.add('has-folder-color');
+                groupChildren.classList.add('has-folder-color');
+                groupDetails.style.setProperty('--folder-color', savedColor);
+            } else {
+                groupDetails.classList.remove('has-folder-color');
+                groupDetails.style.removeProperty('--folder-color');
+                summary.classList.remove('has-folder-color');
+                groupChildren.classList.remove('has-folder-color');
+            }
+
             // Apply styling for level 1
             if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
                 const minOpacity = 0.1, maxOpacity = 0.4;
@@ -2627,6 +2709,21 @@ export class PortalsView extends ItemView {
                         .setTitle('Remove custom icon')
                         .setIcon('trash')
                         .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                }
+                const canSetcolor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
+                if (canSetcolor) {
+                    menu.addSeparator();
+                    const currentColor = this.plugin.settings.tagColors[groupKey];
+                    menu.addItem(item => item
+                        .setTitle('Set color')
+                        .setIcon('palette')
+                        .onClick(() => this.setTagColor(groupKey, groupDetails)));
+                    if (currentColor) {
+                        menu.addItem(item => item
+                            .setTitle('Reset color')
+                            .setIcon('undo')
+                            .onClick(() => this.resetTagColor(groupKey, groupDetails)));
+                    }
                 }
                 menu.showAtPosition({ x: e.clientX, y: e.clientY });
             });
@@ -2797,9 +2894,9 @@ export class PortalsView extends ItemView {
         }
 
         menu.addSeparator();
-        const style = this.plugin.settings.treeStyle
-        const canSetColor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled)
-        const detailsEl = summaryEl.parentElement
+        const style = this.plugin.settings.treeStyle;
+        const canSetColor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
+        const detailsEl = summaryEl.parentElement;
         if (canSetColor && detailsEl && detailsEl.hasClass('folder-details')) {
             menu.addItem(item => item
                 .setTitle('Set color')

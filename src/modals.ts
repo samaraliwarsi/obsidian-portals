@@ -83,6 +83,7 @@ export class ColorPickerModal extends Modal {
     private onSave: (color: string) => void;
     private targetElement: HTMLElement;
     private originalColor: string;
+    
 
     constructor(app: App, onSave: (color: string) => void, targetElement: HTMLElement, currentColor?: string) {
         super(app);
@@ -129,6 +130,7 @@ export class ColorPickerModal extends Modal {
             const newColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${newOpacity})`;
             preview.style.backgroundColor = newColor;
             this.targetElement.style.setProperty('--folder-color', newColor);
+            this.targetElement.classList.add('has-folder-color');
         };
 
         colorInput.addEventListener('input', updatePreview);
