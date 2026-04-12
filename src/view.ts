@@ -421,10 +421,10 @@ export class PortalsView extends ItemView {
     private async handleFolderNoteCreation(folder: TFolder) {
         const existingNote = this.getFolderNote(folder);
         if (existingNote) {
-            new Notice('Folder note already exists', 3000);
-            return;
+            await this.app.workspace.getLeaf().openFile(existingNote);
+        } else {
+            await this.createFolderNote(folder);
         }
-        await this.createFolderNote(folder);
     }
 
     private isFileView(view: View): view is View & { file: TFile } {
