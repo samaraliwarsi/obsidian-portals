@@ -2940,7 +2940,7 @@ export class PortalsView extends ItemView {
             menu.addItem(item => item
                 .setTitle('Set color')
                 .setIcon('palette')
-                .onClick(() => this.setCustomColor(folder, summaryEl)));
+                .onClick(() => this.setCustomColor(folder, detailsEl)));
             if (this.plugin.settings.customColors[folder.path]) {
                 menu.addItem(item => item
                     .setTitle('Reset folder color')
@@ -3696,7 +3696,7 @@ export class PortalsView extends ItemView {
             summary.style.removeProperty('--folder-color');
             details.classList.remove('has-folder-color');
             details.style.removeProperty('--folder-color')
-            childrenContainer.classList.add('--remove-folder-color');
+            childrenContainer.classList.remove('--remove-folder-color');
         }
         
 

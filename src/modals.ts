@@ -100,6 +100,8 @@ export class ColorPickerModal extends Modal {
         this.originalSummaryClass = this.summaryElement ? this.summaryElement.classList.contains('has-folder-color') : false;
         this.originalChildrenClass = this.childrenContainer ? this.childrenContainer.classList.contains('has-folder-color') : false;
         this.originalColor = targetElement.style.getPropertyValue('--folder-color') || '';
+        console.log('Target element in modal:', targetElement, targetElement.tagName, targetElement.classList);
+
 
         if (currentColor) {
             const match = currentColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
@@ -142,9 +144,15 @@ export class ColorPickerModal extends Modal {
             preview.style.backgroundColor = newColor;
             // Add class to all elements that need it
             this.targetElement.classList.add('has-folder-color');
-            if (this.summaryElement) this.summaryElement.classList.add('has-folder-color');
-            if (this.childrenContainer) this.childrenContainer.classList.add('has-folder-color');
             this.targetElement.style.setProperty('--folder-color', newColor);
+            if (this.summaryElement) {
+                this.summaryElement.classList.add('has-folder-color');
+                void this.summaryElement.offsetHeight;
+            }
+            if (this.childrenContainer) {
+                this.childrenContainer.classList.add('has-folder-color');
+                void this.childrenContainer.offsetHeight;
+            }
             // Force reflow
             void this.targetElement.offsetHeight;
         };
