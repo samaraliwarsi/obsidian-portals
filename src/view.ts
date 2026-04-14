@@ -127,6 +127,16 @@ export class PortalsView extends ItemView {
         folderBtn.createEl('i', { cls: 'ph ph-folder-plus' });
         folderBtn.addEventListener('click', () => this.createFolderFromSelected());
 
+        // Reset colors button
+        const resetColorBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Reset colors' } });
+        resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
+        resetColorBtn.addEventListener('click', () => this.resetColorsForSelected());
+
+        // Reset icons button
+        const resetIconBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Reset icons' } });
+        resetIconBtn.createEl('i', { cls: 'ph ph-image' });
+        resetIconBtn.addEventListener('click', () => this.resetIconsForSelected());
+
         const clearBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Clear selection' } });
         clearBtn.createEl('i', { cls: 'ph ph-x' });
         clearBtn.addEventListener('click', () => this.clearSelection());
@@ -3149,6 +3159,39 @@ export class PortalsView extends ItemView {
             }
             new FolderNameModal(this.app).open();
         });
+    }
+
+    private async resetColorsForSelected() {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+
+        for (const path of this.selectedItems) {
+            const item = this.app.vault.getAbstractFileByPath(path);
+            if (item instanceof TFolder) {
+                delete this.plugin.settings.customColors[path];
+            }
+            // Files have no color settings; tag groups are not in multi‑select.
+        }
+        await this.plugin.saveSettings();
+        this.clearSelection();
+        this.render();
+        new Notice('Colors reset for selected items');
+    }
+
+    private async resetIconsForSelected() {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+
+        for (const path of this.selectedItems) {
+            const item = this.app.vault.getAbstractFileByPath(path);
+            if (item instanceof TFile || item instanceof TFolder) {
+                delete this.plugin.settings.customIcons[path];
+            }
+        }
+        await this.plugin.saveSettings();
+        this.clearSelection();
+        this.render();
+        new Notice('Icons reset for selected items');
     }
 
     private executeCommand(commandId: string) {
