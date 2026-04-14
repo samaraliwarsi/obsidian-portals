@@ -264,46 +264,50 @@ export class PortalsView extends ItemView {
 
     private async setCustomIcon(path: string, displayName: string) {
         new IconPickerModal(this.app, (iconName) => {
+            // capture scroll position
+            const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+            if (treeContainer) {
+                this.scrollToRestore = treeContainer.scrollTop;
+            }
             this.plugin.settings.customIcons[path] = iconName;
             this.plugin.saveSettings().then(() => {
-                // capture scroll position
-                const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-                if (treeContainer) {
-                    this.scrollToRestore = treeContainer.scrollTop;
-                }
-                this.renderContent();
+                this.render();
                 new Notice(`Icon set for ${displayName}`);
             });
         }).open();
     }
 
     private async removeCustomIcon(path: string) {
-        delete this.plugin.settings.customIcons[path];
-        await this.plugin.saveSettings();
         // capture scroll position
         const treeContainer = this.containerEl.querySelector('.portal-tree-container');
         if (treeContainer) {
             this.scrollToRestore = treeContainer.scrollTop;
         }
-        this.renderContent();
+        delete this.plugin.settings.customIcons[path];
+        await this.plugin.saveSettings();
+        this.render();
         new Notice('Custom icon removed');
     }
 
     private async setCustomIconForTagGroup(mainTag: string, groupTag: string, groupKey: string) {
         const displayName = `#${groupTag}`;
         new IconPickerModal(this.app, (iconName) => {
+            const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+            if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
             this.plugin.settings.customIcons[groupKey] = iconName;
             this.plugin.saveSettings().then(() => {
-                this.renderContent();
+                this.render();
                 new Notice(`Icon set for group ${displayName}`);
             });
         }).open();
     }
 
     private async removeCustomIconForTagGroup(groupKey: string) {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
         delete this.plugin.settings.customIcons[groupKey];
         await this.plugin.saveSettings();
-        this.renderContent();
+        this.render();
         new Notice('Custom icon removed');
     }
 
@@ -1011,6 +1015,7 @@ export class PortalsView extends ItemView {
             treeStyle: s.treeStyle,
             customColor: JSON.stringify(s.customColors),
             tagColors: JSON.stringify(s.tagColors),
+            customIcons: JSON.stringify(s.customIcons),
         });
     }
 
