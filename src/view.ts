@@ -3791,6 +3791,22 @@ export class PortalsView extends ItemView {
             }
         }
 
+        if (this.plugin.settings.enableFolderNotes && this.plugin.settings.folderNoteIconClick) {
+            iconSpan.style.cursor = 'pointer';
+            const openFolderNote = async (e: Event) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const folderNote = this.getFolderNote(folder);
+                if (folderNote) {
+                    await this.app.workspace.getLeaf().openFile(folderNote);
+                } else {
+                    new Notice('No folder note exists for this folder. Create using Shift+Click or context menu');
+                }
+            };
+            iconSpan.addEventListener('click', openFolderNote);
+            iconSpan.addEventListener('touchstart', openFolderNote, { passive: false });
+        }
+
         const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
         const nameSpan = summary.createSpan({ text: displayName });
         nameSpan.addClass('portals-item-name');

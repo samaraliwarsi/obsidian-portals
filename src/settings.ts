@@ -49,6 +49,7 @@ export interface SpacesSettings {
     expandedTagHierarchy: Record<string, string[]>;
     customColors: Record<string, string>;
     tagColors: Record<string, string>;
+    folderNoteIconClick: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -88,6 +89,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     expandedTagHierarchy: {},
     customColors: {},
     tagColors: {},
+    folderNoteIconClick: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -294,6 +296,19 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.plugin.settings.folderNoteHighlightStyle = value as 'icon' | 'underline' | 'none';
                     await this.plugin.saveSettings();
                     this.display();
+            }));
+        
+        new Setting(containerEl)
+        .setName('Open folder note from icon')
+        .setDesc('When enabled, clicking the icon of a folder will open its folder note in the current tab.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.folderNoteIconClick)
+            .setDisabled(!this.plugin.settings.enableFolderNotes)
+            .onChange(async (value) => {
+                this.plugin.settings.folderNoteIconClick = value;
+                await this.plugin.saveSettings();
+                // Refresh the view to apply cursor style
+                this.plugin.refreshAllViews();
             }));
 
         containerEl.createEl('hr');
