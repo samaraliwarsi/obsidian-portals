@@ -4642,6 +4642,13 @@
   background-color: color-mix(in srgb, var(--folder-color) 50%, var(--background-modifier-hover) 50%)
 }
 
+.portals-tree-style-default .file-item.has-custom-color {
+  color: var(--custom-color);
+}
+.portals-tree-style-default .file-item.has-custom-color .file-icon i {
+  color: var(--custom-color);
+}
+
 /*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------*/
 
 .portals-tree-style-minimal .folder-icon,
@@ -4711,6 +4718,11 @@
         transparent 8px
     ) left center / 1px 100% no-repeat;
 }
+
+.portals-tree-style-minimal .file-item.has-custom-color {
+  color: var(--custom-color);
+}
+
 /*----*/
 
 /*Minimal: Split Tab*/
@@ -4730,6 +4742,13 @@
 /*---Portals style custom colors--*/
 .portals-tree-style-portals .folder-details.has-folder-color {
     border-left: 1px solid var(--folder-color);
+}
+
+.portals-tree-style-portals .file-item.has-custom-color {
+  color: var(--custom-color);
+}
+.portals-tree-style-portals .file-item.has-custom-color .file-icon i {
+  color: var(--custom-color);
 }
 
 /*----*/
@@ -4805,6 +4824,13 @@
   border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
   border-radius: 0 0 0 6px;
   margin: 2px 0; 
+}
+
+.portals-tree-style-boxed .file-item.has-custom-color {
+  color: var(--custom-color);
+}
+.portals-tree-style-boxed .file-item.has-custom-color .file-icon i {
+  color: var(--custom-color);
 }
 
 
@@ -4892,6 +4918,12 @@
   margin: 4px 0; 
 }
 
+.portals-tree-style-shades .file-item.has-custom-color {
+  color: var(--custom-color);
+}
+.portals-tree-style-shades .file-item.has-custom-color .file-icon i {
+  color: var(--custom-color);
+}
 /*------------------------------------------------------------------------*/
 /*-----------------------------Hues Style---------------------------------*/
 
@@ -4965,6 +4997,14 @@
     );
     border-radius: 4px;
     margin: 4px 0;
+}
+
+
+.portals-tree-style-hues .file-item.has-custom-color {
+  color: var(--custom-color);
+}
+.portals-tree-style-hues .file-item.has-custom-color .file-icon i {
+  color: var(--custom-color);
 }
 /*-----------------------*/
 /* Light mode overrides */

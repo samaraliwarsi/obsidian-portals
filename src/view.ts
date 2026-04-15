@@ -165,6 +165,18 @@ export class PortalsView extends ItemView {
         nameSpan.addClass('portals-item-name');
         fileEl.dataset.path = file.path;
 
+        const savedColor = this.plugin.settings.customColors[file.path];
+        
+        const icon = fileEl.querySelector('.file-icon i') as HTMLElement | null;
+        if (savedColor) {
+            fileEl.classList.add('has-custom-color');
+            fileEl.style.setProperty('--custom-color', savedColor);
+            if (icon) icon.addClass('has-custom-color');
+        } else {
+            fileEl.classList.remove('has-custom-color');
+            fileEl.style.removeProperty('--custom-color');
+        }
+
         const isOpen = openFiles.has(file.path);
         let openDotSpan: HTMLSpanElement | null = null;
         if (isOpen) openDotSpan = fileEl.createSpan({ cls: 'open-dot' });
@@ -352,6 +364,24 @@ export class PortalsView extends ItemView {
                 }
             });
         }, summaryEl, currentColor).open();
+    }
+
+    private setCustomColorForFile(file: TFile, fileEl: HTMLElement) {
+        const currentColor = this.plugin.settings.customColors[file.path];
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+        new ColorPickerModal(this.app, (color) => {
+            this.plugin.settings.customColors[file.path] = color;
+            this.plugin.saveSettings().then(() => this.render());
+        }, fileEl, currentColor).open();
+    }
+
+    private resetCustomColorForFile(file: TFile) {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+        delete this.plugin.settings.customColors[file.path];
+        this.plugin.saveSettings().then(() => this.render());
+        new Notice('File color reset');
     }
 
     private resetCustomColor(folder: TFolder) {
@@ -3008,6 +3038,17 @@ export class PortalsView extends ItemView {
                     .setIcon('trash')
                     .onClick(() => this.removeCustomIcon(file.path)));
             }
+        }
+        menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('Set color')
+                .setIcon('palette')
+                .onClick(() => this.setCustomColorForFile(file, fileEl)));
+            if (this.plugin.settings.customColors[file.path]) {
+                menu.addItem(item => item
+                    .setTitle('Reset folder color')
+                    .setIcon('undo')
+                    .onClick(() => this.resetCustomColorForFile(file)));
         }
         
         menu.addSeparator();
