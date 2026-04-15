@@ -4642,11 +4642,11 @@
   background-color: color-mix(in srgb, var(--folder-color) 50%, var(--background-modifier-hover) 50%)
 }
 
-.portals-tree-style-default .file-item.has-custom-color {
-  color: var(--custom-color);
+.portals-tree-style-default .file-item.has-file-color {
+  color: var(--file-color);
 }
-.portals-tree-style-default .file-item.has-custom-color .file-icon i {
-  color: var(--custom-color);
+.portals-tree-style-default .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
 }
 
 /*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------*/
@@ -4719,8 +4719,8 @@
     ) left center / 1px 100% no-repeat;
 }
 
-.portals-tree-style-minimal .file-item.has-custom-color {
-  color: var(--custom-color);
+.portals-tree-style-minimal .file-item.has-file-color {
+  color: var(--file-color);
 }
 
 /*----*/
@@ -4744,11 +4744,11 @@
     border-left: 1px solid var(--folder-color);
 }
 
-.portals-tree-style-portals .file-item.has-custom-color {
-  color: var(--custom-color);
+.portals-tree-style-portals .file-item.has-file-color {
+  color: var(--file-color);
 }
-.portals-tree-style-portals .file-item.has-custom-color .file-icon i {
-  color: var(--custom-color);
+.portals-tree-style-portals .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
 }
 
 /*----*/
@@ -4826,11 +4826,11 @@
   margin: 2px 0; 
 }
 
-.portals-tree-style-boxed .file-item.has-custom-color {
-  color: var(--custom-color);
+.portals-tree-style-boxed .file-item.has-file-color {
+  color: var(--file-color);
 }
-.portals-tree-style-boxed .file-item.has-custom-color .file-icon i {
-  color: var(--custom-color);
+.portals-tree-style-boxed .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
 }
 
 
@@ -4918,11 +4918,11 @@
   margin: 4px 0; 
 }
 
-.portals-tree-style-shades .file-item.has-custom-color {
-  color: var(--custom-color);
+.portals-tree-style-shades .file-item.has-file-color {
+  color: var(--file-color);
 }
-.portals-tree-style-shades .file-item.has-custom-color .file-icon i {
-  color: var(--custom-color);
+.portals-tree-style-shades .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
 }
 /*------------------------------------------------------------------------*/
 /*-----------------------------Hues Style---------------------------------*/
@@ -5000,11 +5000,11 @@
 }
 
 
-.portals-tree-style-hues .file-item.has-custom-color {
-  color: var(--custom-color);
+.portals-tree-style-hues .file-item.has-file-color {
+  color: var(--file-color);
 }
-.portals-tree-style-hues .file-item.has-custom-color .file-icon i {
-  color: var(--custom-color);
+.portals-tree-style-hues .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
 }
 /*-----------------------*/
 /* Light mode overrides */
@@ -5418,11 +5418,11 @@ display: block;
 
 /*--------------------CUSTOM COLORS -----------------*/
 
-.portals-tree-container .folder-summary.has-custom-color {
+.portals-tree-container .folder-summary.has-file-color {
     background-color: var(--folder-color);
     border-radius: var(--radius-s);
 }
-.portals-tree-container .folder-children.has-custom-color-children {
+.portals-tree-container .folder-children.has-file-color-children {
     background-color: var(--folder-color);
     opacity: 0.6;
 }

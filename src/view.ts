@@ -169,12 +169,12 @@ export class PortalsView extends ItemView {
         
         const icon = fileEl.querySelector('.file-icon i') as HTMLElement | null;
         if (savedColor) {
-            fileEl.classList.add('has-custom-color');
-            fileEl.style.setProperty('--custom-color', savedColor);
-            if (icon) icon.addClass('has-custom-color');
+            fileEl.classList.add('has-file-color');
+            fileEl.style.setProperty('--file-color', savedColor);
+            if (icon) icon.addClass('has-file-color');
         } else {
-            fileEl.classList.remove('has-custom-color');
-            fileEl.style.removeProperty('--custom-color');
+            fileEl.classList.remove('has-file-color');
+            fileEl.style.removeProperty('--file-color');
         }
 
         const isOpen = openFiles.has(file.path);

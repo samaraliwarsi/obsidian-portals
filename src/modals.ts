@@ -88,12 +88,20 @@ export class ColorPickerModal extends Modal {
     private originalChildrenClass: boolean;
     private originalSummaryClass: boolean;
     private originalColor: string;
+    private originalFileTextColor: string = '';
+    private originalFileIconColor: string = '';
     
 
     constructor(app: App, onSave: (color: string) => void, targetElement: HTMLElement, currentColor?: string) {
         super(app);
         this.onSave = onSave;
         this.targetElement = targetElement;
+        if (targetElement.classList.contains('file-item')) {
+            const icon = targetElement.querySelector('.file-icon i') as HTMLElement | null;
+            this.originalFileTextColor = targetElement.style.color;
+            this.originalFileIconColor = icon ? icon.style.color : '';
+            
+        }
         this.summaryElement = targetElement.querySelector('.folder-summary');
         this.childrenContainer = targetElement.querySelector('.folder-children');
         this.originalDetailsClass = targetElement.classList.contains('has-folder-color');
@@ -172,9 +180,9 @@ export class ColorPickerModal extends Modal {
         const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
         cancelBtn.onclick = () => {
             if (this.targetElement.classList.contains('file-item')) {
-                this.targetElement.style.color = this.originalColor;
+                this.targetElement.style.color = this.originalFileTextColor;
                 const icon = this.targetElement.querySelector('.file-icon i') as HTMLElement | null;
-                if (icon) icon.style.color = this.originalColor;
+                if (icon) icon.style.color = this.originalFileIconColor;
             } else {
                 // Restore original class states
                 if (!this.originalDetailsClass) this.targetElement.classList.remove('has-folder-color');
@@ -214,6 +222,25 @@ export class ColorPickerModal extends Modal {
     }
 
     onClose() { 
+        if (this.targetElement.classList.contains('file-item')) {
+            this.targetElement.style.color = this.originalFileTextColor;
+            const icon = this.targetElement.querySelector('.file-icon i') as HTMLElement | null;
+            if (icon) icon.style.color = this.originalFileIconColor;
+        } else {
+            if (!this.originalDetailsClass) this.targetElement.classList.remove('has-folder-color');
+            else this.targetElement.classList.add('has-folder-color');
+            if (this.summaryElement) {
+                if (!this.originalSummaryClass) this.summaryElement.classList.remove('has-folder-color');
+                else this.summaryElement.classList.add('has-folder-color');
+                this.summaryElement.style.removeProperty('--folder-color');
+                }
+            if (this.childrenContainer) {
+                if (!this.originalChildrenClass) this.childrenContainer.classList.remove('has-folder-color');
+                else this.childrenContainer.classList.add('has-folder-color');
+                this.childrenContainer.style.removeProperty('--folder-color');
+            }
+            this.targetElement.style.setProperty('--folder-color', this.originalColor);
+        }
         this.contentEl.empty();
     }
 }
