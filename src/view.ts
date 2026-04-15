@@ -108,24 +108,27 @@ export class PortalsView extends ItemView {
         }
 
         if (this.selectedItems.size === 0) return;
+        const hasTagKeys = Array.from(this.selectedItems).some(key => key.startsWith('tag:'));
 
         // Create toolbar
         const toolbar = splitContainer.createDiv({ cls: 'portals-multiselect-toolbar' });
         this.multiSelectToolbar = toolbar;
 
-        // Add buttons (same as before)
-        const deleteBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Delete selected' } });
-        deleteBtn.createEl('i', { cls: 'ph ph-trash' });
-        deleteBtn.addClass('portals-delete-btn-warn');
-        deleteBtn.addEventListener('click', () => this.deleteSelectedItems());
+        if (!hasTagKeys) {
+            // Add buttons (same as before)
+            const deleteBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Delete selected' } });
+            deleteBtn.createEl('i', { cls: 'ph ph-trash' });
+            deleteBtn.addClass('portals-delete-btn-warn');
+            deleteBtn.addEventListener('click', () => this.deleteSelectedItems());
 
-        const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Move selected' } });
-        moveBtn.createEl('i', { cls: 'ph ph-arrow-square-out' });
-        moveBtn.addEventListener('click', () => this.moveSelectedItemsToFolder());
+            const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Move selected' } });
+            moveBtn.createEl('i', { cls: 'ph ph-arrow-square-out' });
+            moveBtn.addEventListener('click', () => this.moveSelectedItemsToFolder());
 
-        const folderBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Create folder from selected' } });
-        folderBtn.createEl('i', { cls: 'ph ph-folder-plus' });
-        folderBtn.addEventListener('click', () => this.createFolderFromSelected());
+            const folderBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Create folder from selected' } });
+            folderBtn.createEl('i', { cls: 'ph ph-folder-plus' });
+            folderBtn.addEventListener('click', () => this.createFolderFromSelected());
+        }
 
         // Reset colors button
         const resetColorBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Reset colors' } });
@@ -263,6 +266,17 @@ export class PortalsView extends ItemView {
             element.removeClass('is-selected');
         } else {
             this.selectedItems.add(path);
+            element.addClass('is-selected');
+        }
+        this.updateMultiSelectToolbar();
+    }
+
+    private toggleSelectionByKey(key: string, element: HTMLElement) {
+        if (this.selectedItems.has(key)) {
+            this.selectedItems.delete(key);
+            element.removeClass('is-selected');
+        } else {
+            this.selectedItems.add(key);
             element.addClass('is-selected');
         }
         this.updateMultiSelectToolbar();
@@ -2636,6 +2650,63 @@ export class PortalsView extends ItemView {
                 this.plugin.settings.expandedTagHierarchy[tagName] = expanded;
                 this.plugin.saveData(this.plugin.settings).catch(console.error);
             });
+
+            summary.addEventListener('click', (e) => {
+                if (e.altKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggleSelectionByKey(nodeKey, summary);
+                }
+            });
+
+            let touchStartPos: { x: number; y: number } | null = null;
+            let isSwiping = false;
+            // Touch swipe for mobile selection
+            summary.addEventListener('touchstart', (e: TouchEvent) => {
+                const touch = e.touches[0];
+                if (touch) {
+                    touchStartPos = { x: touch.clientX, y: touch.clientY };
+                    isSwiping = false;
+                }
+            }, { passive: true });
+
+            summary.addEventListener('touchmove', (e: TouchEvent) => {
+                if (!touchStartPos) return;
+                const touch = e.touches[0];
+                if (!touch) return;
+                const deltaX = touch.clientX - touchStartPos.x;
+                const deltaY = touch.clientY - touchStartPos.y;
+                if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
+                    isSwiping = true;
+                    summary.addClass('swipe-active');
+                }
+            }, { passive: true });
+
+            summary.addEventListener('touchend', (e: TouchEvent) => {
+                if (!touchStartPos) {
+                    if (isSwiping) summary.removeClass('swipe-active');
+                    touchStartPos = null;
+                    isSwiping = false;
+                    return;
+                }
+                const changedTouch = e.changedTouches[0];
+                if (changedTouch && isSwiping) {
+                    const deltaX = changedTouch.clientX - touchStartPos.x;
+                    const deltaY = changedTouch.clientY - touchStartPos.y;
+                    if (deltaX > 30 && Math.abs(deltaY) < 30) {
+                        this.toggleSelectionByKey(nodeKey, summary);
+                    }
+                }
+                if (isSwiping) summary.removeClass('swipe-active');
+                touchStartPos = null;
+                isSwiping = false;
+            });
+
+            summary.addEventListener('touchcancel', () => {
+                if (isSwiping) summary.removeClass('swipe-active');
+                touchStartPos = null;
+                isSwiping = false;
+            });
         };
 
         // Main wrapper details for the portal
@@ -2805,6 +2876,57 @@ export class PortalsView extends ItemView {
                 }
                 this.plugin.settings.expandedGroups[tagName] = expanded;
                 this.plugin.saveData(this.plugin.settings).catch(console.error);
+            });
+
+            summary.addEventListener('click', (e) => {
+                if (e.altKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggleSelectionByKey(groupKey, summary);
+                }
+            });
+
+            let touchStartPos: { x: number; y: number } | null = null;
+            let isSwiping = false;
+            // Touch swipe for mobile selection
+            summary.addEventListener('touchstart', (e: TouchEvent) => {
+                const touch = e.touches[0];
+                if (touch) {
+                    touchStartPos = { x: touch.clientX, y: touch.clientY };
+                    isSwiping = false;
+                }
+            }, { passive: true });
+
+            summary.addEventListener('touchmove', (e: TouchEvent) => {
+                if (!touchStartPos) return;
+                const touch = e.touches[0];
+                if (!touch) return;
+                const deltaX = touch.clientX - touchStartPos.x;
+                const deltaY = touch.clientY - touchStartPos.y;
+                if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
+                    isSwiping = true;
+                    summary.addClass('swipe-active');
+                }
+            }, { passive: true });
+
+            summary.addEventListener('touchend', (e: TouchEvent) => {
+                if (!touchStartPos) {
+                    if (isSwiping) summary.removeClass('swipe-active');
+                    touchStartPos = null;
+                    isSwiping = false;
+                    return;
+                }
+                const changedTouch = e.changedTouches[0];
+                if (changedTouch && isSwiping) {
+                    const deltaX = changedTouch.clientX - touchStartPos.x;
+                    const deltaY = changedTouch.clientY - touchStartPos.y;
+                    if (deltaX > 30 && Math.abs(deltaY) < 30) {
+                        this.toggleSelectionByKey(groupKey, summary);
+                    }
+                }
+                if (isSwiping) summary.removeClass('swipe-active');
+                touchStartPos = null;
+                isSwiping = false;
             });
         };
 
@@ -3165,10 +3287,11 @@ export class PortalsView extends ItemView {
         const treeContainer = this.containerEl.querySelector('.portals-tree-container');
         if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
 
-        for (const path of this.selectedItems) {
-            const item = this.app.vault.getAbstractFileByPath(path);
-            if (item instanceof TFolder) {
-                delete this.plugin.settings.customColors[path];
+        for (const key of this.selectedItems) {
+            if (key.startsWith('tag:')) {
+                delete this.plugin.settings.tagColors[key];
+            } else {
+                delete this.plugin.settings.customColors[key];
             }
             // Files have no color settings; tag groups are not in multi‑select.
         }
@@ -3182,11 +3305,8 @@ export class PortalsView extends ItemView {
         const treeContainer = this.containerEl.querySelector('.portals-tree-container');
         if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
 
-        for (const path of this.selectedItems) {
-            const item = this.app.vault.getAbstractFileByPath(path);
-            if (item instanceof TFile || item instanceof TFolder) {
-                delete this.plugin.settings.customIcons[path];
-            }
+        for (const key of this.selectedItems) {
+            delete this.plugin.settings.customIcons[key]; 
         }
         await this.plugin.saveSettings();
         this.clearSelection();
