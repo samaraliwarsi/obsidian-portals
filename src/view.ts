@@ -37,6 +37,7 @@ export class PortalsView extends ItemView {
     private tooltipEl: HTMLElement | null = null;
     private tooltipTimeout: number | null = null;
     private tooltipShowTimeout: number | null = null;
+    private specialTooltip = false;
     private vaultEventRef: (() => void) | null = null;
     private renaming: boolean = false;
     private selectedItems: Set<string> = new Set();
@@ -1542,7 +1543,14 @@ export class PortalsView extends ItemView {
                 btn.empty();
                 btn.createEl('i', { cls: `ph ph-${icon}` });
                 if (!Platform.isMobile) {
-                    btn.addEventListener('mouseenter', () => this.showTooltip(tooltip, btn, 300));
+                    btn.addEventListener('mouseenter', () => {
+                        let actualTooltip = tooltip;
+                        if ((icon === 'stack' || icon === 'stack-simple') && !this.specialTooltip) {
+                            actualTooltip = 'Collapse/ Right-click: fold/unfold';
+                            this.specialTooltip = true;
+                        }
+                        this.showTooltip(actualTooltip, btn, 300);
+                    });
                     btn.addEventListener('mouseleave', () => this.hideTooltip(100));
                 }
                 btn.addEventListener('click', (e) => {

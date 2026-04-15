@@ -5338,22 +5338,25 @@ vertical-align: middle;
 /* ----- Floating tooltip for inactive tabs ----- */
 
 .portals-floating-tooltip {
-position: fixed;
-background: var(--background-modifier-message);
-color: var(--text-on-accent, #fff);
-text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
-font-size: var(--font-ui-smaller);
-padding: 4px 8px;
-border-radius: var(--radius-s);
-white-space: nowrap;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-z-index: 10000;
-pointer-events: none;
-transition: opacity 0.15s ease, transform 0.15s ease;
-opacity: 0;
-display: block;
-transform: translateX(-50%) scale(0.8);
-display: block;
+  width: fit-content;
+  max-width: 120px;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+  background: var(--background-modifier-message);
+  color: var(--text-on-accent, #fff);
+  border-radius: var(--radius-s);
+  padding: 4px 8px;
+  font-size: var(--font-ui-smaller);
+  pointer-events: none;
+  position: fixed;
+  transform: translateX(-50%) scale(0.8);
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  display: block;
 }
 
 .portals-floating-tooltip.is-visible {
