@@ -10,6 +10,8 @@ import { RenamePortalModal } from './modals';
 import { SelectFolderModal } from './modals';
 import { ColorPickerModal } from './modals';
 import { AddPortalModal } from './settings';
+import { RemovePortalModal } from './modals';
+import { ChooseTabsModal } from './settings';
 
 interface BookmarkItem {
     title?: string;
@@ -452,6 +454,37 @@ export class PortalsView extends ItemView {
             this.plugin.saveSettings().then(() => {
                 this.render();
             });
+        }).open();
+    }
+
+    public showRemovePortalModal() {
+        const spaces = this.plugin.settings.spaces;
+        if (spaces.length === 0) {
+            new Notice('No portals to remove.');
+            return;
+        }
+        new RemovePortalModal(this.app, this.plugin, (space: SpaceConfig) => {
+            const index = this.plugin.settings.spaces.indexOf(space);
+            if (index !== -1) {
+                this.plugin.settings.spaces.splice(index, 1);
+                if (this.plugin.settings.selectedSpace?.path === space.path && this.plugin.settings.selectedSpace?.type === space.type) {
+                    this.plugin.settings.selectedSpace = this.plugin.settings.spaces[0] 
+                        ? { path: this.plugin.settings.spaces[0].path, type: this.plugin.settings.spaces[0].type }
+                        : null;
+                }
+                this.plugin.saveSettings().then(() => this.render());
+                new Notice(`Removed portal: ${space.path}`);
+            }
+        }).open();
+    }
+
+    public showSidePortalConfig() {
+        new ChooseTabsModal(this.app, this.plugin, (tabs) => {
+            this.plugin.settings.splitViewTabs = tabs;
+            if (!tabs.includes(this.plugin.settings.activeSplitTab)) {
+                this.plugin.settings.activeSplitTab = tabs[0] || 'recent';
+            }
+            this.plugin.saveSettings().then(() => this.render());
         }).open();
     }
 

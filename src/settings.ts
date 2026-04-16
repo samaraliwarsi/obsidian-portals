@@ -766,7 +766,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 }
 
     // ==================== CHOOSE SIDE TABS MODAL ====================
-    class ChooseTabsModal extends Modal {
+    export class ChooseTabsModal extends Modal {
         private selectedTabs: Set<string>;
 
         constructor(

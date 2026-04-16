@@ -1,4 +1,6 @@
 import { App, Modal, TFolder } from 'obsidian';
+import PortalsPlugin from './main';
+import { SpaceConfig } from './settings';
 
 //================================= RENAME PORTAL MODAL=======================================
 
@@ -241,6 +243,48 @@ export class ColorPickerModal extends Modal {
             }
             this.targetElement.style.setProperty('--folder-color', this.originalColor);
         }
+        this.contentEl.empty();
+    }
+}
+
+// -----------------------------REMOVE PORTAL MODAL -----------------------------------
+export class RemovePortalModal extends Modal {
+    private plugin: PortalsPlugin;
+    private onRemove: (space: SpaceConfig) => void;
+
+    constructor(app: App, plugin: PortalsPlugin, onRemove: (space: SpaceConfig) => void) {
+        super(app);
+        this.plugin = plugin;
+        this.onRemove = onRemove;
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+        contentEl.createEl('h3', { text: 'Remove portal tab' });
+        const spaces = this.plugin.settings.spaces;
+        if (spaces.length === 0) {
+            contentEl.createEl('p', { text: 'No portals to remove.' });
+            return;
+        }
+        for (const space of spaces) {
+            let displayName: string;
+            if (space.type === 'folder') {
+                if (space.path === '/') displayName = this.app.vault.getName();
+                else displayName = space.path;
+            } else {
+                displayName = '#' + space.path;
+            }
+            const row = contentEl.createDiv({ cls: 'remove-portal-row' });
+            row.createSpan({ text: displayName, cls: 'remove-portal-name' });
+            const removeBtn = row.createEl('button', { text: 'Remove', cls: 'mod-warning' });
+            removeBtn.addEventListener('click', () => {
+                this.onRemove(space);
+                this.close();
+            });
+        }
+    }
+
+    onClose() {
         this.contentEl.empty();
     }
 }

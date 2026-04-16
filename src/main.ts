@@ -32,6 +32,31 @@ export default class PortalsPlugin extends Plugin {
                 }
             }
         });
+        this.addCommand({
+            id: 'remove-portal-tab',
+            name: 'Remove-portal-tab',
+            callback: () => {
+                const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+                if (leaf && leaf.view instanceof PortalsView) {
+                    leaf.view.showRemovePortalModal();
+                } else {
+                    new Notice('Please open the Portal view first.');
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'configure-side-portal',
+            name: 'Configure side portal tabs',
+            callback: () => {
+                const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+                if (leaf && leaf.view instanceof PortalsView) {
+                    leaf.view.showSidePortalConfig();
+                } else {
+                    new Notice('Please open the Portals view first.');
+                }
+            }
+        });
 
         this.registerView(
             VIEW_TYPE_PORTALS,
