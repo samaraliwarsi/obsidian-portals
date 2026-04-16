@@ -4918,6 +4918,10 @@
   margin: 4px 0; 
 }
 
+.portals-split-content.portals-tree-style-shades .file-item:hover {
+  background-color: rgba(128, 128, 128, min(calc(var(--folder-shade-opacity, 0.15) + 0.1), 0.9));;
+}
+
 .portals-tree-style-shades .file-item.has-file-color {
   color: var(--file-color);
 }
@@ -6356,6 +6360,68 @@ button.journal-filter-btn i {
 }
 
 /*=============================JOURNAL-END============================*/
+
+/*-----HIDDEN ITEMS SIDE PORTAL----*/
+button.unhide-btn {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px 6px;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    height: 24px;
+}
+button.unhide-btn:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+.portals-hidden-tab .file-item:hover {
+  background: none;
+}
+
+.portals-hidden-tab.portals-tree-style-shades .file-item {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15)) !important;
+}
+
+.portals-hidden-tab.portals-tree-style-hues .file-item {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+    );
+}
+
+button.unhide-btn-all {
+  all: unset;
+  display: flex;
+  margin-right: auto;
+  border-left: 2px solid var(--hidden-accent-color, var(--interactive-accent));
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 2px 6px;
+  justify-content: center;
+  font-size: 0.8em;
+  gap: 4px;  
+}
+
+button.unhide-btn-all:hover {
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-normal);
+}
+
+.unhide-wrapper {
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
 
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
 

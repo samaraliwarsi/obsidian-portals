@@ -50,6 +50,7 @@ export interface SpacesSettings {
     customColors: Record<string, string>;
     tagColors: Record<string, string>;
     folderNoteIconClick: boolean;
+    hiddenItems: Record<string, boolean>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -69,7 +70,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     secondaryPanelCollapsed: false,
     sidePanelEnabled: true,
     recentFilesList: [],
-    splitViewTabs: ['recent', 'folder-notes', 'bookmarks', 'journal'],
+    splitViewTabs: ['recent', 'folder-notes', 'bookmarks', 'journal', 'hidden'],
     activeSplitTab: 'recent',
     showFolderNotesInTree: false,
     enableFolderNotes: true,
@@ -90,6 +91,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     customColors: {},
     tagColors: {},
     folderNoteIconClick: false,
+    hiddenItems: {},
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -791,7 +793,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 { id: 'recent', name: 'Recent Files', icon: 'clock-counter-clockwise' },
                 { id: 'folder-notes', name: 'Folder Notes', icon: 'note' },
                 { id: 'bookmarks', name: 'Bookmarks', icon: 'bookmark' },
-                { id: 'journal', name: 'Journal', icon: 'calendar-heart'}
+                { id: 'journal', name: 'Journal', icon: 'calendar-heart'},
+                { id: 'hidden', name: 'Hidden', icon: 'eye-slash'}
             ];
 
             const checkboxContainer = contentEl.createDiv({ cls: 'portals-checkbox-container' });

@@ -26,6 +26,7 @@ const SIDE_TAB_ICONS: Record<string, string> = {
     'folder-notes': 'note',
     bookmarks: 'bookmark',
     journal: 'calendar-heart',
+    hidden: 'eye-slash',
 };
 
 export const VIEW_TYPE_PORTALS = 'portals-view';
@@ -483,6 +484,89 @@ export class PortalsView extends ItemView {
             await this.app.workspace.getLeaf().openFile(existingNote);
         } else {
             await this.createFolderNote(folder);
+        }
+    }
+
+    private async hideItem(key: string) {
+        this.plugin.settings.hiddenItems[key] = true;
+        await this.plugin.saveSettings();
+        this.render();
+        new Notice('Item hidden');
+    }
+
+    private async unhideItem(key: string) {
+        delete this.plugin.settings.hiddenItems[key];
+        await this.plugin.saveSettings();
+        this.render(); // refresh the view and the hidden tab
+        new Notice(`Unhidden: ${key}`);
+    }
+
+    private async unhideAllItems() {
+        this.plugin.settings.hiddenItems = {};
+        await this.plugin.saveSettings();
+        this.render();
+        new Notice('All items unhidden');
+    }
+
+
+    private renderHiddenTab(container: HTMLElement) {        
+        container.addClass('portals-hidden-tab');
+        const tabColorEnabled = this.plugin.settings.tabColorEnabled;
+        const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+        const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
+        const hidden = this.plugin.settings.hiddenItems;
+        const hiddenKeys = Object.keys(hidden).filter(k => hidden[k]);
+        if (hiddenKeys.length === 0) {
+            container.createEl('p', { text: 'No hidden items.' });
+            return;
+        }
+        const buttonWrapper = container.createDiv({ cls: 'unhide-wrapper' });
+        const unhideAllBtn = buttonWrapper.createEl('button', { cls: 'unhide-btn-all' });
+        unhideAllBtn.createEl('i', { cls: 'ph ph-eye' });
+        unhideAllBtn.createSpan({ text: 'Unhide all', cls: 'unhide-btn-text' });
+        unhideAllBtn.addEventListener('click', () => this.unhideAllItems());
+        if (rootColor) {
+            container.style.setProperty('--hidden-accent-color', rootColor);
+        } else {
+            container.style.removeProperty('--hidden-accent-color');
+        }
+        hiddenKeys.sort();
+        for (const key of hiddenKeys) {
+            const fileEl = container.createDiv({ cls: 'file-item' });
+            fileEl.dataset.path = key
+            let displayName = key;
+            let iconClass = 'ph-file';
+            const item = this.app.vault.getAbstractFileByPath(key);
+            if (item instanceof TFile) {
+                displayName = this.getDisplayName(item);
+                iconClass = 'ph-file';
+                const customIcon = this.getCustomIcon(key);
+                if (customIcon) iconClass = `ph-${customIcon}` 
+            } else if (item instanceof TFolder) {
+                displayName = item.name;
+                iconClass = 'ph-folder';
+                const customIcon = this.getCustomIcon(key);
+                if (customIcon) iconClass = `ph-${customIcon}`;
+            } else if (key.startsWith('tag:')) {
+                const parts = key.split('/')
+                const lastPart = parts.pop() || key;
+                displayName = lastPart;
+                iconClass = 'ph-tag';
+                const customIcon = this.getCustomIcon(key);
+                if (customIcon) iconClass = `ph-${customIcon}`;
+            }
+            const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
+            iconSpan.createEl('i', {cls: `ph ${iconClass}` });
+            fileEl.createSpan({ text: displayName, cls: 'portals-item-name' });
+            const unhideBtn = fileEl.createEl('button', { cls: 'unhide-btn' });
+            unhideBtn.createEl('i', { cls: 'ph ph-eye' });
+            // unhideBtn.createSpan({ text: 'Unhide', cls: 'unhide-btn-text' });
+            unhideBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.unhideItem(key)
+            });
+            unhideBtn.addEventListener('mouseenter', () => this.showTooltip('Unhide', unhideBtn, 300));
+            unhideBtn.addEventListener('mouseleave', () => this.hideTooltip(100));
         }
     }
 
@@ -1071,6 +1155,7 @@ export class PortalsView extends ItemView {
             customColor: JSON.stringify(s.customColors),
             tagColors: JSON.stringify(s.tagColors),
             customIcons: JSON.stringify(s.customIcons),
+            hiddenItems: JSON.stringify(s.hiddenItems),
         });
     }
 
@@ -1800,6 +1885,8 @@ export class PortalsView extends ItemView {
                 this.journalFolderPath = currentFolderPath;
                 await this.journalRenderer.render();
             }
+        } else if (tabId === 'hidden') {
+            this.renderHiddenTab(contentEl);
         }
     }
 
@@ -2555,6 +2642,8 @@ export class PortalsView extends ItemView {
         });
 
         const renderNode = (node: TagNode, parentEl: HTMLElement, level: number, index: number = 0, total: number = 1) => {
+            const nodeKey = `tag:${tagName}/node:${node.fullPath}`;
+            if (this.plugin.settings.hiddenItems[nodeKey]) return;
             const details = parentEl.createEl('details', { cls: 'folder-details' });
             const expandedSet = this.plugin.settings.expandedTagHierarchy[tagName] || [];
             if (expandedSet.includes(node.fullPath)) {
@@ -2562,7 +2651,7 @@ export class PortalsView extends ItemView {
             }
 
             const summary = details.createEl('summary', { cls: 'folder-summary' });
-            const nodeKey = `tag:${tagName}/node:${node.fullPath}`;
+            
             const customIcon = this.getCustomIcon(nodeKey);
             const iconClass = customIcon ? `ph ph-${customIcon}` : `ph ph-${iconName || 'tag'}`;
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
@@ -2643,6 +2732,10 @@ export class PortalsView extends ItemView {
                 e.preventDefault();
                 const menu = new Menu();
                 const groupKey = `tag:${tagName}/node:${node.fullPath}`;
+                menu.addItem(item => item
+                    .setTitle('Hide')
+                    .setIcon('eye-off')
+                    .onClick(() => this.hideItem(nodeKey)));
                 const canSetIcon = style !== 'minimal' && style !== 'shades';
                 if (canSetIcon) {
                     menu.addItem(item => item
@@ -3029,7 +3122,12 @@ export class PortalsView extends ItemView {
             .setTitle('Rename')
             .setIcon('pencil')
             .onClick(() => this.startRenameFile(file, fileEl)));
-        
+
+        menu.addItem(item => item
+            .setTitle('Hide')
+            .setIcon('eye-off')
+            .onClick(() => this.hideItem(file.path)));
+            
         const style = this.plugin.settings.treeStyle;
         const canSetIcon = style !== 'minimal' && style !== 'shades'
         if (canSetIcon) {
@@ -3117,6 +3215,11 @@ export class PortalsView extends ItemView {
             .setTitle('Rename')
             .setIcon('pencil')
             .onClick(() => this.startRenameFolder(folder, summaryEl)));
+
+        menu.addItem(item => item
+            .setTitle('Hide')
+            .setIcon('eye-off')
+            .onClick(() => this.hideItem(folder.path)));    
 
         const canSetIcon = this.plugin.settings.treeStyle !== 'minimal' && this.plugin.settings.treeStyle !== 'shades';
 
@@ -4014,6 +4117,7 @@ export class PortalsView extends ItemView {
             let childIndex = 0;
 
             for (const child of sorted) {
+                if (this.plugin.settings.hiddenItems[child.path]) continue;
                 if (child instanceof TFolder) {
                     this.buildFolderTree(child, childrenContainer, openFiles, 'folder', depth +1, childIndex, totalFirstLevelFolders);
                     childIndex++;
