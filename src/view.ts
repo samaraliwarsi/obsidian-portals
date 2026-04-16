@@ -40,7 +40,8 @@ export class PortalsView extends ItemView {
     private tooltipEl: HTMLElement | null = null;
     private tooltipTimeout: number | null = null;
     private tooltipShowTimeout: number | null = null;
-    private specialTooltip = false;
+    private floatinBtnSpecialTooltipShown = false;
+    private collapseIconSpecialTooltipShown = false;
     private vaultEventRef: (() => void) | null = null;
     private renaming: boolean = false;
     private selectedItems: Set<string> = new Set();
@@ -1537,6 +1538,16 @@ export class PortalsView extends ItemView {
             const collapseIcon = secondaryHeader.createSpan({ cls: 'portals-collapse-icon' });
             collapseIcon.textContent = this.plugin.settings.secondaryPanelCollapsed ? '▲' : '▼';  
 
+            if (!Platform.isMobile) {
+                collapseIcon.addEventListener('mouseenter', () => {
+                    if (!this.collapseIconSpecialTooltipShown) {
+                        this.showTooltip('Click to expand · Right-click to configure', collapseIcon, 300);
+                        this.collapseIconSpecialTooltipShown = true;
+                    }
+                });
+                collapseIcon.addEventListener('mouseleave', () => this.hideTooltip(100));
+            }
+
             // Content area (collapsible)
             secondaryPanel.createDiv({ cls: 'portals-split-content' });
             const splitContent = secondaryPanel.querySelector('.portals-split-content') as HTMLElement;
@@ -1595,6 +1606,12 @@ export class PortalsView extends ItemView {
             // Make splitter draggable (mouse + touch)
             splitter.addEventListener('mousedown', this.handleDragStart);
             splitter.addEventListener('touchstart', this.handleDragStart, { passive: false });
+
+            // right click to side portal modal
+            collapseIcon.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                this.showSidePortalConfig();
+            });
 
 
             // Initial content
@@ -1663,9 +1680,9 @@ export class PortalsView extends ItemView {
                 if (!Platform.isMobile) {
                     btn.addEventListener('mouseenter', () => {
                         let actualTooltip = tooltip;
-                        if ((icon === 'stack' || icon === 'stack-simple') && !this.specialTooltip) {
+                        if ((icon === 'stack' || icon === 'stack-simple') && !this.floatinBtnSpecialTooltipShown) {
                             actualTooltip = 'Collapse/ Right-click: fold/unfold';
-                            this.specialTooltip = true;
+                            this.floatinBtnSpecialTooltipShown = true;
                         }
                         this.showTooltip(actualTooltip, btn, 300);
                     });
