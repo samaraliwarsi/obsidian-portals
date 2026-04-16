@@ -6423,6 +6423,18 @@ button.unhide-btn-all:hover {
   margin-bottom: 12px;
 }
 
+/*-------------------------------REMOVE PORTAL MODAL--------------------*/
+
+.remove-portal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+}
+.remove-portal-name {
+    flex-grow: 1;
+}
+
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
 
 .portals-container {
