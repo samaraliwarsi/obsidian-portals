@@ -5003,6 +5003,12 @@
     margin: 4px 0;
 }
 
+.portals-split-content.portals-tree-style-hues .file-item:hover {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 160), 40%, 80%, var(--hue-opacity, 0.25)),
+        hsla(var(--hue-end, 240), 40%, 80%, var(--hue-opacity, 0.25))
+    );
+}
 
 .portals-tree-style-hues .file-item.has-file-color {
   color: var(--file-color);
@@ -6391,7 +6397,7 @@ button.unhide-btn:hover {
   background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
         hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
-    );
+    ) !important;
 }
 
 button.unhide-btn-all {

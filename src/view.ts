@@ -1916,6 +1916,7 @@ export class PortalsView extends ItemView {
         const contentEl = secondaryPanel.querySelector('.portals-split-content') as HTMLElement;
         if (!contentEl) return;
         contentEl.empty();
+        contentEl.className = 'portals-split-content';
         contentEl.addClass(`portals-tree-style-${this.plugin.settings.treeStyle}`);
 
         if (tabId === 'recent') {
