@@ -56,7 +56,7 @@ export class PortalsView extends ItemView {
     private renderTimer: number | null = null;
     private contextNoteCache = new Map<string, { element: HTMLElement; component: Component }>();
     private contextNoteAccessOrder: string[] = [];
-    private readonly MAX_CONTEXT_NOTE_CACHE = 10;
+    private readonly MAX_CONTEXT_NOTE_CACHE = 20;
     private contextNoteScrollPositions = new Map<string, number>();
     private fileElementMap = new Map<string, HTMLElement>();
     private journalRenderer: JournalRenderer | null = null;
@@ -1210,7 +1210,6 @@ export class PortalsView extends ItemView {
             const safeName = this.sanitizeTagForFilename(target) + '.md';
             const fullPath = folderPath ? `${folderPath}/${safeName}` : safeName;
             const file = this.app.vault.getAbstractFileByPath(fullPath);
-            console.log(`[getContextNote] target="${target}" → fullPath="${fullPath}" → file=${file?.path || 'null'}`);
             return file instanceof TFile ? file : undefined;
         }
     }
@@ -2485,6 +2484,7 @@ export class PortalsView extends ItemView {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private buildTagSpace(tagName: string, container: HTMLElement, iconName: string, openFiles: Set<string>, groupTags?: string[], depth: number = 0, index: number = 0, totalGroups: number = 0) {
         const mainTag = '#' + tagName;
+        
         const allFiles = this.app.vault.getMarkdownFiles();
 
         // collect all files that have the main tag or any subtag (tagname/anything)
@@ -2639,6 +2639,7 @@ export class PortalsView extends ItemView {
             // If no groups, just list all files under the main tag
             if (!groupTags || groupTags.length === 0) {
                 for (const file of sortFiles(taggedFiles)) {
+                    if (this.plugin.settings.hiddenItems[file.path]) continue;
                     if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && this.isContextNoteFile(file, tagName)) {
                         continue;
                     }
@@ -2785,6 +2786,7 @@ export class PortalsView extends ItemView {
 
             // Render ungrouped files directly under main tag
             for (const file of sortFiles(ungrouped)) {
+                if (this.plugin.settings.hiddenItems[file.path]) continue;
                 if (this.plugin.settings.enableContextNotes && 
                     !this.plugin.settings.showContextNotesInTree && 
                     this.isContextNoteFile(file, tagName)) {
@@ -2895,8 +2897,11 @@ export class PortalsView extends ItemView {
 
             if (this.plugin.settings.enableContextNotes && this.plugin.settings.showContextNotesInTree) {
                 const contextNote = this.getContextNote(node.fullPath);
-                if (contextNote && !node.files.some(f => f.path === contextNote.path)) {
-                    this.createFileItem(contextNote, childrenContainer, openFiles);
+                if (contextNote && !this.plugin.settings.hiddenItems[contextNote.path]) {
+                    const alreadyListed = node.files.some((f: TFile) => f.path === contextNote.path);
+                    if (!alreadyListed) {
+                        this.createFileItem(contextNote, childrenContainer, openFiles);
+                    }
                 }
             }
 
@@ -2962,6 +2967,7 @@ export class PortalsView extends ItemView {
             // Render files belonging to this node, possibly grouped
             if (node.files.length > 0) {
                 for (const file of sortFiles(node.files)) {
+                    if (this.plugin.settings.hiddenItems[file.path]) continue;
                     if (this.plugin.settings.enableContextNotes && 
                         !this.plugin.settings.showContextNotesInTree && 
                         this.isContextNoteFile(file, node.fullPath)) {
@@ -3342,7 +3348,7 @@ export class PortalsView extends ItemView {
 
             if (this.plugin.settings.enableContextNotes && this.plugin.settings.showContextNotesInTree) {
                 const contextNote = this.getContextNote(gTag);
-                if (contextNote) {
+                if (contextNote && !this.plugin.settings.hiddenItems[contextNote.path]) {
                     const alreadyListed = files.some((f: TFile) => f.path === contextNote.path);
                     if (!alreadyListed) {
                         this.createFileItem(contextNote, groupChildren, openFiles);
@@ -3405,6 +3411,7 @@ export class PortalsView extends ItemView {
             });
 
             for (const file of sortFiles(files)) {
+                if (this.plugin.settings.hiddenItems[file.path]) continue;
                 if (this.plugin.settings.enableContextNotes && 
                     !this.plugin.settings.showContextNotesInTree && 
                     this.isContextNoteFile(file, gTag)) {
@@ -3520,6 +3527,7 @@ export class PortalsView extends ItemView {
             ungroupedRootFiles.push(...root.files);
         }
         for (const file of sortFiles(ungroupedRootFiles)) {
+            if (this.plugin.settings.hiddenItems[file.path]) continue;
             if (this.plugin.settings.enableContextNotes && 
                 !this.plugin.settings.showContextNotesInTree && 
                 this.isContextNoteFile(file, tagName)) {
@@ -3848,8 +3856,6 @@ export class PortalsView extends ItemView {
             if (!parent && item instanceof TFolder && item.path === '/') {
                 parent = item; // root folder is its own parent for this purpose
             }
-            
-            console.log(`Item: ${path}, parent: ${parent?.path || 'null'}`);
             
             if (!commonParent) commonParent = parent;
             else if (commonParent !== parent) return null;
