@@ -31,13 +31,14 @@ export interface SpacesSettings {
     recentFilesList: string[];
     splitViewTabs: string[];
     activeSplitTab: string;
-    showFolderNotesInTree: boolean;
-    enableFolderNotes: boolean;
+    showContextNotesInTree:boolean;
+    enableContextNotes: boolean;
+    tagNotesFolderPath: string;
     floatingButtonsCollapsed: boolean;
     expandedGroups: Record<string, string[]>;
     disableSidePanelOnMobile: boolean;
     enableFileExtensionNonMD: boolean;
-    folderNoteHighlightStyle: 'icon' | 'underline' | 'none';
+    contextNoteHighlightStyle: 'icon' | 'underline' | 'none';
     compactTree: boolean;
     boldFolderNames: boolean;
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
@@ -49,7 +50,7 @@ export interface SpacesSettings {
     expandedTagHierarchy: Record<string, string[]>;
     customColors: Record<string, string>;
     tagColors: Record<string, string>;
-    folderNoteIconClick: boolean;
+    contextNoteIconClick: boolean;
     hiddenItems: Record<string, boolean>;
 }
 
@@ -70,15 +71,16 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     secondaryPanelCollapsed: false,
     sidePanelEnabled: true,
     recentFilesList: [],
-    splitViewTabs: ['recent', 'folder-notes', 'bookmarks', 'journal', 'hidden'],
+    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden'],
     activeSplitTab: 'recent',
-    showFolderNotesInTree: false,
-    enableFolderNotes: true,
+    showContextNotesInTree: false,
+    enableContextNotes: true,
+    tagNotesFolderPath: '_Tag Notes',
     floatingButtonsCollapsed: false,
     expandedGroups: {},
     disableSidePanelOnMobile: false,
     enableFileExtensionNonMD: true,
-    folderNoteHighlightStyle: 'icon',
+    contextNoteHighlightStyle: 'icon',
     compactTree: false,
     boldFolderNames: false,
     treeStyle: 'default',
@@ -90,7 +92,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     expandedTagHierarchy: {},
     customColors: {},
     tagColors: {},
-    folderNoteIconClick: false,
+    contextNoteIconClick: false,
     hiddenItems: {},
 };
 
@@ -259,55 +261,75 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         containerEl.createEl('hr');
 
-        // -------------------- FOLDER NOTES SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Folder Notes').setHeading();
+        // -------------------- CONTEXT NOTES SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Context Notes').setHeading();
 
         new Setting(containerEl)
-            .setName('Enable folder notes')
-            .setDesc('When disabled, folder notes are treated as normal files (always in tree), the side panel tab shows a notice, and folder note context menu items, listeners and cache are removed.')
+            .setName('Enable Context notes')
+            .setDesc('When disabled, Context notes are treated as normal files and the side panel tab shows a notice. Menu items, context note listeners and cache are removed.')
             .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableFolderNotes)
+                .setValue(this.plugin.settings.enableContextNotes)
                 .onChange(async (value) => {
-                    this.plugin.settings.enableFolderNotes = value;
+                    this.plugin.settings.enableContextNotes = value;
                     await this.plugin.saveSettings();
                     this.display(); // refresh settings UI if needed
                 }));
-        
-        //-- Folder Notes in Side Portal
+
         new Setting(containerEl)
-            .setName('Show folder notes in file tree')
-            .setDesc('When folder notes are enabled, controls if they appear in file tree. If folder notes are disabled, this setting has no effect.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFolderNotesInTree)
-                .setDisabled(!this.plugin.settings.enableFolderNotes)
+            .setName('Tag notes folder')
+            .setDesc('Folder where tag context notes are stored.')
+            .addText(text => text
+                .setPlaceholder('_Tag Notes')
+                .setValue(this.plugin.settings.tagNotesFolderPath)
                 .onChange(async (value) => {
-                    this.plugin.settings.showFolderNotesInTree = value;
+                    this.plugin.settings.tagNotesFolderPath = value.trim() || '_Tag Notes';
+                    await this.plugin.saveSettings();
+                }))
+            .addButton(btn => btn
+                .setButtonText('Browse')
+                .onClick(() => {
+                    new SelectFolderModal(this.app, (folder) => {
+                        this.plugin.settings.tagNotesFolderPath = folder.path;
+                        this.plugin.saveSettings();
+                        this.display();
+                    }).open();
+                }));
+        
+        //-- Context Notes in Side Portal
+        new Setting(containerEl)
+            .setName('Show context notes in file tree')
+            .setDesc('When context notes are enabled, controls if they appear in file/ tag tree. If contexts notes are disabled, this setting has no effect.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showContextNotesInTree)
+                .setDisabled(!this.plugin.settings.enableContextNotes)
+                .onChange(async (value) => {
+                    this.plugin.settings.showContextNotesInTree = value;
                     await this.plugin.saveSettings();
                     this.display();
                 }));
         
         new Setting(containerEl)
-        .setName('Folder note highlight type')
-        .setDesc('How to visually indicate folders that have a folder note.')
+        .setName('Context note highlight type')
+        .setDesc('How to visually indicate folders and tags that have a context note.')
         .addDropdown(dropdown => dropdown
             .addOption('icon', 'Icon highlight')
             .addOption('underline', 'Text underline')
             .addOption('none', 'Off')
-            .setValue(this.plugin.settings.folderNoteHighlightStyle)
+            .setValue(this.plugin.settings.contextNoteHighlightStyle)
             .onChange(async (value) => {
-                    this.plugin.settings.folderNoteHighlightStyle = value as 'icon' | 'underline' | 'none';
+                    this.plugin.settings.contextNoteHighlightStyle = value as 'icon' | 'underline' | 'none';
                     await this.plugin.saveSettings();
                     this.display();
             }));
         
         new Setting(containerEl)
-        .setName('Open folder note from icon')
-        .setDesc('When enabled, clicking the icon of a folder will open its folder note in the current tab.')
+        .setName('Open context note from icon')
+        .setDesc('When enabled, clicking the icon of a folder or tag will open its context note in the current tab.')
         .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.folderNoteIconClick)
-            .setDisabled(!this.plugin.settings.enableFolderNotes)
+            .setValue(this.plugin.settings.contextNoteIconClick)
+            .setDisabled(!this.plugin.settings.enableContextNotes)
             .onChange(async (value) => {
-                this.plugin.settings.folderNoteIconClick = value;
+                this.plugin.settings.contextNoteIconClick = value;
                 await this.plugin.saveSettings();
                 // Refresh the view to apply cursor style
                 this.plugin.refreshAllViews();
@@ -791,7 +813,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             // Available tabs with display names and icons
             const availableTabs = [
                 { id: 'recent', name: 'Recent Files', icon: 'clock-counter-clockwise' },
-                { id: 'folder-notes', name: 'Folder Notes', icon: 'note' },
+                { id: 'context-notes', name: 'Context Notes', icon: 'note' },
                 { id: 'bookmarks', name: 'Bookmarks', icon: 'bookmark' },
                 { id: 'journal', name: 'Journal', icon: 'calendar-heart'},
                 { id: 'hidden', name: 'Hidden', icon: 'eye-slash'}

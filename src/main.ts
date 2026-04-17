@@ -116,6 +116,41 @@ export default class PortalsPlugin extends Plugin {
 
         async loadSettings() {
         const data = await this.loadData();
+        
+        // Migrate old settings to new names
+        if (data && typeof data === 'object') {
+            // Check and migrate enableFolderNotes -> enableContextNotes
+            if ('enableFolderNotes' in data) {
+                (data as Record<string, unknown>).enableContextNotes = data.enableFolderNotes;
+                delete data.enableFolderNotes;
+            }
+            // showFolderNotesInTree -> showContextNotesInTree
+            if ('showFolderNotesInTree' in data) {
+                (data as Record<string, unknown>).showContextNotesInTree = data.showFolderNotesInTree;
+                delete data.showFolderNotesInTree;
+            }
+            // folderNoteHighlightStyle -> contextNoteHighlightStyle
+            if ('folderNoteHighlightStyle' in data) {
+                (data as Record<string, unknown>).contextNoteHighlightStyle = data.folderNoteHighlightStyle;
+                delete data.folderNoteHighlightStyle;
+            }
+            // folderNoteIconClick -> contextNoteIconClick
+            if ('folderNoteIconClick' in data) {
+                (data as Record<string, unknown>).contextNoteIconClick = data.folderNoteIconClick;
+                delete data.folderNoteIconClick;
+            }
+            // Migrate splitViewTabs: 'folder-notes' -> 'context-notes'
+            if ('splitViewTabs' in data && Array.isArray(data.splitViewTabs)) {
+                const tabs = data.splitViewTabs as string[];
+                const idx = tabs.indexOf('folder-notes');
+                if (idx !== -1) tabs[idx] = 'context-notes';
+            }
+            // Migrate activeSplitTab: 'folder-notes' -> 'context-notes'
+            if ('activeSplitTab' in data && data.activeSplitTab === 'folder-notes') {
+                data.activeSplitTab = 'context-notes';
+            }
+        }
+
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
         
         // Migrate old selectedSpace (string) to new object format

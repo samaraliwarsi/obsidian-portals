@@ -4690,7 +4690,7 @@
     gap: 4px;
 }
 
-.portals-tree-style-minimal .folder-summary.has-folder-note-icon::before {
+.portals-tree-style-minimal .folder-summary.has-context-note-icon::before {
     color: var(--interactive-accent);
 }
 
@@ -4883,7 +4883,7 @@
     transform: rotate(0deg);
 }
 
-.portals-tree-style-shades .folder-summary.has-folder-note-icon::before {
+.portals-tree-style-shades .folder-summary.has-context-note-icon::before {
     color: var(--interactive-accent);
 }
 
@@ -6116,7 +6116,7 @@ body.portals-dragging {
   }
 }
 
-/*===FOLDER NOTE, Bases Styling & User message Display===*/
+/*===CONTEXT NOTE, Bases Styling & User message Display===*/
 .portals-embed-link {
     display: inline-block;
     margin: 4px 0;
@@ -6136,24 +6136,24 @@ body.portals-dragging {
     text-decoration: none;
 }
 
-.portals-folder-note-message {
+.portals-context-note-message {
     padding: 16px;
     text-align: center;
     color: var(--text-muted);
     font-style: italic;
 }
 
-.portals-folder-note-container {
+.portals-context-note-container {
     height: 100%;
     overflow-y: auto;
     cursor: pointer;
 }
 
-.folder-icon.has-folder-note-icon i {
+.folder-icon.has-context-note-icon i {
     color: var(--interactive-accent);
 }
 
-.folder-summary.has-folder-note-underline .portals-item-name {
+.folder-summary.has-context-note-underline .portals-item-name {
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-decoration-color: var(--text-muted);

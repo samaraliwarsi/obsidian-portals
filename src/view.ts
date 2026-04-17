@@ -25,11 +25,12 @@ interface BookmarkItem {
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
     recent: 'clock-counter-clockwise',
-    'folder-notes': 'note',
+    'context-notes': 'note',
     bookmarks: 'bookmark',
     journal: 'calendar-heart',
     hidden: 'eye-slash',
 };
+type ContextTarget = TFolder | string; // string represents a tag name
 
 export const VIEW_TYPE_PORTALS = 'portals-view';
 
@@ -50,13 +51,13 @@ export class PortalsView extends ItemView {
     private currentSecondaryPanel: HTMLElement | null = null;
     private currentSplitter: HTMLElement | null = null;
     private sortableInstance: Sortable | null = null;
-    private folderNoteEventRefs: Array<unknown> | null = null;
+    private contextNoteEventRefs: Array<unknown> | null = null;
     private bookmarksListenerRef: unknown = null;
     private renderTimer: number | null = null;
-    private folderNoteCache = new Map<string, { element: HTMLElement; component: Component }>();
-    private folderNoteAccessOrder: string[] = [];
-    private readonly MAX_FOLDER_NOTE_CACHE = 10;
-    private folderNoteScrollPositions = new Map<string, number>();
+    private contextNoteCache = new Map<string, { element: HTMLElement; component: Component }>();
+    private contextNoteAccessOrder: string[] = [];
+    private readonly MAX_CONTEXT_NOTE_CACHE = 10;
+    private contextNoteScrollPositions = new Map<string, number>();
     private fileElementMap = new Map<string, HTMLElement>();
     private journalRenderer: JournalRenderer | null = null;
     private journalFolderPath: string = '';
@@ -495,29 +496,23 @@ export class PortalsView extends ItemView {
         return file.path.startsWith(folderPath);
     }
 
-    private getCurrentFolderNote(): TFile | null {
+    private getCurrentContextNote(): TFile | null {
         const selectedSpace = this.plugin.settings.selectedSpace;
-        if (!selectedSpace || selectedSpace.type !== 'folder') return null;
-        if (selectedSpace.path === '/') {
-            const vaultName = this.app.vault.getName();
-            const rootNotePath = vaultName + '.md';
-            const file = this.app.vault.getAbstractFileByPath(rootNotePath);
-            return file instanceof TFile ? file : null;
-        } else {
+        if (!selectedSpace) return null;
+        if (selectedSpace.type === 'folder') {
             const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
-            if (!(folder instanceof TFolder)) return null;
-            return folder.children.find((child): child is TFile =>
-                child instanceof TFile && this.isFolderNote(child, folder)
-            ) ?? null;
+            return folder instanceof TFolder ? this.getContextNote(folder) ?? null : null;
+        } else {
+            return this.getContextNote(selectedSpace.path) ?? null;
         }
     }
 
-    private async handleFolderNoteCreation(folder: TFolder) {
-        const existingNote = this.getFolderNote(folder);
-        if (existingNote) {
-            await this.app.workspace.getLeaf().openFile(existingNote);
+    private async handleContextNoteCreation(target: ContextTarget) {
+        const existing = this.getContextNote(target);
+        if (existing) {
+            await this.app.workspace.getLeaf().openFile(existing);
         } else {
-            await this.createFolderNote(folder);
+            await this.createContextNote(target);
         }
     }
 
@@ -621,10 +616,10 @@ export class PortalsView extends ItemView {
         return openFiles;
     }
 
-    private invalidateFolderNoteCache(file: TFile) {
-        this.folderNoteCache.delete(file.path);
-        const idx = this.folderNoteAccessOrder.indexOf(file.path);
-        if (idx !== -1) this.folderNoteAccessOrder.splice(idx, 1);
+    private invalidateContextNoteCache(file: TFile) {
+        this.contextNoteCache.delete(file.path);
+        const idx = this.contextNoteAccessOrder.indexOf(file.path);
+        if (idx !== -1) this.contextNoteAccessOrder.splice(idx, 1);
     }
 
     private toggleFloatingButtonsCollapse(e: MouseEvent) {
@@ -765,6 +760,18 @@ export class PortalsView extends ItemView {
         this.fileElementMap.set(file.path, element);
     }
 
+    private sanitizeTagForFilename(tag: string): string {
+        // Replace invalid filesystem characters with '-'
+        // Keep '/' for now, then convert to '--' separately
+        let safe = tag.replace(/[\\:*?"<>|]/g, '-');
+        // Replace '/' with '--' to flatten hierarchy
+        safe = safe.replace(/\//g, '--');
+        // Remove leading/trailing spaces or dots
+        safe = safe.trim().replace(/^\.+|\.+$/g, '');
+        // Ensure not empty
+        return safe || 'untitled-tag';
+    }
+
     private collapseAllFolders() {
         (async () => {
             const currentSpace = this.plugin.settings.selectedSpace;
@@ -851,48 +858,48 @@ export class PortalsView extends ItemView {
         setupBookmarksListener();
 
 
-        //---FolderNotes 
-        const refreshFolderNotes = () => {
-            if (!this.plugin.settings.enableFolderNotes) return;
-            if (this.plugin.settings.activeSplitTab === 'folder-notes') {
+        //---ContextNotes 
+        const refreshContextNotes = () => {
+            if (!this.plugin.settings.enableContextNotes) return;
+            if (this.plugin.settings.activeSplitTab === 'context-notes') {
                 const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
                 if (secondaryPanel) {
                     const contentEl = secondaryPanel.querySelector('.portals-split-content');
                     if (contentEl) {
                         (contentEl as HTMLElement).empty();
-                        this.renderFolderNotesTab(contentEl as HTMLElement);
+                        this.renderContextNotesTab(contentEl as HTMLElement);
                     }
                 }
             }
         };
         
-        const folderNoteRenameRef = this.app.vault.on('rename', refreshFolderNotes);
-        const folderNoteDeleteRef = this.app.vault.on('delete', refreshFolderNotes);
-        const folderNoteCreateRef = this.app.vault.on('create', refreshFolderNotes);
-        // Debounced refresh for folder notes tab (to avoid frequent re‑renders)
-        const debouncedRefreshFolderNotes = debounce(() => {
-            if (this.plugin.settings.activeSplitTab === 'folder-notes') {
+        const contextNoteRenameRef = this.app.vault.on('rename', refreshContextNotes);
+        const contextNoteDeleteRef = this.app.vault.on('delete', refreshContextNotes);
+        const contextNoteCreateRef = this.app.vault.on('create', refreshContextNotes);
+        // Debounced refresh for context notes tab (to avoid frequent re‑renders)
+        const debouncedRefreshContextNotes = debounce(() => {
+            if (this.plugin.settings.activeSplitTab === 'context-notes') {
                 const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
                 if (secondaryPanel) {
                     const contentEl = secondaryPanel.querySelector('.portals-split-content') as HTMLElement;
                     if (contentEl) {
                         contentEl.empty();
-                        this.renderFolderNotesTab(contentEl);
+                        this.renderContextNotesTab(contentEl);
                     }
                 }
             }
         }, 300);
 
-        const folderNoteModifyRef = this.app.vault.on('modify', (file) => {
-            if (!this.plugin.settings.enableFolderNotes) return;
+        const contextNoteModifyRef = this.app.vault.on('modify', (file) => {
+            if (!this.plugin.settings.enableContextNotes) return;
             if (!(file instanceof TFile)) return; // only handle files
-            const currentNote = this.getCurrentFolderNote();
+            const currentNote = this.getCurrentContextNote();
             if (file.path === currentNote?.path) {
-                this.invalidateFolderNoteCache(file);
-                debouncedRefreshFolderNotes();
+                this.invalidateContextNoteCache(file);
+                debouncedRefreshContextNotes();
             }
         });
-        this.folderNoteEventRefs = [folderNoteRenameRef, folderNoteDeleteRef, folderNoteCreateRef, folderNoteModifyRef];
+        this.contextNoteEventRefs = [contextNoteRenameRef, contextNoteDeleteRef, contextNoteCreateRef, contextNoteModifyRef];
 
         this.registerEvent(this.app.vault.on('modify', (file) => {
             if (file instanceof TFile && this.plugin.settings.activeSplitTab === 'journal') {
@@ -939,13 +946,13 @@ export class PortalsView extends ItemView {
             this.sortableInstance = null;
         }
         
-        //--clean up foldernotes listeners
-        if (this.folderNoteEventRefs) {
-            this.folderNoteEventRefs.forEach((ref) => {
+        //--clean up contextnotes listeners
+        if (this.contextNoteEventRefs) {
+            this.contextNoteEventRefs.forEach((ref) => {
                 // @ts-expect-error - ref is an EventRef, but Typsescript doesn't know
                 this.app.vault.offref(ref);
             });
-            this.folderNoteEventRefs = null;
+            this.contextNoteEventRefs = null;
         }
 
         // Clean up bookmarks listener
@@ -959,13 +966,13 @@ export class PortalsView extends ItemView {
             this.bookmarksListenerRef = null;
         }
 
-        // Clean up folder note cache
-        for (const { component } of this.folderNoteCache.values()) {
+        // Clean up context note cache
+        for (const { component } of this.contextNoteCache.values()) {
             this.removeChild(component);
         }
-        this.folderNoteCache.clear();
-        this.folderNoteScrollPositions.clear();
-        this.folderNoteAccessOrder = [];
+        this.contextNoteCache.clear();
+        this.contextNoteScrollPositions.clear();
+        this.contextNoteAccessOrder = [];
 
         document.removeEventListener('mousemove', this.handleDragMove);
         document.removeEventListener('touchmove', this.handleDragMove);
@@ -1136,27 +1143,76 @@ export class PortalsView extends ItemView {
         }
     }
 
-    //-- FolderNote
-    private isFolderNote(file: TFile, folder: TFolder): boolean {
-        if (folder.path === '/') {
-            return file.extension === 'md' && file.name.toLowerCase() === (this.app.vault.getName() + '.md').toLowerCase() && file.parent?.path === '/';
+    //-- ContextNote
+    private isContextNote(file: TFile, target: ContextTarget): boolean {
+        if (target instanceof TFolder) {
+            // Folder logic (unchanged)
+            if (target.path === '/') {
+                return file.extension === 'md' && 
+                    file.name.toLowerCase() === (this.app.vault.getName() + '.md').toLowerCase() && 
+                    file.parent?.path === '/';
+            } else {
+                return file.extension === 'md' && 
+                    file.name.toLowerCase() === (target.name + '.md').toLowerCase() && 
+                    file.parent?.path === target.path;
+            }
         } else {
-        return file.extension === 'md' && file.name.toLowerCase() === (folder.name + '.md').toLowerCase() && file.parent?.path === folder.path;
+            // Tag note: must be in correct folder and have the tag in frontmatter
+            const folderPath = this.plugin.settings.tagNotesFolderPath;
+            const expectedParent = folderPath || '';
+            if (file.parent?.path !== expectedParent) return false;
+
+            // Verify frontmatter contains the target tag
+            const cache = this.app.metadataCache.getFileCache(file);
+            const tags = cache?.frontmatter?.tags;
+            const hasTag = Array.isArray(tags) ? tags.includes(target) : tags === target;
+            
+            // Optionally also check filename convention for consistency
+            const safeName = this.sanitizeTagForFilename(target);
+            const filenameMatches = file.basename === safeName && file.extension === 'md';
+            
+            return hasTag && filenameMatches;
         }
     }
 
-    //-- FolderNote Dot
-    private hasFolderNote(folder: TFolder): boolean {
-        return folder.children.some(child => 
-            child instanceof TFile && this.isFolderNote(child, folder)
-        );
+    //-- ContextNote Dot
+    private hasContextNote(target: ContextTarget): boolean {
+        if (target instanceof TFolder) {
+            return target.children.some(child =>
+                child instanceof TFile && this.isContextNote(child, target)
+            );
+        } else {
+            return this.getContextNote(target) !== undefined;
+        }
     }
 
-    //--getFolderNote
-    private getFolderNote(folder: TFolder): TFile | undefined {
-        return folder.children.find((child): child is TFile => 
-            child instanceof TFile && this.isFolderNote(child, folder)
-        );
+    private isContextNoteFile(file: TFile, contextTarget?: ContextTarget): boolean {
+        if (!contextTarget) return false;
+        return this.isContextNote(file, contextTarget);
+    }
+
+    //--getContextNote
+    private getContextNote(target: ContextTarget): TFile | undefined {
+        if (target instanceof TFolder) {
+            // Existing folder logic (unchanged)
+            if (target.path === '/') {
+                const vaultName = this.app.vault.getName();
+                const rootNotePath = vaultName + '.md';
+                const file = this.app.vault.getAbstractFileByPath(rootNotePath);
+                return file instanceof TFile ? file : undefined;
+            }
+            return target.children.find((child): child is TFile => 
+                child instanceof TFile && this.isContextNote(child, target)
+            );
+        } else {
+            // New tag logic
+            const folderPath = this.plugin.settings.tagNotesFolderPath;
+            const safeName = this.sanitizeTagForFilename(target) + '.md';
+            const fullPath = folderPath ? `${folderPath}/${safeName}` : safeName;
+            const file = this.app.vault.getAbstractFileByPath(fullPath);
+            console.log(`[getContextNote] target="${target}" → fullPath="${fullPath}" → file=${file?.path || 'null'}`);
+            return file instanceof TFile ? file : undefined;
+        }
     }
 
     //-- Settings Hash
@@ -1177,12 +1233,12 @@ export class PortalsView extends ItemView {
             activeSplitTab: s.activeSplitTab,
             splitViewTabs: s.splitViewTabs?.join(',') || '',
             recentFilesList: s.recentFilesList?.join(',') || '',
-            showFolderNotesInTree: s.showFolderNotesInTree,
-            enableFolderNotes: s.enableFolderNotes,
+            showContextNotesInTree: s.showContextNotesInTree,
+            enableContextNotes: s.enableContextNotes,
             floatingButtonsCollapsed: s.floatingButtonsCollapsed,
             disableSidePanelOnMobile: s.disableSidePanelOnMobile,
             enableFileExtensionNonMD: s.enableFileExtensionNonMD,
-            folderNoteHighlightStyle: s.folderNoteHighlightStyle,
+            contextNoteHighlightStyle: s.contextNoteHighlightStyle,
             compactTree: s.compactTree,
             boldFolderNames: s.boldFolderNames,
             treeStyle: s.treeStyle,
@@ -1194,14 +1250,14 @@ export class PortalsView extends ItemView {
     }
 
     render() {
-        // Save scroll position of current folder note if it exists
-        if (this.plugin.settings.enableFolderNotes && this.plugin.settings.activeSplitTab === 'folder-notes') {
+        // Save scroll position of current context note if it exists
+        if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
             const splitContent = this.containerEl.querySelector('.portals-split-content') as HTMLElement;
             const noteContainer = splitContent?.querySelector('.markdown-preview-view') as HTMLElement;
             if (noteContainer) {
-                const currentNote = this.getCurrentFolderNote();
+                const currentNote = this.getCurrentContextNote();
                 if (currentNote) {
-                    this.folderNoteScrollPositions.set(currentNote.path, noteContainer.scrollTop);
+                    this.contextNoteScrollPositions.set(currentNote.path, noteContainer.scrollTop);
                 }
             }
         }
@@ -1426,7 +1482,7 @@ export class PortalsView extends ItemView {
             // Tab container
             const tabContainer = secondaryHeader.createDiv({ cls: 'portals-split-tabs' });
 
-           // Get tabs from settings, ensure folder-notes is present for testing
+           // Get tabs from settings, ensure context-notes is present for testing
            const tabs = this.plugin.settings.splitViewTabs || ['recent'];
            const icons = SIDE_TAB_ICONS;
            const activeTab = this.plugin.settings.activeSplitTab || 'recent';
@@ -1908,15 +1964,15 @@ export class PortalsView extends ItemView {
                 });
             }
 
-        } else if (tabId === 'folder-notes') {
-            if (!this.plugin.settings.enableFolderNotes) {
+        } else if (tabId === 'context-notes') {
+            if (!this.plugin.settings.enableContextNotes) {
                 contentEl.createEl('p', {
-                    text: 'Folder notes are disabled. Enable them in settings.',
-                    cls: 'portals-folder-note-message'
+                    text: 'Context notes are disabled. Enable them in settings.',
+                    cls: 'portals-context-note-message'
                 });
                 return;
             }
-            this.renderFolderNotesTab(contentEl);
+            this.renderContextNotesTab(contentEl);
         } else if (tabId === 'bookmarks') {
             this.renderBookmarksTab(contentEl);
         } else if (tabId === 'journal') {
@@ -2111,86 +2167,123 @@ export class PortalsView extends ItemView {
     }
     // End of bookmark
 
-    // Folder note
+    // Context note
 
-    private async createFolderNote(folder: TFolder) {
-        let noteName: string;
-        let notePath: string;
-        let displayName: string;
+    private async createContextNote(target: ContextTarget): Promise<TFile> {
+        if (target instanceof TFolder) {
+            // Existing context note creation logic (unchanged)
+            let noteName: string;
+            let notePath: string;
+            let displayName: string;
 
-        if (folder.path === '/') {
-            const vaultName = this.app.vault.getName();
-            noteName = vaultName + '.md';
-            notePath = noteName;
-            displayName = vaultName;
-        } else {
-            noteName = folder.name + '.md';
-            notePath = `${folder.path}/${noteName}`;
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            displayName = folder.name;
-        }
-
-        try {
-            const file = await this.app.vault.create(notePath, `# ${folder.name}\n\n`);
-            await this.app.workspace.getLeaf().openFile(file);
-            new Notice('Folder note created.');
-        } catch (err) {
-            // If creation fails because file already exists, try to open it
-            const existing = this.app.vault.getAbstractFileByPath(notePath);
-            if (existing instanceof TFile) {
-                new Notice('Folder note already exists. Opening it.');
-                await this.app.workspace.getLeaf().openFile(existing);
+            if (target.path === '/') {
+                const vaultName = this.app.vault.getName();
+                noteName = vaultName + '.md';
+                notePath = noteName;
+                displayName = vaultName;
             } else {
-                const message = err instanceof Error ? err.message : String(err);
-                new Notice(`Failed to create folder note: ${message}`);
+                noteName = target.name + '.md';
+                notePath = `${target.path}/${noteName}`;
+                displayName = target.name;
             }
-        }
 
-        // Refresh side portal if active
-        if (this.plugin.settings.activeSplitTab === 'folder-notes') {
-            const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
-            if (secondaryPanel) {
-                const contentEl = secondaryPanel.querySelector('.portals-split-content') as HTMLElement;
-                if (contentEl) {
-                    contentEl.empty();
-                    this.renderFolderNotesTab(contentEl);
+            try {
+                const file = await this.app.vault.create(notePath, `# ${displayName}\n\n`);
+                await this.app.workspace.getLeaf().openFile(file);
+                new Notice('Context note created.');
+                return file;
+            } catch (err) {
+                // If creation fails because file already exists, try to open it
+                const existing = this.app.vault.getAbstractFileByPath(notePath);
+                if (existing instanceof TFile) {
+                    new Notice('Context note already exists. Opening it.');
+                    await this.app.workspace.getLeaf().openFile(existing);
+                    return existing;
+                } else {
+                    const message = err instanceof Error ? err.message : String(err);
+                    new Notice(`Failed to create context note: ${message}`);
+                    throw err;
+                }
+            }
+        } else {
+            // New tag note creation
+            const folderPath = this.plugin.settings.tagNotesFolderPath;
+            
+            // Ensure the tag notes folder exists
+            if (folderPath && !this.app.vault.getAbstractFileByPath(folderPath)) {
+                await this.app.vault.createFolder(folderPath);
+            }
+
+            const safeName = this.sanitizeTagForFilename(target);
+            const filePath = folderPath ? `${folderPath}/${safeName}.md` : `${safeName}.md`;
+
+            try {
+                const file = await this.app.vault.create(filePath, `# ${target}\n\n`);
+                
+                // Add the tag to frontmatter
+                await this.app.fileManager.processFrontMatter(file, (fm) => {
+                    if (!fm.tags) {
+                        fm.tags = [target];
+                    } else if (Array.isArray(fm.tags)) {
+                        if (!fm.tags.includes(target)) {
+                            fm.tags.push(target);
+                        }
+                    } else {
+                        // If tags is a string, convert to array and add the new tag
+                        fm.tags = [fm.tags, target];
+                    }
+                });
+
+                await this.app.workspace.getLeaf().openFile(file);
+                new Notice('Tag note created.');
+                return file;
+            } catch (err) {
+                const existing = this.app.vault.getAbstractFileByPath(filePath);
+                if (existing instanceof TFile) {
+                    new Notice('Tag note already exists. Opening it.');
+                    await this.app.workspace.getLeaf().openFile(existing);
+                    return existing;
+                } else {
+                    const message = err instanceof Error ? err.message : String(err);
+                    new Notice(`Failed to create tag note: ${message}`);
+                    throw err;
                 }
             }
         }
     }
 
-    //--RenderFolderNotesTab
-    private renderFolderNotesTab(contentEl: HTMLElement) {
-        const targetFile = this.getCurrentFolderNote();
+    //--RenderContextNotesTab
+    private renderContextNotesTab(contentEl: HTMLElement) {
+        const targetFile = this.getCurrentContextNote();
         if (!targetFile) {
-            contentEl.createEl('p', { text: 'No folder note found for the current space.', cls: 'portals-folder-note-message' });
+            contentEl.createEl('p', { text: 'No context note found for the current space.', cls: 'portals-context-note-message' });
             return;
         }
 
         // Check cache
         const filePath = targetFile.path;
-        const cached = this.folderNoteCache.get(filePath);
+        const cached = this.contextNoteCache.get(filePath);
         if (cached) {
             // update access order: move this file to end (most recent)
-            const idx = this.folderNoteAccessOrder.indexOf(filePath);
-            if (idx !== -1) this.folderNoteAccessOrder.splice(idx, 1);
-            this.folderNoteAccessOrder.push(filePath);
+            const idx = this.contextNoteAccessOrder.indexOf(filePath);
+            if (idx !== -1) this.contextNoteAccessOrder.splice(idx, 1);
+            this.contextNoteAccessOrder.push(filePath);
 
             // use cached element
             contentEl.empty();
             contentEl.appendChild(cached.element);
             // Restore scroll position if stored
-            const savedScroll = this.folderNoteScrollPositions.get(filePath);
+            const savedScroll = this.contextNoteScrollPositions.get(filePath);
             if (savedScroll !== undefined) {
                 cached.element.scrollTop = savedScroll;
-                this.folderNoteScrollPositions.delete(filePath);
+                this.contextNoteScrollPositions.delete(filePath);
             }
             return;
         }
 
         // No cache – create detached element
         const noteContainer = document.createElement('div');
-        noteContainer.addClass('markdown-preview-view', 'portals-folder-note-container');
+        noteContainer.addClass('markdown-preview-view', 'portals-context-note-container');
 
         this.app.vault.read(targetFile).then(async (content) => {
             try {
@@ -2210,7 +2303,7 @@ export class PortalsView extends ItemView {
                     const targetPath = href || dataHref;
                     if (targetPath && !targetPath.startsWith('http://') && !targetPath.startsWith('http://')) {
                         e.preventDefault();
-                        // resolve link relative to current folder note's path
+                        // resolve link relative to current context note's path
                         const resolved = this.app.metadataCache.getFirstLinkpathDest(targetPath, targetFile.path);
                         if (resolved instanceof TFile) {
                             void this.app.workspace.getLeaf().openFile(resolved);
@@ -2219,41 +2312,41 @@ export class PortalsView extends ItemView {
                 });
 
                 // Store in cache
-                this.folderNoteCache.set(filePath, { element: noteContainer, component });
-                this.folderNoteAccessOrder.push(filePath);
+                this.contextNoteCache.set(filePath, { element: noteContainer, component });
+                this.contextNoteAccessOrder.push(filePath);
                 
                 // evict least reent used if cache exceeds limit
-                if (this.folderNoteCache.size > this.MAX_FOLDER_NOTE_CACHE) {
-                    const oldest = this.folderNoteAccessOrder.shift();
+                if (this.contextNoteCache.size > this.MAX_CONTEXT_NOTE_CACHE) {
+                    const oldest = this.contextNoteAccessOrder.shift();
                     if (oldest) {
-                        const evicted = this.folderNoteCache.get(oldest);
+                        const evicted = this.contextNoteCache.get(oldest);
                         if (evicted) {
                             this.removeChild(evicted.component);
                             evicted.element.remove();
 
-                            this.folderNoteCache.delete(oldest);
+                            this.contextNoteCache.delete(oldest);
                         }
                     }
                 }
 
                 // restore scroll position if stored
-                const savedScroll = this.folderNoteScrollPositions.get(filePath)
+                const savedScroll = this.contextNoteScrollPositions.get(filePath)
                 if (savedScroll !== undefined) {
                     noteContainer.scrollTop = savedScroll;
-                    this.folderNoteScrollPositions.delete(filePath);
+                    this.contextNoteScrollPositions.delete(filePath);
                 }
 
                 // Append to contentEl (if still relevant)
-                if (this.plugin.settings.activeSplitTab === 'folder-notes' && this.getCurrentFolderNote()?.path === filePath) {
+                if (this.plugin.settings.activeSplitTab === 'context-notes' && this.getCurrentContextNote()?.path === filePath) {
                     contentEl.empty();
                     contentEl.appendChild(noteContainer);
                 }
             } catch (e) {
-                console.error('Error rendering folder note:', e);
+                console.error('Error rendering context note:', e);
                 noteContainer.setText('Error rendering note.');
             }
         }).catch(e => {
-            console.error('Error reading folder note:', e);
+            console.error('Error reading context note:', e);
             noteContainer.setText('Error reading note.');
         });
 
@@ -2263,32 +2356,6 @@ export class PortalsView extends ItemView {
         });
         contentEl.empty();
         contentEl.appendChild(noteContainer);
-    }
-
-    //---RenderFoldernote Helper
-
-    private renderFolderNoteContent(file: TFile, container: HTMLElement) {
-        const noteContainer = container.createDiv({ cls: 'markdown-preview-view' });
-
-        this.app.vault.read(file).then(async (content) => {
-            try {
-                const component = new Component();
-                this.addChild(component);
-                await MarkdownRenderer.render(this.app, content, noteContainer, file.path, component);
-                await this.processEmbeds(noteContainer, component, file.path);
-            } catch (e) {
-                console.error('Error rendering folder note:', e);
-                noteContainer.setText('Error rendering note.');
-            }
-        }).catch(e => {
-            console.error('Error reading folder note:', e);
-            noteContainer.setText('Error reading note.');
-        });
-
-        noteContainer.addEventListener('click', (e) => {
-            if ((e.target as HTMLElement).closest('a')) return;
-            void this.app.workspace.getLeaf().openFile(file);
-        });
     }
 
     //--Embed Method
@@ -2494,13 +2561,92 @@ export class PortalsView extends ItemView {
             mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
             const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
 
+            // Apply context note highlight to main tag
+            const mainTagPath = tagName; // e.g., "project"
+            if (this.plugin.settings.enableContextNotes && this.hasContextNote(mainTagPath) && this.plugin.settings.contextNoteHighlightStyle !== 'none') {
+                const style = this.plugin.settings.contextNoteHighlightStyle;
+                if (style === 'icon') {
+                    mainIconSpan.addClass('has-context-note-icon');
+                    mainSummary.addClass('has-context-note-icon');
+                } else if (style === 'underline') {
+                    mainSummary.addClass('has-context-note-underline');
+                }
+            } 
+            
+            mainSummary.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const menu = new Menu();
+                // ... existing portal configuration items (rename, icon, etc.) ...
+                if (this.plugin.settings.enableContextNotes) {
+                    menu.addSeparator();
+                    const contextNote = this.getContextNote(tagName);
+                    if (contextNote) {
+                        menu.addItem(item => item
+                            .setTitle('Open context note')
+                            .setIcon('document')
+                            .onClick(() => this.app.workspace.getLeaf().openFile(contextNote)));
+                        menu.addItem(item => item
+                            .setTitle('Delete context note')
+                            .setIcon('trash')
+                            .setWarning(true)
+                            .onClick(() => this.deleteFile(contextNote)));
+                    } else {
+                        menu.addItem(item => item
+                            .setTitle('Create context note')
+                            .setIcon('plus')
+                            .onClick(() => this.createContextNote(tagName)));
+                    }
+                }
+                menu.showAtPosition({ x: e.clientX, y: e.clientY });
+            });
+
+            // Attach click handlers for context note actions
+            mainSummary.addEventListener('click', (e) => {
+                if (e.shiftKey && this.plugin.settings.enableContextNotes) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    void this.handleContextNoteCreation(mainTagPath);
+                    return;
+                }
+                if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const note = this.getContextNote(mainTagPath);
+                    if (note) {
+                        void this.app.workspace.getLeaf('tab').openFile(note);
+                    } else {
+                        new Notice('No context note for this tag');
+                    }
+                    return;
+                }
+            });
+
+            // Icon click handler (if setting enabled)
+            if (this.plugin.settings.enableContextNotes && this.plugin.settings.contextNoteIconClick) {
+                mainIconSpan.style.cursor = 'pointer';
+                mainIconSpan.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const note = this.getContextNote(mainTagPath);
+                    if (note) {
+                        await this.app.workspace.getLeaf().openFile(note);
+                    } else {
+                        new Notice('No context note exists for this tag. Shift+Click to create.');
+                    }
+                });
+            }
+
             // If no groups, just list all files under the main tag
             if (!groupTags || groupTags.length === 0) {
                 for (const file of sortFiles(taggedFiles)) {
+                    if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && this.isContextNoteFile(file, tagName)) {
+                        continue;
+                    }
                     this.createFileItem(file, childrenContainer, openFiles);
                 }
                 return;
             }
+            
 
             // Build groups map
             const groups = new Map<string, TFile[]>();
@@ -2639,8 +2785,14 @@ export class PortalsView extends ItemView {
 
             // Render ungrouped files directly under main tag
             for (const file of sortFiles(ungrouped)) {
+                if (this.plugin.settings.enableContextNotes && 
+                    !this.plugin.settings.showContextNotesInTree && 
+                    this.isContextNoteFile(file, tagName)) {
+                    continue;
+                }
                 this.createFileItem(file, childrenContainer, openFiles);
             }
+
             return;
         }
 
@@ -2712,6 +2864,43 @@ export class PortalsView extends ItemView {
 
             const childrenContainer = details.createDiv({ cls: 'folder-children' });
 
+            
+
+            // Apply context note highlight to subtag node
+            const nodeTagPath = node.fullPath; // e.g., "project/ideas"
+            if (this.plugin.settings.enableContextNotes && this.hasContextNote(nodeTagPath) && this.plugin.settings.contextNoteHighlightStyle !== 'none') {
+                const style = this.plugin.settings.contextNoteHighlightStyle;
+                if (style === 'icon') {
+                    iconSpan.addClass('has-context-note-icon');
+                    summary.addClass('has-context-note-icon');
+                } else if (style === 'underline') {
+                    summary.addClass('has-context-note-underline');
+                }
+            }
+
+            // Icon click handler (if setting enabled)
+            if (this.plugin.settings.contextNoteIconClick) {
+                iconSpan.style.cursor = 'pointer';
+                iconSpan.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const note = this.getContextNote(nodeTagPath);
+                    if (note) {
+                        await this.app.workspace.getLeaf().openFile(note);
+                    } else {
+                        new Notice('No context note exists for this subtag. Shift+Click to create.');
+                    }
+                });
+            }
+
+            if (this.plugin.settings.enableContextNotes && this.plugin.settings.showContextNotesInTree) {
+                const contextNote = this.getContextNote(node.fullPath);
+                if (contextNote && !node.files.some(f => f.path === contextNote.path)) {
+                    this.createFileItem(contextNote, childrenContainer, openFiles);
+                }
+            }
+
+
             const savedColor = this.plugin.settings.tagColors[nodeKey];
             const style = this.plugin.settings.treeStyle;
             const canApplyColor = savedColor && style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
@@ -2773,6 +2962,11 @@ export class PortalsView extends ItemView {
             // Render files belonging to this node, possibly grouped
             if (node.files.length > 0) {
                 for (const file of sortFiles(node.files)) {
+                    if (this.plugin.settings.enableContextNotes && 
+                        !this.plugin.settings.showContextNotesInTree && 
+                        this.isContextNoteFile(file, node.fullPath)) {
+                        continue;
+                    }
                     this.createFileItem(file, childrenContainer, openFiles);
                 }
             }
@@ -2815,6 +3009,26 @@ export class PortalsView extends ItemView {
                             .onClick(() => this.resetTagColor(nodeKey, details)));
                         }
                     }
+                    if (this.plugin.settings.enableContextNotes) {
+                        menu.addSeparator();
+                        const contextNote = this.getContextNote(node.fullPath);
+                        if (contextNote) {
+                            menu.addItem(item => item
+                                .setTitle('Open context note')
+                                .setIcon('document')
+                                .onClick(() => this.app.workspace.getLeaf().openFile(contextNote)));
+                            menu.addItem(item => item
+                                .setTitle('Delete context note')
+                                .setIcon('trash')
+                                .setWarning(true)
+                                .onClick(() => this.deleteFile(contextNote)));
+                        } else {
+                            menu.addItem(item => item
+                                .setTitle('Create context note')
+                                .setIcon('plus')
+                                .onClick(() => this.createContextNote(node.fullPath)));
+                        }
+                    }
                 menu.showAtPosition({ x: e.clientX, y: e.clientY });
             });
 
@@ -2837,6 +3051,23 @@ export class PortalsView extends ItemView {
                     e.preventDefault();
                     e.stopPropagation();
                     this.toggleSelectionByKey(nodeKey, summary);
+                }
+                if (e.shiftKey && this.plugin.settings.enableContextNotes) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    void this.handleContextNoteCreation(nodeTagPath);
+                    return;
+                }
+                if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const note = this.getContextNote(nodeTagPath);
+                    if (note) {
+                        void this.app.workspace.getLeaf('tab').openFile(note);
+                    } else {
+                        new Notice('No context note for this subtag');
+                    }
+                    return;
                 }
             });
 
@@ -2898,6 +3129,78 @@ export class PortalsView extends ItemView {
         mainIconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
         mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
         const mainChildren = mainDetails.createDiv({ cls: 'folder-children' });
+
+        // Apply context note highlight to main tag
+        const mainTagPath = tagName;
+        if (this.plugin.settings.enableContextNotes && this.hasContextNote(mainTagPath) && this.plugin.settings.contextNoteHighlightStyle !== 'none') {
+            const style = this.plugin.settings.contextNoteHighlightStyle;
+            if (style === 'icon') {
+                mainIconSpan.addClass('has-context-note-icon');
+                mainSummary.addClass('has-context-note-icon');
+            } else if (style === 'underline') {
+                mainSummary.addClass('has-context-note-underline');
+            }
+        }
+
+        mainSummary.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const menu = new Menu();
+            menu.addSeparator();
+            if (this.plugin.settings.enableContextNotes) {
+                const contextNote = this.getContextNote(tagName);
+                if (contextNote) {
+                    menu.addItem(item => item
+                        .setTitle('Open context note')
+                        .setIcon('document')
+                        .onClick(() => this.app.workspace.getLeaf().openFile(contextNote)));
+                    menu.addItem(item => item
+                        .setTitle('Delete context note')
+                        .setIcon('trash')
+                        .setWarning(true)
+                        .onClick(() => this.deleteFile(contextNote)));
+                } else {
+                    menu.addItem(item => item
+                        .setTitle('Create context note')
+                        .setIcon('plus')
+                        .onClick(() => this.createContextNote(tagName)));
+                }
+            }
+            menu.showAtPosition({ x: e.clientX, y: e.clientY });
+        });
+
+        mainSummary.addEventListener('click', (e) => {
+            if (e.shiftKey && this.plugin.settings.enableContextNotes) {
+                e.preventDefault();
+                e.stopPropagation();
+                void this.handleContextNoteCreation(mainTagPath);
+                return;
+            }
+            if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
+                e.preventDefault();
+                e.stopPropagation();
+                const note = this.getContextNote(mainTagPath);
+                if (note) {
+                    void this.app.workspace.getLeaf('tab').openFile(note);
+                } else {
+                    new Notice('No context note for this tag');
+                }
+                return;
+            }
+        });
+
+        if (this.plugin.settings.enableContextNotes && this.plugin.settings.contextNoteIconClick) {
+            mainIconSpan.style.cursor = 'pointer';
+            mainIconSpan.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const note = this.getContextNote(mainTagPath);
+                if (note) {
+                    await this.app.workspace.getLeaf().openFile(note);
+                } else {
+                    new Notice('No context note exists for this tag. Shift+Click to create.');
+                }
+            });
+        }
 
         // Build unified list of top-level items (subtags + groups from root files)
         interface TopLevelItem {
@@ -3010,6 +3313,43 @@ export class PortalsView extends ItemView {
             iconSpan.createEl('i', { cls: iconClass });
             summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
 
+            // Apply context note highlight to group
+            const groupTagPath = gTag; // e.g., "urgent"
+            if (this.plugin.settings.enableContextNotes && this.hasContextNote(groupTagPath) && this.plugin.settings.contextNoteHighlightStyle !== 'none') {
+                const style = this.plugin.settings.contextNoteHighlightStyle;
+                if (style === 'icon') {
+                    iconSpan.addClass('has-context-note-icon');
+                    summary.addClass('has-context-note-icon');
+                } else if (style === 'underline') {
+                    summary.addClass('has-context-note-underline');
+                }
+            }
+
+            // Icon click handler
+            if (this.plugin.settings.contextNoteIconClick) {
+                iconSpan.style.cursor = 'pointer';
+                iconSpan.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const note = this.getContextNote(groupTagPath);
+                    if (note) {
+                        await this.app.workspace.getLeaf().openFile(note);
+                    } else {
+                        new Notice('No context note exists for this group tag. Shift+Click to create.');
+                    }
+                });
+            }
+
+            if (this.plugin.settings.enableContextNotes && this.plugin.settings.showContextNotesInTree) {
+                const contextNote = this.getContextNote(gTag);
+                if (contextNote) {
+                    const alreadyListed = files.some((f: TFile) => f.path === contextNote.path);
+                    if (!alreadyListed) {
+                        this.createFileItem(contextNote, groupChildren, openFiles);
+                    }
+                }
+            }
+
             summary.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 const menu = new Menu();
@@ -3024,6 +3364,26 @@ export class PortalsView extends ItemView {
                             .setTitle('Remove custom icon')
                             .setIcon('trash')
                             .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
+                    }
+                    if (this.plugin.settings.enableContextNotes) {
+                        menu.addSeparator();
+                        const contextNote = this.getContextNote(gTag);
+                        if (contextNote) {
+                            menu.addItem(item => item
+                                .setTitle('Open context note')
+                                .setIcon('document')
+                                .onClick(() => this.app.workspace.getLeaf().openFile(contextNote)));
+                            menu.addItem(item => item
+                                .setTitle('Delete context note')
+                                .setIcon('trash')
+                                .setWarning(true)
+                                .onClick(() => this.deleteFile(contextNote)));
+                        } else {
+                            menu.addItem(item => item
+                                .setTitle('Create context note')
+                                .setIcon('plus')
+                                .onClick(() => this.createContextNote(gTag)));
+                        }
                     }
                 }
                 const canSetcolor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
@@ -3045,6 +3405,11 @@ export class PortalsView extends ItemView {
             });
 
             for (const file of sortFiles(files)) {
+                if (this.plugin.settings.enableContextNotes && 
+                    !this.plugin.settings.showContextNotesInTree && 
+                    this.isContextNoteFile(file, gTag)) {
+                    continue;
+                }
                 this.createFileItem(file, groupChildren, openFiles);
             }
 
@@ -3064,6 +3429,23 @@ export class PortalsView extends ItemView {
                     e.preventDefault();
                     e.stopPropagation();
                     this.toggleSelectionByKey(groupKey, summary);
+                }
+                if (e.shiftKey && this.plugin.settings.enableContextNotes) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    void this.handleContextNoteCreation(groupTagPath);
+                    return;
+                }
+                if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const note = this.getContextNote(groupTagPath);
+                    if (note) {
+                        void this.app.workspace.getLeaf('tab').openFile(note);
+                    } else {
+                        new Notice('No context note for this group tag');
+                    }
+                    return;
                 }
             });
 
@@ -3138,7 +3520,24 @@ export class PortalsView extends ItemView {
             ungroupedRootFiles.push(...root.files);
         }
         for (const file of sortFiles(ungroupedRootFiles)) {
+            if (this.plugin.settings.enableContextNotes && 
+                !this.plugin.settings.showContextNotesInTree && 
+                this.isContextNoteFile(file, tagName)) {
+                continue;
+            }
             this.createFileItem(file, mainChildren, openFiles);
+        }
+
+        // Include context note file in tree if setting enabled
+        if (this.plugin.settings.showContextNotesInTree) {
+            const contextNote = this.getContextNote(tagName);
+            if (contextNote) {
+                // Avoid duplication if it's already in the list (shouldn't be, but safe)
+                const alreadyListed = ungroupedRootFiles.some(f => f.path === contextNote.path);
+                if (!alreadyListed) {
+                    this.createFileItem(contextNote, mainChildren, openFiles);
+                }
+            }
         }
     }
 
@@ -3232,19 +3631,19 @@ export class PortalsView extends ItemView {
             .setIcon('layout-dashboard')
             .onClick(() => void this.newCanvasInFolder(folder)));
 
-        if (this.plugin.settings.enableFolderNotes) {
-            const folderNote = folder.children.find((child): child is TFile =>
-                child instanceof TFile && this.isFolderNote(child, folder));
-            if (folderNote) {
+        if (this.plugin.settings.enableContextNotes) {
+            const contextNote = folder.children.find((child): child is TFile =>
+                child instanceof TFile && this.isContextNote(child, folder));
+            if (contextNote) {
                 menu.addItem(item => item
-                    .setTitle('Open folder note')
+                    .setTitle('Open context note')
                     .setIcon('document')
-                    .onClick(() => void this.app.workspace.getLeaf().openFile(folderNote)));
+                    .onClick(() => void this.app.workspace.getLeaf().openFile(contextNote)));
             } else {
                 menu.addItem(item => item
-                    .setTitle('Create folder note')
+                    .setTitle('Create context note')
                     .setIcon('plus')
-                    .onClick(() => void this.createFolderNote(folder)));
+                    .onClick(() => void this.createContextNote(folder)));
             }
         }
 
@@ -3937,35 +4336,35 @@ export class PortalsView extends ItemView {
         const folderIcon = customIcon || iconName;
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
         iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
-        const hasNote = this.hasFolderNote(folder);
-        if (this.plugin.settings.enableFolderNotes && hasNote) {
-            const style = this.plugin.settings.folderNoteHighlightStyle;
+        const hasNote = this.hasContextNote(folder);
+        if (this.plugin.settings.enableContextNotes && hasNote) {
+            const style = this.plugin.settings.contextNoteHighlightStyle;
             if (style === 'icon') {
-                iconSpan.addClass('has-folder-note-icon')
+                iconSpan.addClass('has-context-note-icon')
                 if (this.plugin.settings.treeStyle === 'minimal' || this.plugin.settings.treeStyle === 'shades') {
-                    summary.addClass('has-folder-note-icon');
+                    summary.addClass('has-context-note-icon');
                 }
             } else if (style === 'underline') {
-                summary.addClass('has-folder-note-underline');
+                summary.addClass('has-context-note-underline');
                 const nameSpan = summary.querySelector('.portals-item-name');
-                nameSpan?.addClass('has-folder-note-underline');
+                nameSpan?.addClass('has-context-note-underline');
             }
         }
 
-        if (this.plugin.settings.enableFolderNotes && this.plugin.settings.folderNoteIconClick) {
+        if (this.plugin.settings.enableContextNotes && this.plugin.settings.contextNoteIconClick) {
             iconSpan.style.cursor = 'pointer';
-            const openFolderNote = async (e: Event) => {
+            const openContextNote = async (e: Event) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const folderNote = this.getFolderNote(folder);
-                if (folderNote) {
-                    await this.app.workspace.getLeaf().openFile(folderNote);
+                const contextNote = this.getContextNote(folder);
+                if (contextNote) {
+                    await this.app.workspace.getLeaf().openFile(contextNote);
                 } else {
-                    new Notice('No folder note exists for this folder. Create using Shift+Click or context menu');
+                    new Notice('No context note exists for this folder. Create using Shift+Click or context menu');
                 }
             };
-            iconSpan.addEventListener('click', openFolderNote);
-            iconSpan.addEventListener('touchstart', openFolderNote, { passive: false });
+            iconSpan.addEventListener('click', openContextNote);
+            iconSpan.addEventListener('touchstart', openContextNote, { passive: false });
         }
 
         const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
@@ -4057,18 +4456,18 @@ export class PortalsView extends ItemView {
             if (e.shiftKey) {
                 e.preventDefault();
                 e.stopPropagation();
-                void this.handleFolderNoteCreation(folder);
+                void this.handleContextNoteCreation(folder);
                 return;
             }
             if (e.metaKey || e.ctrlKey) {
                 e.preventDefault()
                 e.stopPropagation()
 
-                const folderNote = this.getFolderNote(folder);
-                if (folderNote) {
-                    void this.app.workspace.getLeaf('tab').openFile(folderNote);
+                const contextNote = this.getContextNote(folder);
+                if (contextNote) {
+                    void this.app.workspace.getLeaf('tab').openFile(contextNote);
                 } else {
-                    new Notice('No folder note exists for this folder', 2000);
+                    new Notice('No context note exists for this folder', 2000);
                 }
             }
         });
@@ -4172,9 +4571,9 @@ export class PortalsView extends ItemView {
                     this.buildFolderTree(child, childrenContainer, openFiles, 'folder', depth +1, childIndex, totalFirstLevelFolders);
                     childIndex++;
                 } else if (child instanceof TFile) {
-                    const isFolderNoteFile = this.isFolderNote(child, folder);
-                    if (isFolderNoteFile && this.plugin.settings.enableFolderNotes) {
-                        if (!this.plugin.settings.showFolderNotesInTree) continue;
+                    const isContextNoteFile = this.isContextNote(child, folder);
+                    if (isContextNoteFile && this.plugin.settings.enableContextNotes) {
+                        if (!this.plugin.settings.showContextNotesInTree) continue;
                     }
                     this.createFileItem(child, childrenContainer,openFiles);
                 }
