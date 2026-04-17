@@ -545,48 +545,78 @@ export class PortalsView extends ItemView {
         const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
         const hidden = this.plugin.settings.hiddenItems;
         const hiddenKeys = Object.keys(hidden).filter(k => hidden[k]);
+
         if (hiddenKeys.length === 0) {
             container.createEl('p', { text: 'No hidden items.' });
             return;
         }
+
         const buttonWrapper = container.createDiv({ cls: 'unhide-wrapper' });
         const unhideAllBtn = buttonWrapper.createEl('button', { cls: 'unhide-btn-all' });
         unhideAllBtn.createEl('i', { cls: 'ph ph-eye' });
         unhideAllBtn.createSpan({ text: 'Unhide all', cls: 'unhide-btn-text' });
         unhideAllBtn.addEventListener('click', () => this.unhideAllItems());
+
         if (rootColor) {
             container.style.setProperty('--hidden-accent-color', rootColor);
         } else {
             container.style.removeProperty('--hidden-accent-color');
         }
+
         hiddenKeys.sort();
+
         for (const key of hiddenKeys) {
             const fileEl = container.createDiv({ cls: 'file-item' });
             fileEl.dataset.path = key
+
             let displayName = key;
             let iconClass = 'ph-file';
+            let typeLabel = '';
+
             const item = this.app.vault.getAbstractFileByPath(key);
             if (item instanceof TFile) {
                 displayName = this.getDisplayName(item);
                 iconClass = 'ph-file';
+                typeLabel = 'File';
                 const customIcon = this.getCustomIcon(key);
-                if (customIcon) iconClass = `ph-${customIcon}` 
+                if (customIcon) iconClass = `ph-${customIcon}`; 
             } else if (item instanceof TFolder) {
                 displayName = item.name;
                 iconClass = 'ph-folder';
+                typeLabel = 'Folder';
                 const customIcon = this.getCustomIcon(key);
                 if (customIcon) iconClass = `ph-${customIcon}`;
             } else if (key.startsWith('tag:')) {
-                const parts = key.split('/')
-                const lastPart = parts.pop() || key;
-                displayName = lastPart;
-                iconClass = 'ph-tag';
+                const withoutPrefix = key.slice(4);
+                const groupMatch = withoutPrefix.match(/^([^/]+)\/group:(.+)$/);
+                const nodeMatch = withoutPrefix.match(/^([^/]+)\/node:(.+)$/);
+                
+                if (groupMatch && groupMatch[1] && groupMatch[2]) {
+                    displayName = groupMatch[2];
+                    typeLabel = 'Tag Group';
+                    iconClass = 'ph-tag-simple';
+                } else if (nodeMatch && nodeMatch[1] && nodeMatch[2]) {
+                    const nodePath = nodeMatch[2];
+                    displayName = nodePath.split('/').pop() || nodePath;
+                    typeLabel = 'Subtag';
+                    iconClass = 'ph-tag';
+                } else {
+                    displayName = withoutPrefix;
+                    typeLabel = 'Tag';
+                    iconClass = 'ph-tag';
+                }
                 const customIcon = this.getCustomIcon(key);
                 if (customIcon) iconClass = `ph-${customIcon}`;
             }
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
             iconSpan.createEl('i', {cls: `ph ${iconClass}` });
             fileEl.createSpan({ text: displayName, cls: 'portals-item-name' });
+
+            if (typeLabel) {
+                const infoSpan = fileEl.createSpan({ cls: 'hidden-type-label' });
+                infoSpan.setText(typeLabel)
+            }
+
             const unhideBtn = fileEl.createEl('button', { cls: 'unhide-btn' });
             unhideBtn.createEl('i', { cls: 'ph ph-eye' });
             // unhideBtn.createSpan({ text: 'Unhide', cls: 'unhide-btn-text' });

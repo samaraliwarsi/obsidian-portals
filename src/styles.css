@@ -6368,6 +6368,15 @@ button.journal-filter-btn i {
 /*=============================JOURNAL-END============================*/
 
 /*-----HIDDEN ITEMS SIDE PORTAL----*/
+.hidden-type-label {
+    display: block;
+    font-size: 0.7em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
 button.unhide-btn {
     margin-left: auto;
     background: none;
