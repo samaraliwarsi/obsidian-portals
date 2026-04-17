@@ -116,7 +116,7 @@ export default class PortalsPlugin extends Plugin {
 
         async loadSettings() {
         const data = await this.loadData();
-        
+
         // Migrate old settings to new names
         if (data && typeof data === 'object') {
             // Check and migrate enableFolderNotes -> enableContextNotes
@@ -152,6 +152,10 @@ export default class PortalsPlugin extends Plugin {
         }
 
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
+
+        if (!this.settings.previousTagNotesFolderPath) {
+            this.settings.previousTagNotesFolderPath = this.settings.tagNotesFolderPath;
+        }
         
         // Migrate old selectedSpace (string) to new object format
         if (typeof this.settings.selectedSpace === 'string') {
@@ -279,6 +283,76 @@ export default class PortalsPlugin extends Plugin {
     private getTags(): Record<string, number> {
         // @ts-expect-error - getTags is not in the public type definitions
         return this.app.metadataCache.getTags();
+    }
+
+    async migrateTagNotes(): Promise<{ moved: number; skipped: number; errors: string[] }> {
+        const oldPath = this.settings.previousTagNotesFolderPath;
+        const newPath = this.settings.tagNotesFolderPath;
+
+        if (oldPath === newPath) {
+            new Notice('Old and new folder paths are the same. Nothing to migrate.');
+            return { moved: 0, skipped: 0, errors: [] };
+        }
+
+        // Ensure new folder exists
+        if (newPath && !this.app.vault.getAbstractFileByPath(newPath)) {
+            await this.app.vault.createFolder(newPath);
+        }
+
+        const oldFolder = this.app.vault.getAbstractFileByPath(oldPath);
+        if (!(oldFolder instanceof TFolder)) {
+            new Notice(`Old folder "${oldPath}" not found. No notes to migrate.`);
+            this.settings.previousTagNotesFolderPath = newPath;
+            await this.saveSettings();
+            return { moved: 0, skipped: 0, errors: [] };
+        }
+
+        // Helper to check if a file is a valid tag context note
+        const isValidTagNote = (file: TFile): boolean => {
+            const base = file.basename;
+            // Reverse sanitization: '--' back to '/'
+            const possibleTag = base.replace(/--/g, '/');
+            const cache = this.app.metadataCache.getFileCache(file);
+            const tags = cache?.frontmatter?.tags;
+            const hasTag = Array.isArray(tags) ? tags.includes(possibleTag) : tags === possibleTag;
+            return hasTag;
+        };
+
+        const allFiles = oldFolder.children.filter((c): c is TFile => c instanceof TFile && c.extension === 'md');
+        const filesToMove = allFiles.filter(isValidTagNote);
+
+        let moved = 0;
+        let skipped = 0;
+        const errors: string[] = [];
+
+        for (const file of filesToMove) {
+            const newFilePath = newPath ? `${newPath}/${file.name}` : file.name;
+            const existing = this.app.vault.getAbstractFileByPath(newFilePath);
+            if (existing) {
+                skipped++;
+                continue;
+            }
+            try {
+                await this.app.vault.rename(file, newFilePath);
+                moved++;
+            } catch (err) {
+                const msg = err instanceof Error ? err.message : String(err);
+                errors.push(`${file.name}: ${msg}`);
+            }
+        }
+
+        // Update previous path to current
+        this.settings.previousTagNotesFolderPath = newPath;
+        await this.saveSettings();
+
+        this.refreshAllViews();
+
+        const ignored = allFiles.length - filesToMove.length;
+        if (ignored > 0) {
+            new Notice(`${ignored} non‑tag‑note file(s) left in "${oldPath}".`);
+        }
+
+        return { moved, skipped, errors };
     }
 
     // ========== MANUAL CLEANUP ==========

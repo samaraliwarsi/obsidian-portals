@@ -34,6 +34,7 @@ export interface SpacesSettings {
     showContextNotesInTree:boolean;
     enableContextNotes: boolean;
     tagNotesFolderPath: string;
+    previousTagNotesFolderPath: string;
     floatingButtonsCollapsed: boolean;
     expandedGroups: Record<string, string[]>;
     disableSidePanelOnMobile: boolean;
@@ -76,6 +77,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showContextNotesInTree: false,
     enableContextNotes: true,
     tagNotesFolderPath: '_Tag Notes',
+    previousTagNotesFolderPath: '_Tag Notes',
     floatingButtonsCollapsed: false,
     expandedGroups: {},
     disableSidePanelOnMobile: false,
@@ -277,7 +279,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Tag notes folder')
-            .setDesc('Folder where tag context notes are stored.')
+            .setDesc('Tag notes storage folder. After changing folder path, use the "Migrate" button to move the files.')
             .addText(text => text
                 .setPlaceholder('_Tag Notes')
                 .setValue(this.plugin.settings.tagNotesFolderPath)
@@ -293,7 +295,26 @@ export class SpacesSettingTab extends PluginSettingTab {
                         this.plugin.saveSettings();
                         this.display();
                     }).open();
-                }));
+                }))
+            .addButton(btn => btn
+                .setButtonText('Migrate')
+                .setWarning()
+                .onClick(async () => {
+                    const result = await this.plugin.migrateTagNotes();
+                    if (result.moved > 0) {
+                        new Notice(`Moved ${result.moved} tag note(s) to "${this.plugin.settings.tagNotesFolderPath}".`);
+                    }
+                    if (result.skipped > 0) {
+                        new Notice(`Skipped ${result.skipped} note(s) — already exist in destination.`);
+                    }
+                    if (result.errors.length > 0) {
+                        new Notice(`Errors: ${result.errors.join('; ')}`);
+                    }
+                    if (result.moved === 0 && result.skipped === 0 && result.errors.length === 0) {
+                        new Notice('No tag notes found to migrate.');
+                    }
+                    this.display();
+                }))
         
         //-- Context Notes in Side Portal
         new Setting(containerEl)
