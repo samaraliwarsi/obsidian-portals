@@ -3639,6 +3639,12 @@ export class PortalsView extends ItemView {
                     .setTitle('Open context note')
                     .setIcon('document')
                     .onClick(() => void this.app.workspace.getLeaf().openFile(contextNote)));
+                menu.addItem(item => item
+                    .setTitle('Delete context note')
+                    .setIcon('trash')
+                    .setWarning(true)
+                    .onClick(() => this.deleteFile(contextNote))
+                )
             } else {
                 menu.addItem(item => item
                     .setTitle('Create context note')
