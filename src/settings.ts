@@ -10,6 +10,16 @@ export interface SpaceConfig {
     color: string;
     groupTags?: string[];
     displayName?: string;
+    stackId?: string;
+}
+
+export interface PortalStack {
+    id: string;
+    name: string;
+    icon?: string;
+    color: string;
+    collapsed: boolean;
+    order?: number;
 }
 
 export interface SpacesSettings {
@@ -53,6 +63,7 @@ export interface SpacesSettings {
     tagColors: Record<string, string>;
     contextNoteIconClick: boolean;
     hiddenItems: Record<string, boolean>;
+    portalStacks: PortalStack[];
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -96,6 +107,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     tagColors: {},
     contextNoteIconClick: false,
     hiddenItems: {},
+    portalStacks: [],
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

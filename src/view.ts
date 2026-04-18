@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, TFile, TFolder, TAbstractFile, Menu, Notice, Platform, Component, debounce, View, Modal, App } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, TFolder, TAbstractFile, Menu, Notice, Platform, Component, debounce, View, Modal, App, MenuItem } from 'obsidian';
 import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './settings';
@@ -12,6 +12,7 @@ import { ColorPickerModal } from './modals';
 import { AddPortalModal } from './settings';
 import { RemovePortalModal } from './modals';
 import { ChooseTabsModal } from './settings';
+import { PortalStack } from './settings';
 
 interface BookmarkItem {
     title?: string;
@@ -31,6 +32,10 @@ const SIDE_TAB_ICONS: Record<string, string> = {
     hidden: 'eye-slash',
 };
 type ContextTarget = TFolder | string; // string represents a tag name
+
+type TabBarItem = 
+    | { type: 'stack-group'; stack: PortalStack; portals: SpaceConfig[] }
+    | { type: 'portal'; space: SpaceConfig; stackId?: string };
 
 export const VIEW_TYPE_PORTALS = 'portals-view';
 
@@ -101,6 +106,267 @@ export class PortalsView extends ItemView {
                 }
             }
         }
+    }
+
+    private createNewStackWithPortal(space: SpaceConfig) {
+        // Generate a unique ID (simple timestamp + random string)
+        const stackId = `stack-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        const stackName = space.displayName || (space.type === 'folder' 
+            ? space.path.split('/').pop() || space.path 
+            : space.path);
+        const newStack: PortalStack = {
+            id: stackId,
+            name: stackName,
+            collapsed: false,
+            order: this.plugin.settings.portalStacks.length,
+            color: 'transparent',
+        };
+        
+        this.plugin.settings.portalStacks.push(newStack);
+        space.stackId = stackId;
+        this.plugin.saveSettings().then(() => this.render());
+    }
+
+    private renderStackHeader(parent: HTMLElement, stack: PortalStack) {
+        const header = parent.createDiv({ cls: 'portals-tab portals-stack-header-tab' });
+        if (stack.color && stack.color !== 'transparent') {
+            header.style.setProperty('--stack-accent-color', stack.color);
+        }
+        header.dataset.stackId = stack.id;
+
+        const iconSpan = header.createSpan({ cls: 'portals-tab-icon' });
+        iconSpan.createEl('i', { cls: `ph ph-${stack.icon || 'stack'}` });
+
+        header.createSpan({ cls: 'portals-tab-name', text: stack.name });
+
+        // const portalCount = this.plugin.settings.spaces.filter(s => s.stackId === stack.id).length;
+        // header.createSpan({ cls: 'portals-stack-count', text: `(${portalCount})` });
+
+        // Click to toggle collapse (re-render)
+        header.addEventListener('click', (e) => {
+            e.stopPropagation();
+            stack.collapsed = !stack.collapsed;
+            this.plugin.saveSettings().then(() => this.render());
+        });
+
+        // Context menu for stack management
+        header.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.showStackContextMenu(e, stack);
+        });
+
+        // Tooltip on hover if name is long (optional)
+        if (!Platform.isMobile) {
+            header.addEventListener('mouseenter', () => this.showTooltip(stack.name, header, 300));
+            header.addEventListener('mouseleave', () => this.hideTooltip(100));
+        }
+    }
+
+    private renderPortalTab(parent: HTMLElement, space: SpaceConfig, mainContainer: HTMLElement) {
+        let displayName = space.displayName;
+        if (!displayName) {
+            const vaultName = this.app.vault.getName();
+            if (space.type === 'folder') {
+                if (space.path === '/') {
+                    displayName = vaultName;
+                } else {
+                    const folder = this.app.vault.getAbstractFileByPath(space.path);
+                    displayName = folder instanceof TFolder ? folder.name : space.path;
+                }
+            } else {
+                displayName = '#' + space.path;
+            }
+        }
+
+        const tab = parent.createEl('div', { cls: 'portals-tab' });
+        if (space.path === '/') {
+            tab.addClass('portals-tab-pinned');
+            if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
+                tab.style.setProperty('--tab-pinned-color', space.color);
+            } else {
+                tab.style.removeProperty('--tab-pinned-color');
+            }
+        }
+
+        if (space.stackId) {
+            tab.dataset.stackId = space.stackId;
+            tab.addClass('portals-tab-stacked');
+        }
+
+        const isActive = (space.path === this.plugin.settings.selectedSpace?.path && space.type === this.plugin.settings.selectedSpace?.type);
+        if (isActive) tab.addClass('is-active');
+
+        const displayMode = this.plugin.settings.tabNameDisplay;
+
+        let shouldShowname = false;
+        if (displayMode === 'all') {
+            shouldShowname = space.path !=='/';
+        } else if (displayMode === 'activeOnly') {
+                shouldShowname = isActive && space.path !== '/';
+        } else {
+            shouldShowname = false;
+        }
+        if (shouldShowname) {
+            tab.createSpan({ text: displayName });
+        } else if (!Platform.isMobile) {
+            tab.addEventListener('mouseenter', () => {
+                this.showTooltip(displayName, tab, 300);
+            });
+            tab.addEventListener('mouseleave', () => {
+                this.hideTooltip(100);
+            });
+        }
+
+        if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
+            if (isActive) {
+                tab.style.setProperty('--tab-active-color', space.color);
+            } else {
+                tab.style.removeProperty('--tab-active-color');
+            }
+        } else {
+            tab.style.removeProperty('--tab-active-color');
+        }
+        tab.dataset.path = space.path;
+        tab.dataset.type = space.type;
+
+        if (space.icon) {
+            const iconSpan = tab.createSpan({ cls: 'portals-tab-icon' });
+            iconSpan.createEl('i', { cls: `ph ph-${space.icon}` });
+        }
+
+        tab.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const menu = new Menu();
+            menu.addItem(item => item
+                .setTitle('Rename portal')
+                .setIcon('pencil')
+                .onClick(() => this.renamePortal(space)));
+                if (space.displayName) {
+                     menu.addItem(item => item
+                        .setTitle('Reset name')
+                        .setIcon('undo')
+                        .onClick(() => this.resetPortalName(space)));
+                }
+            menu.addItem(item => item
+                .setTitle('Change icon')
+                .setIcon('image')
+                .onClick(() => {
+                    new IconPickerModal(this.app, (iconName) => {
+                        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+                            this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
+                            space.icon = iconName;
+                            this.plugin.saveSettings().then(() => this.render());
+                        }).open();
+                    })        
+                );
+            menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('Add to new stack')
+                .setIcon('stack')
+                .onClick(() => this.createNewStackWithPortal(space)));
+
+            const otherStacks = this.plugin.settings.portalStacks.filter(s => s.id !== space.stackId);
+            if (otherStacks.length > 0) {
+                menu.addItem(item => {
+                    item.setTitle('Add to existing stack')
+                        .setIcon('arrow-right');
+                    
+                    const subMenu = (item as unknown as { setSubmenu: () => Menu }).setSubmenu();
+                    for (const stack of otherStacks) {
+                        subMenu.addItem((subItem: MenuItem) => subItem
+                            .setTitle(stack.name)
+                            .onClick(() => {
+                                space.stackId = stack.id;
+                                this.plugin.saveSettings().then(() => this.render())
+                            }));
+                    }
+                });
+            }
+            // remove from stack 
+            if (space.stackId) {
+                menu.addItem(item => item
+                    .setTitle('Remove from stack')
+                    .setIcon('arrow-left')
+                    .onClick(() => {
+                        delete space.stackId;
+                        this.plugin.saveSettings().then(() => this.render());
+                    }));
+            }
+            menu.showAtPosition({ x: e.clientX, y: e.clientY });
+        });
+
+            tab.addEventListener('click', () => {
+                this.hideTooltip(0);
+                this.plugin.settings.selectedSpace = {
+                    path: space.path,
+                    type: space.type
+                };
+
+                if (space.type === 'folder' && !this.plugin.settings.openFolders.includes(space.path)) {
+                    this.plugin.settings.openFolders.push(space.path);
+                }
+
+                void this.plugin.saveSettings()
+                    .then(() => this.render())
+                    .then(() => {
+                        const newActiveTab = mainContainer.querySelector('.portals-tab.is-active');
+                        if (newActiveTab) {
+                            setTimeout(() => {
+                                newActiveTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                            }, 0);
+                        }
+                    });
+            });
+    }
+
+    private showStackContextMenu(event: MouseEvent, stack: PortalStack) {
+        const menu = new Menu();
+        menu.addItem(item => item
+            .setTitle('Rename stack')
+            .setIcon('pencil')
+            .onClick(() => {
+                new RenamePortalModal(this.app, stack.name, (newName) => {
+                    stack.name = newName.trim() || 'Stack';
+                    this.plugin.saveSettings().then(() => this.render());
+                }).open();
+            }));
+        menu.addItem(item => item
+            .setTitle('Change icon')
+            .setIcon('image')
+            .onClick(() => {
+                new IconPickerModal(this.app, (iconName) => {
+                    stack.icon = iconName;
+                    this.plugin.saveSettings().then(() => this.render());
+                }).open();
+            }));
+        menu.addItem(item => item
+            .setTitle('Set color')
+            .setIcon('palette')
+            .onClick(() => {
+                const currentColor = stack.color;
+                // Create a temporary hidden element for the color picker to preview on
+                const dummyEl = document.createElement('div');
+                new ColorPickerModal(this.app, (color) => {
+                    stack.color = color;
+                    this.plugin.saveSettings().then(() => this.render());
+                }, dummyEl, currentColor).open();
+            }));
+        menu.addSeparator();
+        menu.addItem(item => item
+            .setTitle('Delete stack')
+            .setIcon('trash')
+            .setWarning(true)
+            .onClick(() => {
+                // Unassign all portals in this stack, then remove stack
+                for (const space of this.plugin.settings.spaces) {
+                    if (space.stackId === stack.id) {
+                        delete space.stackId;
+                    }
+                }
+                this.plugin.settings.portalStacks = this.plugin.settings.portalStacks.filter(s => s.id !== stack.id);
+                this.plugin.saveSettings().then(() => this.render());
+            }));
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
     }
 
     private updateMultiSelectToolbar() {
@@ -1248,7 +1514,7 @@ export class PortalsView extends ItemView {
     private getSettingsHash(): string {
         const s = this.plugin.settings;
         return JSON.stringify({
-            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.displayName || ''}${sp.groupTags?.join(',') || ''}`).join(','),
+            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.displayName || ''}|${sp.groupTags?.join(',') || ''}|${sp.stackId || ''} ''}`).join(','),
             openFolders: s.openFolders.join(','),
             selectedSpace: s.selectedSpace ? `${s.selectedSpace.type}:${s.selectedSpace.path}` : '',
             filePaneColorStyle: s.filePaneColorStyle,
@@ -1275,6 +1541,9 @@ export class PortalsView extends ItemView {
             tagColors: JSON.stringify(s.tagColors),
             customIcons: JSON.stringify(s.customIcons),
             hiddenItems: JSON.stringify(s.hiddenItems),
+            // -- new stack state--
+            portalStacks: s.portalStacks.map(st =>
+                `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
         });
     }
 
@@ -1290,6 +1559,8 @@ export class PortalsView extends ItemView {
                 }
             }
         }
+
+        
         const newHash = this.getSettingsHash();
         if (newHash === this.lastRenderHash) return;
         this.lastRenderHash = newHash;
@@ -1301,6 +1572,21 @@ export class PortalsView extends ItemView {
             container.addClass('portals-container');
 
             const spaces = this.plugin.settings.spaces;
+
+            // Group portals by stackId (null for unstacked)
+            const stackGroups = new Map<string | null, SpaceConfig[]>();
+            for (const space of spaces) {
+                const key = space.stackId || null;
+                if (!stackGroups.has(key)) stackGroups.set(key, []);
+                stackGroups.get(key)!.push(space);
+            }
+
+            // Sort stacks by their order (if defined) or by name
+            const stacks = this.plugin.settings.portalStacks
+                .filter(stack => stackGroups.has(stack.id))
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+            const unstackedPortals = stackGroups.get(null) || [];
 
             if (spaces.length === 0) {
                 container.createEl('p', { text: 'No portals configured. Add some in settings.' });
@@ -1314,128 +1600,37 @@ export class PortalsView extends ItemView {
 
             // Tab bar
             const tabBar = container.createEl('div', { cls: 'portals-tab-bar' });
-
-            for (const space of spaces) {
-                let displayName = space.displayName
-                if (!displayName) {
-                    const vaultName = this.app.vault.getName();
-                    if (space.type === 'folder') {
-                        if (space.path === '/') {
-                            displayName = vaultName; // root shows vault name
-                        } else {
-                            const folder = this.app.vault.getAbstractFileByPath(space.path);
-                            displayName = folder instanceof TFolder ? folder.name : space.path;
-                        }
-                    } else {
-                        displayName = '#' + space.path;
-                    }
-                }
-
-                const tab = tabBar.createEl('div', { cls: 'portals-tab' });
-                if (space.path === '/') {
-                    tab.addClass('portals-tab-pinned');
-                    if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
-                        tab.style.setProperty('--tab-pinned-color', space.color);
-                    } else {
-                        tab.style.removeProperty('--tab-pinned-color');
-                    }
-                }
-
-                const isActive = (space.path === this.plugin.settings.selectedSpace?.path && space.type === this.plugin.settings.selectedSpace?.type);
-                if (isActive) tab.addClass('is-active');
-
-                const displayMode = this.plugin.settings.tabNameDisplay;
-
-                let shouldShowname = false;
-                if (displayMode === 'all') {
-                    shouldShowname = space.path !=='/';
-                } else if (displayMode === 'activeOnly') {
-                    shouldShowname = isActive && space.path !== '/';
-                } else {
-                    shouldShowname = false;
-                }
-
-                if (shouldShowname) {
-                    tab.createSpan({ text: displayName });
-                } else if (!Platform.isMobile) {
-                    tab.addEventListener('mouseenter', () => {
-                        this.showTooltip(displayName, tab, 300);
-                    });
-                    tab.addEventListener('mouseleave', () => {
-                        this.hideTooltip(100);
-                    });
-                }
-
-                if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
-                    if (isActive) {
-                        tab.style.setProperty('--tab-active-color', space.color);
-                    } else {
-                        tab.style.removeProperty('--tab-active-color');
-                    }
-                } else {
-                    tab.style.removeProperty('--tab-active-color');
-                }
-                
-                tab.dataset.path = space.path;
-                tab.dataset.type = space.type;
-
-                if (space.icon) {
-                    const iconSpan = tab.createSpan({ cls: 'portals-tab-icon' });
-                    iconSpan.createEl('i', { cls: `ph ph-${space.icon}` });
-                }
-
-                tab.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    const menu = new Menu();
-                    menu.addItem(item => item
-                        .setTitle('Rename portal')
-                        .setIcon('pencil')
-                        .onClick(() => this.renamePortal(space)));
-                    if (space.displayName) {
-                        menu.addItem(item => item
-                            .setTitle('Reset name')
-                            .setIcon('undo')
-                            .onClick(() => this.resetPortalName(space)));
-                    }
-                    menu.addItem(item => item
-                        .setTitle('Change icon')
-                        .setIcon('image')
-                        .onClick(() => {
-                            new IconPickerModal(this.app, (iconName) => {
-                                const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-                                this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
-                                space.icon = iconName;
-                                this.plugin.saveSettings().then(() => this.render());
-                            }).open();
-                        })
-                        
-                    )
-                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
-                });
-
-                tab.addEventListener('click', () => {
-                    this.hideTooltip(0);
-                    this.plugin.settings.selectedSpace = {
-                        path: space.path,
-                        type: space.type
-                    };
-
-                    if (space.type === 'folder' && !this.plugin.settings.openFolders.includes(space.path)) {
-                        this.plugin.settings.openFolders.push(space.path);
-                    }
-
-                    void this.plugin.saveSettings()
-                        .then(() => this.render())
-                        .then(() => {
-                            const newActiveTab = container.querySelector('.portals-tab.is-active');
-                            if (newActiveTab) {
-                                setTimeout(() => {
-                                    newActiveTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                                }, 0);
-                            }
-                        });
-                });
+            const tabBarItems: TabBarItem[] = []
+            
+            for (const stack of stacks) {
+                const portals = stackGroups.get(stack.id)!;
+                tabBarItems.push({ type: 'stack-group', stack, portals });
             }
+            for (const space of unstackedPortals) {
+                tabBarItems.push({ type: 'portal', space });
+            }
+
+            // render all items 
+            for (const item of tabBarItems) {
+                if (item.type === 'stack-group') {
+                    const groupDiv = tabBar.createDiv({ cls: 'portals-stack-group' });
+                    groupDiv.dataset.stackId = item.stack.id;
+                    if (item.stack.color && item.stack.color !== 'transparent') {
+                        groupDiv.style.setProperty('--stack-accent-color', item.stack.color)
+                    }
+
+                    this.renderStackHeader(groupDiv, item.stack);
+
+                    if (!item.stack.collapsed) {
+                        for (const space of item.portals) {
+                            this.renderPortalTab(groupDiv, space, container);
+                        }
+                    }
+                } else {
+                    this.renderPortalTab(tabBar, item.space, container);
+                }
+            }
+            
 
             this.sortableInstance = new Sortable(tabBar, {
                 animation: 150,
@@ -1443,36 +1638,41 @@ export class PortalsView extends ItemView {
                 delayOnTouchOnly: true,
                 touchStartThreshold: 5,
                 scrollSensitivity: 30,
-                
+                draggable: '.portals-tab:not(.portals-stack-group .portals-tab)',
+                    
                 onEnd: async (_evt: SortableEvent) => {
-                    const newOrder: SpaceConfig[] = [];
+                    const newSpaces: SpaceConfig[] = [];
                     const tabElements = tabBar.querySelectorAll('.portals-tab');
-                    tabElements.forEach(el => {
-                        const path = (el as HTMLElement).dataset.path;
-                        const type = (el as HTMLElement).dataset.type;
-                        if (path && (type === 'folder' || type === 'tag')) {
-                            const found = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
-                            if (found) {
-                                newOrder.push(found);
-                            }
-                        }
-                    });
 
-                    if (this.plugin.settings.pinVaultRoot) {
-                        const rootIndex = newOrder.findIndex(s => s.path === '/' && s.type === 'folder');
-                        if (rootIndex > 0) {
-                            const root = newOrder.splice(rootIndex, 1)[0];
-                            if (root) {
-                                newOrder.unshift(root);
-                            }
+                    for (const el of Array.from(tabElements)) {
+                        const tabEl = el as HTMLElement;
+                        if (tabEl.classList.contains('portals-stack-header-tab')) continue;
+
+                        const path = tabEl.dataset.path;
+                        const type = tabEl.dataset.type as 'folder' | 'tag';
+                        if (!path || !type) continue;
+
+                        const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
+                        if (!space) continue;
+
+                        const stackId = tabEl.dataset.stackId;
+                        if (stackId) {
+                            space.stackId = stackId;
+                        } else {
+                            delete space.stackId;
                         }
+
+                        newSpaces.push(space);
                     }
+                    this.plugin.settings.spaces = newSpaces;
 
-                    this.plugin.settings.spaces = newOrder;
-                    await this.plugin.saveData(this.plugin.settings);
-                    this.lastRenderHash = this.getSettingsHash();
-                }
-            });
+                    const referencedStackIds = new Set(newSpaces.map(s => s.stackId).filter(id => id !== undefined));
+                    this.plugin.settings.portalStacks = this.plugin.settings.portalStacks.filter(stack => referencedStackIds.has(stack.id));
+        
+                await this.plugin.saveSettings();
+                this.render();
+            }
+        });
 
             setTimeout(() => {
                 const activeTab = tabBar.querySelector('.portals-tab.is-active');
@@ -1481,48 +1681,48 @@ export class PortalsView extends ItemView {
                 }
             }, 0);
 
-            // --- Split pane layout with tabs ---
-            const splitContainer = container.createDiv({ cls: 'portals-split-container' });
+                // --- Split pane layout with tabs ---
+                const splitContainer = container.createDiv({ cls: 'portals-split-container' });
 
-            // Main panel (folder/tag tree)
-            const mainPanel = splitContainer.createDiv({ cls: 'portals-main-panel' });
+                // Main panel (folder/tag tree)
+                const mainPanel = splitContainer.createDiv({ cls: 'portals-main-panel' });
 
-            // Tree content area (scrollable)
-            const treeContainer = mainPanel.createDiv({ cls: 'portals-tree-container' });
-            treeContainer.addClass(`portals-tree-style-${this.plugin.settings.treeStyle}`);
-            if (this.plugin.settings.compactTree) {
-                treeContainer.addClass('portals-compact-tree');
-            }
-            if (this.plugin.settings.boldFolderNames) {
-                treeContainer.addClass('portals-bold-folders');
-            }
+                // Tree content area (scrollable)
+                const treeContainer = mainPanel.createDiv({ cls: 'portals-tree-container' });
+                treeContainer.addClass(`portals-tree-style-${this.plugin.settings.treeStyle}`);
+                if (this.plugin.settings.compactTree) {
+                    treeContainer.addClass('portals-compact-tree');
+                }
+                if (this.plugin.settings.boldFolderNames) {
+                    treeContainer.addClass('portals-bold-folders');
+                }
 
-            // Splitter (draggable)
-            const splitter = splitContainer.createDiv({ cls: 'portals-splitter' });
-            this.currentSplitter = splitter;
+                // Splitter (draggable)
+                const splitter = splitContainer.createDiv({ cls: 'portals-splitter' });
+                this.currentSplitter = splitter;
 
-            // Secondary panel (tabs + content)
-            const secondaryPanel = splitContainer.createDiv({ cls: 'portals-secondary-panel' });
-            this.currentSecondaryPanel = secondaryPanel;
+                // Secondary panel (tabs + content)
+                const secondaryPanel = splitContainer.createDiv({ cls: 'portals-secondary-panel' });
+                this.currentSecondaryPanel = secondaryPanel;
 
-            // Header with tabs and collapse icon
-            const secondaryHeader = secondaryPanel.createDiv({ cls: 'portals-secondary-header' });
+                // Header with tabs and collapse icon
+                const secondaryHeader = secondaryPanel.createDiv({ cls: 'portals-secondary-header' });
 
-            // Tab container
-            const tabContainer = secondaryHeader.createDiv({ cls: 'portals-split-tabs' });
+                // Tab container
+                const tabContainer = secondaryHeader.createDiv({ cls: 'portals-split-tabs' });
 
-           // Get tabs from settings, ensure context-notes is present for testing
-           const tabs = this.plugin.settings.splitViewTabs || ['recent'];
-           const icons = SIDE_TAB_ICONS;
-           const activeTab = this.plugin.settings.activeSplitTab || 'recent';
+                // Get tabs from settings, ensure context-notes is present for testing
+                const tabs = this.plugin.settings.splitViewTabs || ['recent'];
+                const icons = SIDE_TAB_ICONS;
+                const activeTab = this.plugin.settings.activeSplitTab || 'recent';
 
-           let rootColor: string | undefined;
-           if (this.plugin.settings.pinVaultRoot && this.plugin.settings.tabColorEnabled) {
-            const rootSpace = spaces.find(s => s.path === '/' && s.type === 'folder');
-            if (rootSpace && rootSpace.color && rootSpace.color !== 'transparent') {
-                rootColor = rootSpace.color;
-            }
-           }
+                let rootColor: string | undefined;
+                if (this.plugin.settings.pinVaultRoot && this.plugin.settings.tabColorEnabled) {
+                    const rootSpace = spaces.find(s => s.path === '/' && s.type === 'folder');
+                    if (rootSpace && rootSpace.color && rootSpace.color !== 'transparent') {
+                        rootColor = rootSpace.color;
+                    }
+                }
 
             tabs.forEach(tabId => {
                 const tabBtn = tabContainer.createEl('div', { cls: 'portals-split-tab' });

@@ -153,6 +153,12 @@ export default class PortalsPlugin extends Plugin {
 
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
 
+        // Clean up orphaned stacks on load
+        const referencedStackIds = new Set(this.settings.spaces.map(s => s.stackId).filter(id => id !== undefined));
+        this.settings.portalStacks = this.settings.portalStacks.filter(stack => referencedStackIds.has(stack.id));
+        
+
+
         if (!this.settings.previousTagNotesFolderPath) {
             this.settings.previousTagNotesFolderPath = this.settings.tagNotesFolderPath;
         }
