@@ -4633,6 +4633,7 @@
   margin-right: 0;
 }
 
+
 .portals-stack-name {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4657,11 +4658,6 @@
   border-radius: 4px;
   margin-right: 2px;
   overflow: hidden;
-  cursor: grab;
-}
-
-.portals-stack-group:active {
-  cursor: grabbing;
 }
 
 .portals-stack-group.is-expanded {
@@ -4678,10 +4674,6 @@
     gap: 4px;
     font-weight: 500;
     border-radius: 4px;
-    cursor: grab;
-}
-.portals-tab.portals-stack-header-tab:active{
-  cursor: grabbing;
 }
 
 .portals-tab.portals-stack-header-tab.is-expanded {
