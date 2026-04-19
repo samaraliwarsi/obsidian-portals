@@ -129,6 +129,11 @@ export class PortalsView extends ItemView {
 
     private renderStackHeader(parent: HTMLElement, stack: PortalStack) {
         const header = parent.createDiv({ cls: 'portals-tab portals-stack-header-tab' });
+        if (!stack.collapsed){
+            header.classList.add('is-expanded');
+        } else {
+            header.classList.remove('is-expanded');
+        }
         if (stack.color && stack.color !== 'transparent') {
             header.style.setProperty('--stack-accent-color', stack.color);
         }
@@ -1617,6 +1622,11 @@ export class PortalsView extends ItemView {
                     groupDiv.dataset.stackId = item.stack.id;
                     if (item.stack.color && item.stack.color !== 'transparent') {
                         groupDiv.style.setProperty('--stack-accent-color', item.stack.color)
+                    }
+                    if (!item.stack.collapsed) {
+                        groupDiv.classList.add('is-expanded');
+                    } else {
+                        groupDiv.classList.remove('is-expanded');
                     }
 
                     this.renderStackHeader(groupDiv, item.stack);
