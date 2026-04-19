@@ -154,13 +154,17 @@ export class PortalsView extends ItemView {
         }
         header.dataset.stackId = stack.id;
 
-        const iconSpan = header.createSpan({ cls: 'portals-tab-icon' });
+        const iconSpan = header.createSpan({ cls: 'portals-stack-icon' });
         iconSpan.createEl('i', { cls: `ph ph-${stack.icon || 'stack'}` });
 
-        header.createSpan({ cls: 'portals-tab-name', text: stack.name });
+        if (!this.plugin.settings.hideStackNames) {
+            header.createSpan({ cls: 'portals-stack-name', text: stack.name });
+        }
 
-        // const portalCount = this.plugin.settings.spaces.filter(s => s.stackId === stack.id).length;
-        // header.createSpan({ cls: 'portals-stack-count', text: `(${portalCount})` });
+        if (this.plugin.settings.showStackCount) {
+            const portalCount = this.plugin.settings.spaces.filter(s => s.stackId === stack.id).length;
+            header.createSpan({ cls: 'portals-stack-count', text: `${portalCount}` });
+        }
 
         // Click to toggle collapse (re-render)
         header.addEventListener('click', (e) => {
@@ -177,8 +181,10 @@ export class PortalsView extends ItemView {
 
         // Tooltip on hover if name is long (optional)
         if (!Platform.isMobile) {
+            if (this.plugin.settings.hideStackNames) {
             header.addEventListener('mouseenter', () => this.showTooltip(stack.name, header, 300));
             header.addEventListener('mouseleave', () => this.hideTooltip(100));
+            }
         }
     }
 
@@ -1576,7 +1582,8 @@ export class PortalsView extends ItemView {
             tagColors: JSON.stringify(s.tagColors),
             customIcons: JSON.stringify(s.customIcons),
             hiddenItems: JSON.stringify(s.hiddenItems),
-            // -- new stack state--
+            hideStackNames: s.hideStackNames,
+            showStackCount: s.showStackCount,
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
         });

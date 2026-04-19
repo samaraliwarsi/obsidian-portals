@@ -4633,8 +4633,23 @@
   margin-right: 0;
 }
 
+.portals-stack-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 120px;
+}
+
+.portals-stack-count {
+  font-size: 0.75em;
+  color: var(--text-faint);
+}
+
 .portals-stack-group {
   display: flex;
+  flex-shrink: 0;
   border-top: 1px solid var(--stack-accent-color, var(--interactive-accent));
   border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-hover) 30%, transparent);
   border-left: 1px solid color-mix(in srgb, var(--background-modifier-hover) 30%, transparent);
@@ -4655,6 +4670,7 @@
 
 .portal-tab.portals-stack-header-tab {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     padding: 4px 8px;
     cursor: pointer;

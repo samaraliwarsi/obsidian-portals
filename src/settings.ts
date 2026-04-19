@@ -65,6 +65,8 @@ export interface SpacesSettings {
     hiddenItems: Record<string, boolean>;
     portalStacks: PortalStack[];
     tabBarOrder: string[];
+    hideStackNames: boolean;
+    showStackCount: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -110,6 +112,8 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     hiddenItems: {},
     portalStacks: [],
     tabBarOrder: [],
+    hideStackNames: false,
+    showStackCount: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -430,6 +434,30 @@ export class SpacesSettingTab extends PluginSettingTab {
                 return dropdown;
             });
                     
+        containerEl.createEl('hr');
+        // -------------------- PORTAL STACK SETTINGS ----------------------------------
+        new Setting(containerEl)
+        .setName('Hide stack names')
+        .setDesc('Show only the stack icon; the name will appear in a tooltip on hover.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.hideStackNames)
+            .onChange(async (value) => {
+                this.plugin.settings.hideStackNames = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Show stack count')
+        .setDesc('Show count of how many portals stacked in a stack header.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.showStackCount)
+            .onChange(async (value) => {
+                this.plugin.settings.showStackCount = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
         containerEl.createEl('hr');
 
         // -------------------- TAB SETTINGS ----------------------------------
