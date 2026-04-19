@@ -64,6 +64,7 @@ export interface SpacesSettings {
     contextNoteIconClick: boolean;
     hiddenItems: Record<string, boolean>;
     portalStacks: PortalStack[];
+    tabBarOrder: string[];
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -108,6 +109,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     contextNoteIconClick: false,
     hiddenItems: {},
     portalStacks: [],
+    tabBarOrder: [],
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

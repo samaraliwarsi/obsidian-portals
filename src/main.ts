@@ -153,6 +153,22 @@ export default class PortalsPlugin extends Plugin {
 
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
 
+        // === Build initial tabBarOrder if missing ===
+        if (!this.settings.tabBarOrder || this.settings.tabBarOrder.length === 0) {
+            const order: string[] = [];
+            // Stacks in current order (sorted by order field)
+            const sortedStacks = [...this.settings.portalStacks].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            for (const stack of sortedStacks) {
+                order.push(`stack:${stack.id}`);
+            }
+            // Unstacked portals (any order, but stable)
+            for (const space of this.settings.spaces) {
+                if (!space.stackId) order.push(space.path);
+            }
+            this.settings.tabBarOrder = order;
+        }
+
+
         // Clean up orphaned stacks on load
         const referencedStackIds = new Set(this.settings.spaces.map(s => s.stackId).filter(id => id !== undefined));
         this.settings.portalStacks = this.settings.portalStacks.filter(stack => referencedStackIds.has(stack.id));

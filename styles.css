@@ -4642,6 +4642,11 @@
   border-radius: 4px;
   margin-right: 2px;
   overflow: hidden;
+  cursor: grab;
+}
+
+.portals-stack-group:active {
+  cursor: grabbing;
 }
 
 .portals-stack-group.is-expanded {
@@ -4657,6 +4662,10 @@
     gap: 4px;
     font-weight: 500;
     border-radius: 4px;
+    cursor: grab;
+}
+.portals-tab.portals-stack-header-tab:active{
+  cursor: grabbing;
 }
 
 .portals-tab.portals-stack-header-tab.is-expanded {
@@ -4681,20 +4690,18 @@
     border-radius: 4px;
 }
 
-
-
 .portals-stack-header-tab:hover {
     filter: brightness(0.95);
 }
 
 .portals-tab-stacked {
-    /* Indent slightly to show hierarchy */
     padding-left: 6px;
 }
 
 .portals-stack-group .portals-tab-pinned {
     border-left: 3px solid var(--tab-pinned-color, var(--interactive-accent));
 }
+
 /* ------------------------------ Tree Styles ------------------------------------ */
 
 /*---Default style custom colors--*/
