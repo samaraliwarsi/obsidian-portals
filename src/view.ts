@@ -108,6 +108,20 @@ export class PortalsView extends ItemView {
         }
     }
 
+    private rebuildTabBarOrder() {
+        const order: string[] = [];
+        const sortedStacks = [...this.plugin.settings.portalStacks].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        for (const stack of sortedStacks) {
+            order.push(`stack:${stack.id}`);
+        }
+        for (const space of this.plugin.settings.spaces) {
+            if (!space.stackId) {
+                order.push(space.path);
+            }
+        }
+        this.plugin.settings.tabBarOrder = order;
+    }
+
     private createNewStackWithPortal(space: SpaceConfig) {
         // Generate a unique ID (simple timestamp + random string)
         const stackId = `stack-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -124,6 +138,7 @@ export class PortalsView extends ItemView {
         
         this.plugin.settings.portalStacks.push(newStack);
         space.stackId = stackId;
+        this.rebuildTabBarOrder();
         this.plugin.saveSettings().then(() => this.render());
     }
 
@@ -167,94 +182,6 @@ export class PortalsView extends ItemView {
         }
     }
 
-    // Save order of unstacked portals and stack groups
-    private async saveTabBarOrder(tabBar: HTMLElement) {
-    console.log('[SAVE TAB BAR] === START ===');
-    
-    // Read current DOM order of unstacked tabs and stack groups
-    const newUnstacked: SpaceConfig[] = [];
-    const newStackOrder: PortalStack[] = [];
-    
-    for (const child of Array.from(tabBar.children)) {
-        const el = child as HTMLElement;
-        if (el.classList.contains('portals-tab')) {
-            // Unstacked portal tab
-            const path = el.dataset.path;
-            const type = el.dataset.type as 'folder' | 'tag';
-            const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
-            if (space) {
-                delete space.stackId;
-                newUnstacked.push(space);
-                console.log(`[SAVE TAB BAR] Unstacked: ${space.path}`);
-            }
-        } else if (el.classList.contains('portals-stack-group')) {
-            // Stack group
-            const stackId = el.dataset.stackId;
-            const stack = this.plugin.settings.portalStacks.find(s => s.id === stackId);
-            if (stack) {
-                newStackOrder.push(stack);
-                console.log(`[SAVE TAB BAR] Stack: ${stack.id}`);
-            }
-        }
-    }
-    
-    // Combine: unstacked portals in new order, then all stacked portals (their internal order is unchanged)
-    const stackedSpaces = this.plugin.settings.spaces.filter(s => s.stackId);
-    this.plugin.settings.spaces = [...newUnstacked, ...stackedSpaces];
-    
-    // Update stack order and assign new order indices
-    const orderedStacks: PortalStack[] = [];
-    for (const stack of newStackOrder) {
-        stack.order = orderedStacks.length;
-        orderedStacks.push(stack);
-    }
-    // Include any stacks not in DOM (orphaned cleanup already handled elsewhere)
-    for (const stack of this.plugin.settings.portalStacks) {
-        if (!orderedStacks.includes(stack)) {
-            stack.order = orderedStacks.length;
-            orderedStacks.push(stack);
-        }
-    }
-    this.plugin.settings.portalStacks = orderedStacks;
-    
-    console.log('[SAVE TAB BAR] Final unstacked order:', newUnstacked.map(s => s.path));
-    console.log('[SAVE TAB BAR] Final stack order:', orderedStacks.map(s => s.id));
-    
-   
-    await this.plugin.saveData(this.plugin.settings);
-    this.lastRenderHash = this.getSettingsHash();
-    console.log('[SAVE TAB BAR] === END ===');
-}
-
-    // Save order of portals within a specific stack
-    private async saveStackOrder(stackId: string, groupDiv: HTMLElement) {
-    console.log(`[SAVE STACK] === START for ${stackId} ===`);
-    
-    const newOrder: SpaceConfig[] = [];
-    for (const child of Array.from(groupDiv.children)) {
-        const el = child as HTMLElement;
-        if (el.classList.contains('portals-tab') && !el.classList.contains('portals-stack-header-tab')) {
-            const path = el.dataset.path;
-            const type = el.dataset.type as 'folder' | 'tag';
-            const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
-            if (space) {
-                space.stackId = stackId;
-                newOrder.push(space);
-                console.log(`[SAVE STACK] Portal: ${space.path}`);
-            }
-        }
-    }
-    
-    // Merge with portals not in this stack
-    const otherSpaces = this.plugin.settings.spaces.filter(s => s.stackId !== stackId);
-    this.plugin.settings.spaces = [...otherSpaces, ...newOrder];
-    
-    console.log('[SAVE STACK] New internal order:', newOrder.map(s => s.path));
-
-    await this.plugin.saveData(this.plugin.settings);
-    this.lastRenderHash = this.getSettingsHash();
-    console.log('[SAVE STACK] === END ===');
-}
 
     private renderPortalTab(parent: HTMLElement, space: SpaceConfig, mainContainer: HTMLElement) {
         let displayName = space.displayName;
@@ -371,6 +298,7 @@ export class PortalsView extends ItemView {
                             .setTitle(stack.name)
                             .onClick(() => {
                                 space.stackId = stack.id;
+                                this.rebuildTabBarOrder();
                                 this.plugin.saveSettings().then(() => this.render())
                             }));
                     }
@@ -383,6 +311,9 @@ export class PortalsView extends ItemView {
                     .setIcon('arrow-left')
                     .onClick(() => {
                         delete space.stackId;
+                        if (!this.plugin.settings.tabBarOrder.includes(space.path)) {
+                            this.plugin.settings.tabBarOrder.push(space.path);
+                        }
                         this.plugin.saveSettings().then(() => this.render());
                     }));
             }
@@ -451,13 +382,17 @@ export class PortalsView extends ItemView {
             .setIcon('trash')
             .setWarning(true)
             .onClick(() => {
-                // Unassign all portals in this stack, then remove stack
-                for (const space of this.plugin.settings.spaces) {
-                    if (space.stackId === stack.id) {
-                        delete space.stackId;
-                    }
+                const portalsInStack = this.plugin.settings.spaces.filter(s => s.stackId === stack.id);
+                for (const space of portalsInStack) {
+                    delete space.stackId;
                 }
                 this.plugin.settings.portalStacks = this.plugin.settings.portalStacks.filter(s => s.id !== stack.id);
+                this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder.filter(entry => entry !== `stack:${stack.id}`);
+                for (const space of portalsInStack) {
+                    if (!this.plugin.settings.tabBarOrder.includes(space.path)) {
+                        this.plugin.settings.tabBarOrder.push(space.path);
+                    }
+                }
                 this.plugin.saveSettings().then(() => this.render());
             }));
         menu.showAtPosition({ x: event.clientX, y: event.clientY });
@@ -826,19 +761,23 @@ export class PortalsView extends ItemView {
             return;
         }
         new RemovePortalModal(this.app, this.plugin, (space: SpaceConfig) => {
-            const index = this.plugin.settings.spaces.indexOf(space);
-            if (index !== -1) {
-                this.plugin.settings.spaces.splice(index, 1);
-                if (this.plugin.settings.selectedSpace?.path === space.path && this.plugin.settings.selectedSpace?.type === space.type) {
-                    this.plugin.settings.selectedSpace = this.plugin.settings.spaces[0] 
-                        ? { path: this.plugin.settings.spaces[0].path, type: this.plugin.settings.spaces[0].type }
-                        : null;
-                }
-                this.plugin.saveSettings().then(() => this.render());
-                new Notice(`Removed portal: ${space.path}`);
+            this.plugin.settings.spaces = this.plugin.settings.spaces.filter(s => s !== space);    
+       
+            if (this.plugin.settings.selectedSpace?.path === space.path && this.plugin.settings.selectedSpace?.type === space.type) {
+                this.plugin.settings.selectedSpace = this.plugin.settings.spaces[0] 
+                    ? { path: this.plugin.settings.spaces[0].path, type: this.plugin.settings.spaces[0].type }
+                    : null;
             }
+
+            if(!space.stackId) {
+                this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder.filter(entry => entry !== space.path);
+            }
+                
+            this.plugin.saveSettings().then(() => this.render());
+            new Notice(`Removed portal: ${space.path}`);
         }).open();
     }
+    
 
     public showSidePortalConfig() {
         new ChooseTabsModal(this.app, this.plugin, (tabs) => {
@@ -1632,7 +1571,7 @@ export class PortalsView extends ItemView {
             compactTree: s.compactTree,
             boldFolderNames: s.boldFolderNames,
             treeStyle: s.treeStyle,
-            tabBarOder: s.tabBarOrder.join(','),
+            tabBarOrder: s.tabBarOrder.join(','),
             customColor: JSON.stringify(s.customColors),
             tagColors: JSON.stringify(s.tagColors),
             customIcons: JSON.stringify(s.customIcons),
@@ -1654,6 +1593,10 @@ export class PortalsView extends ItemView {
                     this.contextNoteScrollPositions.set(currentNote.path, noteContainer.scrollTop);
                 }
             }
+        }
+
+        if (!this.plugin.settings.tabBarOrder || this.plugin.settings.tabBarOrder.length === 0) {
+            this.rebuildTabBarOrder();
         }
 
         
@@ -1746,25 +1689,29 @@ export class PortalsView extends ItemView {
                         touchStartThreshold: 5,
                         scrollSensitivity: 30,
                         draggable: '.portals-tab-stacked',
-                        onEnd: async () => {
-                            const newPortalOrder: SpaceConfig[] = [];
-                            for (const child of Array.from(groupDiv.children)) {
-                                const el = child as HTMLElement;
-                                if (el.classList.contains('portals-tab') && !el.classList.contains('portals-stack-header-tab')) {
-                                    const path = el.dataset.path;
-                                    const type = el.dataset.type as 'folder' | 'tag';
-                                    const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
-                                    if (space) {
-                                        space.stackId = item.stack.id;
-                                        newPortalOrder.push(space);
+                        onEnd: async (_evt: SortableEvent) => {
+                            requestAnimationFrame(async () => {
+                                const newPortalOrder: SpaceConfig[] = [];
+                                for (const child of Array.from(groupDiv.children)) {
+                                    const el = child as HTMLElement;
+                                    if (el.classList.contains('portals-tab') && !el.classList.contains('portals-stack-header-tab')) {
+                                        const path = el.dataset.path;
+                                        const type = el.dataset.type as 'folder' | 'tag';
+                                        const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
+                                        if (space) {
+                                            space.stackId = item.stack.id;
+                                            newPortalOrder.push(space);
+                                        }
                                     }
                                 }
-                            }
-                            // Merge with other spaces
-                            const otherSpaces = this.plugin.settings.spaces.filter(s => s.stackId !== item.stack.id);
-                            this.plugin.settings.spaces = [...otherSpaces, ...newPortalOrder];
-                            
-                            await this.plugin.saveData(this.plugin.settings);
+                                const otherSpaces = this.plugin.settings.spaces.filter(s => s.stackId !== item.stack.id);
+                                const currentOrder = this.plugin.settings.spaces.filter(s => s.stackId === item.stack.id);
+                                if (JSON.stringify(newPortalOrder) !== JSON.stringify(currentOrder)) {
+                                    this.plugin.settings.spaces = [...otherSpaces, ...newPortalOrder];
+                                    await this.plugin.saveData(this.plugin.settings);
+                                    this.lastRenderHash = this.getSettingsHash();
+                                }
+                            });
                         }
                     });
                     this.sortableInstances.push(stackSortable);
@@ -1783,8 +1730,25 @@ export class PortalsView extends ItemView {
                 scrollSensitivity: 30,
                 draggable: '.portals-tab:not(.portals-stack-group .portals-tab)', // only direct unstacked tabs
                 onEnd: async (_evt: SortableEvent) => {
-                    console.log('[UNSTACKED SORTABLE] Drag ended');
-                    await this.saveTabBarOrder(tabBar);
+                    requestAnimationFrame(async () => {
+                        const newOrder: string[] = [];
+                        const children = Array.from(tabBar.children);
+                        for (const child of children) {
+                            const el = child as HTMLElement;
+                            if (el.classList.contains('portals-tab')) {
+                                const path = el.dataset.path;
+                                if (path) newOrder.push(path);
+                            } else if (el.classList.contains('portals-stack-group')) {
+                                const stackId = el.dataset.stackId;
+                                if (stackId) newOrder.push(`stack:${stackId}`);
+                            }
+                        }
+                        if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.tabBarOrder)) {
+                            this.plugin.settings.tabBarOrder = newOrder;
+                            await this.plugin.saveData(this.plugin.settings);
+                            this.lastRenderHash = this.getSettingsHash();
+                        }
+                    });
                 }
             });
             this.sortableInstances.push(unstackedSortable);
@@ -1799,20 +1763,26 @@ export class PortalsView extends ItemView {
                 scrollSensitivity: 30,
                 draggable: '.portals-stack-group',
                 handle: '.portals-stack-header-tab', // only drag via header
-                onEnd: async () => {
-                    const newOrder: string[] = [];
-                    for (const child of Array.from(tabBar.children)) {
-                        const el = child as HTMLElement;
-                        if (el.classList.contains('portals-tab')) {
-                            const path = el.dataset.path;
-                            if (path) newOrder.push(path);
-                        } else if (el.classList.contains('portals-stack-group')) {
-                            const stackId = el.dataset.stackId;
-                            if (stackId) newOrder.push(`stack:${stackId}`);
+                onEnd: async (_evt: SortableEvent) => {
+                    requestAnimationFrame(async () => {
+                        const newOrder: string[] = [];
+                        const children = Array.from(tabBar.children);
+                        for (const child of children) {
+                            const el = child as HTMLElement;
+                            if (el.classList.contains('portals-tab')) {
+                                const path = el.dataset.path;
+                                if (path) newOrder.push(path);
+                            } else if (el.classList.contains('portals-stack-group')) {
+                                const stackId = el.dataset.stackId;
+                                if (stackId) newOrder.push(`stack:${stackId}`);
+                            }
                         }
-                    }
-                    this.plugin.settings.tabBarOrder = newOrder;
-                    await this.plugin.saveData(this.plugin.settings);
+                        if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.tabBarOrder)) {
+                            this.plugin.settings.tabBarOrder = newOrder;
+                            await this.plugin.saveData(this.plugin.settings);
+                            this.lastRenderHash = this.getSettingsHash();
+                        }
+                    });
                 }
             });
             this.sortableInstances.push(mainSortable);
