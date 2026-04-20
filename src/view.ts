@@ -307,6 +307,32 @@ export class PortalsView extends ItemView {
                         }).open();
                     })        
                 );
+            const currentColor = space.color;
+            const dummyEl = document.createElement('div')
+            const tabColor = this.plugin.settings.tabColorEnabled;
+            const panelStyle = this.plugin.settings.filePaneColorStyle;
+            const colorRelavent = tabColor || panelStyle === 'gradient' || panelStyle === 'solid';
+            if (colorRelavent) {
+                menu.addItem(item => item
+                .setTitle('Set color')
+                .setIcon('palette')
+                .onClick(() => {
+                    new ColorPickerModal(this.app, (color) => {
+                        space.color = color;
+                        this.plugin.saveSettings().then(() => this.render());
+                    }, dummyEl, currentColor).open();
+                }));
+                if (currentColor && currentColor !== 'transparent') {
+                    menu.addItem(item => item
+                        .setTitle('Reset color')
+                        .setIcon('undo')
+                        .onClick(() => {
+                            space.color = 'transparent';
+                            this.plugin.saveSettings().then(() => this.render());
+                        }));
+                }
+                
+            }
             menu.addSeparator();
             menu.addItem(item => item
                 .setTitle('Add to new stack')
