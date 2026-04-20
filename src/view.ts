@@ -284,6 +284,7 @@ export class PortalsView extends ItemView {
 
         tab.addEventListener('contextmenu', (e) => {
             e.preventDefault();
+            if (this.isDraggingTab) return;
             const menu = new Menu();
             menu.addItem(item => item
                 .setTitle('Rename portal')
@@ -398,6 +399,7 @@ export class PortalsView extends ItemView {
     }
 
     private showStackContextMenu(event: MouseEvent, stack: PortalStack) {
+        if (this.isDraggingTab) return;
         const menu = new Menu();
         menu.addItem(item => item
             .setTitle('Rename stack')
@@ -1743,7 +1745,7 @@ export class PortalsView extends ItemView {
                         touchStartThreshold: 5,
                         scrollSensitivity: 30,
                         draggable: '.portals-tab-stacked',
-                        forceFallback: true,
+                        //forceFallback: true,
                         fallbackClass: 'portals-sortable-fallback',
                         onStart: () => {
                             this.isDraggingTab = true;
