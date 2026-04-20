@@ -163,9 +163,36 @@ export default class PortalsPlugin extends Plugin {
             }
             // Unstacked portals (any order, but stable)
             for (const space of this.settings.spaces) {
-                if (!space.stackId) order.push(space.path);
+                if (!space.stackId) {
+                    order.push(`${space.type}:${space.path}`);
+                }
             }
             this.settings.tabBarOrder = order;
+        }
+
+        // === NEW: Migrate existing plain paths to composite keys ===
+        if (this.settings.tabBarOrder && this.settings.tabBarOrder.length > 0) {
+            const convertedOrder: string[] = [];
+            let needsConversion = false;
+            for (const entry of this.settings.tabBarOrder) {
+                if (entry.startsWith('stack:')) {
+                    convertedOrder.push(entry);
+                } else if (!entry.includes(':')) {
+                    // Plain path – find matching portal (first unstacked)
+                    const space = this.settings.spaces.find(s => s.path === entry && !s.stackId);
+                    if (space) {
+                        convertedOrder.push(`${space.type}:${space.path}`);
+                        needsConversion = true;
+                    }
+                    // If no space found, skip (portal was deleted)
+                } else {
+                    convertedOrder.push(entry); // already composite
+                }
+            }
+            if (needsConversion) {
+                this.settings.tabBarOrder = convertedOrder;
+                await this.saveSettings(); // save the upgraded order
+            }
         }
 
 

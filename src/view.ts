@@ -117,7 +117,7 @@ export class PortalsView extends ItemView {
         }
         for (const space of this.plugin.settings.spaces) {
             if (!space.stackId) {
-                order.push(space.path);
+                order.push(`${space.type}:${space.path}`);
             }
         }
         this.plugin.settings.tabBarOrder = order;
@@ -195,8 +195,11 @@ export class PortalsView extends ItemView {
         for (const child of children) {
             const el = child as HTMLElement;
             if (el.classList.contains('portals-tab')) {
+                const type = el.dataset.type as 'folder' | 'tag';
                 const path = el.dataset.path;
-                if (path) newOrder.push(path);
+                if (type && path) {
+                    newOrder.push(`${type}:${path}`);
+                }
             } else if (el.classList.contains('portals-stack-group')) {
                 const stackId = el.dataset.stackId;
                 if (stackId) newOrder.push(`stack:${stackId}`);
@@ -364,9 +367,10 @@ export class PortalsView extends ItemView {
                     .setTitle('Remove from stack')
                     .setIcon('arrow-left')
                     .onClick(() => {
+                        const compositeKey = `${space.type}:${space.path}`;
                         delete space.stackId;
-                        if (!this.plugin.settings.tabBarOrder.includes(space.path)) {
-                            this.plugin.settings.tabBarOrder.push(space.path);
+                        if (!this.plugin.settings.tabBarOrder.includes(compositeKey)) {
+                            this.plugin.settings.tabBarOrder.push(compositeKey);
                         }
                         this.plugin.saveSettings().then(() => this.render());
                     }));
@@ -440,14 +444,13 @@ export class PortalsView extends ItemView {
                 const portalsInStack = this.plugin.settings.spaces.filter(s => s.stackId === stack.id);
                 for (const space of portalsInStack) {
                     delete space.stackId;
+                    const compositeKey = `${space.type}:${space.path}`;
+                    if (!this.plugin.settings.tabBarOrder.includes(compositeKey)) {
+                        this.plugin.settings.tabBarOrder.push(compositeKey);
+                    }
                 }
                 this.plugin.settings.portalStacks = this.plugin.settings.portalStacks.filter(s => s.id !== stack.id);
                 this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder.filter(entry => entry !== `stack:${stack.id}`);
-                for (const space of portalsInStack) {
-                    if (!this.plugin.settings.tabBarOrder.includes(space.path)) {
-                        this.plugin.settings.tabBarOrder.push(space.path);
-                    }
-                }
                 this.plugin.saveSettings().then(() => this.render());
             }));
         menu.showAtPosition({ x: event.clientX, y: event.clientY });
@@ -1682,7 +1685,7 @@ export class PortalsView extends ItemView {
             const tabBar = container.createEl('div', { cls: 'portals-tab-bar' });
 
             const tabBarItems: TabBarItem[] = [];
-            const seenPaths = new Set<string>();
+            const seenCompositeKeys = new Set<string>();
             const seenStackIds = new Set<string>();
 
             for (const entry of this.plugin.settings.tabBarOrder) {
@@ -1695,10 +1698,17 @@ export class PortalsView extends ItemView {
                         seenStackIds.add(stackId);
                     }
                 } else {
-                    const space = this.plugin.settings.spaces.find(s => s.path === entry && !s.stackId);
+                    const colonIndex = entry.indexOf(':');
+                    if (colonIndex === -1) continue;
+                    const type = entry.slice(0, colonIndex) as 'folder' | 'tag';
+                    const path = entry.slice(colonIndex + 1);
+                    const compositeKey = `${type}:${path}`;
+                    if (seenCompositeKeys.has(compositeKey)) continue;
+
+                    const space = this.plugin.settings.spaces.find(s => s.type === type && s.path === path && !s.stackId);
                     if (space) {
                         tabBarItems.push({ type: 'portal', space });
-                        seenPaths.add(entry);
+                        seenCompositeKeys.add(compositeKey);
                     }
                 }
             }
@@ -1711,8 +1721,11 @@ export class PortalsView extends ItemView {
                 
             }
             for (const space of this.plugin.settings.spaces) {
-                if (!space.stackId && !seenPaths.has(space.path)) {
+                if (space.stackId) continue;
+                const compositeKey = `${space.type}:${space.path}`;
+                if (!seenCompositeKeys.has(compositeKey)) {
                     tabBarItems.push({ type: 'portal', space });
+                    seenCompositeKeys.add(compositeKey);
                 }
             }
 
