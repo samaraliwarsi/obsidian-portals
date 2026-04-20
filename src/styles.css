@@ -4644,24 +4644,24 @@
 }
 
 .portals-stack-count {
-  font-size: 0.75em;
-  color: var(--text-faint);
+  font-size: 0.8em;
+  color: var(--text-muted);
 }
 
 .portals-stack-group {
   display: flex;
   flex-shrink: 0;
-  border-top: 1px solid var(--stack-accent-color, var(--interactive-accent));
-  border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-hover) 30%, transparent);
-  border-left: 1px solid color-mix(in srgb, var(--background-modifier-hover) 30%, transparent);
-  border-right: 1px solid color-mix(in srgb, var(--background-modifier-hover) 30%, transparent);
+  border-top: 2px solid var(--stack-accent-color, var(--interactive-accent));
+  border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-hover) 50%, transparent);
+  border-left: 2px solid color-mix(in srgb, var(--background-modifier-hover) 50%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--background-modifier-hover) 50%, transparent);
   border-radius: 4px;
   margin-right: 2px;
   overflow: hidden;
 }
 
 .portals-stack-group.is-expanded {
-  box-shadow: 0 1px rgba(128, 128, 128, 0.05);
+  box-shadow: 0 1px rgba(128, 128, 128, 0.1);
 }
 
 .portal-tab.portals-stack-header-tab {
@@ -5356,6 +5356,7 @@ border-bottom: 1px solid var(--background-modifier-border);
 padding-bottom: 10px;
 margin-top: 8px;
 scrollbar-width: auto;
+padding-right: 30px;
 }
 
 .portals-tab-bar::-webkit-scrollbar {

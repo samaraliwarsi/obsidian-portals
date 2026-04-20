@@ -155,7 +155,7 @@ export class PortalsView extends ItemView {
         }
         header.dataset.stackId = stack.id;
 
-        const iconSpan = header.createSpan({ cls: 'portals-stack-icon' });
+        const iconSpan = header.createSpan({ cls: 'portals-tab-icon' });
         iconSpan.createEl('i', { cls: `ph ph-${stack.icon || 'stack'}` });
 
         if (!this.plugin.settings.hideStackNames) {
@@ -186,6 +186,26 @@ export class PortalsView extends ItemView {
             header.addEventListener('mouseenter', () => this.showTooltip(stack.name, header, 300));
             header.addEventListener('mouseleave', () => this.hideTooltip(100));
             }
+        }
+    }
+
+     private async updateTabBarOrderFromDOM(tabBar: HTMLElement) {
+        const newOrder: string[] = [];
+        const children = Array.from(tabBar.children);
+        for (const child of children) {
+            const el = child as HTMLElement;
+            if (el.classList.contains('portals-tab')) {
+                const path = el.dataset.path;
+                if (path) newOrder.push(path);
+            } else if (el.classList.contains('portals-stack-group')) {
+                const stackId = el.dataset.stackId;
+                if (stackId) newOrder.push(`stack:${stackId}`);
+            }
+        }
+        if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.tabBarOrder)) {
+            this.plugin.settings.tabBarOrder = newOrder;
+            await this.plugin.saveSettings();
+            this.lastRenderHash = this.getSettingsHash(); // prevent immediate re-render
         }
     }
 
@@ -842,7 +862,6 @@ export class PortalsView extends ItemView {
         this.render();
         new Notice('All items unhidden');
     }
-
 
     private renderHiddenTab(container: HTMLElement) {        
         container.addClass('portals-hidden-tab');
@@ -1737,80 +1756,30 @@ export class PortalsView extends ItemView {
                 }
             }
 
-            // Sortable for unstacked portal tabs (no handle)
-            const unstackedSortable = new Sortable(tabBar, {
+            const unifiedSortable = new Sortable(tabBar, {
                 group: 'portals-tab-bar',
+                draggable: '.portals-tab:not(.portals-stack-group .portals-tab), .portals-stack-group',
                 animation: 150,
                 delay: 400,
                 delayOnTouchOnly: true,
                 touchStartThreshold: 5,
                 scrollSensitivity: 30,
-                draggable: '.portals-tab:not(.portals-stack-group .portals-tab)',
+                direction: 'horizontal',
+                swapThreshold: 0.5,
+                invertSwap: true,
                 forceFallback: true,
+                fallbackClass: 'portals-sortable-fallback',
+                onStart: () => {
+                    this.isDraggingTab = true;
+                },
                 onEnd: async (_evt: SortableEvent) => {
                     setTimeout(async () => {
-                        requestAnimationFrame(async () => {
-                            const newOrder: string[] = [];
-                            const children = Array.from(tabBar.children);
-                            for (const child of children) {
-                                const el = child as HTMLElement;
-                                if (el.classList.contains('portals-tab')) {
-                                    const path = el.dataset.path;
-                                    if (path) newOrder.push(path);
-                                } else if (el.classList.contains('portals-stack-group')) {
-                                    const stackId = el.dataset.stackId;
-                                    if (stackId) newOrder.push(`stack:${stackId}`);
-                                }
-                            }
-                            if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.tabBarOrder)) {
-                                this.plugin.settings.tabBarOrder = newOrder;
-                                await this.plugin.saveData(this.plugin.settings);
-                                this.lastRenderHash = this.getSettingsHash();
-                            }
-                            this.isDraggingTab = false;
-                        });
+                        await this.updateTabBarOrderFromDOM(tabBar);
+                        this.isDraggingTab = false;
                     }, 180);
                 }
             });
-            this.sortableInstances.push(unstackedSortable);
-
-            // Sortable for stack groups (with handle)
-            const mainSortable = new Sortable(tabBar, {
-                group: 'portals-tab-bar',
-                animation: 150,
-                delay: 400,
-                delayOnTouchOnly: true,
-                touchStartThreshold: 5,
-                scrollSensitivity: 30,
-                draggable: '.portals-stack-group',
-                handle: '.portals-stack-header-tab',
-                forceFallback: true,
-                onEnd: async (_evt: SortableEvent) => {
-                    setTimeout(async () => {
-                        requestAnimationFrame(async () => {
-                            const newOrder: string[] = [];
-                            const children = Array.from(tabBar.children);
-                            for (const child of children) {
-                                const el = child as HTMLElement;
-                                if (el.classList.contains('portals-tab')) {
-                                    const path = el.dataset.path;
-                                    if (path) newOrder.push(path);
-                                } else if (el.classList.contains('portals-stack-group')) {
-                                    const stackId = el.dataset.stackId;
-                                    if (stackId) newOrder.push(`stack:${stackId}`);
-                                }
-                            }
-                            if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.tabBarOrder)) {
-                                this.plugin.settings.tabBarOrder = newOrder;
-                                await this.plugin.saveData(this.plugin.settings);
-                                this.lastRenderHash = this.getSettingsHash();
-                            }
-                            this.isDraggingTab = false;
-                        });
-                    }, 180);
-                }
-            });
-            this.sortableInstances.push(mainSortable);
+            this.sortableInstances.push(unifiedSortable);
                         
 
             setTimeout(() => {
