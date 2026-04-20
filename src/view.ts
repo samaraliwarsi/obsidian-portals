@@ -1786,14 +1786,14 @@ export class PortalsView extends ItemView {
                 group: 'portals-tab-bar',
                 draggable: '.portals-tab:not(.portals-stack-group .portals-tab), .portals-stack-group',
                 animation: 150,
-                delay: 400,
+                delay: 0,
                 delayOnTouchOnly: true,
                 touchStartThreshold: 5,
                 scrollSensitivity: 30,
                 direction: 'horizontal',
                 swapThreshold: 0.5,
                 invertSwap: true,
-                forceFallback: true,
+                //forceFallback: true,
                 fallbackClass: 'portals-sortable-fallback',
                 onStart: () => {
                     this.isDraggingTab = true;
