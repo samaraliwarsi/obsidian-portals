@@ -523,6 +523,11 @@ export class PortalsView extends ItemView {
         resetIconBtn.createEl('i', { cls: 'ph ph-image' });
         resetIconBtn.addEventListener('click', () => this.resetIconsForSelected());
 
+        // Hide button
+        const hideBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Hide selected' } });
+        hideBtn.createEl('i', { cls: 'ph ph-eye-slash' });
+        hideBtn.addEventListener('click', () => this.hideSelectedItems());
+
         const clearBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Clear selection' } });
         clearBtn.createEl('i', { cls: 'ph ph-x' });
         clearBtn.addEventListener('click', () => this.clearSelection());
@@ -916,6 +921,14 @@ export class PortalsView extends ItemView {
         await this.plugin.saveSettings();
         this.render();
         new Notice('All items unhidden');
+    }
+
+    private async hideSelectedItems() {
+        for (const key of this.selectedItems) {
+            await this.hideItem(key);
+        }
+        this.clearSelection();
+        new Notice(`Hidden ${this.selectedItems.size} item(s)`);
     }
 
     private renderHiddenTab(container: HTMLElement) {        
