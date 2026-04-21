@@ -826,9 +826,9 @@ export class PortalsView extends ItemView {
                     ? { path: this.plugin.settings.spaces[0].path, type: this.plugin.settings.spaces[0].type }
                     : null;
             }
-
+            const compositeKey = `${space.type}:${space.path}`;
             if(!space.stackId) {
-                this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder.filter(entry => entry !== space.path);
+                this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder.filter(entry => entry !== compositeKey);
             }
                 
             this.plugin.saveSettings().then(() => this.render());
@@ -1605,7 +1605,7 @@ export class PortalsView extends ItemView {
     private getSettingsHash(): string {
         const s = this.plugin.settings;
         return JSON.stringify({
-            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.displayName || ''}|${sp.groupTags?.join(',') || ''}|${sp.stackId || ''} ''}`).join(','),
+            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.displayName || ''}|${sp.groupTags?.join(',') || ''}|${sp.stackId || ''}`).join(','),
             openFolders: s.openFolders.join(','),
             selectedSpace: s.selectedSpace ? `${s.selectedSpace.type}:${s.selectedSpace.path}` : '',
             filePaneColorStyle: s.filePaneColorStyle,
@@ -1803,7 +1803,7 @@ export class PortalsView extends ItemView {
                 animation: 150,
                 delay: 0,
                 delayOnTouchOnly: true,
-                touchStartThreshold: 5,
+                touchStartThreshold: 10,
                 scrollSensitivity: 30,
                 direction: 'horizontal',
                 swapThreshold: 0.5,
