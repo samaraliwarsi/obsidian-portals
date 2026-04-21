@@ -5,10 +5,29 @@ export class FrontmatterClinicRenderer {
     private app: App;
     private plugin: PortalsPlugin;
     private container: HTMLElement;
-    private selectedProperty: string = '';
-    private selectedValue: string = '';
     private properties: Map<string, Set<string>> = new Map();
     private filteredFiles: TFile[] = [];
+
+    private get selectedProperty(): string{
+        return this.plugin.settings.clinicState?.selectedProperty ?? '';
+    }
+    private set selectedProperty(value: string) {
+        if (!this.plugin.settings.clinicState) {
+            this.plugin.settings.clinicState = { selectedProperty: '', selectedValue: ''};
+        }
+        this.plugin.settings.clinicState.selectedProperty = value;
+    }
+
+    private get selectedValue(): string {
+        return this.plugin.settings.clinicState?.selectedValue ?? '';
+    }
+    private set selectedValue(value: string) {
+        if (!this.plugin.settings.clinicState) {
+            this.plugin.settings.clinicState = { selectedProperty: '', selectedValue: ''};
+        }
+        this.plugin.settings.clinicState.selectedValue = value;
+    }
+
 
     constructor(app: App, plugin: PortalsPlugin, container: HTMLElement) {
         this.app = app;
@@ -32,6 +51,8 @@ export class FrontmatterClinicRenderer {
         // Scan all markdown files for frontmatter properties
         await this.scanFrontmatter();
 
+        this.filterFiles();
+
         // Header with two dropdowns
         const headerRow = this.container.createDiv({ cls: 'fm-clinic-header' });
         
@@ -48,36 +69,33 @@ export class FrontmatterClinicRenderer {
             const menu = new Menu();
             menu.addItem(item => item
                 .setTitle('None')
-                .onClick(() => {
+                .onClick(async () => {
                     this.selectedProperty = '';
                     this.selectedValue = '';
+                    await this.plugin.saveSettings();
                     this.render();
                 }));
             menu.addItem(item => item
             .setTitle('No frontmatter')
-            .onClick(() => {
+            .onClick(async () => {
                 this.selectedProperty = 'No frontmatter';
                 this.selectedValue = '';
+                await this.plugin.saveSettings();
                 this.render();
             }));
             menu.addSeparator();
             for (const prop of this.properties.keys()) {
                 menu.addItem(item => item
                     .setTitle(prop)
-                    .onClick(() => {
+                    .onClick(async () => {
                         this.selectedProperty = prop;
                         this.selectedValue = '';
+                        await this.plugin.saveSettings();
                         this.render();
                     }));
             }
             menu.showAtMouseEvent(e);
         });
-
-        if (this.plugin.settings.showFilteredCount) {
-            const countBadge = headerRow.createSpan({ cls: 'fm-file-count' });
-            countBadge.setText(`${this.filteredFiles.length}`);
-        }
-
 
         // Value button (funnel-simple icon)
         const valueBtn = headerRow.createEl('button', { cls: 'journal-btn fm-value-btn' });
@@ -104,14 +122,16 @@ export class FrontmatterClinicRenderer {
             const menu = new Menu();
             menu.addItem(item => item
                 .setTitle('All values')
-                .onClick(() => {
+                .onClick(async () => {
                     this.selectedValue = '';
+                    await this.plugin.saveSettings();
                     this.render();
                 }));
             menu.addItem(item => item
                 .setTitle('None')
-                .onClick(() => {
+                .onClick(async () => {
                     this.selectedValue = '__none__';
+                    await this.plugin.saveSettings();
                     this.render();
                 }));
             menu.addSeparator();
@@ -119,15 +139,19 @@ export class FrontmatterClinicRenderer {
             for (const val of values) {
                 menu.addItem(item => item
                     .setTitle(val)
-                    .onClick(() => {
+                    .onClick(async () => {
                         this.selectedValue = val;
+                        await this.plugin.saveSettings();
                         this.render();
                     }));
             }
             menu.showAtMouseEvent(e);
         });
-        // Filter files based on selection
-        this.filterFiles();
+
+        if (!this.plugin.settings.hideFilteredCount) {
+            const countRow = this.container.createDiv({ cls: 'fm-count-row' });
+            countRow.createSpan({ cls: 'fm-file-count', text: `${this.filteredFiles.length} results` });
+        }
 
         // File list container
         const listContainer = this.container.createDiv({ cls: 'fm-clinic-file-list' });
@@ -172,6 +196,7 @@ export class FrontmatterClinicRenderer {
             });
         }
     }
+    
 
     private async scanFrontmatter() {
         this.properties.clear();

@@ -1677,7 +1677,7 @@ export class PortalsView extends ItemView {
             stackIconAccent: s.stackIconAccent,
             stackAutoCollapse: s.stackAutoCollapse,
             showCurrentPropertyValue: s.showCurrentPropertyValue,
-            showFilteredCount: s.showFilteredCount,
+            hideFilteredCount: s.hideFilteredCount,
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
         });

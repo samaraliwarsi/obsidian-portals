@@ -70,7 +70,8 @@ export interface SpacesSettings {
     stackIconAccent: boolean;
     stackAutoCollapse: boolean;
     showCurrentPropertyValue: boolean;
-    showFilteredCount: boolean;
+    hideFilteredCount: boolean;
+    clinicState: { selectedProperty: string; selectedValue: string };
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -121,7 +122,9 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     stackIconAccent: false,
     stackAutoCollapse: false,
     showCurrentPropertyValue: false,
-    showFilteredCount: false,
+    hideFilteredCount: false,
+    clinicState: { selectedProperty: '', selectedValue: '' },
+
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -459,12 +462,12 @@ export class SpacesSettingTab extends PluginSettingTab {
             }));
 
         new Setting(containerEl)
-        .setName('Show filtered count')
-        .setDesc('Show the number of files filtered in properties, based on dropdown choices.')
+        .setName('Hide filtered count')
+        .setDesc('Hide the count display of files filtered in properties. The number is based on dropdown choices.')
         .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.showFilteredCount)
+            .setValue(this.plugin.settings.hideFilteredCount)
             .onChange(async (value) => {
-                this.plugin.settings.showFilteredCount = value;
+                this.plugin.settings.hideFilteredCount = value;
                 await this.plugin.saveSettings();
                 this.display();
             }));
