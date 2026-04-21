@@ -162,7 +162,8 @@ export class PortalsView extends ItemView {
             header.createSpan({ cls: 'portals-stack-name', text: stack.name });
         }
 
-        if (this.plugin.settings.showStackCount) {
+        const showCount = this.plugin.settings.showStackCount;
+        if (showCount === 'always' || (showCount === 'collapsed' && stack.collapsed)) {
             const portalCount = this.plugin.settings.spaces.filter(s => s.stackId === stack.id).length;
             header.createSpan({ cls: 'portals-stack-count', text: `${portalCount}` });
         }

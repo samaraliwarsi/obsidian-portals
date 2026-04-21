@@ -66,7 +66,7 @@ export interface SpacesSettings {
     portalStacks: PortalStack[];
     tabBarOrder: string[];
     hideStackNames: boolean;
-    showStackCount: boolean;
+    showStackCount: 'always' | 'collapsed' | 'never';
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -113,7 +113,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     portalStacks: [],
     tabBarOrder: [],
     hideStackNames: false,
-    showStackCount: false,
+    showStackCount: 'never',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -449,11 +449,14 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
         .setName('Show stack count')
-        .setDesc('Show count of how many portals stacked in a stack header.')
-        .addToggle(toggle => toggle
+        .setDesc('When to display the number of portals inside a stack.')
+        .addDropdown(dropdown => dropdown
+            .addOption('always', 'Always')
+            .addOption('collapsed', 'Collapsed only')
+            .addOption('never', 'Never')
             .setValue(this.plugin.settings.showStackCount)
             .onChange(async (value) => {
-                this.plugin.settings.showStackCount = value;
+                this.plugin.settings.showStackCount = value as 'always' | 'collapsed' | 'never';
                 await this.plugin.saveSettings();
                 this.display();
             }));
