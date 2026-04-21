@@ -67,6 +67,7 @@ export interface SpacesSettings {
     tabBarOrder: string[];
     hideStackNames: boolean;
     showStackCount: 'always' | 'collapsed' | 'never';
+    stackIconAccent: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -114,6 +115,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     tabBarOrder: [],
     hideStackNames: false,
     showStackCount: 'never',
+    stackIconAccent: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -457,6 +459,17 @@ export class SpacesSettingTab extends PluginSettingTab {
             .setValue(this.plugin.settings.showStackCount)
             .onChange(async (value) => {
                 this.plugin.settings.showStackCount = value as 'always' | 'collapsed' | 'never';
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Colored stack icon')
+        .setDesc('Use colors on stack icon, app accent or user defined. When turned off, stack icons use default color like tab icons.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.stackIconAccent)
+            .onChange(async (value) => {
+                this.plugin.settings.stackIconAccent = value;
                 await this.plugin.saveSettings();
                 this.display();
             }));

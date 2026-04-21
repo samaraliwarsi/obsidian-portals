@@ -157,6 +157,11 @@ export class PortalsView extends ItemView {
 
         const iconSpan = header.createSpan({ cls: 'portals-tab-icon' });
         iconSpan.createEl('i', { cls: `ph ph-${stack.icon || 'stack'}` });
+        if (this.plugin.settings.stackIconAccent) {
+            iconSpan.classList.add('has-accent');
+        } else {
+            iconSpan.classList.remove('has-accent');
+        }
 
         if (!this.plugin.settings.hideStackNames) {
             header.createSpan({ cls: 'portals-stack-name', text: stack.name });
@@ -436,6 +441,15 @@ export class PortalsView extends ItemView {
                     this.plugin.saveSettings().then(() => this.render());
                 }, dummyEl, currentColor).open();
             }));
+        if (stack.color && stack.color !== 'transparent') {
+            menu.addItem(item => item
+                .setTitle('Reset color')
+                .setIcon('undo')
+                .onClick(() => {
+                    stack.color = 'transparent';
+                    this.plugin.saveSettings().then(() => this.render());
+                }));
+        }
         menu.addSeparator();
         menu.addItem(item => item
             .setTitle('Delete stack')
@@ -1636,6 +1650,7 @@ export class PortalsView extends ItemView {
             hiddenItems: JSON.stringify(s.hiddenItems),
             hideStackNames: s.hideStackNames,
             showStackCount: s.showStackCount,
+            stackIconAccent: s.stackIconAccent,
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
         });

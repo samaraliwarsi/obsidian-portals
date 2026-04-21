@@ -4679,6 +4679,7 @@
 .portals-tab.portals-stack-header-tab.is-expanded {
   position: relative;
 }
+
 .portals-tab.portals-stack-header-tab.is-expanded::after {
   content: '';
   position: absolute;
@@ -4687,6 +4688,10 @@
   height: 50%;
   width: 1px;
   background-color: var(--background-modifier-border);
+}
+
+.portals-stack-group .portals-stack-header-tab .portals-tab-icon.has-accent i {
+  color: var(--stack-accent-color, var(--interactive-accent));
 }
 
 .portals-stack-group .portals-tab.is-active {
