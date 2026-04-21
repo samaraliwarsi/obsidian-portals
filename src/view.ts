@@ -13,6 +13,7 @@ import { AddPortalModal } from './settings';
 import { RemovePortalModal } from './modals';
 import { ChooseTabsModal } from './settings';
 import { PortalStack } from './settings';
+import { FrontmatterClinicRenderer } from './frontmatterClinic';
 
 interface BookmarkItem {
     title?: string;
@@ -30,6 +31,7 @@ const SIDE_TAB_ICONS: Record<string, string> = {
     bookmarks: 'bookmark',
     journal: 'calendar-heart',
     hidden: 'eye-slash',
+    properties: 'list-checks',
 };
 type ContextTarget = TFolder | string; // string represents a tag name
 
@@ -1674,6 +1676,8 @@ export class PortalsView extends ItemView {
             showStackCount: s.showStackCount,
             stackIconAccent: s.stackIconAccent,
             stackAutoCollapse: s.stackAutoCollapse,
+            showCurrentPropertyValue: s.showCurrentPropertyValue,
+            showFilteredCount: s.showFilteredCount,
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
         });
@@ -2411,6 +2415,11 @@ export class PortalsView extends ItemView {
             }
         } else if (tabId === 'hidden') {
             this.renderHiddenTab(contentEl);
+        } else if (tabId === 'properties') {
+            contentEl.empty();
+            contentEl.addClass('portals-frontmatter-clinic');
+            const renderer = new FrontmatterClinicRenderer(this.app, this.plugin, contentEl);
+            await renderer.render();
         }
     }
 

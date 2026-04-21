@@ -69,6 +69,8 @@ export interface SpacesSettings {
     showStackCount: 'always' | 'collapsed' | 'never';
     stackIconAccent: boolean;
     stackAutoCollapse: boolean;
+    showCurrentPropertyValue: boolean;
+    showFilteredCount: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -88,7 +90,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     secondaryPanelCollapsed: false,
     sidePanelEnabled: true,
     recentFilesList: [],
-    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden'],
+    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden', 'properties'],
     activeSplitTab: 'recent',
     showContextNotesInTree: false,
     enableContextNotes: true,
@@ -118,6 +120,8 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showStackCount: 'never',
     stackIconAccent: false,
     stackAutoCollapse: false,
+    showCurrentPropertyValue: false,
+    showFilteredCount: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -437,9 +441,38 @@ export class SpacesSettingTab extends PluginSettingTab {
                 });
                 return dropdown;
             });
+
+        containerEl.createEl('hr');
+
+        // -------------------- PROPERTIES SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Properties').setHeading();
+
+        new Setting(containerEl)
+        .setName('Show current value')
+        .setDesc('Show current property value on list of files filtered by properties')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.showCurrentPropertyValue)
+            .onChange(async (value) => {
+                this.plugin.settings.showCurrentPropertyValue = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Show filtered count')
+        .setDesc('Show the number of files filtered in properties, based on dropdown choices.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.showFilteredCount)
+            .onChange(async (value) => {
+                this.plugin.settings.showFilteredCount = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
                     
         containerEl.createEl('hr');
         // -------------------- PORTAL STACK SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Stacks').setHeading();
+
         new Setting(containerEl)
         .setName('Hide stack names')
         .setDesc('Show only the stack icon; the name will appear in a tooltip on hover.')
@@ -908,7 +941,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 { id: 'context-notes', name: 'Context Notes', icon: 'note' },
                 { id: 'bookmarks', name: 'Bookmarks', icon: 'bookmark' },
                 { id: 'journal', name: 'Journal', icon: 'calendar-heart'},
-                { id: 'hidden', name: 'Hidden', icon: 'eye-slash'}
+                { id: 'hidden', name: 'Hidden', icon: 'eye-slash'},
+                { id: 'properties', name: 'Properties', icon: 'list-checks'},
             ];
 
             const checkboxContainer = contentEl.createDiv({ cls: 'portals-checkbox-container' });

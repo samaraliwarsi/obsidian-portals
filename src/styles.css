@@ -6456,11 +6456,157 @@ button.journal-filter-btn i {
 }
 
 /*=============================JOURNAL-END============================*/
+/*=============================FRONTMATTER CLINIC=========================*/
 
-/*-----HIDDEN ITEMS SIDE PORTAL----*/
+.portals-frontmatter-clinic {
+    padding: 4px 8px;
+}
+
+.fm-clinic-header {
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+p.fm-noFound-txt {
+  font-style: italic;
+  font-size: smaller;
+}
+
+button.journal-btn.fm-property-btn,
+button.journal-btn.fm-value-btn {
+    flex: 0 0 auto;
+    min-width: 0;
+    justify-content: flex-start;
+    padding: 4px 6px;
+    border-left: 2px solid var(--fm-accent-color, var(--interactive-accent));
+}
+
+.fm-dropdown-icon {
+    position: absolute;
+    left: 8px;
+    pointer-events: none;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.fm-clinic-header select {
+    flex: 1;
+    padding: 4px;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.portals-frontmatter-clinic .dropdown {
+    all: unset;
+    padding: 4px 6px;
+    font-size: x-small;
+    border-radius: 4px;
+}
+
+.fm-clinic-file-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+
+.fm-file-name {
+    flex: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fm-file-name:hover {
+    color: var(--text-normal);
+    text-decoration: none;
+}
+
+.fm-current-value {
+    display: block;
+    margin-right: 8px;
+    font-size: 0.65em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+button.clickable-icon.fm-edit-btn {
+    margin-left: auto;
+    background: none;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px 4px;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    height: 24px;
+}
+
+button.clickable-icon.fm-edit-btn:hover {
+    opacity: 1;
+    background: rgba(128, 128, 128, 0.5);
+}
+
+.fm-multiselect-container {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.fm-checkbox-row {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+}
+
+.fm-checkbox-row input {
+    margin-right: 8px;
+}
+
+.fm-new-tag-row {
+    display: flex;
+    margin-top: 8px;
+    gap: 4px;
+}
+
+.fm-new-tag-row input {
+    flex: 1;
+}
+
+
+.fm-file-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    background: var(--background-modifier-hover);
+    border-radius: 4px;
+    height: 18px;
+    min-width: 32px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+/*=======================HIDDEN ITEMS SIDE PORTAL=========================*/
 .hidden-type-label {
     display: block;
-    font-size: 0.7em;
+    font-size: 0.6em;
     color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -6473,12 +6619,13 @@ button.unhide-btn {
     border-radius: 8px;
     cursor: pointer;
     color: var(--text-muted);
-    padding: 4px 6px;
+    padding: 4px 4px;
     align-items: center;
     justify-content: center;
-    font-size: 0.9em;
+    font-size: 0.8em;
     height: 24px;
 }
+
 button.unhide-btn:hover {
     background: var(--background-modifier-hover);
     color: var(--text-normal);
