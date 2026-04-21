@@ -68,6 +68,7 @@ export interface SpacesSettings {
     hideStackNames: boolean;
     showStackCount: 'always' | 'collapsed' | 'never';
     stackIconAccent: boolean;
+    stackAutoCollapse: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -116,6 +117,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     hideStackNames: false,
     showStackCount: 'never',
     stackIconAccent: false,
+    stackAutoCollapse: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -470,6 +472,17 @@ export class SpacesSettingTab extends PluginSettingTab {
             .setValue(this.plugin.settings.stackIconAccent)
             .onChange(async (value) => {
                 this.plugin.settings.stackIconAccent = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Auto‑collapse stacks')
+        .setDesc('When expanding a stack, automatically collapse other open stacks.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.stackAutoCollapse)
+            .onChange(async (value) => {
+                this.plugin.settings.stackAutoCollapse = value;
                 await this.plugin.saveSettings();
                 this.display();
             }));

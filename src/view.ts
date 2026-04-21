@@ -176,6 +176,15 @@ export class PortalsView extends ItemView {
         // Click to toggle collapse (re-render)
         header.addEventListener('click', (e) => {
             e.stopPropagation();
+
+            // if accordion mode is on... 
+            if (this.plugin.settings.stackAutoCollapse && stack.collapsed) {
+                for (const otherStack of this.plugin.settings.portalStacks ) {
+                    if (otherStack.id !== stack.id) {
+                        otherStack.collapsed = true
+                    }
+                }
+            }
             stack.collapsed = !stack.collapsed;
             this.plugin.saveSettings().then(() => this.render());
         });
@@ -1651,6 +1660,7 @@ export class PortalsView extends ItemView {
             hideStackNames: s.hideStackNames,
             showStackCount: s.showStackCount,
             stackIconAccent: s.stackIconAccent,
+            stackAutoCollapse: s.stackAutoCollapse,
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
         });
