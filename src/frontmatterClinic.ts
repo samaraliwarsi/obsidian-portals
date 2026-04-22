@@ -1,4 +1,4 @@
-import { App, TFile, Notice, Modal, Menu } from 'obsidian';
+import { App, TFile, Notice, Menu } from 'obsidian';
 import PortalsPlugin from './main';
 
 export class FrontmatterClinicRenderer {
@@ -135,8 +135,12 @@ export class FrontmatterClinicRenderer {
                     this.render();
                 }));
             menu.addSeparator();
+            
             const values = this.properties.get(this.selectedProperty) || new Set();
-            for (const val of values) {
+            const sorted = Array.from(values).sort();
+            console.log(`[Value Menu] Values for "${this.selectedProperty}":`, sorted);
+            
+            for (const val of sorted) {
                 menu.addItem(item => item
                     .setTitle(val)
                     .onClick(async () => {
@@ -145,7 +149,17 @@ export class FrontmatterClinicRenderer {
                         this.render();
                     }));
             }
+            
             menu.showAtMouseEvent(e);
+            
+            // Apply height limit
+            setTimeout(() => {
+                const menus = document.querySelectorAll('.menu');
+                const lastMenu = menus[menus.length - 1] as HTMLElement;
+                if (lastMenu) {
+                    lastMenu.classList.add('fm-value-menu');
+                }
+            }, 10);
         });
 
         if (!this.plugin.settings.hideFilteredCount) {
@@ -187,16 +201,8 @@ export class FrontmatterClinicRenderer {
                 }
             }
 
-            // Edit button
-            const editBtn = fileRow.createEl('button', { cls: 'clickable-icon fm-edit-btn' });
-            editBtn.createEl('i', { cls: 'ph ph-pencil-simple' });
-            editBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.openEditModal(file);
-            });
         }
     }
-    
 
     private async scanFrontmatter() {
         this.properties.clear();
@@ -261,140 +267,7 @@ export class FrontmatterClinicRenderer {
         this.filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    private openEditModal(file: TFile) {
-        new FrontmatterEditModal(this.app, this.plugin, file, this.selectedProperty, () => {
-            this.render();
-        }).open();
-    }
-
     public destroy() {
         this.container.empty();
-    }
-}
-
-// Edit Modal with multiselect support
-export class FrontmatterEditModal extends Modal {
-    private file: TFile;
-    private plugin: PortalsPlugin;
-    private property: string;
-    private onSave: () => void;
-    private inputType: 'text' | 'multiselect' | 'date' | 'number' = 'text';
-    private selectedValues: Set<string> = new Set();
-    private allValues: Set<string> = new Set();
-
-    constructor(app: App, plugin: PortalsPlugin, file: TFile, property: string, onSave: () => void) {
-        super(app);
-        this.plugin = plugin;
-        this.file = file;
-        this.property = property;
-        this.onSave = onSave;
-    }
-
-    async onOpen() {
-        const { contentEl } = this;
-        contentEl.empty();
-        contentEl.createEl('h3', { text: `Edit ${this.property} for ${this.file.basename}` });
-
-        const cache = this.app.metadataCache.getFileCache(this.file);
-        const frontmatter = cache?.frontmatter || {};
-        const currentValue = frontmatter[this.property];
-
-        if (this.property === 'tags' || this.property.endsWith('tags')) {
-            this.inputType = 'multiselect';
-            await this.collectAllValues();
-            // Initialize selected values from current frontmatter
-            if (Array.isArray(currentValue)) {
-                currentValue.forEach(v => this.selectedValues.add(String(v)));
-            } else if (currentValue !== undefined && currentValue !== null) {
-                this.selectedValues.add(String(currentValue));
-            }
-        } else if (typeof currentValue === 'number') {
-            this.inputType = 'number';
-        }
-
-        if (this.inputType === 'multiselect') {
-            const container = contentEl.createDiv({ cls: 'fm-multiselect-container' });
-            this.buildMultiselectUI(container);
-        } else {
-            const input = contentEl.createEl('input', { type: this.inputType, cls: 'fm-property-input' });
-            input.value = currentValue !== undefined ? String(currentValue) : '';
-            
-            const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
-            buttonDiv.createEl('button', { text: 'Cancel' }).addEventListener('click', () => this.close());
-            buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' }).addEventListener('click', async () => {
-                await this.saveValue(input.value);
-                this.close();
-            });
-            return;
-        }
-
-        const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
-        buttonDiv.createEl('button', { text: 'Cancel' }).addEventListener('click', () => this.close());
-        buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' }).addEventListener('click', async () => {
-            await this.saveValue(Array.from(this.selectedValues));
-            this.close();
-        });
-    }
-
-    // ✅ Add this method here, after onOpen
-    private buildMultiselectUI(container: HTMLElement) {
-        container.empty();
-        for (const val of this.allValues) {
-            const row = container.createDiv({ cls: 'fm-checkbox-row' });
-            const checkbox = row.createEl('input', { type: 'checkbox', value: val });
-            checkbox.checked = this.selectedValues.has(val);
-            checkbox.addEventListener('change', () => {
-                if (checkbox.checked) {
-                    this.selectedValues.add(val);
-                } else {
-                    this.selectedValues.delete(val);
-                }
-            });
-            row.createEl('span', { text: val });
-        }
-        const newTagRow = container.createDiv({ cls: 'fm-new-tag-row' });
-        const newTagInput = newTagRow.createEl('input', { type: 'text', placeholder: 'New tag...' });
-        const addBtn = newTagRow.createEl('button', { text: 'Add' });
-        addBtn.addEventListener('click', () => {
-            const newVal = newTagInput.value.trim();
-            if (newVal && !this.allValues.has(newVal)) {
-                this.allValues.add(newVal);
-                this.selectedValues.add(newVal);
-                this.buildMultiselectUI(container);
-            }
-        });
-    }
-
-    private async collectAllValues() {
-        const files = this.app.vault.getMarkdownFiles();
-        for (const f of files) {
-            const cache = this.app.metadataCache.getFileCache(f);
-            const fm = cache?.frontmatter;
-            if (fm && fm[this.property] !== undefined) {
-                const val = fm[this.property];
-                if (Array.isArray(val)) {
-                    val.forEach(v => this.allValues.add(String(v)));
-                } else {
-                    this.allValues.add(String(val));
-                }
-            }
-        }
-    }
-
-    private async saveValue(value: string | string[]) {
-        const file = this.file;
-        await this.app.fileManager.processFrontMatter(file, (fm) => {
-            if (value === '' || (Array.isArray(value) && value.length === 0)) {
-                delete fm[this.property];
-            } else {
-                fm[this.property] = value;
-            }
-        });
-        this.onSave();
-        new Notice(`Updated ${this.property} for ${file.basename}`);
-    }
-
-    onClose() {
-        this.contentEl.empty();
     }
 }

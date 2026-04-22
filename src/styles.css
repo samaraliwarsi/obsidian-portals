@@ -6612,6 +6612,83 @@ button.clickable-icon.fm-edit-btn:hover {
     min-width: 0;
     line-height: 1.2;
 }
+
+/*=======================FRONTMATTER MODAL================================*/
+
+.fm-advanced-properties {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 12px 0;
+}
+
+.fm-advanced-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.fm-advanced-key {
+    min-width: 100px;
+    font-weight: 500;
+}
+
+.fm-advanced-value {
+    flex: 1;
+}
+
+.fm-delete-property {
+    padding: 2px;
+}
+
+.fm-advanced-add-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.fm-advanced-add-row input {
+    flex: 1;
+}
+
+.fm-advanced-toggle {
+    display: block;
+    margin: 12px auto 0;
+    background: transparent;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+}
+
+.fm-advanced-value {
+    width: 100%;
+}
+
+.fm-value-container {
+    flex: 1;
+    display: flex;
+    gap: 4px;
+}
+
+.fm-advanced-select {
+    flex: 2;
+    min-width: 150px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.fm-advanced-custom-input {
+    flex: 3;
+    min-width: 120px;
+}
+
+.fm-advanced-value-btn .menu,
+.menu:has(.fm-advanced-value-btn) {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
 /*=======================HIDDEN ITEMS SIDE PORTAL=========================*/
 .hidden-type-label {
     display: block;

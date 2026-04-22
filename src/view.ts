@@ -31,7 +31,7 @@ const SIDE_TAB_ICONS: Record<string, string> = {
     bookmarks: 'bookmark',
     journal: 'calendar-heart',
     hidden: 'eye-slash',
-    properties: 'list-checks',
+    properties: 'list-dashes',
 };
 type ContextTarget = TFolder | string; // string represents a tag name
 
