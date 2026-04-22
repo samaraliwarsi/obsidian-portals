@@ -6150,20 +6150,7 @@ width: 100%;
 text-align: left;
 }
 
-.setting-item {
-flex-direction: column !important;
-align-items: flex-start !important;
-}
 
-.setting-item .setting-item-info {
-width: 100% !important;
-margin-bottom: 8px !important;
-}
-
-.setting-item .setting-item-control {
-width: 100% !important;
-justify-content: flex-start !important;
-}
 
 }
 

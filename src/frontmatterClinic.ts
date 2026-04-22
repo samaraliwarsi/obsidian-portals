@@ -162,7 +162,9 @@ export class FrontmatterClinicRenderer {
             }, 10);
         });
 
-        if (!this.plugin.settings.hideFilteredCount) {
+        const hasFiles = this.filteredFiles.length > 0;
+
+        if (!this.plugin.settings.hideFilteredCount && hasFiles) {
             const countRow = this.container.createDiv({ cls: 'fm-count-row' });
             countRow.createSpan({ cls: 'fm-file-count', text: `${this.filteredFiles.length} results` });
         }
@@ -170,7 +172,7 @@ export class FrontmatterClinicRenderer {
         // File list container
         const listContainer = this.container.createDiv({ cls: 'fm-clinic-file-list' });
         
-        if (this.filteredFiles.length === 0) {
+        if (!hasFiles) {
             listContainer.createEl('p', { cls: 'fm-noFound-txt', text: 'Select property from dropdown to view matching files.' });
             return;
         }

@@ -4940,7 +4940,7 @@ export class PortalsView extends ItemView {
             summary.style.removeProperty('--folder-color');
             details.classList.remove('has-folder-color');
             details.style.removeProperty('--folder-color')
-            childrenContainer.classList.remove('--remove-folder-color');
+            childrenContainer.classList.remove('has-folder-color');
         }
         
 
