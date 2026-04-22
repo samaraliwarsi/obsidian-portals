@@ -942,7 +942,7 @@ export class PortalsView extends ItemView {
         const hiddenKeys = Object.keys(hidden).filter(k => hidden[k]);
 
         if (hiddenKeys.length === 0) {
-            container.createEl('p', { text: 'No hidden items.' });
+            container.createEl('p', { text: 'No hidden items.', cls: 'unhide-items-message' });
             return;
         }
 

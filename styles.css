@@ -6474,8 +6474,10 @@ button.journal-filter-btn i {
 }
 
 p.fm-noFound-txt {
-  font-style: italic;
-  font-size: smaller;
+   padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
 button.journal-btn.fm-property-btn,
@@ -6715,6 +6717,13 @@ button.unhide-btn {
 button.unhide-btn:hover {
     background: var(--background-modifier-hover);
     color: var(--text-normal);
+}
+
+.unhide-items-message {
+   padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
 .portals-hidden-tab .file-item:hover {

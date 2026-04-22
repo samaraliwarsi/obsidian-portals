@@ -428,8 +428,10 @@ export class JournalRenderer {
             if (!quote) {
                 if (this.currentMode === 'onThisDay' && this.allQuotes.length > 0) {
                     quoteDisplay.setText('No quotes from this day in previous months of this year, or from this date & month in the last 10 years.');
+                    quoteDisplay.addClass('journal-quote-text');
                 } else {
                 quoteDisplay.setText('No quotes found. Please link your Daily Notes folder in settings & mark text in daily note files using the delimeter that you selected in settings.');
+                quoteDisplay.addClass('journal-quote-text');
                 }
                 return;
             }
