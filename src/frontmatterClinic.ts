@@ -1,12 +1,177 @@
 import { App, TFile, Notice, Menu } from 'obsidian';
 import PortalsPlugin from './main';
 
+interface PropertyValueCounts {
+    counts: Map<string, Map<string, number>>;
+    fileFrontmatter: Map<string, Map<string, string | string[]>>;
+}
+
+const clinicCache = {
+    properties: new Map<string, Set<string>>(),
+    noFrontmatterPaths: new Set<string>(),
+    ready: false,
+    buildingPromise: null as Promise<void> | null,
+    refs: {
+        counts: new Map<string, Map<string, number>>(),
+        fileFrontmatter: new Map<string, Map<string, string | string[]>>()
+    } as PropertyValueCounts
+}
+
 export class FrontmatterClinicRenderer {
     private app: App;
     private plugin: PortalsPlugin;
     private container: HTMLElement;
-    private properties: Map<string, Set<string>> = new Map();
     private filteredFiles: TFile[] = [];
+
+    static async buildCache(app: App) {
+        if (clinicCache.ready) return;
+        if (clinicCache.buildingPromise) return clinicCache.buildingPromise;
+
+        clinicCache.buildingPromise = (async () => {
+            try {
+                clinicCache.properties.clear();
+                clinicCache.noFrontmatterPaths.clear();
+                clinicCache.refs.counts.clear();
+                clinicCache.refs.fileFrontmatter.clear();
+
+                const files = app.vault.getMarkdownFiles();
+                for (const file of files) {
+                    FrontmatterClinicRenderer.updateFileCache(app, file);
+                }
+                clinicCache.ready = true;
+                const propCount = clinicCache.properties.size;
+                let uniqueVals = 0;
+                clinicCache.properties.forEach(set => uniqueVals += set.size);
+                const noFm = clinicCache.noFrontmatterPaths.size;
+                console.debug(`[Portals] Frontmatter cache built: ${propCount} properties, ${uniqueVals} unique values, ${noFm} files without frontmatter`);
+            } catch (error) {
+                console.error('[Portals] Failed to build frontmatter cache:', error);
+                clinicCache.ready = true;
+                clinicCache.properties.clear();
+                clinicCache.noFrontmatterPaths.clear()
+                clinicCache.refs.counts.clear();
+                clinicCache.refs.fileFrontmatter.clear();
+            } finally {
+                clinicCache.buildingPromise = null;
+            }
+        })();
+        await clinicCache.buildingPromise;
+    }
+
+    static updateFileCache(app: App, file: TFile) {
+        const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter || {};
+        const currentFM = new Map<string, string | string[]>();
+        for (const [key, value] of Object.entries(frontmatter)) {
+            currentFM.set(key, value as string | string[]);
+        }
+
+        const oldFM = clinicCache.refs.fileFrontmatter.get(file.path) || new Map();
+
+        clinicCache.noFrontmatterPaths.delete(file.path);
+
+        if (currentFM.size === 0) {
+            clinicCache.noFrontmatterPaths.add(file.path);
+            for (const [key, value] of oldFM.entries()) {
+                FrontmatterClinicRenderer.decrementValueCounts(key, value);
+            }
+            clinicCache.refs.fileFrontmatter.delete(file.path);
+            return;
+        }
+
+        for (const [key, value] of currentFM.entries()) {
+            if (!clinicCache.properties.has(key)) {
+                clinicCache.properties.set(key, new Set());
+            }
+            if (!clinicCache.refs.counts.has(key)) {
+                clinicCache.refs.counts.set(key, new Map());
+            }
+            const countMap = clinicCache.refs.counts.get(key)!;
+            const values = Array.isArray(value) ? value.map(v => String(v)) : [String(value)];
+            for (const v of values) {
+                const count = countMap.get(v) || 0;
+                countMap.set(v, count + 1);
+                clinicCache.properties.get(key)!.add(v);
+            }
+        }
+
+        for (const [key, oldValue] of oldFM.entries()) {
+            const newValue = currentFM.get(key);
+            if (newValue === undefined) {
+                FrontmatterClinicRenderer.decrementValueCounts(key, oldValue);
+            } else {
+                const oldValues = new Set(Array.isArray(oldValue) ? oldValue.map(String) : [String(oldValue)]);
+                const newValues = new Set(Array.isArray(newValue) ? newValue.map(String) : [String(newValue)]);
+                for (const v of oldValues) {
+                    if (!newValues.has(v)) {
+                        FrontmatterClinicRenderer.decrementValueCount(key, v);
+                    }
+                }
+            }
+        }
+        clinicCache.refs.fileFrontmatter.set(file.path, currentFM);
+    }
+
+    private static decrementValueCounts(key: string, value: string | string[]) {
+        const values = Array.isArray(value) ? value.map(String) : [String(value)];
+        for (const v of values) {
+            FrontmatterClinicRenderer.decrementValueCount(key, v);
+        }
+    }
+
+    private static decrementValueCount(key: string, value: string) {
+        const countMap = clinicCache.refs.counts.get(key);
+        if (!countMap) return;
+        const count = countMap.get(value) || 0;
+        if (count <= 1) {
+            countMap.delete(value);
+            const propSet = clinicCache.properties.get(key);
+            if (propSet) {
+                propSet.delete(value);
+                if (propSet.size === 0) {
+                    clinicCache.properties.delete(key);
+                    clinicCache.refs.counts.delete(key);
+                }
+            }
+        } else {
+            countMap.set(value, count - 1);
+        }
+    }
+
+    static removeFileCache(path: string) {
+        const oldFM = clinicCache.refs.fileFrontmatter.get(path);
+        if (oldFM) {
+            for (const [key, value] of oldFM.entries()) {
+                FrontmatterClinicRenderer.decrementValueCounts(key, value);
+            }
+            clinicCache.refs.fileFrontmatter.delete(path);
+        }
+        clinicCache.noFrontmatterPaths.delete(path);
+    }
+
+    static resetCache() {
+        clinicCache.properties.clear();
+        clinicCache.noFrontmatterPaths.clear();
+        clinicCache.refs.counts.clear();
+        clinicCache.refs.fileFrontmatter.clear();
+        clinicCache.ready = false;
+        clinicCache.buildingPromise = null;
+    }
+
+
+    static getProperties() {
+        return clinicCache.properties;
+    }
+
+    static getNoFrontmatterPaths() {
+        return clinicCache.noFrontmatterPaths;
+    }
+
+    static isCacheReady() {
+        return clinicCache.ready;
+    }
+
+    // ... rest of class (instance methods) ...
+
 
     private get selectedProperty(): string{
         return this.plugin.settings.clinicState?.selectedProperty ?? '';
@@ -39,6 +204,16 @@ export class FrontmatterClinicRenderer {
         this.container.empty()
         this.container.addClass('portals-frontmatter-clinic');
 
+        // Lazy-load cache
+        if (!FrontmatterClinicRenderer.isCacheReady()) {
+            const loadingEl =this.container.createEl('p', { 
+                text: 'Scanning frontmatter...', 
+                cls: 'fm-noFound-txt' 
+            });
+            await FrontmatterClinicRenderer.buildCache(this.app);
+            loadingEl.remove();
+        }
+
         // Set accent color from active space
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
         const tabColorEnabled = this.plugin.settings.tabColorEnabled;
@@ -47,9 +222,6 @@ export class FrontmatterClinicRenderer {
         } else {
             this.container.style.removeProperty('--fm-accent-color');
         }
-
-        // Scan all markdown files for frontmatter properties
-        await this.scanFrontmatter();
 
         this.filterFiles();
 
@@ -84,7 +256,7 @@ export class FrontmatterClinicRenderer {
                 this.render();
             }));
             menu.addSeparator();
-            for (const prop of this.properties.keys()) {
+            for (const prop of FrontmatterClinicRenderer.getProperties().keys()) {
                 menu.addItem(item => item
                     .setTitle(prop)
                     .onClick(async () => {
@@ -136,9 +308,9 @@ export class FrontmatterClinicRenderer {
                 }));
             menu.addSeparator();
             
-            const values = this.properties.get(this.selectedProperty) || new Set();
+            const values = FrontmatterClinicRenderer.getProperties().get(this.selectedProperty) || new Set();
             const sorted = Array.from(values).sort();
-            console.log(`[Value Menu] Values for "${this.selectedProperty}":`, sorted);
+            console.debug(`[Value Menu] Values for "${this.selectedProperty}":`, sorted);
             
             for (const val of sorted) {
                 menu.addItem(item => item
@@ -206,35 +378,12 @@ export class FrontmatterClinicRenderer {
         }
     }
 
-    private async scanFrontmatter() {
-        this.properties.clear();
-        const files = this.app.vault.getMarkdownFiles();
-        for (const file of files) {
-            const cache = this.app.metadataCache.getFileCache(file);
-            const frontmatter = cache?.frontmatter;
-            if (!frontmatter) continue;
-            for (const [key, value] of Object.entries(frontmatter)) {
-                if (!this.properties.has(key)) {
-                    this.properties.set(key, new Set());
-                }
-                const values = this.properties.get(key)!;
-                if (Array.isArray(value)) {
-                    value.forEach(v => values.add(String(v)));
-                } else if (value !== null && value !== undefined) {
-                    values.add(String(value));
-                }
-            }
-        }
-    }
-
     private filterFiles() {
         const files = this.app.vault.getMarkdownFiles();
         // special case: no frontmatter 
         if (this.selectedProperty === 'No frontmatter') {
             this.filteredFiles = files.filter(file => {
-                const cache = this.app.metadataCache.getFileCache(file);
-                const frontmatter = cache?.frontmatter;
-                return !frontmatter || Object.keys(frontmatter).length === 0;
+            return FrontmatterClinicRenderer.getNoFrontmatterPaths().has(file.path)
             });
             this.filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
             return;

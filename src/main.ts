@@ -1,12 +1,40 @@
 import { Plugin, TFolder, TFile, Notice } from 'obsidian';
 import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
+import { FrontmatterClinicRenderer } from './frontmatterClinic';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
 
     async onload() {
         await this.loadSettings();
+
+        // Forward frontmatter cache updates (no startup cost)
+        this.registerEvent(this.app.metadataCache.on('changed', (file) => {
+            if (file instanceof TFile && file.extension === 'md') {
+                FrontmatterClinicRenderer.updateFileCache(this.app, file);
+                this.refreshAllViews();
+            }
+        }));
+        this.registerEvent(this.app.vault.on('create', (file) => {
+            if (file instanceof TFile && file.extension === 'md') {
+                setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
+                this.refreshAllViews();
+            }
+        }));
+        this.registerEvent(this.app.vault.on('delete', (file) => {
+            if (file instanceof TFile && file.extension === 'md') {
+                FrontmatterClinicRenderer.removeFileCache(file.path);
+                this.refreshAllViews();
+            }
+        }));
+        this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
+            if (file instanceof TFile && file.extension === 'md') {
+                FrontmatterClinicRenderer.removeFileCache(oldPath);
+                FrontmatterClinicRenderer.updateFileCache(this.app, file);
+                this.refreshAllViews();
+            }
+        }));
 
         // Ensure the selected space (if it's a folder) is in openFolders
         const selectedSpace = this.settings.spaces.find(s => 
@@ -112,7 +140,9 @@ export default class PortalsPlugin extends Plugin {
         }));
     }
 
-    onunload() { }
+    onunload() { 
+        FrontmatterClinicRenderer.resetCache();
+    }
 
         async loadSettings() {
         const data = await this.loadData();
