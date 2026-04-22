@@ -5133,7 +5133,389 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 }
 
 /*---------------------------------------------------------------------------------------*/
+/*==================================NEW MODALs CSS=====================================*/
+
+/*--------------------- Add Portals Modal ----------------*/
+
+.portals-add-portal-modal {
+    min-width: auto;
+}
+
+.portals-add-portal-modal .setting-item-name {
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-top: 0;
+    color: var(--text-faint);
+}
+
+/* Tab bar styling */
+.portals-add-portal-modal .add-portal-tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    padding-bottom: 8px;
+}
+
+.portals-add-portal-modal .add-portal-tab {
+    padding: 4px 8px;
+    border-radius: 8px 8px 0 0;
+    background: var(--background-secondary);
+    color: var(--text-muted);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.portals-add-portal-modal .add-portal-tab:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+.portals-add-portal-modal .add-portal-tab.is-active {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+/* Search input */
+.portals-add-portal-modal .portals-search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    margin-bottom: 16px;
+    font-size: 1em;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.portals-add-portal-modal .portals-search-input:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 3px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+/* Results container */
+.portals-add-portal-modal .portals-results-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.portals-add-portal-modal .add-portal-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: small;
+}
+
+.portals-add-portal-modal .add-portal-item:last-child {
+    border-bottom: none;
+}
+
+.portals-add-portal-modal .add-portal-item:hover {
+    background: var(--background-modifier-hover);
+}
+
+.portals-add-portal-modal .add-portal-item.is-selected {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.portals-add-portal-modal .portals-already-used {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.portals-add-portal-modal .portals-check-icon {
+    color: var(--text-success);
+    margin-left: auto;
+}
+
+/* Buttons */
+.portals-modal .portals-modal-button-container {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.portals-modal button:not(.clickable-icon) {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.portals-modal .modal-button-container button.mod-cta {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.portals-modal .modal-button-container button.mod-cta:hover {
+    filter: brightness(0.95);
+}
+
+.portals-modal .modal-button-container button:not(.mod-cta) {
+    background: var(--background-secondary);
+}
+
+.portals-modal .modal-button-container button:not(.mod-cta):hover {
+    background: var(--background-modifier-hover);
+}
+
+/*--------------------- GroupTags Modal ----------------*/
+
+.portals-group-tags-modal .modal {
+  min-width: auto;
+}
+
+.portals-group-tags-modal h2 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.portals-modal .portals-checkbox-container {
+  margin: 10px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 10px;
+}
+
+.portals-modal .modal-button-container {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.portals-group-tags-modal button:not(.clickable-icon) {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.portals-group-tags-modal .modal-button-container button.mod-cta {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.portals-group-tags-modal .modal-button-container button.mod-cta:hover {
+    filter: brightness(0.95);
+}
+
+.portals-group-tags-modal .modal-button-container button:not(.mod-cta) {
+    background: var(--background-secondary);
+}
+
+.portals-group-tags-modal .modal-button-container button:not(.mod-cta):hover {
+    background: var(--background-modifier-hover);
+}
+
+/*--------------------- SidePortal Modal ----------------*/
+
+.side-portal-modal .modal {
+  min-width: auto;
+}
+
+.side-portal-modal .setting-item-heading {
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-left: 10px;
+}
+
+.side-portal-modal .setting-item-name {
+    font-size: 1.3em;
+    color: var(--text-faint);
+}
+
+.side-portal-modal p.portals-modal-description {
+  margin: 10px;
+  font-size: smaller;
+  color: var(--text-muted);
+}
+
+.portals-group-tags-modal .modal-button-container {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.portals-group-tags-modal button:not(.clickable-icon) {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.portals-group-tags-modal .modal-button-container button.mod-cta {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.portals-group-tags-modal .modal-button-container button.mod-cta:hover {
+    filter: brightness(0.95);
+}
+
+.portals-group-tags-modal .modal-button-container button:not(.mod-cta) {
+    background: var(--background-secondary);
+}
+
+.portals-group-tags-modal .modal-button-container button:not(.mod-cta):hover {
+    background: var(--background-modifier-hover);
+}
+
+/*--------------------- Remove Portal Modal ----------------*/
+
+.remove-portal-modal .modal {
+  min-width: auto;
+}
+
+.remove-portal-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.remove-portal-modal .remove-portal-row {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+/*--------------------- Color Modal ----------------*/
+
+.portals-color-modal .modal {
+  min-width: auto;
+}
+
+.portals-color-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.portals-color-modal .portals-input-container {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin: 16px 0;
+    justify-content: center;
+    border-top: 1px solid var(--background-modifier-border);
+    padding-top: 16px;
+}
+
+.portals-color-modal .portals-input-container input {
+  width: 25%;
+}
+
+.portals-color-modal .portals-preview-container div {
+  border-radius: 10px;
+}
+
+/*--------------------- Folder picker Modal ----------------*/
+
+.portals-folder-pick-modal .modal {
+  min-width: auto;
+}
+
+.portals-folder-pick-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+/* Search input */
+.portals-folder-pick-modal .portals-search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    margin-bottom: 16px;
+    font-size: 1em;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* Results container */
+.portals-folder-pick-modal .portals-results-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.portals-folder-pick-modal .add-portal-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: small;
+}
+
+.portals-folder-pick-modal .add-portal-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+/*--------------------- Rename Modal ----------------*/
+
+.portals-rename-modal .modal {
+  min-width: auto;
+}
+
+.portals-rename-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.portals-rename-modal .portals-rename-container {
+  width: 100%;
+}
+
+.portals-rename-modal .portals-rename-input {
+  width: 100%;
+}
+
 /*---------------------------IconPicker Modal--------------------------------------------*/
+
+.icon-picker-modal {
+  max-width: auto;
+}
+
+.icon-picker-modal h2 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
 
 .portals-icon-grid {
     display: grid;
@@ -5168,17 +5550,29 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 }
 
 .icon-picker-buttons {
+  margin-top: 12px;
     display: flex;
     justify-content: flex-end;
-    margin-top: 16px;
+    gap: 12px;
+}
+
+.icon-picker-modal button:not(.clickable-icon) {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.15s;
+    margin-top: 10px;
 }
 
 .icon-picker-search {
     width: 100%;
-    margin-bottom: 16px;
-    padding: 8px;
-    border-radius: 4px;
+    padding: 10px 12px;
+    border-radius: 10px;
     border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    margin-bottom: 16px;
+    font-size: 1em;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .portals-input-modal-input {
@@ -5193,42 +5587,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 .icon-item:hover {
     background-color: var(--background-modifier-hover);
 }
-
-/* ===== Add Portal Modal ===== */
-.add-portal-tab-bar {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 1em;
-    border-bottom: 1px solid var(--background-modifier-border);
-    padding-bottom: 4px;
-}
-
-.add-portal-tab {
-    padding: 4px 8px;
-    cursor: pointer;
-    border-radius: 4px 4px 0 0;
-}
-
-.add-portal-tab.is-active {
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
-}
-
-.add-portal-item {
-    padding: 4px 8px;
-    cursor: pointer;
-    border-radius: 2px;
-}
-
-.add-portal-item.is-selected {
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
-}
-
-.add-portal-item:hover:not(.is-selected) {
-    background: var(--background-modifier-hover);
-}
-
 
 /* ===== Settings Section ===== */
 .portals-section-summary {

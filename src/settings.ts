@@ -931,10 +931,12 @@ export class SpacesSettingTab extends PluginSettingTab {
         onOpen() {
             const { contentEl } = this;
             contentEl.empty();
+            this.containerEl.addClass('portals-modal');
+            this.contentEl.addClass('side-portal-modal');
             new Setting(contentEl).setName('Choose side portals').setHeading();
 
             contentEl.createEl('p', {
-                text: 'Select which tabs to show in the side panel. At least one must be selected.',
+                text: 'At least one must be selected to enable side portal.',
                 cls: 'portals-modal-description'
             });
 
@@ -1034,6 +1036,8 @@ export class AddPortalModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
+        contentEl.addClass('portals-modal');
+        contentEl.addClass('portals-add-portal-modal');
         new Setting(contentEl).setName('Add a new portal').setHeading();
 
         const tabBar = contentEl.createDiv({ cls: 'add-portal-tab-bar' });
@@ -1161,6 +1165,8 @@ export class GroupTagsModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
+        this.contentEl.addClass('portals-modal');
+        this.contentEl.addClass('portals-group-tags-modal');
         contentEl.createEl('h2', { text: 'Select group tags' });
 
         const container = contentEl.createDiv({ cls: 'portals-checkbox-container' });

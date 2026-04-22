@@ -15,10 +15,15 @@ export class RenamePortalModal extends Modal {
 
     onOpen() {
         const { contentEl } = this;
+        this.containerEl.addClass('portals-modal');
+        this.contentEl.addClass('portals-rename-modal');
         contentEl.createEl('h3', { text: 'Rename portal' });
-        const input = contentEl.createEl('input', {
+
+        const renameInput = contentEl.createDiv({ cls: 'portals-rename-container' });
+        const input = renameInput.createEl('input', {
             type: 'text',
             value: this.currentName,
+            cls: 'portals-rename-input',
             placeholder: 'Leave empty to use default name'
         });
         input.addEventListener('keypress', (e) => {
@@ -56,6 +61,8 @@ export class SelectFolderModal extends Modal {
 
     onOpen() {
         const { contentEl } = this;
+        this.contentEl.addClass('portals-modal');
+        this.contentEl.addClass('portals-folder-pick-modal');
         contentEl.createEl('h3', { text: 'Select folder' });
         const input = contentEl.createEl('input', { type: 'text', placeholder: 'Search...', cls: 'portals-search-input' });
         const results = contentEl.createDiv({ cls: 'portals-results-container' });
@@ -133,16 +140,21 @@ export class ColorPickerModal extends Modal {
 
     onOpen() {
         const { contentEl } = this;
+        this.contentEl.addClass('portals-modal');
+        this.contentEl.addClass('portals-color-modal');
         contentEl.createEl('h3', { text: 'Pick folder color' });
 
-        const colorInput = contentEl.createEl('input', { type: 'color', value: this.color });
-        const opacityInput = contentEl.createEl('input', {
+        const inputContainer = contentEl.createDiv({ cls: 'portals-input-container' });
+        const colorInput = inputContainer.createEl('input', { type: 'color', value: this.color });
+        
+        const opacityInput = inputContainer.createEl('input', {
             type: 'range',
             attr: { min: '0', max: '1', step: '0.05', value: String(this.opacity) }
         });
         opacityInput.style.width = '100%';
 
-        const preview = contentEl.createDiv();
+        const previewContainer = contentEl.createDiv({ cls: 'portals-preview-container' });
+        const preview = previewContainer.createDiv();
         preview.style.height = '30px';
         preview.style.marginTop = '10px';
         preview.style.backgroundColor = `rgba(255, 0, 0, ${this.opacity})`;
@@ -260,6 +272,8 @@ export class RemovePortalModal extends Modal {
 
     onOpen() {
         const { contentEl } = this;
+        this.contentEl.addClass('portals-modal');
+        this.contentEl.addClass('remove-portal-modal');
         contentEl.createEl('h3', { text: 'Remove portal tab' });
         const spaces = this.plugin.settings.spaces;
         if (spaces.length === 0) {
