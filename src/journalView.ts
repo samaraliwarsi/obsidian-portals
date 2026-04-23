@@ -114,21 +114,36 @@ export class JournalRenderer {
         if (this.notes.length > 0) {
             const format = this.plugin.settings.journalDateFormat;
             let mismatched = false;
+
+            const isDateLike = (name: string) =>
+                /^\d{4}-\d{2}-\d{2}/.test(name) || /^\d{2}-\d{2}-\d{4}/.test(name);
+
             for (const note of this.notes) {
-                const name = note.name;
+                const name = note.basename;  // use basename (without extension) for comparison
+                if (!isDateLike(name)) continue;
+
                 if (format === 'YYYY-MM-DD') {
-                    if (!/^\d{4}-\d{2}-\d{2}/.test(name)) mismatched = true;
-                } else {
-                    if (!/^\d{2}-\d{2}-\d{4}/.test(name)) mismatched = true;
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(name)) { mismatched = true; break; }
+                } else if (format === 'DD-MM-YYYY') {
+                    const match = name.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                    if (!match) { mismatched = true; break; }
+                    const day   = parseInt(match[1]!, 10);
+                    const month = parseInt(match[2]!, 10);
+                    if (day < 1 || day > 31 || month < 1 || month > 12) { mismatched = true; break; }
+                } else if (format === 'MM-DD-YYYY') {
+                    const match = name.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                    if (!match) { mismatched = true; break; }
+                    const month = parseInt(match[1]!, 10);
+                    const day   = parseInt(match[2]!, 10);
+                    if (month < 1 || month > 12 || day < 1 || day > 31) { mismatched = true; break; }
                 }
-                if (mismatched) break;
             }
+
             if (mismatched) {
                 const warningEl = this.container.createDiv({ cls: 'journal-warning' });
                 warningEl.createSpan({
                     text: `⚠️ Some filenames do not match the settings selected date format "${format}". Please change the format in Portals settings.`
                 });
-                // No dismiss button – warning persists
             }
         }
 
@@ -227,7 +242,7 @@ export class JournalRenderer {
         }
 
         // Fallback to creation time
-        console.warn(`[Journal] Filename "${name}" does not match format "${format}". Using file creation date.`);
+        console.debug(`[Journal] Filename "${name}" does not match format "${format}". Using file creation date.`);
         return new Date(file.stat.ctime);
     }
 
