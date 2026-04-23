@@ -55,6 +55,7 @@ export interface SpacesSettings {
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
     journalFolderPath: string;
     journalDateFormat: 'DD-MM-YYYY' | 'MM-DD-YYYY' | 'YYYY-MM-DD';
+    journalQuoteIndicator: boolean;
     markedJournalNotes: string[];
     quoteDelimiter: string;
     customIcons: Record<string, string>;
@@ -107,6 +108,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     treeStyle: 'default',
     journalFolderPath: '',
     journalDateFormat: 'DD-MM-YYYY',
+    journalQuoteIndicator: false,
     markedJournalNotes: [],
     quoteDelimiter: '==',
     customIcons: {},
@@ -444,6 +446,20 @@ export class SpacesSettingTab extends PluginSettingTab {
                 });
                 return dropdown;
             });
+
+        new Setting(containerEl)
+        .setName('Show quote indicator on date cards')
+        .setDesc('Adds a small icon to journal date cards that contain at least one quote.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.journalQuoteIndicator)
+            .onChange(async (value) => {
+                this.plugin.settings.journalQuoteIndicator = value;
+                await this.plugin.saveSettings();
+                // Refresh the journal tab if it's active
+                if (this.plugin.settings.activeSplitTab === 'journal') {
+                    this.plugin.refreshAllViews();
+                }
+            }));
 
         containerEl.createEl('hr');
 

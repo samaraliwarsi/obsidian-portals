@@ -20,6 +20,7 @@ export class JournalRenderer {
     private cardsWrapper: HTMLElement | null = null;
     private allQuotes: { text: string; date: Date; file: TFile }[] = [];
     private quoteAnimationTimout: number | null = null;
+    private filesWithQuotes: Set<string> = new Set();
 
     private startProgressTimer = () => {
         if (this.progressInterval) {
@@ -133,6 +134,7 @@ export class JournalRenderer {
 
         // Pre‑extract all quotes once
         this.allQuotes = await this.extractAllQuotes();
+        this.filesWithQuotes = new Set(this.allQuotes.map(q => q.file.path));
 
 
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
@@ -298,6 +300,12 @@ export class JournalRenderer {
             card.style.background = `rgba(100, 100, 100, ${opacity * 0.4})`;
             // set css for border opacity only used when not marked 
             card.style.setProperty('--journal-border-opacity', String(opacity * 0.25));
+
+            if (this.plugin.settings.journalQuoteIndicator && this.filesWithQuotes.has(n.path)) {
+                card.addClass('journal-card-has-quotes');
+                const indicator = card.createSpan({ cls: 'journal-quote-indicator' });
+                indicator.createEl('i', { cls: 'ph ph-quotes' });
+            }
             
             let hoverTimeout: number | null = null;
             card.addEventListener('mouseenter', () => {
