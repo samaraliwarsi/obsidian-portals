@@ -1846,7 +1846,7 @@ export class PortalsView extends ItemView {
                 animation: 150,
                 delay: 0,
                 delayOnTouchOnly: true,
-                touchStartThreshold: 10,
+                touchStartThreshold: 5,
                 scrollSensitivity: 30,
                 direction: 'horizontal',
                 swapThreshold: 0.5,
