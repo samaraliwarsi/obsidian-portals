@@ -6695,6 +6695,13 @@ body.portals-dragging {
     font-size: 8px;
     opacity: 0.7;
 }
+.journal-warn-indicator {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 8px;
+    opacity: 0.7;
+}
 
 /* Uncomment this for accent/ tab colors on indicator */
 /*.journal-quote-indicator i { color: var(--journal-accent-color, var(--interactive-accent)); } */

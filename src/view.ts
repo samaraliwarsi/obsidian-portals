@@ -73,6 +73,7 @@ export class PortalsView extends ItemView {
     private lastJournalAccentColor: string | null = null;
     public scrollToRestore: number | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
+    private lastJournalIndicatorValue: string;
     private getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -89,11 +90,14 @@ export class PortalsView extends ItemView {
             // Determine if we need to refresh
             const folderChanged = (this.journalFolderPath !== currentFolderPath);
             const colorChanged = (currentColor !== this.lastJournalAccentColor);
+            const currentIndicator = this.plugin.settings.journalQuoteIndicator;
+            const indicatorChanged = (currentIndicator !== this.lastJournalIndicatorValue);
 
-            if (folderChanged || colorChanged) {
+            if (folderChanged || colorChanged || indicatorChanged) {
                 // Update cache
                 this.journalFolderPath = currentFolderPath;
                 this.lastJournalAccentColor = currentColor;
+                this.lastJournalIndicatorValue = currentIndicator;
                 // Only invalidate if folder path has changed
                 if (this.journalFolderPath !== currentFolderPath) {
                     if (this.journalRenderer) {
@@ -1221,6 +1225,7 @@ export class PortalsView extends ItemView {
     constructor(leaf: WorkspaceLeaf, plugin: PortalsPlugin) {
         super(leaf);
         this.plugin = plugin;
+        this.lastJournalIndicatorValue = plugin.settings.journalQuoteIndicator;
     }
 
     getViewType(): string {
@@ -1679,6 +1684,7 @@ export class PortalsView extends ItemView {
             showCurrentPropertyValue: s.showCurrentPropertyValue,
             hideFilteredCount: s.hideFilteredCount,
             journalQuoteIndicator: s.journalQuoteIndicator,
+            
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
         });

@@ -55,7 +55,7 @@ export interface SpacesSettings {
     treeStyle: 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
     journalFolderPath: string;
     journalDateFormat: 'DD-MM-YYYY' | 'MM-DD-YYYY' | 'YYYY-MM-DD';
-    journalQuoteIndicator: boolean;
+    journalQuoteIndicator: 'quotes' | 'warnings' | 'all' | 'none';
     markedJournalNotes: string[];
     quoteDelimiter: string;
     customIcons: Record<string, string>;
@@ -108,7 +108,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     treeStyle: 'default',
     journalFolderPath: '',
     journalDateFormat: 'DD-MM-YYYY',
-    journalQuoteIndicator: false,
+    journalQuoteIndicator: 'none',
     markedJournalNotes: [],
     quoteDelimiter: '==',
     customIcons: {},
@@ -450,10 +450,14 @@ export class SpacesSettingTab extends PluginSettingTab {
         new Setting(containerEl)
         .setName('Show quote indicator on date cards')
         .setDesc('Adds a small icon to journal date cards that contain at least one quote.')
-        .addToggle(toggle => toggle
+        .addDropdown(dropdown => dropdown
+            .addOption('quotes', 'Quotes')
+            .addOption('warnings', 'Warnings')
+            .addOption('all', 'All')
+            .addOption('none', 'None')
             .setValue(this.plugin.settings.journalQuoteIndicator)
             .onChange(async (value) => {
-                this.plugin.settings.journalQuoteIndicator = value;
+                this.plugin.settings.journalQuoteIndicator = value as 'quotes' | 'warnings' | 'all' | 'none';
                 await this.plugin.saveSettings();
                 // Refresh the journal tab if it's active
                 if (this.plugin.settings.activeSplitTab === 'journal') {

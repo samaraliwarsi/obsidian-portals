@@ -21,6 +21,8 @@ export class JournalRenderer {
     private allQuotes: { text: string; date: Date; file: TFile }[] = [];
     private quoteAnimationTimout: number | null = null;
     private filesWithQuotes: Set<string> = new Set();
+    private filesWithWrongDelimiters = new Set<string>();
+    private wrongDelimiterChecked?: Set<string>;
 
     private startProgressTimer = () => {
         if (this.progressInterval) {
@@ -80,6 +82,8 @@ export class JournalRenderer {
 
     async render() {
         this.stopRotation();
+        //this.filesWithWrongDelimiters.clear();
+        //this.wrongDelimiterChecked = new Set();
         this.container.empty();
         // Get journal folder
         const folderPath = this.plugin.settings.journalFolderPath;
@@ -90,90 +94,84 @@ export class JournalRenderer {
                 // Load all markdown files in this folder (only top-level for now)
                 this.notes = this.journalFolder.children.filter(
                     (child): child is TFile => child instanceof TFile && child.extension === 'md'
-                );
+                    );
+                } else {
+                    this.container.createEl('p', { text: 'Journal folder not found.' });
+                    return;
+                }
             } else {
-                this.container.createEl('p', { text: 'Journal folder not found.' });
+                // Fallback to daily notes plugin's folder
+                // @ts-expect-error - internal plugin access
+                const dailyNotesPlugin = this.app.internalPlugins?.getPluginById('daily-notes');
+                if (dailyNotesPlugin?.enabled && dailyNotesPlugin.instance?.options?.folder) {
+                    const folder = this.app.vault.getAbstractFileByPath(dailyNotesPlugin.instance.options.folder);
+                    if (folder instanceof TFolder) {
+                        this.journalFolder = folder;
+                        this.notes = folder.children.filter((child): child is TFile => child instanceof TFile && child.extension === 'md');
+                    }
+                }
+            }
+
+            // Check for filename format mismatches – show warning if any
+            if (this.notes.length > 0) {
+                const format = this.plugin.settings.journalDateFormat;
+                let mismatched = false;
+
+                const isDateLike = (name: string) =>
+                    /^\d{4}-\d{2}-\d{2}/.test(name) || /^\d{2}-\d{2}-\d{4}/.test(name);
+                
+                for (const note of this.notes) {
+                    const name = note.basename;  // use basename (without extension) for comparison
+                    if (!isDateLike(name)) continue;
+
+                    if (format === 'YYYY-MM-DD') {
+                        if (!/^\d{4}-\d{2}-\d{2}$/.test(name)) { mismatched = true; break; }
+                    } else if (format === 'DD-MM-YYYY') {
+                        const match = name.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                        if (!match) { mismatched = true; break; }
+                        const day   = parseInt(match[1]!, 10);
+                        const month = parseInt(match[2]!, 10);
+                        if (day < 1 || day > 31 || month < 1 || month > 12) { mismatched = true; break; }
+                    } else if (format === 'MM-DD-YYYY') {
+                        const match = name.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                        if (!match) { mismatched = true; break; }
+                        const month = parseInt(match[1]!, 10);
+                        const day   = parseInt(match[2]!, 10);
+                        if (month < 1 || month > 12 || day < 1 || day > 31) { mismatched = true; break; }
+                    }
+                }
+
+                if (mismatched) {
+                    const warningEl = this.container.createDiv({ cls: 'journal-warning' });
+                    warningEl.createSpan({ text: `⚠️ Some filenames do not match the settings selected date format "${format}". Please change the format in Portals settings.` });
+                }
+            }
+                // Pre‑extract all quotes once
+                this.allQuotes = await this.extractAllQuotes();
+                this.filesWithQuotes = new Set(this.allQuotes.map(q => q.file.path));
+
+            const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+            const tabColorEnabled = this.plugin.settings.tabColorEnabled;
+            const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
+            if (rootColor) {
+                this.container.style.setProperty('--journal-accent-color', rootColor);
+            } else {
+                this.container.style.removeProperty('--journal-accent-color');
+            }
+
+            if (this.notes.length === 0) {
+                this.container.createEl('p', { text: 'No journal notes found.' });
                 return;
             }
-        } else {
-            // Fallback to daily notes plugin's folder
-            // @ts-expect-error - internal plugin access
-            const dailyNotesPlugin = this.app.internalPlugins?.getPluginById('daily-notes');
-            if (dailyNotesPlugin?.enabled && dailyNotesPlugin.instance?.options?.folder) {
-                const folder = this.app.vault.getAbstractFileByPath(dailyNotesPlugin.instance.options.folder);
-                if (folder instanceof TFolder) {
-                    this.journalFolder = folder;
-                    this.notes = folder.children.filter(
-                        (child): child is TFile => child instanceof TFile && child.extension === 'md'
-                    );
-                }
-            }
+
+            // Sort notes by date
+            this.sortNotesByDate();
+
+            // Render the two sections
+            this.renderDateCards();
+            await this.renderQuotesSection();
         }
-
-       // Check for filename format mismatches – show warning if any
-        if (this.notes.length > 0) {
-            const format = this.plugin.settings.journalDateFormat;
-            let mismatched = false;
-
-            const isDateLike = (name: string) =>
-                /^\d{4}-\d{2}-\d{2}/.test(name) || /^\d{2}-\d{2}-\d{4}/.test(name);
-
-            for (const note of this.notes) {
-                const name = note.basename;  // use basename (without extension) for comparison
-                if (!isDateLike(name)) continue;
-
-                if (format === 'YYYY-MM-DD') {
-                    if (!/^\d{4}-\d{2}-\d{2}$/.test(name)) { mismatched = true; break; }
-                } else if (format === 'DD-MM-YYYY') {
-                    const match = name.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-                    if (!match) { mismatched = true; break; }
-                    const day   = parseInt(match[1]!, 10);
-                    const month = parseInt(match[2]!, 10);
-                    if (day < 1 || day > 31 || month < 1 || month > 12) { mismatched = true; break; }
-                } else if (format === 'MM-DD-YYYY') {
-                    const match = name.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-                    if (!match) { mismatched = true; break; }
-                    const month = parseInt(match[1]!, 10);
-                    const day   = parseInt(match[2]!, 10);
-                    if (month < 1 || month > 12 || day < 1 || day > 31) { mismatched = true; break; }
-                }
-            }
-
-            if (mismatched) {
-                const warningEl = this.container.createDiv({ cls: 'journal-warning' });
-                warningEl.createSpan({
-                    text: `⚠️ Some filenames do not match the settings selected date format "${format}". Please change the format in Portals settings.`
-                });
-            }
-        }
-
-        // Pre‑extract all quotes once
-        this.allQuotes = await this.extractAllQuotes();
-        this.filesWithQuotes = new Set(this.allQuotes.map(q => q.file.path));
-
-
-        const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
-        const tabColorEnabled = this.plugin.settings.tabColorEnabled;
-        const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
-        if (rootColor) {
-            this.container.style.setProperty('--journal-accent-color', rootColor);
-        } else {
-            this.container.style.removeProperty('--journal-accent-color');
-        }
-
-        if (this.notes.length === 0) {
-            this.container.createEl('p', { text: 'No journal notes found.' });
-            return;
-        }
-
-        // Sort notes by date
-        this.sortNotesByDate();
-
-        // Render the two sections
-        this.renderDateCards();
-        await this.renderQuotesSection();
-    }
-
+        
     private stopRotation() {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -193,6 +191,8 @@ export class JournalRenderer {
             clearTimeout(this.quoteAnimationTimout);
             this.quoteAnimationTimout = null;
         }
+        this.filesWithWrongDelimiters.clear();
+        this.wrongDelimiterChecked = undefined;
     }
 
     private sortNotesByDate() {
@@ -316,10 +316,32 @@ export class JournalRenderer {
             // set css for border opacity only used when not marked 
             card.style.setProperty('--journal-border-opacity', String(opacity * 0.25));
 
-            if (this.plugin.settings.journalQuoteIndicator && this.filesWithQuotes.has(n.path)) {
+            const indicator = this.plugin.settings.journalQuoteIndicator; // 'quote' | 'warn' | 'both' | 'none'
+
+            const hasQuotes = this.filesWithQuotes.has(n.path);
+            const hasWrong  = this.filesWithWrongDelimiters.has(n.path);
+
+            if (indicator === 'quotes' && hasQuotes) {
                 card.addClass('journal-card-has-quotes');
-                const indicator = card.createSpan({ cls: 'journal-quote-indicator' });
-                indicator.createEl('i', { cls: 'ph ph-quotes' });
+                const span = card.createSpan({ cls: 'journal-quote-indicator' });
+                span.createEl('i', { cls: 'ph ph-quotes' });
+            }
+            if (indicator === 'warnings' && hasWrong) {
+                card.addClass('journal-card-has-wrong');
+                const span = card.createSpan({ cls: 'journal-warn-indicator' });
+                span.createEl('i', { cls: 'ph ph-warning-circle' });
+            }
+            if (indicator === 'all') {
+                if (hasQuotes) {
+                    card.addClass('journal-card-has-quotes');
+                    const span = card.createSpan({ cls: 'journal-quote-indicator' });
+                    span.createEl('i', { cls: 'ph ph-quotes' });
+                }
+                if (hasWrong) {
+                    card.addClass('journal-card-has-wrong');
+                    const span = card.createSpan({ cls: 'journal-warn-indicator' });
+                    span.createEl('i', { cls: 'ph ph-warning-circle' });
+                }
             }
             
             let hoverTimeout: number | null = null;
@@ -385,7 +407,6 @@ export class JournalRenderer {
         if (!this.tooltipEl) {
             this.tooltipEl = document.body.createDiv({ cls: 'portals-floating-tooltip' });
         }
-        
         // Quote display
         const quoteDisplay = quotesContainer.createDiv({ cls: 'journal-quote-display' });
 
@@ -515,6 +536,27 @@ export class JournalRenderer {
             }
         }
 
+        if (!this.wrongDelimiterChecked?.has(file.path)) {
+            const ALL_DELIMITERS = ['==', '**', '++', '||'];
+            let hasWrong = false;
+            for (const other of ALL_DELIMITERS) {
+                if (other === delimiter) continue;
+                const escOther = other.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wrongRegex = new RegExp(`${escOther}(.+?)${escOther}`);
+                if (wrongRegex.test(content)) {
+                    hasWrong = true;
+                    break;
+                }
+            }
+            if (hasWrong) {
+                this.filesWithWrongDelimiters.add(file.path);
+            } else {
+                this.filesWithWrongDelimiters.delete(file.path);
+            }
+            // Mark that we've checked this file (optional, avoids re‑checking)
+            this.wrongDelimiterChecked ??= new Set<string>();
+            this.wrongDelimiterChecked.add(file.path);
+        }
         this.quotesCache.set(file.path, quotes);
         return quotes;
     }
