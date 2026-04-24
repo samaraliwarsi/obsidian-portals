@@ -2099,8 +2099,10 @@ export class PortalsView extends ItemView {
 
 
             // Initial content
-            void this.renderSplitTabContent(secondaryPanel, activeTab);
-
+            if (this.isSidePanelEnabled()){
+                void this.renderSplitTabContent(secondaryPanel, activeTab);
+            }
+            
             // Now put the main panel content (folder tree / tag space) inside treeContainer
             const selectedSpace = spaces.find(s => 
                 s.path === this.plugin.settings.selectedSpace?.path && 
