@@ -7066,7 +7066,7 @@ button.clickable-icon.fm-edit-btn:hover {
     margin-top: 2px;
 }
 
-button.unhide-btn {
+button.unhide-btn:not(.clickable-icon) {
     margin-left: auto;
     background: none;
     border-radius: 8px;
@@ -7079,7 +7079,7 @@ button.unhide-btn {
     height: 24px;
 }
 
-button.unhide-btn:hover {
+button.unhide-btn:not(.clickable-icon):hover {
     background: var(--background-modifier-hover);
     color: var(--text-normal);
 }
@@ -7106,7 +7106,7 @@ button.unhide-btn:hover {
     ) !important;
 }
 
-button.unhide-btn-all {
+button.unhide-btn-all:not(.clickable-icon) {
   all: unset;
   display: flex;
   margin-right: auto;
@@ -7121,7 +7121,7 @@ button.unhide-btn-all {
   gap: 4px;  
 }
 
-button.unhide-btn-all:hover {
+button.unhide-btn-all:not(.clickable-icon):hover {
     background: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
 }
