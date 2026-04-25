@@ -23,8 +23,10 @@ export class JournalRenderer {
     private filesWithQuotes: Set<string> = new Set();
     private filesWithWrongDelimiters = new Set<string>();
     private wrongDelimiterChecked?: Set<string>;
+    private destroyed = false;
 
     private startProgressTimer = () => {
+        if (this.destroyed) return;
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
             this.progressInterval = null;
@@ -146,9 +148,10 @@ export class JournalRenderer {
                     warningEl.createSpan({ text: `⚠️ Some filenames do not match the settings selected date format "${format}". Please change the format in Portals settings.` });
                 }
             }
-                // Pre‑extract all quotes once
-                this.allQuotes = await this.extractAllQuotes();
-                this.filesWithQuotes = new Set(this.allQuotes.map(q => q.file.path));
+            // Pre‑extract all quotes once
+            this.allQuotes = await this.extractAllQuotes();
+            if (this.destroyed) return;
+            this.filesWithQuotes = new Set(this.allQuotes.map(q => q.file.path));
 
             const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
             const tabColorEnabled = this.plugin.settings.tabColorEnabled;
@@ -180,6 +183,7 @@ export class JournalRenderer {
     }
 
     public destroy() {
+        this.destroyed = true;
         this.stopRotation();
         if (this.tooltipEl) {
             this.tooltipEl.remove();
@@ -468,6 +472,7 @@ export class JournalRenderer {
 
         // Update quote and reset progress bar
         const updateQuoteAndProgress = async () => {
+            if (this.destroyed) return;
             const quote = getNextQuote();
             if (!quote) {
                 if (this.currentMode === 'onThisDay' && this.allQuotes.length > 0) {
