@@ -1272,6 +1272,7 @@ export class PortalsView extends ItemView {
             const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks');
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
                 const ref = bookmarksPlugin.instance.on('changed', () => {
+                    if (this.plugin.settings.activeSplitTab !== 'bookmarks') return;
                     const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
                     if (secondaryPanel) {
                         const contentEl = secondaryPanel.querySelector('.portals-split-content');
