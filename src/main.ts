@@ -49,6 +49,14 @@ export default class PortalsPlugin extends Plugin {
         }
 
         this.addCommand({
+            id: 'open-portals-view',
+            name: 'Open Portals view',
+            callback: () => {
+                this.activateView();
+            }
+        });
+
+        this.addCommand({
             id: 'add-portal-tab',
             name: 'Add portal tab',
             callback: () => {
