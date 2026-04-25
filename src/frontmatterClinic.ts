@@ -1,5 +1,8 @@
 import { App, TFile, Notice, Menu } from 'obsidian';
 import PortalsPlugin from './main';
+import { SearchPopover } from './utils/searchPopover';
+import { PortalsView } from './view';
+
 
 interface PropertyValueCounts {
     counts: Map<string, Map<string, number>>;
@@ -22,6 +25,8 @@ export class FrontmatterClinicRenderer {
     private plugin: PortalsPlugin;
     private container: HTMLElement;
     private filteredFiles: TFile[] = [];
+    private activeSearchPopover: SearchPopover | null = null;
+    private view: PortalsView;
 
     static async buildCache(app: App) {
         if (clinicCache.ready) return;
@@ -56,6 +61,18 @@ export class FrontmatterClinicRenderer {
             }
         })();
         await clinicCache.buildingPromise;
+    }
+
+    private showSearchPopoverForClinic(anchor: HTMLElement, items: string[], currentSelected: string, onSelect: (item: string) => void) {
+        this.activeSearchPopover?.destroy();
+        this.activeSearchPopover = new SearchPopover(anchor, {
+            items,
+            currentSelected,
+            onSelect: (item: string) => {
+                onSelect(item);
+                this.activeSearchPopover = null;
+            },
+        });
     }
 
     static updateFileCache(app: App, file: TFile) {
@@ -194,15 +211,18 @@ export class FrontmatterClinicRenderer {
     }
 
 
-    constructor(app: App, plugin: PortalsPlugin, container: HTMLElement) {
+    constructor(app: App, plugin: PortalsPlugin, container: HTMLElement, view: PortalsView) {
         this.app = app;
         this.plugin = plugin;
         this.container = container;
+        this.view = view;
     }
 
     async render() {
         this.container.empty()
         this.container.addClass('portals-frontmatter-clinic');
+
+        this.activeSearchPopover = null;
 
         // Lazy-load cache
         if (!FrontmatterClinicRenderer.isCacheReady()) {
@@ -235,6 +255,8 @@ export class FrontmatterClinicRenderer {
             text: this.selectedProperty || 'Select property', 
             cls: 'journal-btn-text' 
         });
+
+        
 
         propBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -334,6 +356,59 @@ export class FrontmatterClinicRenderer {
             }, 10);
         });
 
+        // Reuse view’s tooltip system
+        propBtn.addEventListener('mouseenter', () => this.view.showTooltip('Right‑click to search', propBtn, 300));
+        propBtn.addEventListener('mouseleave', () => this.view.hideTooltip(100));
+
+        valueBtn.addEventListener('mouseenter', () => this.view.showTooltip('Right‑click to search', valueBtn, 300));
+        valueBtn.addEventListener('mouseleave', () => this.view.hideTooltip(100));
+
+         // Right‑click property button – ALWAYS opens popover
+        propBtn.addEventListener('contextmenu', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys());
+            properties.unshift('No frontmatter');
+            this.showSearchPopoverForClinic(propBtn, properties, this.selectedProperty, async (selected) => {
+                if (selected === 'No frontmatter') {
+                    this.selectedProperty = 'No frontmatter';
+                    this.selectedValue = '';
+                } else {
+                    this.selectedProperty = selected;
+                    this.selectedValue = '';
+                }
+                await this.plugin.saveSettings();
+                this.render();
+            });
+        });
+
+        // Right‑click value button – only if a real property is selected
+        valueBtn.addEventListener('contextmenu', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!this.selectedProperty || this.selectedProperty === 'No frontmatter') {
+                new Notice('Select a property first.');
+                return;
+            }
+            const valuesSet = FrontmatterClinicRenderer.getProperties().get(this.selectedProperty) || new Set<string>();
+            const values = ['All values', 'None', ...Array.from(valuesSet).sort()];
+            this.showSearchPopoverForClinic(valueBtn, values,
+                this.selectedValue === '' ? 'All values' : this.selectedValue === '__none__' ? 'None' : this.selectedValue,
+                async (selected) => {
+                    switch (selected) {
+                        case 'All values':
+                            this.selectedValue = ''; break;
+                        case 'None':
+                            this.selectedValue = '__none__'; break;
+                        default:
+                            this.selectedValue = selected; break;
+                    }
+                    await this.plugin.saveSettings();
+                    this.render();
+                }
+            );
+        });
+
         const hasFiles = this.filteredFiles.length > 0;
 
         if (!this.plugin.settings.hideFilteredCount && hasFiles) {
@@ -376,6 +451,7 @@ export class FrontmatterClinicRenderer {
             }
 
         }
+
     }
 
     private filterFiles() {
@@ -420,5 +496,6 @@ export class FrontmatterClinicRenderer {
 
     public destroy() {
         this.container.empty();
+        this.activeSearchPopover?.destroy();
     }
 }

@@ -45,7 +45,7 @@ export const VIEW_TYPE_PORTALS = 'portals-view';
 export class PortalsView extends ItemView {
     plugin: PortalsPlugin;
     private lastRenderHash: string = '';
-    private tooltipEl: HTMLElement | null = null;
+    public tooltipEl: HTMLElement | null = null;
     private tooltipTimeout: number | null = null;
     private tooltipShowTimeout: number | null = null;
     private floatinBtnSpecialTooltipShown = false;
@@ -1430,7 +1430,7 @@ export class PortalsView extends ItemView {
         return this.tooltipEl;
     }
 
-    private showTooltip(text: string, target: HTMLElement, delay: number = 0) {
+    public showTooltip(text: string, target: HTMLElement, delay: number = 0) {
         if (delay > 0) {
             if (this.tooltipShowTimeout) window.clearTimeout(this.tooltipShowTimeout);
             this.tooltipShowTimeout = window.setTimeout(() => {
@@ -1451,7 +1451,7 @@ export class PortalsView extends ItemView {
         tooltip.classList.add('is-visible');
     }
 
-    private hideTooltip(delay = 0) {
+    public hideTooltip(delay = 0) {
         if (this.tooltipShowTimeout) {
             window.clearTimeout(this.tooltipShowTimeout);
             this.tooltipShowTimeout = null;
@@ -2427,7 +2427,7 @@ export class PortalsView extends ItemView {
         } else if (tabId === 'properties') {
             contentEl.empty();
             contentEl.addClass('portals-frontmatter-clinic');
-            const renderer = new FrontmatterClinicRenderer(this.app, this.plugin, contentEl);
+            const renderer = new FrontmatterClinicRenderer(this.app, this.plugin, contentEl, this);
             await renderer.render();
         }
     }
