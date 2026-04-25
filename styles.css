@@ -7152,24 +7152,33 @@ button.unhide-btn-all:not(.clickable-icon):hover {
 /* ===== SEARCH POPOVER (shared) ===== */
 
 .portals-search-popover {
-    background: var(--background-primary);
+    background: var(--background-secondary);
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-s);
-    padding: 8px;
+    padding: 6px;
     overflow-y: auto;
-    max-height: 100px;
-    z-index: 100;
+    max-height: 120px;
+    z-index: 50;
     width: 150px;
     min-width: 120px;
+    max-width: 300px;
 }
 
 .portals-search-popover .portals-search-input {
     margin-bottom: 0;
     width: 100%;
-    padding: 6px 8px;
+    padding: 4px 6px;
     border-radius: 6px;
     height: 30px;
+    border-width: 1px;
+}
+
+.portals-search-popover .portals-search-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-width: 1px;
+  border-color: var(--interactive-accent-hover);
 }
 
 .portals-search-popover .portals-results-container {

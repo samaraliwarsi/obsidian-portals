@@ -31,7 +31,7 @@ export class SearchPopover {
         this.popover.style.position = 'absolute';
         this.popover.style.bottom = `${window.innerHeight - rect.top + 2}px`;
         this.popover.style.left = `${rect.left}px`;
-        this.popover.style.minWidth = `${rect.width}px`;
+        
         
 
         this.input.addEventListener('input', () => this.renderFiltered(this.input.value));

@@ -405,10 +405,10 @@ export class FrontmatterClinicRenderer {
             });
 
             // Reuse view’s tooltip system
-            propBtn.addEventListener('mouseenter', () => this.view.showTooltip('Right‑click to search', propBtn, 300));
+            propBtn.addEventListener('mouseenter', () => this.view.showTooltip('Right-click: find', propBtn, 300));
             propBtn.addEventListener('mouseleave', () => this.view.hideTooltip(100));
 
-            valueBtn.addEventListener('mouseenter', () => this.view.showTooltip('Right‑click to search', valueBtn, 300));
+            valueBtn.addEventListener('mouseenter', () => this.view.showTooltip('Right-click: find', valueBtn, 300));
             valueBtn.addEventListener('mouseleave', () => this.view.hideTooltip(100));
         }
 
