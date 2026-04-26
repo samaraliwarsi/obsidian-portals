@@ -7359,7 +7359,7 @@ button.trash-delete-btn:not(.clickable-icon):hover {
 
 /*Shades specific*/
 .portals-split-content.portals-tree-style-shades .trash-tree > .folder-details > .folder-summary {
-  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15)) !important;
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.1)) !important;
   margin: 0;
 }
 
@@ -7421,8 +7421,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
 
 .portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-summary {
     background: linear-gradient(135deg,
-        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
-        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.1)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.1))
     ) !important;
     margin: 0;
     border-radius: 4px;
