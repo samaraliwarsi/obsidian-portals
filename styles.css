@@ -7254,6 +7254,96 @@ button.unhide-btn-all:not(.clickable-icon):hover {
 
 /* ======================== Trash Side Portal ====================== */
 
+.trash-btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 6px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button.side-portal-btn:not(.clickable-icon) {
+  all: unset;
+  display: flex;
+  border-left: 2px solid var(--hidden-accent-color, var(--interactive-accent));
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-normal);
+  padding: 2px 6px;
+  justify-content: center;
+  font-size: 0.75em;
+  gap: 4px;  
+}
+
+button.side-portal-btn:not(.clickable-icon):hover {
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-normal);
+}
+
+button.side-portal-btn-warn:not(.clickable-icon) {
+  all: unset;
+  display: flex;
+  border-left: 2px solid var(--hidden-accent-color, var(--interactive-accent));
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-normal);
+  padding: 2px 6px;
+  justify-content: center;
+  font-size: 0.75em;
+  gap: 4px;  
+}
+
+button.side-portal-btn-warn:not(.clickable-icon):hover {
+    background: red;
+    color: var(--text-normal);
+}
+
+.trash-item-actions {
+  display: flex;
+  margin-left: auto;
+  gap: 4px;
+}
+
+button.trash-action-btn:not(.clickable-icon) {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px 4px;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    height: 24px;
+}
+
+button.trash-action-btn:not(.clickable-icon):hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+button.trash-delete-btn:not(.clickable-icon) {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px 4px;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    height: 24px;
+}
+
+button.trash-delete-btn:not(.clickable-icon):hover {
+    background: red;
+    color: var(--text-normal);
+}
 
 
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */

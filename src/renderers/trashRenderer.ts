@@ -35,15 +35,15 @@ export class TrashRenderer {
         }
 
         // Bulk action buttons
-        const btnRow = this.container.createDiv({ cls: 'trash-bulk-buttons' });
+        const btnRow = this.container.createDiv({ cls: 'trash-btn-row' });
 
         const restoreAllBtn = btnRow.createEl('button', {
-            cls: 'mod-cta',
+            cls: 'side-portal-btn',
             text: 'Restore All'
         });
         const deleteAllBtn = btnRow.createEl('button', {
-            cls: 'mod-warning',
-            text: 'Delete All Permanently'
+            cls: 'side-portal-btn-warn',
+            text: 'Empty bin'
         });
 
         restoreAllBtn.addEventListener('click', () => this.restoreAll());
@@ -109,8 +109,17 @@ export class TrashRenderer {
     private addItemActions(parentEl: HTMLElement, item: TrashItem) {
         const actionBar = parentEl.createDiv({ cls: 'trash-item-actions' });
 
-        const restoreBtn = actionBar.createEl('button', { text: 'Restore', cls: 'trash-btn' });
-        const deleteBtn = actionBar.createEl('button', { text: 'Delete', cls: 'trash-btn trash-delete-btn' });
+        const restoreBtn = actionBar.createEl('button', { 
+            cls: 'trash-action-btn',
+            attr: { 'aria-label': 'Restore' }
+        });
+        restoreBtn.createEl('i', { cls: 'ph ph-arrow-counter-clockwise', title: 'Restore' });
+
+        const deleteBtn = actionBar.createEl('button', { 
+            cls: 'trash-delete-btn',
+            attr: { 'aria-label': 'Delete' }
+        });
+        deleteBtn.createEl('i', { cls: 'ph ph-trash', title: 'Delete' });
 
         restoreBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -124,43 +133,44 @@ export class TrashRenderer {
         });
     }
 
-    private async restoreItem(item: TrashItem) {
-        try {
-            const sourcePath = item.path; // e.g., .trash/Recipes/Belgian waffles.md
-            const targetPath = normalizePath(sourcePath.replace(/^\.trash\//, ''));
+    private async restoreItem(item: TrashItem): Promise<void> {
+        const sourcePath = item.path;
+        const targetPath = normalizePath(sourcePath.replace(/^\.trash\//, ''));
 
-            if (item.kind === 'folder') {
-                // First, restore all children (recursive)
-                if (item.children) {
-                    for (const child of item.children) {
-                        await this.restoreItem({...child, path: child.path});
-                    }
+        if (item.kind === 'folder') {
+            if (item.children) {
+                for (const child of item.children) {
+                    await this.restoreItem(child);
                 }
-                // Then remove the folder
-                if (await this.app.vault.adapter.exists(sourcePath)) {
-                    // There's no direct way to remove a directory via adapter, but we can try to remove its contents and then the folder
-                    // However, after restoring children, the folder may be empty; we can attempt to remove it by renaming to a temp location? Not possible with adapter.
-                    // Instead, just leave the empty folder in trash; it'll be cleaned up if user deletes all.
-                }
-                new Notice(`Restored ${item.basename}`);
-            } else {
-                if (await this.app.vault.adapter.exists(targetPath)) {
-                    new Notice(`Cannot restore: ${targetPath} already exists.`);
-                    return;
-                }
-                // Ensure parent directory exists
+            }
+
+            if (!(await this.app.vault.adapter.exists(targetPath))) {
+                // Ensure the parent directory of the target exists
                 const parentDir = targetPath.substring(0, targetPath.lastIndexOf('/'));
                 if (parentDir && !(await this.app.vault.adapter.exists(parentDir))) {
                     await this.app.vault.adapter.mkdir(parentDir);
                 }
-                await this.app.vault.adapter.rename(sourcePath, targetPath);
-                new Notice(`Restored ${item.basename}`);
+                await this.app.vault.adapter.mkdir(targetPath);
             }
-        } catch (e) {
-            new Notice(`Failed to restore ${item.basename}`);
-            console.error(e);
+
+            if (await this.app.vault.adapter.exists(sourcePath)) {
+                await this.app.vault.adapter.rmdir(sourcePath, false);
+            }
+
+            new Notice(`Restored folder: ${item.basename}`);
+        } else {
+            if (await this.app.vault.adapter.exists(targetPath)) {
+                new Notice(`Cannot restore: ${targetPath} already exists.`);
+                return;
+            }
+
+            const parentDir = targetPath.substring(0, targetPath.lastIndexOf('/'));
+            if (parentDir && !(await this.app.vault.adapter.exists(parentDir))) {
+                await this.app.vault.adapter.mkdir(parentDir);
+            }
+            await this.app.vault.adapter.rename(sourcePath, targetPath);
+            new Notice(`Restored ${item.basename}`);
         }
-        await this.render();
     }
 
     private async deleteItem(item: TrashItem) {
@@ -176,33 +186,22 @@ export class TrashRenderer {
 
     private async restoreAll() {
         let count = 0;
-        const flatten = (list: TrashItem[]): TrashItem[] => {
-            let out: TrashItem[] = [];
-            for (const item of list) {
-                out.push(item);
-                if (item.children) out = out.concat(flatten(item.children));
-            }
-            return out;
-        };
-        const allItems = flatten(this.items);
-        for (const item of allItems.reverse()) { // restore children first, then folders
+        for (const item of this.items) {
             try {
                 await this.restoreItem(item);
                 count++;
-            } catch {
-                // silently ignore
+            } catch (e) {
+                console.error(e);
             }
         }
         new Notice(`Restored ${count} items`);
-       
+        await this.render();
     }
 
     private async deleteAll() {
         let count = 0;
-        // Delete the entire .trash folder and recreate it (simplest)
         const trashPath = '.trash';
         try {
-            // Recursively remove everything inside .trash
             const removeRecursive = async (path: string) => {
                 const { files, folders } = await this.app.vault.adapter.list(path);
                 for (const file of files) {
@@ -211,7 +210,6 @@ export class TrashRenderer {
                 }
                 for (const folder of folders) {
                     await removeRecursive(folder);
-                    // After emptying folder, remove folder itself
                     await this.app.vault.adapter.rmdir(folder, true);
                 }
             };
