@@ -7072,10 +7072,10 @@ button.unhide-btn:not(.clickable-icon) {
     border-radius: 8px;
     cursor: pointer;
     color: var(--text-muted);
-    padding: 4px 4px;
+    padding: 2px 4px;
     align-items: center;
     justify-content: center;
-    font-size: 0.8em;
+    font-size: 0.75em;
     height: 24px;
 }
 
@@ -7258,9 +7258,9 @@ button.unhide-btn-all:not(.clickable-icon):hover {
   display: flex;
   gap: 8px;
   margin-top: 4px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   border-bottom: 1px solid var(--background-modifier-border);
-  padding-bottom: 6px;
+  padding-bottom: 8px;
   justify-content: space-between;
   align-items: center;
 }
@@ -7299,7 +7299,7 @@ button.side-portal-btn-warn:not(.clickable-icon) {
 }
 
 button.side-portal-btn-warn:not(.clickable-icon):hover {
-    background: red;
+    background: #ff2525;
     color: var(--text-normal);
 }
 
@@ -7315,10 +7315,10 @@ button.trash-action-btn:not(.clickable-icon) {
     border-radius: 8px;
     cursor: pointer;
     color: var(--text-muted);
-    padding: 4px 4px;
+    padding: 2px 4px;
     align-items: center;
     justify-content: center;
-    font-size: 0.8em;
+    font-size: 0.75em;
     height: 24px;
 }
 
@@ -7333,18 +7333,184 @@ button.trash-delete-btn:not(.clickable-icon) {
     border-radius: 8px;
     cursor: pointer;
     color: var(--text-muted);
-    padding: 4px 4px;
+    padding: 2px 4px;
     align-items: center;
     justify-content: center;
-    font-size: 0.8em;
+    font-size: 0.75em;
     height: 24px;
 }
 
 button.trash-delete-btn:not(.clickable-icon):hover {
-    background: red;
+    background: #ff2525;
     color: var(--text-normal);
 }
 
+/*folder style specific to trash portal but generic in value */
+
+/*Portals specific*/
+.portals-split-content.portals-tree-style-portals .folder-details {
+  border-left: 1px solid var(--space-border-color, var(--interactive-accent));
+  border-radius: 4px;
+  box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 10%, transparent);
+}
+
+.portals-split-content.portals-tree-style-portals .folder-children {
+ margin: 8px;
+}
+
+/*Shades specific*/
+.portals-split-content.portals-tree-style-shades .trash-tree > .folder-details > .folder-summary {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15)) !important;
+  margin: 0;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree > .file-item {
+    margin-bottom: 4px;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree > .folder-details {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.05));
+  border-radius: 4px;
+  margin-bottom: 4px !important;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree > :last-child {
+    margin-bottom: 0px !important;
+}
+
+
+.portals-split-content.portals-tree-style-shades .trash-tree .folder-children .folder-summary {
+    background-color: transparent !important;
+    border-radius: 0;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree .folder-children .folder-children {
+    background-color: transparent !important;
+    margin: 0;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree .folder-children .file-item {
+    background-color: transparent !important;
+    margin: 4px;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-shades .trash-tree .file-item:hover {
+  background-color: rgba(128, 128, 128, 0.15) !important;
+  color: var(--text-normal);
+  border-radius: 4px;
+  filter: brightness(1.1);
+}
+
+/* Hues specific */
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .folder-details {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.08)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.08))
+    ) !important;
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .folder-details {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
+    ) !important;
+}
+
+.portals-split-content .portals-tree-style-hues .trash-tree > .folder-details > .folder-summary {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+    ) !important;
+    margin: 0;
+    border-radius: 4px;
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-summary {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
+    ) !important;
+}
+
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .folder-details[open] > .folder-summary {
+    border-radius: 4px 4px 0 0;
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-children {
+    background: transparent !important;
+    border-radius: 0 0 4px 4px;
+    margin: 0;
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .file-item {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+    ) !important;
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+
+
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-details,
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-summary,
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .file-item,
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-children {
+    background: transparent !important;
+    border-radius: 0;
+    margin: 0;
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {
+    background-color: rgba(128, 128, 128, 0.15) !important;
+    color: var(--text-normal);
+    border-radius: 4px;
+    filter: brightness(1.1);
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
+body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {
+    background-color: rgba(128, 128, 128, 0.2) !important;
+    filter: brightness(1.1);
+}  
+
+/* Reset nested folders completely */
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-summary,
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-children {
+    background: transparent !important;
+    border-radius: 0;
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {
+  background-color: rgba(128, 128, 128, 0.15) !important;
+  color: var(--text-normal);
+  border-radius: 4px;
+  filter: brightness(1.1);
+}
+
+.portals-split-content.portals-tree-style-portals .folder-summary::before,
+.portals-split-content.portals-tree-style-boxed .folder-summary::before,
+.portals-split-content.portals-tree-style-default .folder-summary::before,
+.portals-split-content.portals-tree-style-shades .folder-summary::before,
+.portals-split-content.portals-tree-style-hues .folder-summary::before {
+  display: none;
+}
+
+.portals-split-content.portals-tree-style-minimal .folder-children, 
+.portals-split-content.portals-tree-style-boxed .folder-children,
+.portals-split-content.portals-tree-style-default .folder-children,
+.portals-split-content.portals-tree-style-portals .folder-children,
+.portals-split-content.portals-tree-style-shades .folder-children {
+  padding-left: 2px;
+}
 
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
 

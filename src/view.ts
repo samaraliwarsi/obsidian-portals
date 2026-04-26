@@ -76,6 +76,7 @@ export class PortalsView extends ItemView {
     public scrollToRestore: number | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
     private lastJournalIndicatorValue: string;
+    private trashRenderer: TrashRenderer | null = null;
     private getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -2437,6 +2438,10 @@ export class PortalsView extends ItemView {
             const renderer = new FrontmatterClinicRenderer(this.app, this.plugin, contentEl, this);
             await renderer.render();
         } else if (tabId === 'trash') {
+            if (this.trashRenderer) {
+                this.trashRenderer.destroy();
+                this.trashRenderer = null;
+            }
             contentEl.empty();
             contentEl.addClass('portals-trash-tab');
             const trashRender = new TrashRenderer(this.app, contentEl)

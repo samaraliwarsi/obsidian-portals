@@ -12,6 +12,9 @@ export class TrashRenderer {
     private container: HTMLElement;
     private items: TrashItem[] = [];
     private destroyed = false;
+    private pollInterval: number | null = null;
+    private lastTrashSnapshot = '';
+
 
     constructor(app: App, container: HTMLElement) {
         this.app = app;
@@ -21,6 +24,7 @@ export class TrashRenderer {
     public destroy() {
         this.destroyed = true;
         this.container.empty();
+        this.stopPolling();
     }
 
     async render() {
@@ -43,7 +47,7 @@ export class TrashRenderer {
         });
         const deleteAllBtn = btnRow.createEl('button', {
             cls: 'side-portal-btn-warn',
-            text: 'Empty bin'
+            text: 'Empty'
         });
 
         restoreAllBtn.addEventListener('click', () => this.restoreAll());
@@ -56,6 +60,41 @@ export class TrashRenderer {
         // Render tree
         const tree = this.container.createDiv({ cls: 'trash-tree' });
         this.renderTree(this.items, tree);
+        this.startPolling();
+    }
+
+    private async checkForChanges() {
+        try {
+            const adapter = this.app.vault.adapter;
+            const trashPath = '.trash';
+
+            if (!(await adapter.exists(trashPath))) {
+                if (this.lastTrashSnapshot !== '') {
+                    this.lastTrashSnapshot = '';
+                    await this.render();
+                }
+                return;
+            }
+
+            const allPaths: string[] = [];
+            const recurse = async (dir: string) => {
+                const { files, folders } = await adapter.list(dir);
+                allPaths.push(...files, ...folders);
+                for (const sub of folders) {
+                    await recurse(sub);
+                }
+            };
+
+            await recurse(trashPath);
+            const snapshot = allPaths.join(',');
+
+            if (snapshot !== this.lastTrashSnapshot) {
+                this.lastTrashSnapshot = snapshot;
+                await this.render();
+            }
+        } catch {
+            // silently ignore
+        }
     }
 
     private async loadTrashItems() {
@@ -82,6 +121,24 @@ export class TrashRenderer {
         };
 
         this.items = await listRecursive(trashPath);
+    }
+
+    private startPolling() {
+        if (this.pollInterval) return;
+        this.pollInterval = window.setInterval(() => {
+            if (this.destroyed) {
+                this.stopPolling();
+                return;
+            }
+            this.checkForChanges();
+        }, 500);
+    }
+
+    private stopPolling() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
     }
 
     private renderTree(items: TrashItem[], parentEl: HTMLElement) {
