@@ -14,6 +14,7 @@ import { RemovePortalModal } from './modals';
 import { ChooseTabsModal } from './settings';
 import { PortalStack } from './settings';
 import { FrontmatterClinicRenderer } from './frontmatterClinic';
+import { TrashRenderer } from './renderers/trashRenderer';
 
 interface BookmarkItem {
     title?: string;
@@ -32,6 +33,7 @@ const SIDE_TAB_ICONS: Record<string, string> = {
     journal: 'calendar-heart',
     hidden: 'eye-slash',
     properties: 'list-dashes',
+    trash: 'trash',
 };
 type ContextTarget = TFolder | string; // string represents a tag name
 
@@ -2434,6 +2436,11 @@ export class PortalsView extends ItemView {
             contentEl.addClass('portals-frontmatter-clinic');
             const renderer = new FrontmatterClinicRenderer(this.app, this.plugin, contentEl, this);
             await renderer.render();
+        } else if (tabId === 'trash') {
+            contentEl.empty();
+            contentEl.addClass('portals-trash-tab');
+            const trashRender = new TrashRenderer(this.app, contentEl)
+            await trashRender.render();
         }
     }
 

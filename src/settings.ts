@@ -93,7 +93,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     secondaryPanelCollapsed: false,
     sidePanelEnabled: true,
     recentFilesList: [],
-    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden', 'properties'],
+    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden', 'properties', 'trash'],
     activeSplitTab: 'recent',
     showContextNotesInTree: false,
     enableContextNotes: true,
@@ -980,6 +980,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 { id: 'journal', name: 'Journal', icon: 'calendar-heart'},
                 { id: 'hidden', name: 'Hidden', icon: 'eye-slash'},
                 { id: 'properties', name: 'Properties', icon: 'list-checks'},
+                { id: 'trash', name: 'Trash', icon: 'trash'}
             ];
 
             const checkboxContainer = contentEl.createDiv({ cls: 'portals-checkbox-container' });
