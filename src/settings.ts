@@ -73,6 +73,7 @@ export interface SpacesSettings {
     showCurrentPropertyValue: boolean;
     hideFilteredCount: boolean;
     clinicState: { selectedProperty: string; selectedValue: string };
+    compactTabs: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -126,7 +127,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showCurrentPropertyValue: false,
     hideFilteredCount: false,
     clinicState: { selectedProperty: '', selectedValue: '' },
-
+    compactTabs: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -163,6 +164,17 @@ export class SpacesSettingTab extends PluginSettingTab {
             .setValue(this.plugin.settings.compactTree)
             .onChange(async (value) => {
                 this.plugin.settings.compactTree = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Compact tabs')
+        .setDesc('Reduce padding and font size for portal tabs and stack headers.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.compactTabs)
+            .onChange(async (value) => {
+                this.plugin.settings.compactTabs = value;
                 await this.plugin.saveSettings();
                 this.display();
             }));

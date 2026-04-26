@@ -1685,6 +1685,7 @@ export class PortalsView extends ItemView {
             showCurrentPropertyValue: s.showCurrentPropertyValue,
             hideFilteredCount: s.hideFilteredCount,
             journalQuoteIndicator: s.journalQuoteIndicator,
+            compactTabs: s.compactTabs,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
@@ -1734,6 +1735,7 @@ export class PortalsView extends ItemView {
 
             // Tab bar
             const tabBar = container.createEl('div', { cls: 'portals-tab-bar' });
+            tabBar.toggleClass('portals-compact-tabs', this.plugin.settings.compactTabs);
 
             const tabBarItems: TabBarItem[] = [];
             const seenCompositeKeys = new Set<string>();
@@ -1907,9 +1909,11 @@ export class PortalsView extends ItemView {
 
                 // Header with tabs and collapse icon
                 const secondaryHeader = secondaryPanel.createDiv({ cls: 'portals-secondary-header' });
+                secondaryHeader.toggleClass('portals-compact-tabs', this.plugin.settings.compactTabs);
 
                 // Tab container
                 const tabContainer = secondaryHeader.createDiv({ cls: 'portals-split-tabs' });
+                tabContainer.toggleClass('portals-compact-tabs', this.plugin.settings.compactTabs);
 
                 // Get tabs from settings, ensure context-notes is present for testing
                 const tabs = this.plugin.settings.splitViewTabs || ['recent'];

@@ -7204,6 +7204,56 @@ button.unhide-btn-all:not(.clickable-icon):hover {
   background-color: var(--background-modifier-hover);
 }
 
+/* ========================== Compact tab CSS ======================== */
+
+/* Compact tab bar (no text removal) */
+.portals-compact-tabs .portals-tab-bar {
+    gap: 2px;
+    padding-bottom: 6px;
+}
+.portals-compact-tabs .portals-tab {
+    padding: 2px 6px;
+    font-size: 0.7em;
+    gap: 3px;
+    border-bottom-width: 2px;
+}
+.portals-compact-tabs .portals-tab-icon i {
+    font-size: 14px;
+}
+/* Stack headers follow the same compact size */
+.portals-compact-tabs .portals-stack-header-tab {
+    padding: 2px 6px;
+    font-size: 0.8em;
+    gap: 3px;
+}
+.portals-compact-tabs .portals-stack-group {
+    margin-right: 1px;
+}
+.portals-compact-tabs .portals-stack-name {
+    font-size: 0.75em;
+}
+.portals-compact-tabs .portals-stack-count {
+    font-size: 0.65em;
+}
+
+/* Side portal split tabs – same compact styling */
+
+.portals-secondary-header.portals-compact-tabs {
+  height: 30px;
+}
+
+.portals-split-tab.portals-compact-tabs {
+  gap: 2px;
+}
+
+.portals-compact-tabs .portals-split-tab {
+  padding: 2px 6px;
+  font-size: 0.75em;
+  gap: 3px;
+}
+
+
+
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
 
 .portals-container {
