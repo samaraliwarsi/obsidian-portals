@@ -7300,7 +7300,6 @@ button.side-portal-btn-warn:not(.clickable-icon) {
 
 button.side-portal-btn-warn:not(.clickable-icon):hover {
     background: #ff2525;
-    color: var(--text-normal);
 }
 
 .trash-item-actions {
@@ -7420,7 +7419,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
     ) !important;
 }
 
-.portals-split-content .portals-tree-style-hues .trash-tree > .folder-details > .folder-summary {
+.portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-summary {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
         hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
@@ -7455,8 +7454,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
     border-radius: 4px;
     margin: 4px 0;
 }
-
-
 
 .portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-details,
 .portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-summary,

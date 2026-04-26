@@ -47,7 +47,7 @@ export class TrashRenderer {
         });
         const deleteAllBtn = btnRow.createEl('button', {
             cls: 'side-portal-btn-warn',
-            text: 'Empty'
+            text: 'Empty all'
         });
 
         restoreAllBtn.addEventListener('click', () => this.restoreAll());
