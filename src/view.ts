@@ -118,6 +118,33 @@ export class PortalsView extends ItemView {
         }
     }
 
+    private quickFileIcon(summary: HTMLElement, onClick: (e:MouseEvent) => void) {
+        const mode = this.plugin.settings.quickAddIcon;
+        if (mode === 'off') return;
+        if (mode === 'desktop-only' && Platform.isMobile) return;
+
+        const filePlus = summary.createSpan({ cls: 'portals-action-icons' });
+        filePlus.createEl('i', { cls: 'ph ph-file-plus' });
+        filePlus.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClick(e);
+        });
+    }
+    private quickFolderIcon(summary: HTMLElement, onClick: (e:MouseEvent) => void) {
+        const mode = this.plugin.settings.quickAddIcon;
+        if (mode === 'off') return;
+        if (mode === 'desktop-only' && Platform.isMobile) return;
+
+        const folderPlus = summary.createSpan({ cls: 'portals-action-icons' });
+        folderPlus.createEl('i', { cls: 'ph ph-folder-plus' });
+        folderPlus.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClick(e);
+        });
+    }
+
     private rebuildTabBarOrder() {
         const order: string[] = [];
         const sortedStacks = [...this.plugin.settings.portalStacks].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -1695,6 +1722,7 @@ export class PortalsView extends ItemView {
             hideFilteredCount: s.hideFilteredCount,
             journalQuoteIndicator: s.journalQuoteIndicator,
             compactTabs: s.compactTabs,
+            quickAddIcon: s.quickAddIcon,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
@@ -3032,7 +3060,10 @@ export class PortalsView extends ItemView {
                 } else if (style === 'underline') {
                     mainSummary.addClass('has-context-note-underline');
                 }
-            } 
+            }
+
+            // Quick‑create note for tag lists (tagName)
+            this.quickFileIcon(mainSummary, () => void this.newNoteInTagSpace(tagName))
             
             mainSummary.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
@@ -3202,7 +3233,8 @@ export class PortalsView extends ItemView {
                 iconSpan.createEl('i', { cls: iconClass });
                 summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
 
-
+                // Quick‑create note for tag groups flat list (mainT + gTag)
+                this.quickFileIcon(summary, () => void this.newNoteInTagSpace(tagName, [gTag]));
 
                 // contex menu for group
                 summary.addEventListener('contextmenu', (e) => {
@@ -3327,8 +3359,9 @@ export class PortalsView extends ItemView {
 
             const childrenContainer = details.createDiv({ cls: 'folder-children' });
 
+            // Quick‑create note for sub tag tree sub item (node.fullpath)
+            this.quickFileIcon(summary, () => void this.newNoteInTagSpace(node.fullPath));
             
-
             // Apply context note highlight to subtag node
             const nodeTagPath = node.fullPath; // e.g., "project/ideas"
             if (this.plugin.settings.enableContextNotes && this.hasContextNote(nodeTagPath) && this.plugin.settings.contextNoteHighlightStyle !== 'none') {
@@ -3597,6 +3630,9 @@ export class PortalsView extends ItemView {
         mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
         const mainChildren = mainDetails.createDiv({ cls: 'folder-children' });
 
+        // Quick‑create note for sub tag tree head item (tagName)
+        this.quickFileIcon(mainSummary, () => void this.newNoteInTagSpace(tagName));
+
         // Apply context note highlight to main tag
         const mainTagPath = tagName;
         if (this.plugin.settings.enableContextNotes && this.hasContextNote(mainTagPath) && this.plugin.settings.contextNoteHighlightStyle !== 'none') {
@@ -3779,6 +3815,9 @@ export class PortalsView extends ItemView {
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
             iconSpan.createEl('i', { cls: iconClass });
             summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
+
+            // Quick‑create note for tag groups subtagtree (mainT + gTag)
+            this.quickFileIcon(summary, () => void this.newNoteInTagSpace(tagName, [gTag]));
 
             // Apply context note highlight to group
             const groupTagPath = gTag; // e.g., "urgent"
@@ -4714,7 +4753,7 @@ export class PortalsView extends ItemView {
     }
 
     // New Note Creation in Tag Space
-    private async newNoteInTagSpace(tagName: string) {
+    private async newNoteInTagSpace(tagName: string, extraTags?: string[]) {
         const defaultName = 'Untitled.md'
         let candidate = defaultName;
         let counter = 1;
@@ -4726,16 +4765,18 @@ export class PortalsView extends ItemView {
             const newFile = await this.app.vault.create(candidate, '');
             // add the tag to frontmatter
             await this.app.fileManager.processFrontMatter(newFile, (frontmatter) => {
+                const allTags = [tagName, ...(extraTags || [])];
                 if (!frontmatter.tags) {
-                    frontmatter.tags = [tagName];
+                    frontmatter.tags = allTags;
                 } else if (Array.isArray(frontmatter.tags)) {
-                    if (!frontmatter.tags.includes(tagName)) {
-                        frontmatter.tags.push(tagName);
+                    for (const t of allTags) {
+                        if (!frontmatter.tags.includes(t)) {
+                            frontmatter.tags.push(t);
+                        }
                     }
                 } else {
                     // if tags is a string, convert to array
-                    const existing = frontmatter.tags
-                    frontmatter.tags = [existing, tagName];
+                    frontmatter.tags = [frontmatter.tags, ...allTags];
                 }
             });
             await this.app.workspace.getLeaf().openFile(newFile);
@@ -4856,6 +4897,9 @@ export class PortalsView extends ItemView {
                 summary.createSpan({ cls: 'open-dot' });
             }
         }
+        
+        this.quickFileIcon(summary, () => void this.newNoteInFolder(folder));
+        this.quickFolderIcon(summary, () => void this.newFolderInFolder(folder));
 
         if (!Platform.isMobile) {
             summary.draggable = true;

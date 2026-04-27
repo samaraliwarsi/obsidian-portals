@@ -74,6 +74,7 @@ export interface SpacesSettings {
     hideFilteredCount: boolean;
     clinicState: { selectedProperty: string; selectedValue: string };
     compactTabs: boolean;
+    quickAddIcon: 'off' | 'on' | 'desktop-only';
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -128,6 +129,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     hideFilteredCount: false,
     clinicState: { selectedProperty: '', selectedValue: '' },
     compactTabs: false,
+    quickAddIcon: 'desktop-only',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -256,6 +258,20 @@ export class SpacesSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.display();
                 }));
+
+        new Setting(containerEl)
+        .setName('Quick‑add icons')
+        .setDesc('Choose how to show quick-add icons on folder & tag rows. Hover reveal on desktop, directly on mobile.')
+        .addDropdown(dropdown => dropdown
+            .addOption('off', 'Off')
+            .addOption('on', 'On')
+            .addOption('desktop-only', 'Desktop only')
+            .setValue(this.plugin.settings.quickAddIcon)
+            .onChange(async (value) => {
+                this.plugin.settings.quickAddIcon = value as 'off' | 'on' | 'desktop-only';
+                await this.plugin.saveSettings();
+                this.display();
+            }));
 
         containerEl.createEl('hr');
 
