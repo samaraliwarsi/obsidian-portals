@@ -4764,6 +4764,10 @@ export class PortalsView extends ItemView {
                 if (targetPath === file.path) return;
 
                 try {
+                    // Save scroll position before the move
+                    const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+                    if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+                    
                     if (file instanceof TFile) {
                         await this.app.vault.rename(file, targetPath);
                         new Notice(`Moved to ${folder.name}`);
