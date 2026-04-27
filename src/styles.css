@@ -7238,7 +7238,7 @@ button.unhide-btn-all:not(.clickable-icon):hover {
 
 /* Side portal split tabs – same compact styling */
 
-.portals-secondary-header.portals-compact-tabs {
+.portals-secondary-header:not(.is-collapsed) .portals-secondary-header.portals-compact-tabs {
   height: 30px;
 }
 
@@ -7247,7 +7247,7 @@ button.unhide-btn-all:not(.clickable-icon):hover {
 }
 
 .portals-compact-tabs .portals-split-tab {
-  padding: 2px 6px;
+  padding: 2px 4px;
   font-size: 0.75em;
   gap: 3px;
 }
