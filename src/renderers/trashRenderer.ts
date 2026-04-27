@@ -15,6 +15,7 @@ export class TrashRenderer {
     private pollInterval: number | null = null;
     private lastSnapshot = '';
     private rendering = false;
+    private loadId = 0;                     // cancels stale background loads
 
     constructor(app: App, container: HTMLElement) {
         this.app = app;
@@ -27,7 +28,7 @@ export class TrashRenderer {
         this.container.empty();
     }
 
-    // =============== MAIN RENDER ======================
+    // =============== MAIN RENDER (instant + guarded) ======================
 
     async render() {
         if (this.rendering) return;
@@ -40,99 +41,130 @@ export class TrashRenderer {
     }
 
     private async actualRender() {
-        this.container.empty();
+        // ═══════════════════ Synchronous part → visible immediately ══════════
         this.stopPolling();
-        console.time('trash load');
-        this.items = await this.loadAllItems();
-        console.timeEnd('trash load');
+        this.container.empty();
 
-        if (this.destroyed) return;
+        // Buttons row – appears instantly
+        const btnRow = this.container.createDiv({ cls: 'trash-btn-row' });
+        const restoreAllBtn = btnRow.createEl('button', {
+            cls: 'side-portal-btn', text: 'Restore All'
+        });
+        const deleteAllBtn = btnRow.createEl('button', {
+            cls: 'side-portal-btn-warn', text: 'Empty all'
+        });
+        restoreAllBtn.addEventListener('click', () => this.restoreAll());
+        deleteAllBtn.addEventListener('click', () => {
+            if (confirm('Permanently delete ALL items in trash?')) this.deleteAll();
+        });
 
-        this.lastSnapshot = this.buildSnapshot(this.items);
+        // Empty tree area – will be filled asynchronously
+        const treeContainer = this.container.createDiv({ cls: 'trash-tree' });
 
+        // ═══════════════════ Asynchronous load → fills the tree ══════════════
+        const id = ++this.loadId;
+        const items = await this.loadTopLevelItems();
+        if (this.destroyed || id !== this.loadId) return;
 
-        if (this.items.length === 0) {
-            this.container.createEl('p', { cls: 'unhide-items-message', text: 'Trash is empty.' });
+        this.items = items;
+        treeContainer.empty();               // clear the empty placeholder
+
+        if (items.length === 0) {
+            treeContainer.createEl('p', {
+                cls: 'unhide-items-message',
+                text: 'Trash is empty.'
+            });
+            this.lastSnapshot = '';
             this.startPolling();
             return;
         }
 
-        const btnRow = this.container.createDiv({ cls: 'trash-btn-row' });
-        const restoreAllBtn = btnRow.createEl('button', {
-            cls: 'side-portal-btn',
-            text: 'Restore All'
-        });
-        const deleteAllBtn = btnRow.createEl('button', {
-            cls: 'side-portal-btn-warn',
-            text: 'Empty all'
-        });
+        // Render the tree with lazy‑loaded subfolders
+        this.renderTree(items, treeContainer);
 
-        restoreAllBtn.addEventListener('click', () => this.restoreAll());
-        deleteAllBtn.addEventListener('click', () => {
-            if (confirm('Permanently delete ALL items in trash?')) {
-                this.deleteAll();
-            }
+        // ── Background full snapshot → enables accurate polling ──
+        this.buildFullSnapshot().then(snapshot => {
+            if (this.destroyed || id !== this.loadId) return;
+            this.lastSnapshot = snapshot;
+            if (!this.pollInterval) this.startPolling();
         });
-
-        const tree = this.container.createDiv({ cls: 'trash-tree' });
-        this.renderTree(this.items, tree);
-
-        this.startPolling();
     }
 
-    // ────────── Recursive load (eager, simple) ──────────
-    private async loadAllItems(): Promise<TrashItem[]> {
+    // ────────── Top‑level listing (only root of .trash, fast) ──────────
+    private async loadTopLevelItems(): Promise<TrashItem[]> {
         const adapter = this.app.vault.adapter;
         const trashPath = '.trash';
         if (!(await adapter.exists(trashPath))) return [];
 
-        const buildTree = async (dir: string): Promise<TrashItem[]> => {
-            const { files, folders } = await adapter.list(dir);
-            const children: TrashItem[] = [];
-
-            for (const folder of folders) {
-                children.push({
-                    path: folder,
-                    basename: folder.split('/').pop() || folder,
-                    kind: 'folder',
-                    children: await buildTree(folder),
-                });
-            }
-            for (const file of files) {
-                if (file.endsWith('.DS_Store')) continue;
-                children.push({
-                    path: file,
-                    basename: file.split('/').pop() || file,
-                    kind: 'file',
-                });
-            }
-            return children;
-        };
-
-        return buildTree(trashPath);
+        const { files, folders } = await adapter.list(trashPath);
+        const items: TrashItem[] = [];
+        for (const folder of folders) {
+            items.push({
+                path: folder,
+                basename: folder.split('/').pop() || folder,
+                kind: 'folder',
+                children: undefined,          // will be lazy‑loaded on expand
+            });
+        }
+        for (const file of files) {
+            if (file.endsWith('.DS_Store')) continue;
+            items.push({
+                path: file,
+                basename: file.split('/').pop() || file,
+                kind: 'file',
+            });
+        }
+        return items;
     }
 
-    // ────────── Tree rendering (no restrictions) ──────────
+    // ────────── Tree rendering with lazy children ──────────
     private renderTree(items: TrashItem[], parentEl: HTMLElement) {
         for (const item of items) {
             if (item.kind === 'folder') {
                 const details = parentEl.createEl('details', { cls: 'folder-details' });
-                details.open = true;
+                details.open = false;                            // collapsed by default
                 const summary = details.createEl('summary', { cls: 'folder-summary' });
                 summary.createSpan({ cls: 'folder-icon' }).createEl('i', { cls: 'ph ph-folder' });
                 summary.createSpan({ text: item.basename, cls: 'portals-item-name' });
 
                 const childrenContainer = details.createDiv({ cls: 'folder-children' });
-                if (item.children?.length) {
-                    this.renderTree(item.children, childrenContainer);
-                }
+
+                // Load children on first expand
+                details.addEventListener('toggle', async () => {
+                    if (!details.open || item.children !== undefined) return;
+                    try {
+                        const adapter = this.app.vault.adapter;
+                        const { files, folders } = await adapter.list(item.path);
+                        const children: TrashItem[] = [];
+                        for (const f of folders) {
+                            children.push({
+                                path: f,
+                                basename: f.split('/').pop() || f,
+                                kind: 'folder',
+                                children: undefined,
+                            });
+                        }
+                        for (const f of files) {
+                            if (f.endsWith('.DS_Store')) continue;
+                            children.push({
+                                path: f,
+                                basename: f.split('/').pop() || f,
+                                kind: 'file',
+                            });
+                        }
+                        item.children = children;
+                        childrenContainer.empty();
+                        this.renderTree(children, childrenContainer);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                });
 
                 this.addItemActions(summary, item);
             } else {
                 const fileEl = parentEl.createDiv({ cls: 'file-item' });
                 fileEl.createSpan({ cls: 'file-icon' }).createEl('i', { cls: 'ph ph-file' });
                 fileEl.createSpan({ text: item.basename, cls: 'portals-item-name' });
-
                 this.addItemActions(fileEl, item);
             }
         }
@@ -143,21 +175,19 @@ export class TrashRenderer {
         const actionBar = parentEl.createDiv({ cls: 'trash-item-actions' });
 
         const restoreBtn = actionBar.createEl('button', {
-            cls: 'trash-action-btn',
-            attr: { 'aria-label': 'Restore' }
+            cls: 'trash-action-btn', attr: { 'aria-label': 'Restore' }
         });
         restoreBtn.createEl('i', { cls: 'ph ph-arrow-counter-clockwise', title: 'Restore' });
 
         const deleteBtn = actionBar.createEl('button', {
-            cls: 'trash-delete-btn',
-            attr: { 'aria-label': 'Delete permanently' }
+            cls: 'trash-delete-btn', attr: { 'aria-label': 'Delete permanently' }
         });
         deleteBtn.createEl('i', { cls: 'ph ph-trash', title: 'Delete permanently' });
 
         restoreBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             await this.restoreItem(item);
-            await this.render();
+            await this.render();          // full refresh after restore
         });
 
         deleteBtn.addEventListener('click', async (e) => {
@@ -199,27 +229,32 @@ export class TrashRenderer {
                 return;
             }
 
-            const freshItems = await this.loadAllItems();
-            const newSnapshot = this.buildSnapshot(freshItems);
+            const newSnapshot = await this.buildFullSnapshot();
             if (newSnapshot !== this.lastSnapshot) {
                 await this.render();
             }
         } catch { /* ignore */ }
     }
 
-    private buildSnapshot(items: TrashItem[]): string {
+    // ────────── Full recursive snapshot (for accurate polling) ──────────
+    private async buildFullSnapshot(): Promise<string> {
+        const adapter = this.app.vault.adapter;
+        const trashPath = '.trash';
+        if (!(await adapter.exists(trashPath))) return '';
+
         const paths: string[] = [];
-        const collect = (list: TrashItem[]) => {
-            for (const item of list) {
-                paths.push(item.path);
-                if (item.children) collect(item.children);
+        const collect = async (dir: string) => {
+            const { files, folders } = await adapter.list(dir);
+            paths.push(...files, ...folders);
+            for (const sub of folders) {
+                await collect(sub);
             }
         };
-        collect(items);
+        await collect(trashPath);
         return paths.sort().join(',');
     }
 
-    // ────────── Restore: item → vault root, copy-numbering if needed ──────────
+    // ────────── Restore: item → vault root, auto copy‑numbering ──────────
     private async restoreItem(item: TrashItem): Promise<void> {
         const basename = item.path.split('/').pop()!;
         let targetPath = normalizePath(basename);
@@ -239,12 +274,11 @@ export class TrashRenderer {
         }
 
         await this.app.vault.adapter.rename(item.path, targetPath);
-
         await this.cleanEmptyTrashParents(item.path);
-
         new Notice(`Restored ${basename}`);
     }
 
+    // Helper: delete empty parent directories in .trash after a move
     private async cleanEmptyTrashParents(trashPath: string) {
         let parent = trashPath.substring(0, trashPath.lastIndexOf('/'));
         while (parent && parent !== '.trash') {
