@@ -4609,7 +4609,7 @@ export class PortalsView extends ItemView {
             delete this.plugin.settings.customIcons[file.path];
             await this.plugin.saveSettings();
             this.renderContent();
-            new Notice(`File "${file.name}" moved to trash`, 2000);
+            new Notice(`File "${file.name}" deleted`, 2000);
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Delete failed: ${message}`, 3000);
@@ -4626,7 +4626,7 @@ export class PortalsView extends ItemView {
                 delete this.plugin.settings.customIcons[path];
             }
             await this.plugin.saveSettings();
-            new Notice(`Folder "${folder.name}" moved to trash`, 2000);
+            new Notice(`Folder "${folder.name}" deleted`, 2000);
             this.renderContent();
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);

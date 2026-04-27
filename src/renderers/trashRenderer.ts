@@ -13,8 +13,7 @@ export class TrashRenderer {
     private items: TrashItem[] = [];
     private destroyed = false;
     private pollInterval: number | null = null;
-    private lastTrashSnapshot = '';
-
+    private treeEl: HTMLElement | null = null;
 
     constructor(app: App, container: HTMLElement) {
         this.app = app;
@@ -27,14 +26,18 @@ export class TrashRenderer {
         this.stopPolling();
     }
 
+    // =============== MAIN RENDER ======================
+
     async render() {
         this.container.empty();
+        this.stopPolling();
         await this.loadTrashItems();
 
         if (this.destroyed) return;
 
         if (this.items.length === 0) {
-            this.container.createEl('p', { text: 'Trash is empty.' });
+            this.container.createEl('p', { cls: 'unhide-items-message', text: 'Trash is empty.' });
+            this.startPolling();
             return;
         }
 
@@ -57,45 +60,12 @@ export class TrashRenderer {
             }
         });
 
-        // Render tree
-        const tree = this.container.createDiv({ cls: 'trash-tree' });
-        this.renderTree(this.items, tree);
+        this.treeEl = this.container.createDiv({ cls: 'trash-tree' });
+        this.renderTree(this.items, this.treeEl);
         this.startPolling();
     }
 
-    private async checkForChanges() {
-        try {
-            const adapter = this.app.vault.adapter;
-            const trashPath = '.trash';
-
-            if (!(await adapter.exists(trashPath))) {
-                if (this.lastTrashSnapshot !== '') {
-                    this.lastTrashSnapshot = '';
-                    await this.render();
-                }
-                return;
-            }
-
-            const allPaths: string[] = [];
-            const recurse = async (dir: string) => {
-                const { files, folders } = await adapter.list(dir);
-                allPaths.push(...files, ...folders);
-                for (const sub of folders) {
-                    await recurse(sub);
-                }
-            };
-
-            await recurse(trashPath);
-            const snapshot = allPaths.join(',');
-
-            if (snapshot !== this.lastTrashSnapshot) {
-                this.lastTrashSnapshot = snapshot;
-                await this.render();
-            }
-        } catch {
-            // silently ignore
-        }
-    }
+    // -============= FLAT LOADING =================================
 
     private async loadTrashItems() {
         this.items = [];
@@ -103,43 +73,19 @@ export class TrashRenderer {
         const trashPath = '.trash';
         if (!(await adapter.exists(trashPath))) return;
 
-        // Recursive list
-        const listRecursive = async (dir: string): Promise<TrashItem[]> => {
-            const result: TrashItem[] = [];
-            const { files, folders } = await adapter.list(dir);
+        const { files, folders } = await adapter.list(trashPath);
             for (const folder of folders) {
                 const basename = folder.split('/').pop() || folder;
-                const children = await listRecursive(folder);
-                result.push({ path: folder, basename, kind: 'folder', children });
+                this.items.push({ path: folder, basename, kind: 'folder', children: [] });
             }
             for (const file of files) {
-                if (file.endsWith('.DS_Store')) continue; // skip macOS junk
+                if (file.endsWith('.DS_Store')) continue;
                 const basename = file.split('/').pop() || file;
-                result.push({ path: file, basename, kind: 'file' });
+                this.items.push({ path: file, basename, kind: 'file' });
             }
-            return result;
-        };
-
-        this.items = await listRecursive(trashPath);
     }
 
-    private startPolling() {
-        if (this.pollInterval) return;
-        this.pollInterval = window.setInterval(() => {
-            if (this.destroyed) {
-                this.stopPolling();
-                return;
-            }
-            this.checkForChanges();
-        }, 1000);
-    }
-
-    private stopPolling() {
-        if (this.pollInterval) {
-            clearInterval(this.pollInterval);
-            this.pollInterval = null;
-        }
-    }
+    // ==================== TREE RENDERING ====================
 
     private renderTree(items: TrashItem[], parentEl: HTMLElement) {
         for (const item of items) {
@@ -148,11 +94,29 @@ export class TrashRenderer {
                 const summary = details.createEl('summary', { cls: 'folder-summary' });
                 summary.createSpan({ cls: 'folder-icon' }).createEl('i', { cls: 'ph ph-folder' });
                 summary.createSpan({ text: item.basename, cls: 'portals-item-name' });
-                const children = details.createDiv({ cls: 'folder-children' });
-                if (item.children?.length) {
-                    this.renderTree(item.children, children);
-                }
-                // Folder actions
+                const childrenContainer = details.createDiv({ cls: 'folder-children' });
+
+                // Lazy load children only when folder is opened for the first time
+                details.addEventListener('toggle', async () => {
+                    if (!details.open || item.children?.length) return;
+                    try {
+                        const { files, folders } = await this.app.vault.adapter.list(item.path);
+                        const childItems: TrashItem[] = [];
+                        for (const f of folders) {
+                            childItems.push({ path: f, basename: f.split('/').pop() || f, kind: 'folder', children: [] });
+                        }
+                        for (const f of files) {
+                            if (f.endsWith('.DS_Store')) continue;
+                            childItems.push({ path: f, basename: f.split('/').pop() || f, kind: 'file' });
+                        }
+                        item.children = childItems;
+                        childrenContainer.empty();
+                        this.renderTree(childItems, childrenContainer);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                });
+
                 this.addItemActions(summary, item);
             } else {
                 const fileEl = parentEl.createDiv({ cls: 'file-item' });
@@ -162,6 +126,8 @@ export class TrashRenderer {
             }
         }
     }
+
+    // =================== ACTION BUTTONS ================================
 
     private addItemActions(parentEl: HTMLElement, item: TrashItem) {
         const actionBar = parentEl.createDiv({ cls: 'trash-item-actions' });
@@ -189,6 +155,63 @@ export class TrashRenderer {
             }
         });
     }
+
+    // ================ POLLING (tree only refresh) ==================================
+
+    private startPolling() {
+        if (this.pollInterval) return;
+        this.pollInterval = window.setInterval(() => {
+            if (this.destroyed) {
+                this.stopPolling();
+                return;
+            }
+            this.checkForChanges();
+        }, 1000);
+    }
+
+    private stopPolling() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
+    }
+
+    private async checkForChanges() {
+        try {
+            const adapter = this.app.vault.adapter;
+            const trashPath = '.trash';
+            if (!(await adapter.exists(trashPath))) {
+                if (this.items.length > 0) {
+                    this.items = [];
+                    this.refreshTree();
+                }
+                return;
+            }
+
+            const { files, folders } = await adapter.list(trashPath);
+            const newSnapshot = [...files, ...folders].sort().join(',');
+            const currentSnapshot = this.items.map(i => i.path).sort().join(',');
+
+            if (newSnapshot !== currentSnapshot) {
+                await this.loadTrashItems(); 
+                this.refreshTree();
+            }
+        } catch { /* silent */ }
+    }
+
+    // ================ TREE ONLY REFRESH =================================
+
+    private refreshTree() {
+        if (!this.treeEl) return;
+        this.treeEl.empty();
+        if (this.items.length === 0) {
+            this.treeEl.createEl('p', { text: 'Trash is empty.' });
+        } else {
+            this.renderTree(this.items, this.treeEl);
+        }
+    }
+
+    // ==================== ITEM OPERATIONS ====================
 
     private async restoreItem(item: TrashItem): Promise<void> {
         const sourcePath = item.path;
