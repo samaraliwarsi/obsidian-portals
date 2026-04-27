@@ -131,7 +131,7 @@ export class TrashRenderer {
                 return;
             }
             this.checkForChanges();
-        }, 500);
+        }, 1000);
     }
 
     private stopPolling() {
@@ -232,13 +232,29 @@ export class TrashRenderer {
 
     private async deleteItem(item: TrashItem) {
         try {
-            await this.app.vault.adapter.remove(item.path);
-            new Notice(`Deleted ${item.basename}`);
+            if (item.kind === 'folder') {
+                const removeRecursive = async (folderPath: string) => {
+                    const { files, folders } = await this.app.vault.adapter.list(folderPath);
+                    for (const file of files) {
+                        await this.app.vault.adapter.remove(file);
+                    }
+                    for (const subFolder of folders) {
+                        await removeRecursive(subFolder);
+                        await this.app.vault.adapter.rmdir(subFolder, false);
+                    }
+                };
+                await removeRecursive(item.path);
+                await this.app.vault.adapter.rmdir(item.path, false);
+                new Notice(`Deleted folder: ${item.basename}`);
+            } else {
+                await this.app.vault.adapter.remove(item.path);
+                new Notice(`Deleted ${item.basename}`);
+            }
         } catch (e) {
             new Notice(`Failed to delete ${item.basename}`);
             console.error(e);
         }
-        await this.render();
+        await this.render();  // outdented – runs after both success and failure
     }
 
     private async restoreAll() {

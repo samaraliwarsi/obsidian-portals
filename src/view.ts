@@ -2444,8 +2444,8 @@ export class PortalsView extends ItemView {
             }
             contentEl.empty();
             contentEl.addClass('portals-trash-tab');
-            const trashRender = new TrashRenderer(this.app, contentEl)
-            await trashRender.render();
+            this.trashRenderer = new TrashRenderer(this.app, contentEl)
+            await this.trashRenderer.render();
         }
     }
 
