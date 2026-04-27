@@ -23,6 +23,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - **Multi‑select** files, folders, and tags with `Alt+Click` or `Swipe right`. Use multi-select toolbar for actions. 
 - **Command palette** to add or remove portals and configure side portals. 
 - **Foldable floating action buttons** for  note/ folder creation, tag grouping, collapse and sort. 
+- **Quick-add buttons** for folders, tags to quickly create new items in target items.
 - **Custom display names** for tabs, stacks. 
 - **Side Portal** - A modular, collapsible, resizable view containing, **Bookmarks**, **Recent Files**, **Context notes**, **Hidden**, **Properties** and **Journal**. 
 	- **Context Notes** - an expansion to the older Folder notes feature. Context notes apply to folder as well as tags. 
@@ -31,6 +32,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 	- **Journal** - A viewing and marking tool for Daily Notes with a quote display feature. 
 	- **Hidden** - Place to show files, tags and folders hidden from the main view. 
 	- **Properties** - A viewing tool for markdown files, based on their properties. 
+	- **Trash** - A trash explorer for notes and folders based on Obsidian's `.trash` folder at vault root. 
 - **Drag & drop** reordering for portal tabs and stacks (desktop).
 - **Mobile friendly** – Responsive design that works on small screens. Tested on Android (more platforms coming).
 - **Export/Import settings** – Backup your tab configuration or transfer it to another vault using json files from `Settings`.

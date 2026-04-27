@@ -1,6 +1,6 @@
 # Portals Plugin User Guide
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.2.0**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.2.2**
 
 ---
 ## Installation
@@ -201,27 +201,27 @@ Quotes are extracted using a delimiter. Users must manually mark the snippets of
 
 > - Changes to quote delimiter, or journal folder require an Obsidian restart. 
 > - Changes to quote delimiter will also require user to mark the files using their choice delimiter. 
-
 ##### Quote indicator 
 Quote indicator can help users figure out if and which of their files carry wrong delimiters or which carry the correct delimiters, based on the user settings. It can help in situations where users decide to change their delimiters. It provides a visual feedback for what files are successfully adding to the quote system and what files are not, without opening the files. The quote indicator dropdown provides a few choices, 
 - Show a quote icon on the journal cards for daily notes that have quotes being extracted successfully. 
 - Show a warning on journal cards for daily notes that have quotes but with wrong delimiter, which means quotes not extracted. 
 - Show both and show none. 
 Users can turn this on from `Settings → Portals`, scroll down to **Journal** section and use the dropdown on `Show quote indicator on date cards`. 
-
 ### Hidden
 **Hidden** is a side portal that shows a list of items (files, folders, tags) that appear in the portal view. 
 	- Use the context menu to hide anything. Hiding a folder/ tag will also hide it's contents. However, for a hidden tag, it's content file can still appear on another folder. 
 	- Unhide options are available inside the Hidden side portal. Side portal also shows the type of item that was originally hidden, helping categorise items incase tags and folders share the same name. 
 	- Tag groups cannot be hidden, the feature is not enabled on them as they can be turned off using the `Tag groups` button. 
-
 ### Properties
  **Properties** - a new side portal to browse files by properties. Note that this is a viewer, not an editor. It can help browse files by properties and their values. Please note that this only counts the markdown files. 
 	- The Property filter dropdown contains a list of all available frontmatter properties in markdown files of the vault. 
+	- Both property filters have a search mode. To enable search, use `Right-click` on either dropdown buttons and type your input to reveal suggested entries from all the available ones. 
 	- Ability to display files with no frontmatter. 
 	- The Value filter dropdown can help further narrow down to sort by specific values of properties selected. 
 	- User preference to show the count of files queried and the option to show the value badge on files in the list. 
 	- **Cache** - Property browser works on a cache system so it lazy-loads it's data listening to actual changes in file frontmatter, file create, delete, rename etc functions. 
+### Trash
+ The trash side portal is for files and folders that are sent to Obsidian's native trash folder, the `.trash/` folder at root of your vault. Trash side portal works if the `Deleted files` setting in Obsidian is set to `Move to obsidian trash`. Users can manage trash items - delete/ restore individually or Empty all/ Restore all. An easy way to manage trash without leaving Obsidian app. 
 
 ---
 ## Custom Icons
@@ -274,7 +274,6 @@ Users can add new portals without going into the settings. Press `Cmd/Ctr+P` or 
 
 ---
 ## Foldable floating Action Buttons
-
 Four buttons at the bottom‑left of the file panel (can be folded/unfolded into a single button via `Right‑Click`):
 
 | Button                           | Icon          | Action                                                                                        |
@@ -288,8 +287,11 @@ Four buttons at the bottom‑left of the file panel (can be folded/unfolded into
 > Collapse button has two functions: `Click` collapses the view, `Right-Click` folds/ unfolds the other 3 icons. Click to collapse works in both folded and unfolded state. A tooltip related to this is set to display once per session on hover, after which the collapse button shows its regular tooltip. 
 
 ---
-## Right‑Click Context Menus
+## Quick-Add buttons
+Quick-add buttons are enabled by a user setting `Quick-add icons` can be turned on in `Settings → Portals`. They allow users to create new folders or notes inside a target folder in a folder space. For tag space, only quick add new note is added, and it creates files with the tag of the space it was created in. The setting can be kept off, it can be used on `Desktop only` mode (hover to reveal), or kept active for all devices. Hover is not available on mobile, the icons are visible normally. 
 
+---
+## Right‑Click Context Menus
 `Right‑click` on any file, tag or folder in the tree to open a menu with actions. There are various actions added on top of the available actions in Obsidian. Here's an overview
 ### Files
 - Open in new tab / split to the right
@@ -384,8 +386,7 @@ Four buttons at the bottom‑left of the file panel (can be folded/unfolded into
 - **Shift+Click doesn’t create context note** – verify that context notes are enabled in settings. 
 - **Drag & drop not working on mobile** – Drag and drop is disabled on mobile for now to implement properly later on. Use context menu “Move to” instead.
 - **Backup data file** - After setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways, 
-	- Copy the `data.json` file at `.obsidian/plugins/Portals` and save it at a secure location. 
-	- Open `Settings → Portals`, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
+	- Copy the `data.json` file at `.obsidian/plugins/portals` and save it at a secure location. 
 
 ---
 ## Migration Guide
