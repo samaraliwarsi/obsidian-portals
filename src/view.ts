@@ -1086,6 +1086,8 @@ export class PortalsView extends ItemView {
         if (this.renderTimer) {
             window.clearTimeout(this.renderTimer);
         }
+        const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+        if (tree) this.scrollToRestore = tree.scrollTop;
         this.renderTimer = window.setTimeout(() => {
             this.renderContent();
             this.renderTimer = null;
@@ -1259,11 +1261,15 @@ export class PortalsView extends ItemView {
 
         this.registerEvent(this.app.workspace.on('file-open', () => {
             if (!this.renaming) {
+                const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+                if (tree) this.scrollToRestore = tree.scrollTop;
                 this.renderContent();
             }
         }));
         this.registerEvent(this.app.workspace.on('layout-change', () => {
             if (!this.renaming){
+                const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+                if (tree) this.scrollToRestore = tree.scrollTop;
                 this.scheduleRender();
                 this.refreshRecentTab();
             }
@@ -4767,7 +4773,7 @@ export class PortalsView extends ItemView {
                     // Save scroll position before the move
                     const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
                     if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
-                    
+
                     if (file instanceof TFile) {
                         await this.app.vault.rename(file, targetPath);
                         new Notice(`Moved to ${folder.name}`);
