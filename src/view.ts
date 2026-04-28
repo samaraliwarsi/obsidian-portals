@@ -920,12 +920,14 @@ export class PortalsView extends ItemView {
 
     private getCurrentContextNote(): TFile | null {
         // Resolve context note from the active file's parent folder
-        const activeFile = this.app.workspace.getActiveFile();
-        if (activeFile && activeFile.parent) {
-            const note = this.getContextNote(activeFile.parent);
-            if (note) return note;
+        if (this.plugin.settings.contextNoteFollowActive) {
+            const activeFile = this.app.workspace.getActiveFile();
+            if (activeFile && activeFile.parent) {
+                const note = this.getContextNote(activeFile.parent);
+                if (note) return note;
+            }
         }
-        // Fall back to selectedSpace when there is no active file
+        // Fall back to selectedSpace
         const selectedSpace = this.plugin.settings.selectedSpace;
         if (!selectedSpace) return null;
         if (selectedSpace.type === 'folder') {

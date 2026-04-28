@@ -63,6 +63,7 @@ export interface SpacesSettings {
     customColors: Record<string, string>;
     tagColors: Record<string, string>;
     contextNoteIconClick: boolean;
+    contextNoteFollowActive: boolean;
     hiddenItems: Record<string, boolean>;
     portalStacks: PortalStack[];
     tabBarOrder: string[];
@@ -118,6 +119,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     customColors: {},
     tagColors: {},
     contextNoteIconClick: false,
+    contextNoteFollowActive: false,
     hiddenItems: {},
     portalStacks: [],
     tabBarOrder: [],
@@ -412,6 +414,18 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.plugin.settings.contextNoteIconClick = value;
                 await this.plugin.saveSettings();
                 // Refresh the view to apply cursor style
+                this.plugin.refreshAllViews();
+            }));
+
+        new Setting(containerEl)
+        .setName('Show closest context note')
+        .setDesc('When enabled, the side portal context note tab shows the context note for the active file\'s parent folder instead of the selected space.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.contextNoteFollowActive)
+            .setDisabled(!this.plugin.settings.enableContextNotes)
+            .onChange(async (value) => {
+                this.plugin.settings.contextNoteFollowActive = value;
+                await this.plugin.saveSettings();
                 this.plugin.refreshAllViews();
             }));
 
