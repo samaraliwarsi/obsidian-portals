@@ -3357,6 +3357,18 @@ export class PortalsView extends ItemView {
                         return;
                     }
                 });
+
+                // Show context note file if setting enabled (same as subtag groups)
+                if (!this.plugin.settings.enableContextNotes || (this.plugin.settings.enableContextNotes && this.plugin.settings.showContextNotesInTree)) {
+                    const contextNote = this.getContextNote(gTag);
+                    if (contextNote && !this.plugin.settings.hiddenItems[contextNote.path]) {
+                        // Avoid duplication if the note is already in the file list
+                        const alreadyListed = files.some(f => f.path === contextNote.path);
+                        if (!alreadyListed) {
+                            this.createFileItem(contextNote, groupChildren, openFiles);
+                        }
+                    }
+                }
                 
                 for (const file of sortFiles(files)) {
                     this.createFileItem(file, groupChildren, openFiles);
