@@ -3859,6 +3859,7 @@ export class PortalsView extends ItemView {
             summary.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 const menu = new Menu();
+                // Conditional for when styles aren't minimal or shades (they don't carry icons)
                 const canSetIcon = this.plugin.settings.treeStyle !== 'minimal' && this.plugin.settings.treeStyle !== 'shades';
                     if (canSetIcon) {
                     menu.addItem(item => item
@@ -3871,27 +3872,29 @@ export class PortalsView extends ItemView {
                             .setIcon('trash')
                             .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
                     }
-                    if (this.plugin.settings.enableContextNotes) {
-                        menu.addSeparator();
-                        const contextNote = this.getContextNote(gTag);
-                        if (contextNote) {
-                            menu.addItem(item => item
-                                .setTitle('Open context note')
-                                .setIcon('document')
-                                .onClick(() => this.app.workspace.getLeaf().openFile(contextNote)));
-                            menu.addItem(item => item
-                                .setTitle('Delete context note')
-                                .setIcon('trash')
-                                .setWarning(true)
-                                .onClick(() => this.deleteFile(contextNote)));
-                        } else {
-                            menu.addItem(item => item
-                                .setTitle('Create context note')
-                                .setIcon('plus')
-                                .onClick(() => this.createContextNote(gTag)));
-                        }
+                }
+                // No conditions
+                if (this.plugin.settings.enableContextNotes) {
+                    menu.addSeparator();
+                    const contextNote = this.getContextNote(gTag);
+                    if (contextNote) {
+                        menu.addItem(item => item
+                            .setTitle('Open context note')
+                            .setIcon('document')
+                            .onClick(() => this.app.workspace.getLeaf().openFile(contextNote)));
+                        menu.addItem(item => item
+                            .setTitle('Delete context note')
+                            .setIcon('trash')
+                            .setWarning(true)
+                            .onClick(() => this.deleteFile(contextNote)));
+                    } else {
+                        menu.addItem(item => item
+                            .setTitle('Create context note')
+                            .setIcon('plus')
+                            .onClick(() => this.createContextNote(gTag)));
                     }
                 }
+                // Conditional for when styles aren't shades or hues. Plus conditional if style is portals and tab colors is enabled.
                 const canSetcolor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
                 if (canSetcolor) {
                     menu.addSeparator();
@@ -4897,9 +4900,9 @@ export class PortalsView extends ItemView {
                 summary.createSpan({ cls: 'open-dot' });
             }
         }
-        
+
+        this.quickFolderIcon(summary, () => void this.newFolderInFolder(folder));        
         this.quickFileIcon(summary, () => void this.newNoteInFolder(folder));
-        this.quickFolderIcon(summary, () => void this.newFolderInFolder(folder));
 
         if (!Platform.isMobile) {
             summary.draggable = true;
