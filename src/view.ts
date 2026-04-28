@@ -919,11 +919,21 @@ export class PortalsView extends ItemView {
     }
 
     private getCurrentContextNote(): TFile | null {
+        // Resolve context note from the active file's parent folder
+        const activeFile = this.app.workspace.getActiveFile();
+        if (activeFile && activeFile.parent) {
+            const note = this.getContextNote(activeFile.parent);
+            if (note) return note;
+        }
+        // Fall back to selectedSpace when there is no active file
         const selectedSpace = this.plugin.settings.selectedSpace;
         if (!selectedSpace) return null;
         if (selectedSpace.type === 'folder') {
-            const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
-            return folder instanceof TFolder ? this.getContextNote(folder) ?? null : null;
+            const folder =
+                this.app.vault.getAbstractFileByPath(selectedSpace.path);
+            return folder instanceof TFolder
+                ? this.getContextNote(folder) ?? null
+                : null;
         } else {
             return this.getContextNote(selectedSpace.path) ?? null;
         }
@@ -1291,6 +1301,22 @@ export class PortalsView extends ItemView {
                 const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
                 if (tree) this.scrollToRestore = tree.scrollTop;
                 this.renderContent();
+            }
+            // Refresh context notes tab so it follows the
+            // active file's parent folder
+            if (this.plugin.settings.enableContextNotes &&
+                this.plugin.settings.activeSplitTab === 'context-notes') {
+                const sp = this.containerEl.querySelector(
+                    '.portals-secondary-panel');
+                if (sp) {
+                    const ce = sp.querySelector(
+                        '.portals-split-content');
+                    if (ce) {
+                        (ce as HTMLElement).empty();
+                        this.renderContextNotesTab(
+                            ce as HTMLElement);
+                    }
+                }
             }
         }));
         this.registerEvent(this.app.workspace.on('layout-change', () => {
