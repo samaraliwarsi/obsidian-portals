@@ -1,6 +1,6 @@
 # Portals Plugin User Guide
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.2.2**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.2.3**
 
 ---
 ## Installation
@@ -92,7 +92,10 @@ Stack customizations don't depend on `Tab color` or `Background color type` sett
 
 **Custom folder colors** apply to summary, details of folders, tag groups, subtags depending upon the chosen style. To set a custom color, `Right-click` to open context menu of a folder, tag group or subtag, choose your color and desire opacity from the modal and save. User preferences set here will be saved in the data file. In the styles section, it is described how custom colors apply differently to each style. User set colors in one style are consistent across custom color activated styles, i.e. users can switch styles and the colors will continue as chosen. 
 
-> Note: Custom colors do not apply to the `Shades` and `Hues` style as they carry their own gradients and hues which are set based on the total number of folders/ tag groups/ subtags. Context menu option for changing colors on those styles is disabled. 
+> [!Note] 
+> - Custom colors do not apply to the `Shades` and `Hues` style as they carry their own gradients and hues which are set based on the total number of folders/ tag groups/ subtags. Context menu option for changing colors on those styles is disabled. 
+> - Custom colors do not apply when the style is `Portals` and the setting `Tab colors` is turned on. Tab colors applies the color of the portal space to the folder, tag or group summaries in a space. 
+
 ### Tab name display
 Users can control how tab names appear in `Tab name display` setting in the **Explorer settings**:
 - Icons only – never show names; tooltip on hover.
@@ -215,7 +218,7 @@ Users can turn this on from `Settings → Portals`, scroll down to **Journal** s
 ### Properties
  **Properties** - a new side portal to browse files by properties. Note that this is a viewer, not an editor. It can help browse files by properties and their values. Please note that this only counts the markdown files. 
 	- The Property filter dropdown contains a list of all available frontmatter properties in markdown files of the vault. 
-	- Both property filters have a search mode. To enable search, use `Right-click` on either dropdown buttons and type your input to reveal suggested entries from all the available ones. Search is only available on desktop as of now.
+	- Both property filters have a search mode. To enable search, use `Right-click` on either dropdown buttons and type your input to reveal suggested entries from all the available ones. 
 	- Ability to display files with no frontmatter. 
 	- The Value filter dropdown can help further narrow down to sort by specific values of properties selected. 
 	- User preference to show the count of files queried and the option to show the value badge on files in the list. 
@@ -387,6 +390,7 @@ Quick-add buttons are enabled by a user setting `Quick-add icons` can be turned 
 - **Drag & drop not working on mobile** – Drag and drop is disabled on mobile for now to implement properly later on. Use context menu “Move to” instead.
 - **Backup data file** - After setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways, 
 	- Copy the `data.json` file at `.obsidian/plugins/portals` and save it at a secure location. 
+	- Open `Settings → Portals`, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
 
 ---
 ## Migration Guide
