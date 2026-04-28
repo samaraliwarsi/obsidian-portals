@@ -3239,10 +3239,10 @@ export class PortalsView extends ItemView {
                 // contex menu for group
                 summary.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
+                    const menu = new Menu();
                     const style = this.plugin.settings.treeStyle;
                     const canSetIcon = style !== 'minimal' && style !== 'shades';
                     if (canSetIcon) {
-                        const menu = new Menu();
                         menu.addItem(item => item
                             .setTitle('Set custom icon')
                             .setIcon('image')
@@ -3252,9 +3252,44 @@ export class PortalsView extends ItemView {
                                 .setTitle('Remove custom icon')
                                 .setIcon('trash')
                                 .onClick(() => this.removeCustomIconForTagGroup(groupKey)));
-                            menu.showAtPosition({ x: e.clientX, y: e.clientY });
                         }
                     }
+                    const canSetColor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
+                    if (canSetColor) {
+                        menu.addSeparator();
+                        const currentColor = this.plugin.settings.tagColors[groupKey];
+                        menu.addItem(item => item
+                            .setTitle('Set color')
+                            .setIcon('palette')
+                            .onClick(() => this.setTagColor(groupKey, groupDetails)));
+                        if (currentColor) {
+                            menu.addItem(item => item
+                                .setTitle('Reset color')
+                                .setIcon('undo')
+                                .onClick(() => this.resetTagColor(groupKey, groupDetails)));
+                        }
+                    }
+                    if (this.plugin.settings.enableContextNotes) {
+                        menu.addSeparator();
+                        const contextNote = this.getContextNote(gTag);
+                        if (contextNote) {
+                            menu.addItem(item => item
+                                .setTitle('Open context note')
+                                .setIcon('document')
+                                .onClick(() => this.app.workspace.getLeaf().openFile(contextNote)));
+                            menu.addItem(item => item
+                                .setTitle('Delete context note')
+                                .setIcon('trash')
+                                .setWarning(true)
+                                .onClick(() => this.deleteFile(contextNote)));
+                        } else {
+                            menu.addItem(item => item
+                                .setTitle('Create context note')
+                                .setIcon('plus')
+                                .onClick(() => this.createContextNote(gTag)));
+                        }
+                    }
+                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
                 });
                 
                 for (const file of sortFiles(files)) {
