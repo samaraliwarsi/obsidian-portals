@@ -3252,6 +3252,37 @@ export class PortalsView extends ItemView {
                 // Quick‑create note for tag groups flat list (mainT + gTag)
                 this.quickFileIcon(summary, () => void this.newNoteInTagSpace(tagName, [gTag]));
 
+                // Apply context note highlight to group tag
+                const groupTagPath = gTag;
+                if (
+                    this.plugin.settings.enableContextNotes &&
+                    this.hasContextNote(groupTagPath) &&
+                    this.plugin.settings.contextNoteHighlightStyle !== 'none'
+                ) {
+                    const highlightStyle = this.plugin.settings.contextNoteHighlightStyle;
+                    if (highlightStyle === 'icon') {
+                        iconSpan.addClass('has-context-note-icon');
+                        summary.addClass('has-context-note-icon');
+                    } else if (highlightStyle === 'underline') {
+                        summary.addClass('has-context-note-underline');
+                    }
+                }
+
+                // Icon click handler (opens context note when setting enabled)
+                if (this.plugin.settings.enableContextNotes && this.plugin.settings.contextNoteIconClick) {
+                    iconSpan.style.cursor = 'pointer';
+                    iconSpan.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const note = this.getContextNote(groupTagPath);
+                        if (note) {
+                            await this.app.workspace.getLeaf().openFile(note);
+                        } else {
+                            new Notice('No context note exists for this group tag. Shift+Click to create.');
+                        }
+                    });
+                }
+
                 // contex menu for group
                 summary.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
@@ -3305,6 +3336,26 @@ export class PortalsView extends ItemView {
                         }
                     }
                     menu.showAtPosition({ x: e.clientX, y: e.clientY });
+                });
+
+                summary.addEventListener('click', (e) => {
+                    if (e.shiftKey && this.plugin.settings.enableContextNotes) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        void this.handleContextNoteCreation(gTag);
+                        return;
+                    }
+                    if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const note = this.getContextNote(gTag);
+                        if (note) {
+                            void this.app.workspace.getLeaf('tab').openFile(note);
+                        } else {
+                            new Notice('No context note for this group tag');
+                        }
+                        return;
+                    }
                 });
                 
                 for (const file of sortFiles(files)) {
