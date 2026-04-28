@@ -215,7 +215,7 @@ Users can turn this on from `Settings → Portals`, scroll down to **Journal** s
 ### Properties
  **Properties** - a new side portal to browse files by properties. Note that this is a viewer, not an editor. It can help browse files by properties and their values. Please note that this only counts the markdown files. 
 	- The Property filter dropdown contains a list of all available frontmatter properties in markdown files of the vault. 
-	- Both property filters have a search mode. To enable search, use `Right-click` on either dropdown buttons and type your input to reveal suggested entries from all the available ones. 
+	- Both property filters have a search mode. To enable search, use `Right-click` on either dropdown buttons and type your input to reveal suggested entries from all the available ones. Search is only available on desktop as of now.
 	- Ability to display files with no frontmatter. 
 	- The Value filter dropdown can help further narrow down to sort by specific values of properties selected. 
 	- User preference to show the count of files queried and the option to show the value badge on files in the list. 
