@@ -419,7 +419,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
         .setName('Show closest context note')
-        .setDesc('When enabled, the side portal context note tab shows the context note for the active file\'s parent folder instead of the selected space.')
+        .setDesc('Side portal shows context note for the active file\'s nearest ancestor folder (folder spaces only). Falls back to portal\'s context note if none found.')
         .addToggle(toggle => toggle
             .setValue(this.plugin.settings.contextNoteFollowActive)
             .setDisabled(!this.plugin.settings.enableContextNotes)

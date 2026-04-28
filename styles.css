@@ -6558,7 +6558,8 @@ body.portals-dragging {
   }
 }
 
-/*===CONTEXT NOTE, Bases Styling & User message Display===*/
+/*================CONTEXT NOTE, Bases Styling & User message Display================*/
+
 .portals-embed-link {
     display: inline-block;
     margin: 4px 0;
@@ -6601,7 +6602,20 @@ body.portals-dragging {
   text-decoration-color: var(--text-muted);
   text-underline-offset: 2px;
 }
-/*====COMPACT TREE STYLES====*/
+
+.portals-context-note-status {
+    font-size: 10px;
+    color: var(--text-faint);
+    background: transparent;
+    padding: 0;
+    height: auto;
+    min-width: 0;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    text-align: right;
+  }
+
+/*==========================COMPACT TREE STYLES============================*/
 
 .portals-tree-container.portals-compact-tree {
     padding-left: 8px;

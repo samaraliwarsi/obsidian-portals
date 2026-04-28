@@ -919,23 +919,25 @@ export class PortalsView extends ItemView {
     }
 
     private getCurrentContextNote(): TFile | null {
-        // Resolve context note from the active file's parent folder
-        if (this.plugin.settings.contextNoteFollowActive) {
-            const activeFile = this.app.workspace.getActiveFile();
-            if (activeFile && activeFile.parent) {
-                const note = this.getContextNote(activeFile.parent);
-                if (note) return note;
-            }
-        }
-        // Fall back to selectedSpace
         const selectedSpace = this.plugin.settings.selectedSpace;
         if (!selectedSpace) return null;
+
+        // if 'follow active' enabled, walk up the folder tree
+        if (selectedSpace.type === 'folder' && this.plugin.settings.contextNoteFollowActive) {
+            const activeFile = this.app.workspace.getActiveFile();
+            if (activeFile?.parent) {
+                let currentFolder: TFolder | null = activeFile.parent;
+                while (currentFolder) {
+                    const note = this.getContextNote(currentFolder);
+                    if (note) return note;
+                    currentFolder = currentFolder.parent; // move up a level
+                }
+            }
+        }
+        // Fall back to selectedSpace (default behaviour on folders or tags)
         if (selectedSpace.type === 'folder') {
-            const folder =
-                this.app.vault.getAbstractFileByPath(selectedSpace.path);
-            return folder instanceof TFolder
-                ? this.getContextNote(folder) ?? null
-                : null;
+            const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
+            return folder instanceof TFolder ? this.getContextNote(folder) ?? null : null;
         } else {
             return this.getContextNote(selectedSpace.path) ?? null;
         }
@@ -1751,6 +1753,7 @@ export class PortalsView extends ItemView {
             journalQuoteIndicator: s.journalQuoteIndicator,
             compactTabs: s.compactTabs,
             quickAddIcon: s.quickAddIcon,
+            contextNoteFollowActive: s.contextNoteFollowActive,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
@@ -2767,6 +2770,28 @@ export class PortalsView extends ItemView {
         }
     }
 
+    private insertContextNoteStatus(parentEl: HTMLElement, currentNote: TFile) {
+        const selectedSpace = this.plugin.settings.selectedSpace;
+        let portalNote: TFile | null = null;
+        if (selectedSpace) {
+            if (selectedSpace.type === 'folder') {
+                const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
+                if (folder instanceof TFolder) {
+                    portalNote = this.getContextNote(folder) ?? null;
+                }
+            } else {
+                portalNote = this.getContextNote(selectedSpace.path) ?? null;
+            }
+        }
+
+        parentEl.createDiv({
+            cls: 'portals-context-note-status',
+            text: (portalNote && currentNote.path === portalNote.path)
+                ? `Fallback ➜ ${currentNote.basename} portal`
+                : `Following ➜ ${currentNote.basename}`
+        });
+    }
+
     //--RenderContextNotesTab
     private renderContextNotesTab(contentEl: HTMLElement) {
         const targetFile = this.getCurrentContextNote();
@@ -2786,6 +2811,9 @@ export class PortalsView extends ItemView {
 
             // use cached element
             contentEl.empty();
+            // status 
+            this.insertContextNoteStatus(contentEl, targetFile);
+
             contentEl.appendChild(cached.element);
             // Restore scroll position if stored
             const savedScroll = this.contextNoteScrollPositions.get(filePath);
@@ -2854,6 +2882,9 @@ export class PortalsView extends ItemView {
                 // Append to contentEl (if still relevant)
                 if (this.plugin.settings.activeSplitTab === 'context-notes' && this.getCurrentContextNote()?.path === filePath) {
                     contentEl.empty();
+                    // status
+                    this.insertContextNoteStatus(contentEl, targetFile);
+
                     contentEl.appendChild(noteContainer);
                 }
             } catch (e) {
