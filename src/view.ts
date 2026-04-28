@@ -3181,6 +3181,22 @@ export class PortalsView extends ItemView {
                 const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
                 const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
 
+                const savedColor = this.plugin.settings.tagColors[groupKey];
+                const style = this.plugin.settings.treeStyle;
+                const canApplyColor = savedColor && style !== 'shades' && style !== 'hues' && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
+
+                if (canApplyColor) {
+                    groupDetails.classList.add('has-folder-color');
+                    summary.classList.add('has-folder-color');
+                    groupChildren.classList.add('has-folder-color');
+                    groupDetails.style.setProperty('--folder-color', savedColor);
+                } else {
+                    groupDetails.classList.remove('has-folder-color');
+                    groupDetails.style.removeProperty('--folder-color');
+                    summary.classList.remove('has-folder-color');
+                    groupChildren.classList.remove('has-folder-color');
+                }
+
                 // Shades Style
                 if (depth === 0 && this.plugin.settings.treeStyle === 'shades') {
                     const minOpacity = 0.1;
@@ -3240,7 +3256,6 @@ export class PortalsView extends ItemView {
                 summary.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     const menu = new Menu();
-                    const style = this.plugin.settings.treeStyle;
                     const canSetIcon = style !== 'minimal' && style !== 'shades';
                     if (canSetIcon) {
                         menu.addItem(item => item
