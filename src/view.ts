@@ -2439,7 +2439,10 @@ export class PortalsView extends ItemView {
         if (!contentEl) return;
         contentEl.empty();
         contentEl.className = 'portals-split-content';
-        contentEl.addClass(`portals-tree-style-${this.plugin.settings.treeStyle}`);
+        
+        if (tabId !== 'context-notes' && tabId !== 'journal') {
+            contentEl.addClass(`portals-tree-style-${this.plugin.settings.treeStyle}`);
+        }
 
         if (tabId === 'recent') {
             const recentFiles = this.plugin.settings.recentFilesList || [];
@@ -2494,6 +2497,7 @@ export class PortalsView extends ItemView {
                 });
                 return;
             }
+            contentEl.addClass('portals-split-content-no-scroll')
             this.renderContextNotesTab(contentEl);
         } else if (tabId === 'bookmarks') {
             this.renderBookmarksTab(contentEl);

@@ -6607,12 +6607,18 @@ body.portals-dragging {
     font-size: 10px;
     color: var(--text-faint);
     background: transparent;
+    background-color: transparent;
     padding: 0;
     height: auto;
     min-width: 0;
     line-height: 1.2;
     margin-bottom: 4px;
     text-align: right;
+    overflow-y: none;
+  }
+
+  .portals-split-content-no-scroll {
+    overflow: hidden !important;
   }
 
 /*==========================COMPACT TREE STYLES============================*/

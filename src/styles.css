@@ -6606,13 +6606,16 @@ body.portals-dragging {
 .portals-context-note-status {
     font-size: 10px;
     color: var(--text-faint);
-    background: transparent;
     padding: 0;
     height: auto;
     min-width: 0;
     line-height: 1.2;
     margin-bottom: 4px;
     text-align: right;
+  }
+
+  .portals-split-content-no-scroll {
+    overflow: hidden !important;
   }
 
 /*==========================COMPACT TREE STYLES============================*/
