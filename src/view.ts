@@ -125,6 +125,11 @@ export class PortalsView extends ItemView {
 
         const filePlus = summary.createSpan({ cls: 'portals-action-icons' });
         filePlus.createEl('i', { cls: 'ph ph-file-plus' });
+        if (this.plugin.settings.compactTree) {
+            filePlus.addClass('portals-action-icons-compact');
+        } else {
+            filePlus.removeClass('portals-action-icons-compact');
+        }
         filePlus.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -138,6 +143,11 @@ export class PortalsView extends ItemView {
 
         const folderPlus = summary.createSpan({ cls: 'portals-action-icons' });
         folderPlus.createEl('i', { cls: 'ph ph-folder-plus' });
+        if (this.plugin.settings.compactTree) {
+            folderPlus.addClass('portals-action-icons-compact');
+        } else {
+            folderPlus.removeClass('portals-action-icons-compact');
+        }
         folderPlus.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
