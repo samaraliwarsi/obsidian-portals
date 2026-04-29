@@ -6699,8 +6699,21 @@ body.portals-dragging {
     gap: 6px;
     padding-top: 8px;
     padding-bottom: 12px;
-    overflow-x: auto;
-    scrollbar-width: thin;
+}
+
+/* Custom scrollbar for date cards – matches the rest of Portals */
+.journal-cards-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+.journal-cards-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+.journal-cards-wrapper::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+.journal-cards-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
 }
 
 .journal-quote-indicator {
@@ -7589,9 +7602,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .fil
   font-size: 0.85em;
 }
 
-.portals-compact-tree .folder-summary .portals-action-icons + .portals-action-icons {
-    margin-left: 2px;
-}
 
 
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
