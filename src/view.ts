@@ -2100,7 +2100,14 @@ export class PortalsView extends ItemView {
                     this.renderSplitTabContent(secondaryPanel, tabId);
                 });
             });
-            
+
+            // 🔽 Scroll active side‑portal tab into view
+            const activeSplitTab = tabContainer.querySelector('.portals-split-tab.is-active') as HTMLElement | null;
+            if (activeSplitTab) {
+                setTimeout(() => {
+                    activeSplitTab.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
+                }, 0);
+            }
 
             // Collapse icon
             const collapseIcon = secondaryHeader.createSpan({ cls: 'portals-collapse-icon' });
