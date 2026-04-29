@@ -2811,8 +2811,11 @@ export class PortalsView extends ItemView {
 
             // use cached element
             contentEl.empty();
+
             // status 
-            this.insertContextNoteStatus(contentEl, targetFile);
+            if (this.plugin.settings.contextNoteFollowActive && this.plugin.settings.selectedSpace?.type === 'folder') {
+                this.insertContextNoteStatus(contentEl, targetFile);
+            }
 
             contentEl.appendChild(cached.element);
             // Restore scroll position if stored
@@ -2882,8 +2885,11 @@ export class PortalsView extends ItemView {
                 // Append to contentEl (if still relevant)
                 if (this.plugin.settings.activeSplitTab === 'context-notes' && this.getCurrentContextNote()?.path === filePath) {
                     contentEl.empty();
-                    // status
-                    this.insertContextNoteStatus(contentEl, targetFile);
+                    
+                    // status 
+                    if (this.plugin.settings.contextNoteFollowActive && this.plugin.settings.selectedSpace?.type === 'folder') {
+                        this.insertContextNoteStatus(contentEl, targetFile);
+                    }
 
                     contentEl.appendChild(noteContainer);
                 }
