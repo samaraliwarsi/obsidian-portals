@@ -783,7 +783,6 @@ export class SpacesSettingTab extends PluginSettingTab {
             if (portals.length === 0) return;
 
             const details = containerEl.createEl('details', { cls: 'portals-section-details' });
-            details.setAttr('open', 'true');
 
             const summary = details.createEl('summary', { cls: 'portals-section-summary' });
             summary.createSpan({ text: title });

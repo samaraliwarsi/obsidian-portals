@@ -2100,6 +2100,7 @@ export class PortalsView extends ItemView {
                     this.renderSplitTabContent(secondaryPanel, tabId);
                 });
             });
+            
 
             // Collapse icon
             const collapseIcon = secondaryHeader.createSpan({ cls: 'portals-collapse-icon' });
