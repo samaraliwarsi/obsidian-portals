@@ -6837,6 +6837,11 @@ button.journal-filter-btn i {
 /*=============================JOURNAL-END============================*/
 /*=============================FRONTMATTER CLINIC=========================*/
 
+.portals-fm-dropdown .menu-scroll {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
 .portals-frontmatter-clinic {
     padding: 4px 8px;
 }

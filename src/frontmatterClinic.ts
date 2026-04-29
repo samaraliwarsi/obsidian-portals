@@ -261,6 +261,7 @@ export class FrontmatterClinicRenderer {
         propBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const menu = new Menu();
+            (menu as {dom?: HTMLElement}).dom?.addClass('portals-fm-dropdown');
             menu.addItem(item => item
                 .setTitle('None')
                 .onClick(async () => {
@@ -314,6 +315,7 @@ export class FrontmatterClinicRenderer {
                 return;
             }
             const menu = new Menu();
+            (menu as {dom?: HTMLElement }).dom?.addClass('portals-fm-dropdown');
             menu.addItem(item => item
                 .setTitle('All values')
                 .onClick(async () => {
