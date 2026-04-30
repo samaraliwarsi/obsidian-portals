@@ -2497,7 +2497,7 @@ export class PortalsView extends ItemView {
                 });
                 return;
             }
-            contentEl.addClass('portals-split-content-no-scroll')
+            contentEl.addClass('portals-context-notes-tab-container')
             this.renderContextNotesTab(contentEl);
         } else if (tabId === 'bookmarks') {
             this.renderBookmarksTab(contentEl);
@@ -2792,7 +2792,19 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private insertContextNoteStatus(parentEl: HTMLElement, currentNote: TFile) {
+    private ensureContextNoteOverlay(container: HTMLElement, currentNote: TFile) {
+        // Remove any previous overlay
+        const existing = container.querySelector('.portals-context-note-status-overlay');
+        if (existing) existing.remove();
+
+         // Only create if the setting is on and we're in a folder space
+        if (!this.plugin.settings.contextNoteFollowActive ||
+            this.plugin.settings.selectedSpace?.type !== 'folder') {
+            return;
+        }
+
+        const overlay = container.createDiv({ cls: 'portals-context-note-status-overlay' });
+
         const selectedSpace = this.plugin.settings.selectedSpace;
         let portalNote: TFile | null = null;
         if (selectedSpace) {
@@ -2805,13 +2817,11 @@ export class PortalsView extends ItemView {
                 portalNote = this.getContextNote(selectedSpace.path) ?? null;
             }
         }
+        const text = (portalNote && currentNote.path === portalNote.path)
+            ? `Fallback ➜ ${currentNote.basename} portal`
+            : `Following ➜ ${currentNote.basename}`;
 
-        parentEl.createDiv({
-            cls: 'portals-context-note-status',
-            text: (portalNote && currentNote.path === portalNote.path)
-                ? `Fallback ➜ ${currentNote.basename} portal`
-                : `Following ➜ ${currentNote.basename}`
-        });
+        overlay.createSpan({ cls: 'portals-context-note-status-overlay-text', text });
     }
 
     //--RenderContextNotesTab
@@ -2833,12 +2843,6 @@ export class PortalsView extends ItemView {
 
             // use cached element
             contentEl.empty();
-
-            // status 
-            if (this.plugin.settings.contextNoteFollowActive && this.plugin.settings.selectedSpace?.type === 'folder') {
-                this.insertContextNoteStatus(contentEl, targetFile);
-            }
-
             contentEl.appendChild(cached.element);
             // Restore scroll position if stored
             const savedScroll = this.contextNoteScrollPositions.get(filePath);
@@ -2846,6 +2850,7 @@ export class PortalsView extends ItemView {
                 cached.element.scrollTop = savedScroll;
                 this.contextNoteScrollPositions.delete(filePath);
             }
+            this.ensureContextNoteOverlay(contentEl, targetFile);
             return;
         }
 
@@ -2907,13 +2912,8 @@ export class PortalsView extends ItemView {
                 // Append to contentEl (if still relevant)
                 if (this.plugin.settings.activeSplitTab === 'context-notes' && this.getCurrentContextNote()?.path === filePath) {
                     contentEl.empty();
-                    
-                    // status 
-                    if (this.plugin.settings.contextNoteFollowActive && this.plugin.settings.selectedSpace?.type === 'folder') {
-                        this.insertContextNoteStatus(contentEl, targetFile);
-                    }
-
                     contentEl.appendChild(noteContainer);
+                    this.ensureContextNoteOverlay(contentEl, targetFile);
                 }
             } catch (e) {
                 console.error('Error rendering context note:', e);

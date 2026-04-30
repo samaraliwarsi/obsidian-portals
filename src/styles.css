@@ -6603,20 +6603,36 @@ body.portals-dragging {
   text-underline-offset: 2px;
 }
 
-.portals-context-note-status {
-    font-size: 10px;
-    color: var(--text-faint);
-    padding: 0;
-    height: auto;
-    min-width: 0;
-    line-height: 1.2;
-    margin-bottom: 4px;
-    text-align: right;
-  }
+/* Overlay – transparent, positioned top‑right, non‑interactive */
+.portals-context-note-status-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    justify-content: flex-end;
+    padding: 2px;
+    background: transparent !important;
+    margin-right: 16px;                   /* keep a gap */
+}
 
-  .portals-split-content-no-scroll {
-    overflow: hidden !important;
-  }
+.portals-context-note-status-overlay-text {
+    pointer-events: auto;
+    width: fit-content;
+    max-width: 100%;
+    padding: 2px 4px;
+    background: var(--background-modifier-border);
+    box-shadow: var(--shadow-s);
+    border-radius: 4px;
+    font-size: 8px;
+    color: var(--text-faint);
+    white-space: nowrap;
+}
+
+.portals-context-notes-tab-container {
+    position: relative;
+}
 
 /*==========================COMPACT TREE STYLES============================*/
 
