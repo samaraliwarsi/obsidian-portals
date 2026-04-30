@@ -1,6 +1,6 @@
 # Portals Plugin User Guide
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.2.3**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.2.4**
 
 ---
 ## Installation
@@ -173,6 +173,7 @@ The context note tab shows the associated context note of the currently active p
 - Context notes can also be directly opened form the icon (apart from shades and minimal style as they don't show icons). To do this, go to `Settings → Portals`, scroll down to **Context notes** section and turn on `Open context notes from icon`. 
 - Users can choose if they want to see the context note file inside a folder or a tag tree. To enable, go to `Settings → Portals`, scroll down to the **Context Note** section and turn on `Show context notes in file tree`. If `Enable context notes` setting is off, all context notes are displayed in file tree regardless of the other settings. 
 - All context notes related to tags are saved in a dedicated folder called `_Tag notes`. Since tags aren't folder spaces, this has been opted as a storage folder for it, so as to keep the folder views clean of tag related context notes. If users decide to change this feature, it can be done from the `Tag notes folder` setting. Set your desired folder, type the name or choose from the `Browse` list. Once selected, it is important to press the red `Migrate` button to move the available tag related context notes into the new folder. 
+- When the `Show closest context note` is enabled the context note side portal will show the context note of the parent folder of the active file. If no context note exists in the parent folder, it will look one level upwards, walking up all till the portal space or root. If none exist, it will fallback to showing the portal tab's context note. To track what's being displayed, a status overlay option has been added to the dropdown setting to show what's being displayed.
 - Click anywhere inside side portal tab to open the context note in a new tab. 
 - Context note tab view renders markdown, including embeds (up to 5 levels deep). 
 - It supports [Dataview](https://github.com/blacksmithgu/obsidian-dataview) to help query the notes inside a folder. This needs the Dataview plugin, downloadable from community plugins or GitHub. 
@@ -292,6 +293,10 @@ Four buttons at the bottom‑left of the file panel (can be folded/unfolded into
 ---
 ## Quick-Add buttons
 Quick-add buttons are enabled by a user setting `Quick-add icons` can be turned on in `Settings → Portals`. They allow users to create new folders or notes inside a target folder in a folder space. For tag space, only quick add new note is added, and it creates files with the tag of the space it was created in. The setting can be kept off, it can be used on `Desktop only` mode (hover to reveal), or kept active for all devices. Hover is not available on mobile, the icons are visible normally. 
+
+---
+## Page Preview 
+Portals supports Obsidian's native page preview core plugin. If enabled, all supported files anywhere across the plugin (except in **Trash**) will show hover preview using `Cmd/Ctrl` key. In **Context notes** side portal, direct typed links are supported as of now. A future iteration of the same will also support Dataview rendered links. 
 
 ---
 ## Right‑Click Context Menus
