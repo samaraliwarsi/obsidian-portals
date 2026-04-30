@@ -63,7 +63,7 @@ export interface SpacesSettings {
     customColors: Record<string, string>;
     tagColors: Record<string, string>;
     contextNoteIconClick: boolean;
-    contextNoteFollowActive: boolean;
+    contextNoteFollowActive: 'off' | 'on-status' | 'on-noStatus';
     hiddenItems: Record<string, boolean>;
     portalStacks: PortalStack[];
     tabBarOrder: string[];
@@ -119,7 +119,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     customColors: {},
     tagColors: {},
     contextNoteIconClick: false,
-    contextNoteFollowActive: false,
+    contextNoteFollowActive: 'off',
     hiddenItems: {},
     portalStacks: [],
     tabBarOrder: [],
@@ -334,6 +334,9 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.enableContextNotes)
                 .onChange(async (value) => {
                     this.plugin.settings.enableContextNotes = value;
+                    if (!value) {
+                        this.plugin.settings.contextNoteFollowActive = 'off';
+                    }
                     await this.plugin.saveSettings();
                     this.display(); // refresh settings UI if needed
                 }));
@@ -420,14 +423,17 @@ export class SpacesSettingTab extends PluginSettingTab {
         new Setting(containerEl)
         .setName('Show closest context note')
         .setDesc('Side portal shows context note for the active file\'s nearest ancestor folder (folder spaces only). Falls back to portal\'s context note if none found.')
-        .addToggle(toggle => toggle
+        .addDropdown(dropdown => dropdown
+            .addOption('off', 'Off')
+            .addOption('on-status', 'On, show status')
+            .addOption('on-noStatus', 'On, no status')
             .setValue(this.plugin.settings.contextNoteFollowActive)
             .setDisabled(!this.plugin.settings.enableContextNotes)
             .onChange(async (value) => {
-                this.plugin.settings.contextNoteFollowActive = value;
-                await this.plugin.saveSettings();
-                this.plugin.refreshAllViews();
-            }));
+                    this.plugin.settings.contextNoteFollowActive = value as 'off' | 'on-status' | 'on-noStatus';                  
+                    await this.plugin.saveSettings();
+                    this.plugin.refreshAllViews();
+                }));
 
         containerEl.createEl('hr');
 

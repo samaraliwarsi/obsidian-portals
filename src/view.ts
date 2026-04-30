@@ -933,7 +933,7 @@ export class PortalsView extends ItemView {
         if (!selectedSpace) return null;
 
         // if 'follow active' enabled, walk up the folder tree
-        if (selectedSpace.type === 'folder' && this.plugin.settings.contextNoteFollowActive) {
+        if (selectedSpace.type === 'folder' && this.plugin.settings.contextNoteFollowActive !== 'off') {
             const activeFile = this.app.workspace.getActiveFile();
             if (activeFile?.parent) {
                 let currentFolder: TFolder | null = activeFile.parent;
@@ -2796,32 +2796,34 @@ export class PortalsView extends ItemView {
         // Remove any previous overlay
         const existing = container.querySelector('.portals-context-note-status-overlay');
         if (existing) existing.remove();
-
-         // Only create if the setting is on and we're in a folder space
-        if (!this.plugin.settings.contextNoteFollowActive ||
+        
+        // Only create if the setting is on-status and we're in a folder space
+        if (this.plugin.settings.contextNoteFollowActive !== 'on-status' ||
             this.plugin.settings.selectedSpace?.type !== 'folder') {
             return;
         }
 
-        const overlay = container.createDiv({ cls: 'portals-context-note-status-overlay' });
-
-        const selectedSpace = this.plugin.settings.selectedSpace;
-        let portalNote: TFile | null = null;
-        if (selectedSpace) {
-            if (selectedSpace.type === 'folder') {
-                const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
-                if (folder instanceof TFolder) {
-                    portalNote = this.getContextNote(folder) ?? null;
+        if (this.plugin.settings.contextNoteFollowActive === 'on-status') {
+            const overlay = container.createDiv({ cls: 'portals-context-note-status-overlay' });
+        
+            const selectedSpace = this.plugin.settings.selectedSpace;
+            let portalNote: TFile | null = null;
+            if (selectedSpace) {
+                if (selectedSpace.type === 'folder') {
+                    const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
+                    if (folder instanceof TFolder) {
+                        portalNote = this.getContextNote(folder) ?? null;
+                    }
+                } else {
+                    portalNote = this.getContextNote(selectedSpace.path) ?? null;
                 }
-            } else {
-                portalNote = this.getContextNote(selectedSpace.path) ?? null;
             }
-        }
-        const text = (portalNote && currentNote.path === portalNote.path)
-            ? `Fallback ➜ ${currentNote.basename} portal`
-            : `Following ➜ ${currentNote.basename}`;
+            const text = (portalNote && currentNote.path === portalNote.path)
+                ? `Fallback ➜ ${currentNote.basename} portal`
+                : `Following ➜ ${currentNote.basename}`;
 
-        overlay.createSpan({ cls: 'portals-context-note-status-overlay-text', text });
+            overlay.createSpan({ cls: 'portals-context-note-status-overlay-text', text });
+        }
     }
 
     //--RenderContextNotesTab

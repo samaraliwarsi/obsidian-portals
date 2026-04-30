@@ -6614,7 +6614,7 @@ body.portals-dragging {
     justify-content: flex-end;
     padding: 2px;
     background: transparent !important;
-    margin-right: 16px;
+    margin-right: 16px;                   /* keep a gap */
 }
 
 .portals-context-note-status-overlay-text {
