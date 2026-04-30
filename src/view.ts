@@ -589,15 +589,45 @@ export class PortalsView extends ItemView {
         }
     }
 
+    public addHoverPreview(el: HTMLElement, filePath: string) {
+        // only enable if page preview makes sense (ignore URLs.. etc)
+        if (!filePath || filePath.startsWith('http')) return;
+
+        el.addEventListener('mouseover', (e) => {
+            if (!Platform.isMobile && (e.ctrlKey || e.metaKey)) {
+                this.app.workspace.trigger('hover-link', {
+                    event: e,
+                    source: 'portals-view',
+                    hoverParent: this,
+                    targetEl: el,
+                    linktext: filePath,
+                    sourcePath: filePath
+                });
+            }
+        });
+
+        el.addEventListener('mouseleave', () => {
+            this.app.workspace.trigger('hover-link', {
+                event: new MouseEvent('mouseleave'),
+                source: 'portals-view',
+                hoverParent: this,
+                targetEl: el,
+                linktext: filePath,
+                sourcePath: filePath
+            });
+        });
+    }
+
     private createFileItem(file: TFile, container: HTMLElement, openFiles: Set<string>) {
         const fileEl = container.createDiv({ cls: 'file-item' });
+    
         const customIcon = this.getCustomIcon(file.path);
         const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
         const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
         iconSpan.createEl('i', { cls: fileIconClass });
         const nameSpan = fileEl.createSpan({ text: this.getDisplayName(file) });
         nameSpan.addClass('portals-item-name');
-        fileEl.dataset.path = file.path;
+        fileEl.dataset.path = file.path
 
         const savedColor = this.plugin.settings.customColors[file.path];
         
@@ -695,6 +725,9 @@ export class PortalsView extends ItemView {
             }
             this.updateMultiSelectToolbar();
         });
+
+        // Enable native page preview on Ctrl/Cmd‑hover
+        this.addHoverPreview(fileEl, file.path)
 
         fileEl.addEventListener('contextmenu', (e) => {
             e.stopPropagation();
@@ -1079,6 +1112,11 @@ export class PortalsView extends ItemView {
             });
             unhideBtn.addEventListener('mouseenter', () => this.showTooltip('Unhide', unhideBtn, 300));
             unhideBtn.addEventListener('mouseleave', () => this.hideTooltip(100));
+
+            // add hover preview
+            if (item instanceof TFile) {
+                this.addHoverPreview(fileEl, item.path)
+            }
         }
     }
 
@@ -2487,6 +2525,8 @@ export class PortalsView extends ItemView {
                     e.preventDefault();
                     this.showFileContextMenu(e, file, fileEl);
                 });
+                // add hover preview
+                this.addHoverPreview(fileEl, file.path);
             }
 
         } else if (tabId === 'context-notes') {
@@ -2663,6 +2703,11 @@ export class PortalsView extends ItemView {
                     }
                 });
 
+                // add hover
+                if (item.path) {
+                    this.addHoverPreview(fileEl, item.path);
+                }
+
                 // Right‑click context menu for deletion
                 fileEl.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
@@ -2792,6 +2837,26 @@ export class PortalsView extends ItemView {
         }
     }
 
+    private resolveLinkPath(linkText: string, sourcePath: string): string | null {
+        const resolved = this.app.metadataCache.getFirstLinkpathDest(linkText, sourcePath);
+        return resolved?.path ?? null;
+    }
+
+    private addHoverPreviewToLinks(container: HTMLElement, sourcePath: string) {
+        const links = container.querySelectorAll('a.internal-link');
+        for (const link of Array.from(links)) {
+            const href = link.getAttribute('data-href') || link.getAttribute('href');
+            if (!href) continue;
+            // Remove possible #anchor or heading references
+            const cleanHref = href.split('#')[0];
+            if (!cleanHref) continue;
+            const resolvedPath = this.resolveLinkPath(cleanHref, sourcePath);
+            if (resolvedPath) {
+                this.addHoverPreview(link as HTMLElement, resolvedPath);
+            }
+        }
+    }
+
     private ensureContextNoteOverlay(container: HTMLElement, currentNote: TFile) {
         // Remove any previous overlay
         const existing = container.querySelector('.portals-context-note-status-overlay');
@@ -2846,6 +2911,7 @@ export class PortalsView extends ItemView {
             // use cached element
             contentEl.empty();
             contentEl.appendChild(cached.element);
+
             // Restore scroll position if stored
             const savedScroll = this.contextNoteScrollPositions.get(filePath);
             if (savedScroll !== undefined) {
@@ -2853,6 +2919,7 @@ export class PortalsView extends ItemView {
                 this.contextNoteScrollPositions.delete(filePath);
             }
             this.ensureContextNoteOverlay(contentEl, targetFile);
+            this.addHoverPreviewToLinks(contentEl, targetFile.path);
             return;
         }
 
@@ -2916,6 +2983,7 @@ export class PortalsView extends ItemView {
                     contentEl.empty();
                     contentEl.appendChild(noteContainer);
                     this.ensureContextNoteOverlay(contentEl, targetFile);
+                    this.addHoverPreviewToLinks(contentEl, targetFile.path);
                 }
             } catch (e) {
                 console.error('Error rendering context note:', e);

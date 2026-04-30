@@ -15,7 +15,7 @@ export class TrashRenderer {
     private pollInterval: number | null = null;
     private lastSnapshot = '';
     private rendering = false;
-    private loadId = 0;                     // cancels stale background loads
+    private loadId = 0;
 
     constructor(app: App, container: HTMLElement) {
         this.app = app;
@@ -80,7 +80,7 @@ export class TrashRenderer {
         }
 
         // Render the tree with lazy‑loaded subfolders
-        this.renderTree(items, treeContainer);
+        this.renderTree(items, treeContainer)
 
         // ── Background full snapshot → enables accurate polling ──
         this.buildFullSnapshot().then(snapshot => {

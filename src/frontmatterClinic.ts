@@ -431,6 +431,7 @@ export class FrontmatterClinicRenderer {
 
         for (const file of this.filteredFiles) {
             const fileRow = listContainer.createDiv({ cls: 'file-item fm-file-item' });
+            fileRow.dataset.path = file.path;
             //const fileRow = listContainer.createDiv({ cls: 'fm-clinic-file-row' });
             
             // File name (click to open)
@@ -454,9 +455,12 @@ export class FrontmatterClinicRenderer {
                     fileRow.createSpan({ text: displayValue, cls: 'fm-current-value' });
                 }
             }
-
         }
-
+        // Enable native page preview on file rows
+        this.container.querySelectorAll('.fm-file-item[data-path]').forEach((row) => {
+            const path = (row as HTMLElement).dataset.path;
+            if (path) this.view.addHoverPreview(row as HTMLElement, path);
+        });
     }
 
     private filterFiles() {

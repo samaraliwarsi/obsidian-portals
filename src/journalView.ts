@@ -1,6 +1,10 @@
 import { App, TFile, TFolder } from 'obsidian';
 import PortalsPlugin from './main';
 
+interface HoverPreviewView {
+    addHoverPreview(el: HTMLElement, filepath: string): void;
+}
+
 export class JournalRenderer {
     private app: App;
     private plugin: PortalsPlugin;
@@ -382,6 +386,17 @@ export class JournalRenderer {
                 this.toggleMark(n);
             });
         });
+
+        // Enable native page preview on journal date cards
+        const view = this.app.workspace.getLeavesOfType('portals-view')
+            .map(leaf => leaf.view as unknown as HoverPreviewView | null)
+            .find(v => v?.addHoverPreview);
+        if (view) {
+            this.cardsWrapper.querySelectorAll('.journal-card[data-path]').forEach(el => {
+                const path = (el as HTMLElement).dataset.path!;
+                view.addHoverPreview(el as HTMLElement, path);
+            });
+        }
     }
 
     private getOpacity(date: Date, minDate: Date, maxDate: Date): number {
