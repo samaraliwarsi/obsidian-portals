@@ -1305,6 +1305,15 @@ export class PortalsView extends ItemView {
                 if (tree) this.scrollToRestore = tree.scrollTop;
                 this.renderContent();
             }
+            if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
+                if (this.contextNotesRenderer) {
+                    this.contextNotesRenderer.saveScroll(this.contextNotesRenderer.getCurrentNotePath() ?? undefined);
+                }
+                const sp = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement;
+                if (sp) {
+                    void this.renderSplitTabContent(sp, 'context-notes');
+                }
+            }
         }));
         this.registerEvent(this.app.workspace.on('layout-change', () => {
             if (!this.renaming){
