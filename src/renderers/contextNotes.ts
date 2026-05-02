@@ -195,13 +195,14 @@ export class ContextNotesRenderer {
     private readonly app: App;
     private readonly plugin: PortalsPlugin;
     private readonly view: ContextNotesView; 
-    private readonly container: HTMLElement;
+    private container: HTMLElement;
     private readonly cache = new Map<string, { element: HTMLElement; component: Component }>();
     private readonly cacheOrder: string[] = [];
     private scrollCache = new Map<string, number>();
     private linkObserver: MutationObserver | null = null;
     private eventRefs: EventRef[] = [];
     private destroyed = false;
+    private currentNotePath: string | null = null;
 
     constructor(app: App, plugin: PortalsPlugin, view: ContextNotesView, container: HTMLElement, scrollCache: Map<string, number>) {
         this.app = app;
@@ -213,18 +214,22 @@ export class ContextNotesRenderer {
 
     // =====================================PUBLIC API====================================
 
-    public saveScroll(): void {
-        const prevNotePath = resolveContextNote(this.app, this.plugin, this.plugin.settings.selectedSpace)?.path;
-        console.log('[saveScroll] prevNotePath:', prevNotePath);
+    public saveScroll(overridePath?: string): void {
+        const prevNotePath = overridePath ?? resolveContextNote(this.app, this.plugin, this.plugin.settings.selectedSpace)?.path;
         if (!prevNotePath) return;
         const noteContainer = this.container.querySelector('.portals-context-note-container') as HTMLElement | null;
-        console.log('[saveScroll] noteContainer found:', !!noteContainer);
         if (noteContainer) {
             const scroll = noteContainer.scrollTop
-            console.log('[saveScroll] scrollTop:', scroll, 'scrollHeight:', noteContainer.scrollHeight);
             this.scrollCache.set(prevNotePath, scroll);
-            console.log('[saveScroll] cache now:', Array.from(this.scrollCache.entries()));
         }
+    }
+
+    public getCurrentNotePath(): string | null {
+        return this.currentNotePath;
+    }
+
+    public setContainer(container: HTMLElement): void {
+        this.container = container;
     }
 
     public async render(): Promise<void> {
@@ -258,6 +263,7 @@ export class ContextNotesRenderer {
 
         this.cache.clear();
         this.cacheOrder.length = 0;
+        this.currentNotePath = null;
         this.container.empty();
     }
 
@@ -282,6 +288,7 @@ export class ContextNotesRenderer {
 
     private async renderNote(targetFile: TFile): Promise<void> {
         const path = targetFile.path;
+        this.currentNotePath = targetFile.path;
 
         // --- Cache hit ---
         const cached = this.cache.get(path);
@@ -292,10 +299,8 @@ export class ContextNotesRenderer {
 
             this.container.appendChild(cached.element);
             const savedScroll = this.scrollCache.get(targetFile.path);
-            console.log('[renderNote cache hit] target:', targetFile.path, 'savedScroll:', savedScroll);
             if (savedScroll !== undefined) {
                 requestAnimationFrame(() => {
-                    console.log('[renderNote cache hit] setting scrollTop to', savedScroll, 'scrollHeight:', cached.element.scrollHeight);
                     cached.element.scrollTop = savedScroll;
                 });
             }
@@ -350,10 +355,8 @@ export class ContextNotesRenderer {
         }
         this.container.appendChild(noteContainer);
         const savedScroll = this.scrollCache.get(targetFile.path);
-        console.log('[renderNote new] target:', targetFile.path, 'savedScroll:', savedScroll);
         if (savedScroll !== undefined) {
             requestAnimationFrame(() => {
-                console.log('[renderNote new] setting scrollTop to', savedScroll, 'scrollHeight:', noteContainer.scrollHeight);
                 noteContainer.scrollTop = savedScroll;
             });
         }

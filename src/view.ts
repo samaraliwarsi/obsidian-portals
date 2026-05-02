@@ -437,6 +437,12 @@ export class PortalsView extends ItemView {
 
             tab.addEventListener('click', () => {
                 this.hideTooltip(0);
+                if (this.contextNotesRenderer) {
+                    const currentPath = this.contextNotesRenderer.getCurrentNotePath();
+                    if (currentPath) {
+                        this.contextNotesRenderer.saveScroll(currentPath)
+                    }                    
+                }
                 this.plugin.settings.selectedSpace = {
                     path: space.path,
                     type: space.type
@@ -1354,6 +1360,11 @@ export class PortalsView extends ItemView {
             window.clearTimeout(this.renderTimer);
             this.renderTimer = null;
         }
+
+        if (this.contextNotesRenderer) {
+            this.contextNotesRenderer.destroy();
+            this.contextNotesRenderer = null;
+        }
         
         if (this.tooltipEl) {
             this.tooltipEl.remove();
@@ -1612,10 +1623,11 @@ export class PortalsView extends ItemView {
         if (this.plugin.settings.enableContextNotes &&
             this.plugin.settings.activeSplitTab === 'context-notes' &&
             this.contextNotesRenderer) {
-                console.log('[view.render] calling saveScroll');
-                this.contextNotesRenderer.saveScroll();
+            const currentPath = this.contextNotesRenderer.getCurrentNotePath();
+            if (currentPath) {
+                this.contextNotesRenderer.saveScroll(currentPath);
             }
-        
+        }
 
         if (!this.plugin.settings.tabBarOrder || this.plugin.settings.tabBarOrder.length === 0) {
             this.rebuildTabBarOrder();
@@ -2335,13 +2347,15 @@ export class PortalsView extends ItemView {
                 });
                 return;
             }
-            if (this.contextNotesRenderer) {
-                this.contextNotesRenderer.destroy();
-                this.contextNotesRenderer = null;
+            if (!this.contextNotesRenderer) {
+                this.contextNotesRenderer = new ContextNotesRenderer(
+                    this.app, this.plugin, this, contentEl, this.contextNoteScrollCache
+                );
+            } else {
+                this.contextNotesRenderer.setContainer(contentEl);
             }
             contentEl.empty();
             contentEl.addClass('portals-context-notes-tab-container')
-            this.contextNotesRenderer = new ContextNotesRenderer(this.app, this.plugin, this, contentEl, this.contextNoteScrollCache);
             await this.contextNotesRenderer.render();
         } else if (tabId === 'bookmarks') {
             this.renderBookmarksTab(contentEl);
