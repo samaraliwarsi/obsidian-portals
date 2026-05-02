@@ -949,6 +949,10 @@ export class PortalsView extends ItemView {
 
     public showSidePortalConfig() {
         new ChooseTabsModal(this.app, this.plugin, (tabs) => {
+            if (!tabs.includes('context-notes') && this.contextNotesRenderer) {
+                this.contextNotesRenderer.destroy();
+                this.contextNotesRenderer = null;
+            }
             this.plugin.settings.splitViewTabs = tabs;
             if (!tabs.includes(this.plugin.settings.activeSplitTab)) {
                 this.plugin.settings.activeSplitTab = tabs[0] || 'recent';
@@ -1628,6 +1632,11 @@ export class PortalsView extends ItemView {
 
     render() {
         if (this.isDraggingTab) return;
+
+        if (!this.plugin.settings.enableContextNotes && this.contextNotesRenderer) {
+            this.contextNotesRenderer.destroy();
+            this.contextNotesRenderer = null;
+        }
 
         if (this.plugin.settings.enableContextNotes &&
             this.plugin.settings.activeSplitTab === 'context-notes' &&
@@ -2350,6 +2359,10 @@ export class PortalsView extends ItemView {
 
         } else if (tabId === 'context-notes') {
             if (!this.plugin.settings.enableContextNotes) {
+                if (this.contextNotesRenderer) {
+                    this.contextNotesRenderer.destroy();
+                    this.contextNotesRenderer = null;
+                }
                 contentEl.createEl('p', {
                     text: 'Context notes are disabled. Enable them in settings.',
                     cls: 'portals-context-note-message'
