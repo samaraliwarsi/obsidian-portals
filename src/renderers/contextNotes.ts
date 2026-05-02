@@ -37,11 +37,8 @@ export function isContextNoteFile(app: App, plugin: PortalsPlugin, file: TFile, 
 
 export function resolveContextNote(app: App, plugin: PortalsPlugin, selectedSpace: { path: string; type: 'folder' | 'tag' } | null): TFile | null {
     if (!selectedSpace) return null;
-
-    if (
-        selectedSpace.type === 'folder' &&
-        plugin.settings.contextNoteFollowActive !== 'off'
-    ) {
+    // Folder file follow logic - heirarchy
+    if (selectedSpace.type === 'folder' && plugin.settings.contextNoteFollowActive !== 'off') {
         const activeFile = app.workspace.getActiveFile();
         if (activeFile?.parent) {
             let currentFolder: TFolder | null = activeFile.parent;
@@ -52,7 +49,46 @@ export function resolveContextNote(app: App, plugin: PortalsPlugin, selectedSpac
             }
         }
     }
-
+    // Tag file follow logic  - priority order of apperance in frontmatter
+    if (selectedSpace.type === 'tag' && plugin.settings.contextNoteFollowActive !== 'off') {
+        const activeFile = app.workspace.getActiveFile();
+        if (activeFile) {
+            const cache = app.metadataCache.getFileCache(activeFile);
+            const fileTags = [
+                ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                ...(cache?.frontmatter?.tags || [])
+            ];
+            const belongsToPortal = fileTags.some(t => t === selectedSpace.path || t.startsWith(selectedSpace.path + '/'));
+            if (belongsToPortal) {
+                const space = plugin.settings.spaces.find(s => s.path === selectedSpace.path && s.type === 'tag');
+                for (const tag of fileTags) {
+                    const isMain = tag === selectedSpace.path;
+                    const isSubtag = tag.startsWith(selectedSpace.path + '/');
+                    const isGroup = space?.groupTags?.includes(tag) ?? false;
+                    if (!isMain && !isSubtag && !isGroup) {
+                        continue;
+                    }
+                    // subtags (walkback)
+                    if (isSubtag) {
+                        const parts = tag.split('/');
+                        for (let i = parts.length; i >= 2; i--) {
+                            const ancestor = parts.slice(0, i).join('/');
+                            const note = getContextNote(app, plugin, ancestor);
+                            if (note) return note;
+                        }
+                        const mainNote = getContextNote(app, plugin, selectedSpace.path);
+                        if (mainNote) return mainNote;
+                    }
+                    // group tags
+                    if (isMain || isGroup) {
+                        const note = getContextNote(app, plugin, tag);
+                        if (note) return note;
+                    }
+                }
+            }         
+        }
+    }
+    // fallback portal's own context note 
     if (selectedSpace.type === 'folder') {
         const folder = app.vault.getAbstractFileByPath(selectedSpace.path);
         return folder instanceof TFolder ? getContextNote(app, plugin, folder) ?? null : null;
@@ -366,8 +402,7 @@ export class ContextNotesRenderer {
         const old = container.querySelector('.portals-context-note-status-overlay');
         if (old) old.remove();
 
-        if (this.plugin.settings.contextNoteFollowActive !== 'on-status' ||
-            this.plugin.settings.selectedSpace?.type !== 'folder') {
+        if (this.plugin.settings.contextNoteFollowActive !== 'on-status') {
             return;
         }
 
