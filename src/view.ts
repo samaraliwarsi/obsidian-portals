@@ -114,6 +114,23 @@ export class PortalsView extends ItemView {
         }
     }
 
+    public saveTreeScroll(): void {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
+    }
+    private restoreTreeScroll(): void {
+        if (this.scrollToRestore === null) return;
+        requestAnimationFrame(() => {
+            const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+            if (treeContainer && typeof this.scrollToRestore === 'number') {
+                const maxScroll = treeContainer.scrollHeight - treeContainer.clientHeight;
+                const clamped = Math.min(this.scrollToRestore!, Math.max(0, maxScroll));
+                treeContainer.scrollTop = clamped;
+                this.scrollToRestore = null;
+            }
+        });
+    }
+
     private quickFileIcon(summary: HTMLElement, onClick: (e:MouseEvent) => void) {
         const mode = this.plugin.settings.quickAddIcon;
         if (mode === 'off') return;
@@ -361,13 +378,12 @@ export class PortalsView extends ItemView {
                 .setIcon('image')
                 .onClick(() => {
                     new IconPickerModal(this.app, (iconName) => {
-                        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-                            this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
-                            space.icon = iconName;
-                            this.plugin.saveSettings().then(() => this.render());
-                        }).open();
-                    })        
-                );
+                        this.saveTreeScroll();
+                        space.icon = iconName;
+                        this.plugin.saveSettings().then(() => this.render());
+                    }).open();
+                })        
+            );
             const currentColor = space.color;
             const dummyEl = document.createElement('div')
             const tabColor = this.plugin.settings.tabColorEnabled;
@@ -770,10 +786,7 @@ export class PortalsView extends ItemView {
     private async setCustomIcon(path: string, displayName: string) {
         new IconPickerModal(this.app, (iconName) => {
             // capture scroll position
-            const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-            if (treeContainer) {
-                this.scrollToRestore = treeContainer.scrollTop;
-            }
+            this.saveTreeScroll();
             this.plugin.settings.customIcons[path] = iconName;
             this.plugin.saveSettings().then(() => {
                 this.render();
@@ -784,10 +797,7 @@ export class PortalsView extends ItemView {
 
     private async removeCustomIcon(path: string) {
         // capture scroll position
-        const treeContainer = this.containerEl.querySelector('.portal-tree-container');
-        if (treeContainer) {
-            this.scrollToRestore = treeContainer.scrollTop;
-        }
+        this.saveTreeScroll();
         delete this.plugin.settings.customIcons[path];
         await this.plugin.saveSettings();
         this.render();
@@ -797,8 +807,7 @@ export class PortalsView extends ItemView {
     private async setCustomIconForTagGroup(mainTag: string, groupTag: string, groupKey: string) {
         const displayName = `#${groupTag}`;
         new IconPickerModal(this.app, (iconName) => {
-            const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-            if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+            this.saveTreeScroll();
             this.plugin.settings.customIcons[groupKey] = iconName;
             this.plugin.saveSettings().then(() => {
                 this.render();
@@ -808,8 +817,7 @@ export class PortalsView extends ItemView {
     }
 
     private async removeCustomIconForTagGroup(groupKey: string) {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+        this.saveTreeScroll();
         delete this.plugin.settings.customIcons[groupKey];
         await this.plugin.saveSettings();
         this.render();
@@ -818,27 +826,17 @@ export class PortalsView extends ItemView {
 
     private setCustomColor(folder: TFolder, summaryEl: HTMLElement) {
         const currentColor = this.plugin.settings.customColors[folder.path];
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
-        const savedScrollTop = treeContainer ? treeContainer.scrollTop: 0;
+        this.saveTreeScroll();
 
         new ColorPickerModal(this.app, (color) => {
             this.plugin.settings.customColors[folder.path] = color;
-            this.plugin.saveSettings().then(() => {
-                this.render();
-                if (savedScrollTop > 0) {
-                    requestAnimationFrame(() => {
-                        const newContainer = this.containerEl.querySelector('.portals-tree-container');
-                        if (newContainer) newContainer.scrollTop = savedScrollTop;
-                    });
-                }
-            });
+            this.plugin.saveSettings().then(() => this.render());
         }, summaryEl, currentColor).open();
     }
 
     private setCustomColorForFile(file: TFile, fileEl: HTMLElement) {
         const currentColor = this.plugin.settings.customColors[file.path];
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+        this.saveTreeScroll();
         new ColorPickerModal(this.app, (color) => {
             this.plugin.settings.customColors[file.path] = color;
             this.plugin.saveSettings().then(() => this.render());
@@ -846,59 +844,31 @@ export class PortalsView extends ItemView {
     }
 
     private resetCustomColorForFile(file: TFile) {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+        this.saveTreeScroll();
         delete this.plugin.settings.customColors[file.path];
         this.plugin.saveSettings().then(() => this.render());
         new Notice('File color reset');
     }
 
     private resetCustomColor(folder: TFolder) {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
-        const savedScrollTop = treeContainer ? treeContainer.scrollTop: 0;
+        this.saveTreeScroll();
         delete this.plugin.settings.customColors[folder.path];
-        this.plugin.saveSettings().then(() => {
-            this.render()
-            if (savedScrollTop > 0) {
-                requestAnimationFrame(() => {
-                    const newContainer = this.containerEl.querySelector('.portals-tree-container');
-                    if (newContainer) newContainer.scrollTop = savedScrollTop;   
-                });
-            }
-        });       
+        this.plugin.saveSettings().then(() => this.render());       
     }
 
     private setTagColor(key: string, targetElement: HTMLElement) {
         const currentColor = this.plugin.settings.tagColors[key];
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
-        const savedScrollTop = treeContainer ? treeContainer.scrollTop : 0;
+        this.saveTreeScroll();
         new ColorPickerModal(this.app, (color) => {
             this.plugin.settings.tagColors[key] = color;
-            this.plugin.saveSettings().then(() => {
-                this.render();
-                if (savedScrollTop > 0) {
-                    requestAnimationFrame(() => {
-                        const newContainer = this.containerEl.querySelector('.portals-tree-container');
-                        if (newContainer) newContainer.scrollTop = savedScrollTop;
-                    });
-                }
-            });
+            this.plugin.saveSettings().then(() => this.render());
         }, targetElement, currentColor).open();
     }
 
     private resetTagColor(key: string, _targetElement: HTMLElement) {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
-        const savedScrollTop = treeContainer ? treeContainer.scrollTop : 0;
+        this.saveTreeScroll();
         delete this.plugin.settings.tagColors[key];
-        this.plugin.saveSettings().then(() => {
-            this.render();
-            if (savedScrollTop > 0) {
-                requestAnimationFrame(() => {
-                    const newContainer = this.containerEl.querySelector('.portals-tree-container');
-                    if (newContainer) newContainer.scrollTop = savedScrollTop;
-                });
-            }
-        });
+        this.plugin.saveSettings().then(() => this.render());
     }
 
     public showAddPortalModal() {
@@ -1142,17 +1112,17 @@ export class PortalsView extends ItemView {
         if (this.renderTimer) {
             window.clearTimeout(this.renderTimer);
         }
-        const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
-        if (tree) this.scrollToRestore = tree.scrollTop;
+        if (this.scrollToRestore === null) {
+            this.saveTreeScroll();
+        }
         this.renderTimer = window.setTimeout(() => {
             this.renderContent();
             this.renderTimer = null;
-        }, 50); // 50ms delay – adjust as needed
+        }, 50);
     }
 
     private renamePortal(space: SpaceConfig) {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
+        this.saveTreeScroll();
         const currentDisplay = space.displayName || this.getDefaultSpaceName(space);
         new RenamePortalModal(this.app, currentDisplay, (newName) => {
             if (newName && newName.trim()) {
@@ -1165,8 +1135,7 @@ export class PortalsView extends ItemView {
     }
 
     private resetPortalName(space: SpaceConfig) {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
+        this.saveTreeScroll();
         delete space.displayName;
         this.plugin.saveSettings().then(() => this.render());
     }
@@ -1203,8 +1172,6 @@ export class PortalsView extends ItemView {
                 this.plugin.settings.selectedSpace.path = file.path;
                 void this.plugin.saveSettings();
             }
-            const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-            if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
             // Force a full render to update the UI with the new name
             this.scheduleRender();
             return;
@@ -2096,16 +2063,7 @@ export class PortalsView extends ItemView {
                     this.buildTagSpace(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, 0, 0, groupCount);
                 }
             }
-            // restore scroll position if we stored one after icon change
-            if (this.scrollToRestore !== null) {
-                requestAnimationFrame(() => {
-                    const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-                    if (treeContainer && typeof this.scrollToRestore === 'number') {
-                        treeContainer.scrollTop = this.scrollToRestore;
-                        this.scrollToRestore = null;
-                    }
-                });
-            }
+            this.restoreTreeScroll();
 
             // Floating buttons (attached to mainPanel)
             const createFloatingButton = (
@@ -2636,6 +2594,7 @@ export class PortalsView extends ItemView {
             this.applySpaceBackground(spaceContent, selectedSpace.color);
             this.buildTagSpace(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, 0, 0, groupCount);
         }
+        this.restoreTreeScroll();
     }
 
     public refreshRecentTab() {
@@ -4052,13 +4011,12 @@ export class PortalsView extends ItemView {
 }
 
     private async deleteSelectedItems() {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
-        
+        this.saveTreeScroll();
         if (this.selectedItems.size === 0) return;
         const confirmMsg = `Delete ${this.selectedItems.size} item(s) permanently?`;
         if (!confirm(confirmMsg)) return;
         
+
         for (const path of this.selectedItems) {
             const item = this.app.vault.getAbstractFileByPath(path);
             if (!item) continue;
@@ -4067,7 +4025,6 @@ export class PortalsView extends ItemView {
                 if (item instanceof TFile) {
                     delete this.plugin.settings.customIcons[path];
                 } else if (item instanceof TFolder) {
-                    // Remove custom icons for all files inside folder
                     const toDelete = Object.keys(this.plugin.settings.customIcons).filter(p => p === path || p.startsWith(path + '/'));
                     for (const iconPath of toDelete) {
                         delete this.plugin.settings.customIcons[iconPath];
@@ -4078,10 +4035,17 @@ export class PortalsView extends ItemView {
                 new Notice(`Failed to delete ${item.name}`);
             }
         }
+
+        if (this.renderTimer) {
+            clearTimeout(this.renderTimer);
+            this.renderTimer = null;
+        }
+
         await this.plugin.saveSettings();
+        const deletedCount = this.selectedItems.size;
         this.clearSelection();
         this.renderContent();
-        new Notice(`Deleted ${this.selectedItems.size} item(s)`);
+        new Notice(`Deleted ${deletedCount} item(s)`);
     }
 
     private async moveSelectedItemsToFolder() {
@@ -4215,9 +4179,7 @@ export class PortalsView extends ItemView {
     }
 
     private async resetColorsForSelected() {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
-
+        this.saveTreeScroll();
         for (const key of this.selectedItems) {
             if (key.startsWith('tag:')) {
                 delete this.plugin.settings.tagColors[key];
@@ -4233,9 +4195,7 @@ export class PortalsView extends ItemView {
     }
 
     private async resetIconsForSelected() {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
-
+        this.saveTreeScroll();
         for (const key of this.selectedItems) {
             delete this.plugin.settings.customIcons[key]; 
         }
@@ -4243,17 +4203,6 @@ export class PortalsView extends ItemView {
         this.clearSelection();
         this.render();
         new Notice('Icons reset for selected items');
-    }
-
-    private executeCommand(commandId: string) {
-        try {
-            // @ts-expect-error - accessing commands API which is not typed
-            this.app.commands.executeCommandById(commandId);
-        } catch (err) {
-            const message = err instanceof Error ? err.message: String(err);
-            console.error(`Command failed: ${commandId}`, err);
-            new Notice(`Command failed: ${message}`);
-        }
     }
 
     private createRenameInput(initialValue: string, onSave: (val: string) => void, onCancel: () => void): HTMLInputElement {
@@ -4277,7 +4226,6 @@ export class PortalsView extends ItemView {
     private startRenameFile(file: TFile, fileEl: HTMLElement) {
         const nameSpan = fileEl.querySelector('.portals-item-name') as HTMLElement;
         if (!nameSpan) return;
-
         const isMd = file.extension === 'md';
         const hideExtension = this.plugin.settings.enableFileExtensionNonMD;
         
@@ -4302,6 +4250,7 @@ export class PortalsView extends ItemView {
                     }
                 }
                 const newPath = file.parent ? `${file.parent.path}/${newName}` : newName;
+                this.saveTreeScroll();
                 try {
                     await this.app.vault.rename(file, newPath);
                     new Notice('File renamed');
@@ -4344,6 +4293,7 @@ export class PortalsView extends ItemView {
                 if (!newName || newName === folder.name) return;
                 const parent = folder.parent?.path || '';
                 const newPath = parent ? `${parent}/${newName}` : newName;
+                this.saveTreeScroll();
                 try {
                     await this.app.vault.rename(folder, newPath);
                     new Notice('Folder renamed');
@@ -4420,9 +4370,16 @@ export class PortalsView extends ItemView {
         }
 
         try {
+            this.saveTreeScroll();
+            const capturedScroll = this.scrollToRestore;
             await this.app.vault.createFolder(newPath);
             await this.copyFolderContents(folder, newPath);
             new Notice(`Folder duplicated to ${newName}`);
+            this.scrollToRestore = capturedScroll;
+            if (this.renderTimer) {
+                clearTimeout(this.renderTimer);
+                this.renderTimer = null;
+            }
             this.renderContent();
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
@@ -4455,8 +4412,15 @@ export class PortalsView extends ItemView {
             newPath = dir ? `${dir}/${newName}` : newName;
         }
         try {
+            this.saveTreeScroll();
+            const capturedScroll = this.scrollToRestore;
             await this.app.vault.copy(file, newPath);
             new Notice(`Duplicated to ${newName}`);
+            this.scrollToRestore = capturedScroll;
+            if (this.renderTimer) {
+                clearTimeout(this.renderTimer);
+                this.renderTimer = null;
+            }
             this.renderContent();
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
@@ -4465,8 +4429,7 @@ export class PortalsView extends ItemView {
     }
 
     private async deleteFile(file: TFile) {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
+        this.saveTreeScroll();
         try {
             await this.app.fileManager.trashFile(file);
             delete this.plugin.settings.customIcons[file.path];
@@ -4480,8 +4443,7 @@ export class PortalsView extends ItemView {
     }
 
     private async deleteFolder(folder: TFolder) {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
+        this.saveTreeScroll();
         try {
             await this.app.fileManager.trashFile(folder);
             const toDelete = Object.keys(this.plugin.settings.customIcons).filter(path => path === folder.path || path.startsWith(folder.path + '/'));
@@ -4630,8 +4592,8 @@ export class PortalsView extends ItemView {
 
                 try {
                     // Save scroll position before the move
-                    const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
-                    if (treeContainer) this.scrollToRestore = treeContainer.scrollTop;
+                    this.saveTreeScroll();
+                    const savedScroll = this.scrollToRestore;
 
                     if (file instanceof TFile) {
                         await this.app.vault.rename(file, targetPath);
@@ -4647,11 +4609,17 @@ export class PortalsView extends ItemView {
                         new Notice('Cannot move this item');
                         return;
                     }
-                    this.renderContent();
+                    this.scrollToRestore = savedScroll;
                 } catch (err) {
                     console.error('Drop error:', err);
                     const message = err instanceof Error ? err.message : String(err);
                     new Notice(`Failed to move: ${message}`);
+                } finally {
+                    if (this.renderTimer) {
+                        clearTimeout(this.renderTimer);
+                        this.renderTimer = null;   
+                    }
+                    this.renderContent();
                 }
             })().catch(err => console.error(err));
         });
