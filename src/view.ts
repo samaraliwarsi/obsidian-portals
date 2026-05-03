@@ -70,6 +70,7 @@ export class PortalsView extends ItemView {
     private journalContainer: HTMLElement | null = null;
     private lastJournalAccentColor: string | null = null;
     public scrollToRestore: number | null = null;
+    private scrollAnchor: { selector: string; offset: number } | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
     private lastJournalIndicatorValue: string;
     private trashRenderer: TrashRenderer | null = null;
@@ -119,6 +120,25 @@ export class PortalsView extends ItemView {
         this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
     }
     private restoreTreeScroll(): void {
+        // anchor based
+        if (this.scrollAnchor) {
+            const { selector, offset } = this.scrollAnchor;
+            this.scrollAnchor = null;
+            requestAnimationFrame(() => {
+                const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+                const el = tree?.querySelector(selector) as HTMLElement | null;
+                if (tree && el) {
+                    void tree.offsetHeight;
+                    const containerRect = tree.getBoundingClientRect();
+                    const elRect = el.getBoundingClientRect();
+                    const newOffset = elRect.top - containerRect.top;
+                    tree.scrollTop = tree.scrollTop + newOffset - offset;
+                    void tree.offsetHeight;
+                }
+            });
+            return;
+        }
+        // fallback numeric restore
         if (this.scrollToRestore === null) return;
         requestAnimationFrame(() => {
             const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
@@ -129,6 +149,22 @@ export class PortalsView extends ItemView {
                 this.scrollToRestore = null;
             }
         });
+    }
+    private saveScrollWithAnchor(anchorEl: HTMLElement) {
+        const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+        if (!tree) return;
+        const containerRect = tree.getBoundingClientRect();
+        const elRect = anchorEl.getBoundingClientRect();
+        const offset = elRect.top - containerRect.top;
+        const path = anchorEl.dataset.path;
+        const tagPath = anchorEl.dataset.tagPath;
+        if (path) {
+            this.scrollAnchor = { selector: `[data-path="${path}"]`, offset };
+        } else if (tagPath) {
+            this.scrollAnchor = { selector: `[data-tag-path="${tagPath}"]`, offset };
+        } else {
+            this.scrollToRestore = tree.scrollTop;
+        }
     }
 
     private quickFileIcon(summary: HTMLElement, onClick: (e:MouseEvent) => void) {
@@ -2551,6 +2587,10 @@ export class PortalsView extends ItemView {
     // End of bookmark
 
     renderContent() {
+        if (this.renderTimer) {
+            clearTimeout(this.renderTimer);
+            this.renderTimer = null;
+        }
         if (this.isDraggingTab) return;
         const openFiles = this.getOpenFilePaths();
         const container = this.containerEl.children[1] as HTMLElement;
@@ -2710,6 +2750,7 @@ export class PortalsView extends ItemView {
             mainIconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
             mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
             const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
+            mainSummary.dataset.tagPath = tagName;
 
             // Apply context note highlight to main tag
             const mainTagPath = tagName; // e.g., "project"
@@ -2742,12 +2783,18 @@ export class PortalsView extends ItemView {
                             .setTitle('Delete context note')
                             .setIcon('trash')
                             .setWarning(true)
-                            .onClick(() => this.deleteFile(contextNote)));
+                            .onClick(() => {
+                                this.saveScrollWithAnchor(mainSummary);
+                                this.deleteFile(contextNote)
+                            }));
                     } else {
                         menu.addItem(item => item
                             .setTitle('Create context note')
                             .setIcon('plus')
-                            .onClick(() => createContextNote(this.app, this.plugin, tagName)));
+                            .onClick(() => {
+                                this.saveScrollWithAnchor(mainSummary);
+                                void createContextNote(this.app, this.plugin, tagName)
+                            }));
                     }
                 }
                 menu.showAtPosition({ x: e.clientX, y: e.clientY });
@@ -2758,6 +2805,7 @@ export class PortalsView extends ItemView {
                 if (e.shiftKey && this.plugin.settings.enableContextNotes) {
                     e.preventDefault();
                     e.stopPropagation();
+                    this.saveScrollWithAnchor(mainSummary);
                     void handleContextNoteCreation(this.app, this.plugin, mainTagPath);
                     return;
                 }
@@ -2909,6 +2957,7 @@ export class PortalsView extends ItemView {
                 const iconSpan = summary.createSpan({ cls: 'folder-icon' });
                 iconSpan.createEl('i', { cls: iconClass });
                 summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
+                summary.dataset.tagPath = gTag;
 
                 // Quick‑create note for tag groups flat list (mainT + gTag)
                 this.quickFileIcon(summary, () => void this.newNoteInTagSpace(tagName, [gTag]));
@@ -2988,12 +3037,18 @@ export class PortalsView extends ItemView {
                                 .setTitle('Delete context note')
                                 .setIcon('trash')
                                 .setWarning(true)
-                                .onClick(() => this.deleteFile(contextNote)));
+                                .onClick(() => {
+                                    this.saveScrollWithAnchor(summary);
+                                    void this.deleteFile(contextNote)
+                                }));
                         } else {
                             menu.addItem(item => item
                                 .setTitle('Create context note')
                                 .setIcon('plus')
-                                .onClick(() => createContextNote(this.app, this.plugin, gTag)));
+                                .onClick(() => {
+                                    this.saveScrollWithAnchor(summary);
+                                    void createContextNote(this.app, this.plugin, gTag)
+                                }));
                         }
                     }
                     menu.showAtPosition({ x: e.clientX, y: e.clientY });
@@ -3003,6 +3058,7 @@ export class PortalsView extends ItemView {
                     if (e.shiftKey && this.plugin.settings.enableContextNotes) {
                         e.preventDefault();
                         e.stopPropagation();
+                        this.saveScrollWithAnchor(summary);
                         void handleContextNoteCreation(this.app, this.plugin, gTag);
                         return;
                     }
@@ -3295,12 +3351,18 @@ export class PortalsView extends ItemView {
                                 .setTitle('Delete context note')
                                 .setIcon('trash')
                                 .setWarning(true)
-                                .onClick(() => this.deleteFile(contextNote)));
+                                .onClick(() => {
+                                    this.saveScrollWithAnchor(summary)
+                                    void this.deleteFile(contextNote)
+                                }));
                         } else {
                             menu.addItem(item => item
                                 .setTitle('Create context note')
                                 .setIcon('plus')
-                                .onClick(() => createContextNote(this.app, this.plugin, node.fullPath)));
+                                .onClick(() => {
+                                    this.saveScrollWithAnchor(summary);
+                                    void createContextNote(this.app, this.plugin, node.fullPath)
+                                }));
                         }
                     }
                 menu.showAtPosition({ x: e.clientX, y: e.clientY });
@@ -3329,6 +3391,7 @@ export class PortalsView extends ItemView {
                 if (e.shiftKey && this.plugin.settings.enableContextNotes) {
                     e.preventDefault();
                     e.stopPropagation();
+                    this.saveScrollWithAnchor(summary);
                     void handleContextNoteCreation(this.app, this.plugin, nodeTagPath);
                     return;
                 }
@@ -3403,6 +3466,7 @@ export class PortalsView extends ItemView {
         mainIconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
         mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
         const mainChildren = mainDetails.createDiv({ cls: 'folder-children' });
+        mainSummary.dataset.tagPath = tagName;
 
         // Quick‑create note for sub tag tree head item (tagName)
         this.quickFileIcon(mainSummary, () => void this.newNoteInTagSpace(tagName));
@@ -3434,12 +3498,18 @@ export class PortalsView extends ItemView {
                         .setTitle('Delete context note')
                         .setIcon('trash')
                         .setWarning(true)
-                        .onClick(() => this.deleteFile(contextNote)));
+                        .onClick(() => {
+                            this.saveScrollWithAnchor(mainSummary);
+                            void this.deleteFile(contextNote)
+                        }));
                 } else {
                     menu.addItem(item => item
                         .setTitle('Create context note')
                         .setIcon('plus')
-                        .onClick(() => createContextNote(this.app, this.plugin, tagName)));
+                        .onClick(() => {
+                            this.saveScrollWithAnchor(mainSummary);
+                            void createContextNote(this.app, this.plugin, tagName)
+                        }));
                 }
             }
             menu.showAtPosition({ x: e.clientX, y: e.clientY });
@@ -3449,6 +3519,7 @@ export class PortalsView extends ItemView {
             if (e.shiftKey && this.plugin.settings.enableContextNotes) {
                 e.preventDefault();
                 e.stopPropagation();
+                this.saveScrollWithAnchor(mainSummary);
                 void handleContextNoteCreation(this.app, this.plugin, mainTagPath);
                 return;
             }
@@ -3589,6 +3660,7 @@ export class PortalsView extends ItemView {
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
             iconSpan.createEl('i', { cls: iconClass });
             summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
+            summary.dataset.tagPath = gTag;
 
             // Quick‑create note for tag groups subtagtree (mainT + gTag)
             this.quickFileIcon(summary, () => void this.newNoteInTagSpace(tagName, [gTag]));
@@ -3660,12 +3732,18 @@ export class PortalsView extends ItemView {
                             .setTitle('Delete context note')
                             .setIcon('trash')
                             .setWarning(true)
-                            .onClick(() => this.deleteFile(contextNote)));
+                            .onClick(() => {
+                                this.saveScrollWithAnchor(summary);
+                                void this.deleteFile(contextNote)
+                            }));
                     } else {
                         menu.addItem(item => item
                             .setTitle('Create context note')
                             .setIcon('plus')
-                            .onClick(() => createContextNote(this.app, this.plugin, gTag)));
+                            .onClick(() => {
+                                this.saveScrollWithAnchor(summary);
+                                void createContextNote(this.app, this.plugin, gTag)
+                            }));
                     }
                 }
                 // Conditional for when styles aren't shades or hues. Plus conditional if style is portals and tab colors is enabled.
@@ -3717,6 +3795,7 @@ export class PortalsView extends ItemView {
                 if (e.shiftKey && this.plugin.settings.enableContextNotes) {
                     e.preventDefault();
                     e.stopPropagation();
+                    this.saveScrollWithAnchor(summary);
                     void handleContextNoteCreation(this.app, this.plugin, groupTagPath);
                     return;
                 }
@@ -3928,13 +4007,18 @@ export class PortalsView extends ItemView {
                     .setTitle('Delete context note')
                     .setIcon('trash')
                     .setWarning(true)
-                    .onClick(() => this.deleteFile(contextNote))
-                )
+                    .onClick(() => {
+                        this.saveScrollWithAnchor(summaryEl);
+                        this.deleteFile(contextNote);
+                    }));
             } else {
                 menu.addItem(item => item
                     .setTitle('Create context note')
                     .setIcon('plus')
-                    .onClick(() => void createContextNote(this.app, this.plugin, folder)));
+                    .onClick(() => {
+                        this.saveScrollWithAnchor(summaryEl);
+                        void createContextNote(this.app, this.plugin, folder)
+                    }));
             }
         }
 
@@ -4760,9 +4844,10 @@ export class PortalsView extends ItemView {
                 this.updateMultiSelectToolbar();
                 return;
             }
-            if (e.shiftKey) {
+            if (e.shiftKey && this.plugin.settings.enableContextNotes) {
                 e.preventDefault();
                 e.stopPropagation();
+                this.saveScrollWithAnchor(summary as HTMLElement)
                 void handleContextNoteCreation(this.app, this.plugin, folder);
                 return;
             }
