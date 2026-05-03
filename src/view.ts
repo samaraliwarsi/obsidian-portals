@@ -16,6 +16,7 @@ import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { TrashRenderer } from './renderers/trashRenderer';
 import { ContextNotesRenderer, isContextNote, isContextNoteFile, hasContextNote, createContextNote, handleContextNoteCreation, getContextNote } from './renderers/contextNotes';
 import { RecentFilesRenderer } from './renderers/recentFiles';
+import { HiddenItemsRenderer } from './renderers/hiddenItems';
 
 interface BookmarkItem {
     title?: string;
@@ -76,6 +77,7 @@ export class PortalsView extends ItemView {
     private lastJournalIndicatorValue: string;
     private trashRenderer: TrashRenderer | null = null;
     private recentRenderer: RecentFilesRenderer | null = null;
+    private hiddenRenderer: HiddenItemsRenderer | null = null
     private getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -982,14 +984,14 @@ export class PortalsView extends ItemView {
         new Notice('Item hidden');
     }
 
-    private async unhideItem(key: string) {
+    public async unhideItem(key: string) {
         delete this.plugin.settings.hiddenItems[key];
         await this.plugin.saveSettings();
         this.render(); // refresh the view and the hidden tab
         new Notice(`Unhidden: ${key}`);
     }
 
-    private async unhideAllItems() {
+    public async unhideAllItems() {
         this.plugin.settings.hiddenItems = {};
         await this.plugin.saveSettings();
         this.render();
@@ -1002,102 +1004,6 @@ export class PortalsView extends ItemView {
         }
         this.clearSelection();
         new Notice(`Hidden ${this.selectedItems.size} item(s)`);
-    }
-
-    private renderHiddenTab(container: HTMLElement) {        
-        container.addClass('portals-hidden-tab');
-        const tabColorEnabled = this.plugin.settings.tabColorEnabled;
-        const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
-        const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
-        const hidden = this.plugin.settings.hiddenItems;
-        const hiddenKeys = Object.keys(hidden).filter(k => hidden[k]);
-
-        if (hiddenKeys.length === 0) {
-            container.createEl('p', { text: 'No hidden items.', cls: 'unhide-items-message' });
-            return;
-        }
-
-        const buttonWrapper = container.createDiv({ cls: 'unhide-wrapper' });
-        const unhideAllBtn = buttonWrapper.createEl('button', { cls: 'unhide-btn-all' });
-        unhideAllBtn.createEl('i', { cls: 'ph ph-eye' });
-        unhideAllBtn.createSpan({ text: 'Unhide all', cls: 'unhide-btn-text' });
-        unhideAllBtn.addEventListener('click', () => this.unhideAllItems());
-
-        if (rootColor) {
-            container.style.setProperty('--hidden-accent-color', rootColor);
-        } else {
-            container.style.removeProperty('--hidden-accent-color');
-        }
-
-        hiddenKeys.sort();
-
-        for (const key of hiddenKeys) {
-            const fileEl = container.createDiv({ cls: 'file-item' });
-            fileEl.dataset.path = key
-
-            let displayName = key;
-            let iconClass = 'ph-file';
-            let typeLabel = '';
-
-            const item = this.app.vault.getAbstractFileByPath(key);
-            if (item instanceof TFile) {
-                displayName = this.getDisplayName(item);
-                iconClass = 'ph-file';
-                typeLabel = 'File';
-                const customIcon = this.getCustomIcon(key);
-                if (customIcon) iconClass = `ph-${customIcon}`; 
-            } else if (item instanceof TFolder) {
-                displayName = item.name;
-                iconClass = 'ph-folder';
-                typeLabel = 'Folder';
-                const customIcon = this.getCustomIcon(key);
-                if (customIcon) iconClass = `ph-${customIcon}`;
-            } else if (key.startsWith('tag:')) {
-                const withoutPrefix = key.slice(4);
-                const groupMatch = withoutPrefix.match(/^([^/]+)\/group:(.+)$/);
-                const nodeMatch = withoutPrefix.match(/^([^/]+)\/node:(.+)$/);
-                
-                if (groupMatch && groupMatch[1] && groupMatch[2]) {
-                    displayName = groupMatch[2];
-                    typeLabel = 'Tag Group';
-                    iconClass = 'ph-tag-simple';
-                } else if (nodeMatch && nodeMatch[1] && nodeMatch[2]) {
-                    const nodePath = nodeMatch[2];
-                    displayName = nodePath.split('/').pop() || nodePath;
-                    typeLabel = 'Subtag';
-                    iconClass = 'ph-tag';
-                } else {
-                    displayName = withoutPrefix;
-                    typeLabel = 'Tag';
-                    iconClass = 'ph-tag';
-                }
-                const customIcon = this.getCustomIcon(key);
-                if (customIcon) iconClass = `ph-${customIcon}`;
-            }
-            const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-            iconSpan.createEl('i', {cls: `ph ${iconClass}` });
-            fileEl.createSpan({ text: displayName, cls: 'portals-item-name' });
-
-            if (typeLabel) {
-                const infoSpan = fileEl.createSpan({ cls: 'hidden-type-label' });
-                infoSpan.setText(typeLabel)
-            }
-
-            const unhideBtn = fileEl.createEl('button', { cls: 'unhide-btn' });
-            unhideBtn.createEl('i', { cls: 'ph ph-eye' });
-            // unhideBtn.createSpan({ text: 'Unhide', cls: 'unhide-btn-text' });
-            unhideBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.unhideItem(key)
-            });
-            unhideBtn.addEventListener('mouseenter', () => this.showTooltip('Unhide', unhideBtn, 300));
-            unhideBtn.addEventListener('mouseleave', () => this.hideTooltip(100));
-
-            // add hover preview
-            if (item instanceof TFile) {
-                this.addHoverPreview(fileEl, item.path)
-            }
-        }
     }
 
     private isFileView(view: View): view is View & { file: TFile } {
@@ -1382,6 +1288,10 @@ export class PortalsView extends ItemView {
         if (this.contextNotesRenderer) {
             this.contextNotesRenderer.destroy();
             this.contextNotesRenderer = null;
+        }
+
+        if (this.hiddenRenderer) {
+            this.hiddenRenderer = null;
         }
         
         if (this.tooltipEl) {
@@ -2306,7 +2216,6 @@ export class PortalsView extends ItemView {
         if (tabId !== 'context-notes' && tabId !== 'journal') {
             contentEl.addClass(`portals-tree-style-${this.plugin.settings.treeStyle}`);
         }
-
         if (tabId === 'recent') {
             if (!this.recentRenderer) {
                 this.recentRenderer = new RecentFilesRenderer(this.app, this.plugin, this);
@@ -2354,7 +2263,11 @@ export class PortalsView extends ItemView {
                 await this.journalRenderer.render();
             }
         } else if (tabId === 'hidden') {
-            this.renderHiddenTab(contentEl);
+            if (!this.hiddenRenderer) {
+                this.hiddenRenderer = new HiddenItemsRenderer(this.app, this.plugin, this);
+            }
+            this.hiddenRenderer.setContainer(contentEl);
+            this.hiddenRenderer.render();
         } else if (tabId === 'properties') {
             contentEl.empty();
             contentEl.addClass('portals-frontmatter-clinic');
