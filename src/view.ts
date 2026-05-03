@@ -15,6 +15,7 @@ import { PortalStack } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { TrashRenderer } from './renderers/trashRenderer';
 import { ContextNotesRenderer, isContextNote, isContextNoteFile, hasContextNote, createContextNote, handleContextNoteCreation, getContextNote } from './renderers/contextNotes';
+import { RecentFilesRenderer } from './renderers/recentFiles';
 
 interface BookmarkItem {
     title?: string;
@@ -74,6 +75,7 @@ export class PortalsView extends ItemView {
     private multiSelectToolbar: HTMLElement | null = null;
     private lastJournalIndicatorValue: string;
     private trashRenderer: TrashRenderer | null = null;
+    private recentRenderer: RecentFilesRenderer | null = null;
     private getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -815,7 +817,7 @@ export class PortalsView extends ItemView {
         this.updateMultiSelectToolbar();
     }
 
-    private getCustomIcon(path: string): string | null {
+    public getCustomIcon(path: string): string | null {
         return this.plugin.settings.customIcons[path] || null;
     }
 
@@ -1102,7 +1104,7 @@ export class PortalsView extends ItemView {
         return 'file' in view && (view as { file?: unknown }).file instanceof TFile;
     }
 
-    private getOpenFilePaths(): Set<string> {
+    public getOpenFilePaths(): Set<string> {
         const openFiles = new Set<string>();
         const viewTypes = ['markdown', 'canvas', 'image', 'pdf', 'audio', 'video', 'bases', 'fountain', 'excalidraw'];
         for (const type of viewTypes) {
@@ -1398,6 +1400,7 @@ export class PortalsView extends ItemView {
             this.vaultEventRef();
             this.vaultEventRef = null;
         }
+        this.recentRenderer = null;
 
        // Clean up all Sortable instances
         if (this.sortableInstances) {
@@ -2305,52 +2308,11 @@ export class PortalsView extends ItemView {
         }
 
         if (tabId === 'recent') {
-            const recentFiles = this.plugin.settings.recentFilesList || [];
-            const existingRecentFiles = recentFiles
-                .map(path => this.app.vault.getAbstractFileByPath(path))
-                .filter((file): file is TFile => file instanceof TFile);
-
-            const openFiles = this.getOpenFilePaths();
-            for (const file of existingRecentFiles) {
-                const fileEl = contentEl.createDiv({ cls: 'file-item recent-file-item' });
-                const customIcon = this.getCustomIcon(file.path);
-                const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
-                const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-                iconSpan.createEl('i', { cls: fileIconClass });
-                const nameSpan = fileEl.createSpan({ text: this.getDisplayName(file) });
-                nameSpan.addClass('portals-item-name');
-                fileEl.dataset.path = file.path;
-
-                const isOpen = openFiles.has(file.path);
-                let openDotspan: HTMLSpanElement | null = null;
-                if (isOpen) {
-                    openDotspan = fileEl.createSpan({ cls: 'open-dot' });
+            if (!this.recentRenderer) {
+                this.recentRenderer = new RecentFilesRenderer(this.app, this.plugin, this);
                 }
-                if (this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md') {
-                    const extSpan = fileEl.createSpan({ cls: 'file-extension' });
-                    extSpan.setText('.' + file.extension.toUpperCase());
-                    if(openDotspan) {
-                        openDotspan.style.display = 'none';
-                    }
-                    if(isOpen) {
-                        extSpan.addClass('is-open');
-                    }
-                }
-
-                fileEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    void this.app.workspace.getLeaf().openFile(file);
-                });
-
-                fileEl.addEventListener('contextmenu', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    this.showFileContextMenu(e, file, fileEl);
-                });
-                // add hover preview
-                this.addHoverPreview(fileEl, file.path);
-            }
-
+                this.recentRenderer.setContainer(contentEl);
+                this.recentRenderer.render();           
         } else if (tabId === 'context-notes') {
             if (!this.plugin.settings.enableContextNotes) {
                 if (this.contextNotesRenderer) {
@@ -2640,8 +2602,7 @@ export class PortalsView extends ItemView {
     public refreshRecentTab() {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
-        const activeTab = this.plugin.settings.activeSplitTab;
-        if (activeTab === 'recent') {
+        if (this.plugin.settings.activeSplitTab === 'recent') {
             this.renderSplitTabContent(secondaryPanel as HTMLElement, 'recent');
         }
     }
@@ -2666,7 +2627,7 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private getDisplayName(file: TFile): string {
+    public getDisplayName(file: TFile): string {
         if (file.extension === 'md') return file.basename;
         return this.plugin.settings.enableFileExtensionNonMD ? file.basename : file.name;
     }
@@ -3905,7 +3866,7 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private showFileContextMenu(event: MouseEvent, file: TFile, fileEl: HTMLElement) {
+    public showFileContextMenu(event: MouseEvent, file: TFile, fileEl: HTMLElement) {
         const menu = new Menu();
 
         menu.addItem(item => item
