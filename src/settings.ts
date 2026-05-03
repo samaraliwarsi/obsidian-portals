@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting, TFolder, Notice, Modal } from 'obsidian';
 import PortalsPlugin from './main';
-import { IconPickerModal } from './iconPicker';
+import { IconPickerModal } from './utils/iconPicker';
 import { SelectFolderModal } from './utils/modals';
 
 export interface SpaceConfig {

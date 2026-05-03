@@ -4,7 +4,7 @@ import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './settings';
 import { GroupTagsModal } from './settings';
 import { JournalRenderer } from './renderers/journalView';
-import { IconPickerModal } from './iconPicker';
+import { IconPickerModal } from './utils/iconPicker';
 import { RenamePortalModal } from './utils/modals';
 import { SelectFolderModal } from './utils/modals';
 import { ColorPickerModal } from './utils/modals';
