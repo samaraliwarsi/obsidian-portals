@@ -1,6 +1,6 @@
 import { App, Modal, TFolder } from 'obsidian';
-import PortalsPlugin from './main';
-import { SpaceConfig } from './settings';
+import PortalsPlugin from '../main';
+import { SpaceConfig } from '../settings';
 
 //================================= RENAME PORTAL MODAL=======================================
 

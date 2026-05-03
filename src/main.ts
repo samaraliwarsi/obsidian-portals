@@ -1,7 +1,7 @@
 import { Plugin, TFolder, TFile, Notice } from 'obsidian';
 import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
-import { FrontmatterClinicRenderer } from './frontmatterClinic';
+import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;

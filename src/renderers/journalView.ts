@@ -1,5 +1,5 @@
 import { App, TFile, TFolder } from 'obsidian';
-import PortalsPlugin from './main';
+import PortalsPlugin from '../main';
 
 interface HoverPreviewView {
     addHoverPreview(el: HTMLElement, filepath: string): void;

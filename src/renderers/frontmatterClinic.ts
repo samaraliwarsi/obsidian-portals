@@ -1,7 +1,7 @@
 import { App, TFile, Notice, Menu, Platform } from 'obsidian';
-import PortalsPlugin from './main';
-import { SearchPopover } from './utils/searchPopover';
-import { PortalsView } from './view';
+import PortalsPlugin from '../main';
+import { SearchPopover } from '../utils/searchPopover';
+import { PortalsView } from '../view';
 
 
 interface PropertyValueCounts {
