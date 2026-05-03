@@ -1,6 +1,6 @@
 import { App, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
-import type { PortalsView } from '../view';   // only used for type
+import type { PortalsView } from '../view';
 
 export class RecentFilesRenderer {
     private app: App;
@@ -30,7 +30,7 @@ export class RecentFilesRenderer {
             .filter((file): file is TFile => file instanceof TFile);
 
         if (existingRecentFiles.length === 0) {
-            contentEl.createEl('p', { text: 'No recent files.' });
+            contentEl.createEl('p', { text: 'No recent files.', cls: 'portals-context-note-message' });
             return;
         }
 
@@ -38,27 +38,48 @@ export class RecentFilesRenderer {
 
         for (const file of existingRecentFiles) {
             const fileEl = contentEl.createDiv({ cls: 'file-item recent-file-item' });
+            // custom icon
             const customIcon = this.view.getCustomIcon(file.path);
             const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
             iconSpan.createEl('i', { cls: fileIconClass });
+            // file name
             const nameSpan = fileEl.createSpan({ text: this.view.getDisplayName(file) });
             nameSpan.addClass('portals-item-name');
             fileEl.dataset.path = file.path;
-
+            // open dot / extension badge
             const isOpen = openFiles.has(file.path);
             let openDotspan: HTMLSpanElement | null = null;
-            if (isOpen) openDotspan = fileEl.createSpan({ cls: 'open-dot' });
-
-            const enableExtBadge = this.plugin.settings.enableFileExtensionNonMD
-                && file.extension && file.extension !== 'md';
+            if (isOpen) {
+                openDotspan = fileEl.createSpan({ cls: 'open-dot' });
+            }
+            const enableExtBadge = this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md';
             if (enableExtBadge) {
                 const extSpan = fileEl.createSpan({ cls: 'file-extension' });
                 extSpan.setText('.' + file.extension.toUpperCase());
-                if (openDotspan) openDotspan.style.display = 'none';
-                if (isOpen) extSpan.addClass('is-open');
+                if (openDotspan) {
+                    openDotspan.style.display = 'none';
+                }
+                if (isOpen) {
+                    extSpan.addClass('is-open');
+                }
             }
-
+            // custom color 
+            const savedColor = this.plugin.settings.customColors[file.path];
+            const iconEl = fileEl.querySelector('.file-icon i') as HTMLElement;
+            if (savedColor) {
+                fileEl.classList.add('has-file-color');
+                fileEl.style.setProperty('--file-color', savedColor);
+                if (iconEl) {
+                    iconEl.classList.remove('has-file-color');
+                }
+            } else {
+                fileEl.classList.remove('has-file-color');
+                fileEl.style.removeProperty('--file-color');
+                if (iconEl) {
+                    iconEl.classList.remove('has-file-color');
+                }
+            }
             fileEl.addEventListener('click', (e: MouseEvent) => {
                 e.stopPropagation();
                 void this.app.workspace.getLeaf().openFile(file);
