@@ -1063,7 +1063,9 @@ export class PortalsView extends ItemView {
         this.registerEvent(this.app.workspace.on('file-open', () => {
             if (!this.renaming) {
                 const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
-                if (tree) this.scrollToRestore = tree.scrollTop;
+                if (tree && !this.scrollAnchor) {
+                    this.scrollToRestore = tree.scrollTop;
+                }
                 this.renderContent();
             }
             if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
@@ -3288,6 +3290,7 @@ export class PortalsView extends ItemView {
 
     private async moveSelectedItemsToFolder() {
         if (this.selectedItems.size === 0) return;
+        this.saveTreeScroll();
         new SelectFolderModal(this.app, async (targetFolder) => {
             let movedCount = 0;
             for (const path of this.selectedItems) {
@@ -3320,7 +3323,7 @@ export class PortalsView extends ItemView {
 
     private async createFolderFromSelected() {
         if (this.selectedItems.size === 0) return;
-        
+        this.saveTreeScroll();
         const parentFolder = this.getCommonParentFolder();
         if (!parentFolder) {
             new Notice('Selected items are not in a common parent folder');

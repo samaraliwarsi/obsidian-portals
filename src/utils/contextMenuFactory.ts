@@ -5,6 +5,10 @@ import { IconPickerModal } from './iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
 import { ColorPickerModal, RenamePortalModal } from './modals';
 
+interface MenuItemWithSubmenu extends MenuItem {
+    setSubmenu(): Menu;
+}
+
 export class ContextMenuFactory {
 
     /**
@@ -221,6 +225,7 @@ export class ContextMenuFactory {
             .setIcon('image')
             .onClick(() => {
                 new IconPickerModal(view.app, (iconName: string) => {
+                    view.saveTreeScroll();
                     space.icon = iconName;
                     view.plugin.saveSettings().then(() => view.render());
                 }).open();
@@ -235,6 +240,7 @@ export class ContextMenuFactory {
                 .onClick(() => {
                     const dummyEl = document.createElement('div');
                     new ColorPickerModal(view.app, (color: string) => {
+                        view.saveTreeScroll();
                         space.color = color;
                         view.plugin.saveSettings().then(() => view.render());
                     }, dummyEl, space.color).open();
@@ -244,6 +250,7 @@ export class ContextMenuFactory {
                     .setTitle('Reset color')
                     .setIcon('undo')
                     .onClick(() => {
+                        view.saveTreeScroll();
                         space.color = 'transparent';
                         view.plugin.saveSettings().then(() => view.render());
                     }));
@@ -258,18 +265,19 @@ export class ContextMenuFactory {
 
         const otherStacks = view.plugin.settings.portalStacks.filter(s => s.id !== space.stackId);
         if (otherStacks.length > 0) {
-            const subMenu = (menu.addItem(item => item
-                .setTitle('Add to existing stack')
-                .setIcon('arrow-right')
-            ) as unknown as { setSubmenu(): Menu }).setSubmenu();
-            otherStacks.forEach(stack => {
-                subMenu.addItem((subItem: MenuItem) => subItem
-                    .setTitle(stack.name)
-                    .onClick(() => {
-                        space.stackId = stack.id;
-                        view.rebuildTabBarOrder();
-                        view.plugin.saveSettings().then(() => view.render());
-                    }));
+            menu.addItem(parentItem => {
+                parentItem.setTitle('Add to existing stack')
+                    .setIcon('arrow-right');
+                const subMenu = (parentItem as MenuItemWithSubmenu).setSubmenu();
+                for (const stack of otherStacks) {
+                    subMenu.addItem((subItem: MenuItem) => subItem
+                        .setTitle(stack.name)
+                        .onClick(() => {
+                            space.stackId = stack.id;
+                            view.rebuildTabBarOrder();
+                            view.plugin.saveSettings().then(() => view.render());
+                        }));
+                }
             });
         }
 
