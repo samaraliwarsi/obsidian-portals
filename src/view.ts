@@ -1063,11 +1063,13 @@ export class PortalsView extends ItemView {
 
         this.registerEvent(this.app.workspace.on('file-open', () => {
             if (!this.renaming) {
-                const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
-                if (tree && !this.scrollAnchor) {
-                    this.scrollToRestore = tree.scrollTop;
+                if (this.scrollToRestore === null && this.scrollAnchor === null) {
+                    const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+                    if (tree && !this.scrollAnchor) {
+                        this.scrollToRestore = tree.scrollTop;
+                    }
+                    this.renderContent();
                 }
-                this.renderContent();
             }
             if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
                 if (this.contextNotesRenderer) {
@@ -1081,8 +1083,6 @@ export class PortalsView extends ItemView {
         }));
         this.registerEvent(this.app.workspace.on('layout-change', () => {
             if (!this.renaming){
-                const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
-                if (tree) this.scrollToRestore = tree.scrollTop;
                 this.scheduleRender();
                 this.refreshRecentTab();
             }
