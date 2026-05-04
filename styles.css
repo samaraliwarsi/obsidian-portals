@@ -7565,6 +7565,82 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .fil
   padding-left: 2px;
 }
 
+/*========================BOOKMARK GROUPS ON SHADES AND HUES===========================================*/
+
+/*Shades*/
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-summary {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
+}
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-details {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.05));
+  border-radius: 0 0 4px 4px;
+  margin-bottom: 2px;
+}
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-children .file-item:hover {
+  filter: brightness(1.1);
+  color: var(--text-normal);
+}
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-children .file-item {
+  background: none !important;
+}
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-children {
+  padding-bottom: 2px;
+}
+
+/*Hues*/
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary {
+  background: linear-gradient(135deg,
+    hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.1)),
+    hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.1))
+  ) !important;
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary {
+background: linear-gradient(135deg,
+    hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
+    hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
+  ) !important;
+}
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-details {
+  background: linear-gradient(135deg,
+    hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.08)),
+    hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.08))
+  ) !important;
+  border-radius: 0 0 4px 4px;
+  margin-bottom: 2px;
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-details {
+  background: linear-gradient(135deg,
+      hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
+      hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
+    ) !important;
+}
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children {
+  padding-bottom: 2px;
+}
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children .file-item:hover {
+  background-color: rgba(128, 128, 128, 0.15) !important;
+  filter: brightness(1.1);
+  color: var(--text-normal);
+}
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children .file-item {
+  background: none !important;
+}
+
+
 /*========================SUMMARY ACTION ICONS===========================================*/
 
 .folder-summary .portals-action-icons {

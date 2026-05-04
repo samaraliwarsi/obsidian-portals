@@ -32,6 +32,8 @@ export class BookmarksRenderer {
 
         const contentEl = this.container;
         contentEl.empty();
+        contentEl.addClass('bookmarks-tree');
+
 
         // public API first, then internal fallback
         let items: BookmarkItem[] = [];
