@@ -1,0 +1,573 @@
+import { Menu, TFile, TFolder, MenuItem } from 'obsidian';
+import type { PortalsView } from '../view';
+import type { SpaceConfig, PortalStack } from '../settings';
+import { IconPickerModal } from './iconPicker';
+import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
+import { ColorPickerModal, RenamePortalModal } from './modals';
+
+export class ContextMenuFactory {
+
+    /**
+     * File item context menu (main tree and side tabs)
+     */
+    static showFileMenu(
+        view: PortalsView,
+        file: TFile,
+        fileEl: HTMLElement,
+        event: MouseEvent
+    ): void {
+        const menu = new Menu();
+
+        menu.addItem(item => item
+            .setTitle('Open in new tab')
+            .setIcon('document')
+            .onClick(() => view.app.workspace.getLeaf('tab').openFile(file)));
+
+        menu.addItem(item => item
+            .setTitle('Open to the right')
+            .setIcon('file-symlink')
+            .onClick(() => view.app.workspace.getLeaf('split', 'vertical').openFile(file)));
+
+        menu.addSeparator();
+
+        menu.addItem(item => item
+            .setTitle('Delete')
+            .setIcon('trash')
+            .setWarning(true)
+            .onClick(() => view.deleteFile(file)));
+
+        menu.addItem(item => item
+            .setTitle('Duplicate')
+            .setIcon('copy')
+            .onClick(() => view.duplicateFile(file)));
+
+        menu.addItem(item => item
+            .setTitle('Rename')
+            .setIcon('pencil')
+            .onClick(() => view.startRenameFile(file, fileEl)));
+
+        menu.addItem(item => item
+            .setTitle('Hide')
+            .setIcon('eye-off')
+            .onClick(() => view.hideItem(file.path)));
+
+        // Icon / color options (respect tree style)
+        const style = view.plugin.settings.treeStyle;
+        if (style !== 'minimal' && style !== 'shades') {
+            menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('Set custom icon')
+                .setIcon('image')
+                .onClick(() => view.setCustomIcon(file.path, file.name)));
+            if (view.getCustomIcon(file.path)) {
+                menu.addItem(item => item
+                    .setTitle('Remove custom icon')
+                    .setIcon('trash')
+                    .onClick(() => view.removeCustomIcon(file.path)));
+            }
+        }
+
+        menu.addSeparator();
+        menu.addItem(item => item
+            .setTitle('Set color')
+            .setIcon('palette')
+            .onClick(() => view.setCustomColorForFile(file, fileEl)));
+        if (view.plugin.settings.customColors[file.path]) {
+            menu.addItem(item => item
+                .setTitle('Reset folder color')
+                .setIcon('undo')
+                .onClick(() => view.resetCustomColorForFile(file)));
+        }
+
+        menu.addSeparator();
+        view.app.workspace.trigger('file-menu', menu, file, 'file-explorer');
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+    }
+
+    /**
+     * Folder context menu
+     */
+    static showFolderMenu(
+        view: PortalsView,
+        folder: TFolder,
+        summaryEl: HTMLElement,
+        event: MouseEvent
+    ): void {
+        const menu = new Menu();
+
+        menu.addItem(item => item
+            .setTitle('New note')
+            .setIcon('document')
+            .onClick(() => view.newNoteInFolder(folder)));
+
+        menu.addItem(item => item
+            .setTitle('New folder')
+            .setIcon('folder')
+            .onClick(() => view.newFolderInFolder(folder)));
+
+        menu.addItem(item => item
+            .setTitle('New canvas')
+            .setIcon('layout-dashboard')
+            .onClick(() => view.newCanvasInFolder(folder)));
+
+        if (view.plugin.settings.enableContextNotes) {
+            const contextNote = folder.children.find((child): child is TFile =>
+                child instanceof TFile && isContextNote(view.app, view.plugin, child, folder));
+            if (contextNote) {
+                menu.addItem(item => item
+                    .setTitle('Open context note')
+                    .setIcon('document')
+                    .onClick(() => view.app.workspace.getLeaf().openFile(contextNote)));
+                menu.addItem(item => item
+                    .setTitle('Delete context note')
+                    .setIcon('trash')
+                    .setWarning(true)
+                    .onClick(() => {
+                        view.saveScrollWithAnchor(summaryEl);
+                        view.deleteFile(contextNote)
+                    }));
+            } else {
+                menu.addItem(item => item
+                    .setTitle('Create context note')
+                    .setIcon('plus')
+                    .onClick(async () => {
+                        view.saveScrollWithAnchor(summaryEl);
+                        await createContextNote(view.app, view.plugin, folder);
+                    }));
+            }
+        }
+
+        menu.addSeparator();
+
+        menu.addItem(item => item
+            .setTitle('Delete')
+            .setIcon('trash')
+            .setWarning(true)
+            .onClick(() => view.deleteFolder(folder)));
+
+        menu.addItem(item => item
+            .setTitle('Duplicate')
+            .setIcon('copy')
+            .onClick(() => view.duplicateFolder(folder)));
+
+        menu.addItem(item => item
+            .setTitle('Rename')
+            .setIcon('pencil')
+            .onClick(() => view.startRenameFolder(folder, summaryEl)));
+
+        menu.addItem(item => item
+            .setTitle('Hide')
+            .setIcon('eye-off')
+            .onClick(() => view.hideItem(folder.path)));
+
+        const style = view.plugin.settings.treeStyle;
+        if (style !== 'minimal' && style !== 'shades') {
+            menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('Set custom icon')
+                .setIcon('image')
+                .onClick(() => view.setCustomIcon(folder.path, folder.name)));
+            if (view.getCustomIcon(folder.path)) {
+                menu.addItem(item => item
+                    .setTitle('Remove custom icon')
+                    .setIcon('trash')
+                    .onClick(() => view.removeCustomIcon(folder.path)));
+            }
+        }
+
+        const canSetColor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && view.plugin.settings.tabColorEnabled);
+        if (canSetColor) {
+            menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('Set color')
+                .setIcon('palette')
+                .onClick(() => view.setCustomColor(folder, summaryEl.parentElement!)));
+            if (view.plugin.settings.customColors[folder.path]) {
+                menu.addItem(item => item
+                    .setTitle('Reset folder color')
+                    .setIcon('undo')
+                    .onClick(() => view.resetCustomColor(folder)));
+            }
+        }
+
+        view.app.workspace.trigger('file-menu', menu, folder, 'file-explorer');
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+    }
+
+    /**
+     * Portal tab context menu
+     */
+    static showPortalTabMenu(
+        view: PortalsView,
+        space: SpaceConfig,
+        event: MouseEvent
+    ): void {
+        const menu = new Menu();
+
+        menu.addItem(item => item
+            .setTitle('Rename portal')
+            .setIcon('pencil')
+            .onClick(() => view.renamePortal(space)));
+
+        if (space.displayName) {
+            menu.addItem(item => item
+                .setTitle('Reset name')
+                .setIcon('undo')
+                .onClick(() => view.resetPortalName(space)));
+        }
+
+        menu.addItem(item => item
+            .setTitle('Change icon')
+            .setIcon('image')
+            .onClick(() => {
+                new IconPickerModal(view.app, (iconName: string) => {
+                    space.icon = iconName;
+                    view.plugin.saveSettings().then(() => view.render());
+                }).open();
+            }));
+
+        const tabColor = view.plugin.settings.tabColorEnabled;
+        const panelStyle = view.plugin.settings.filePaneColorStyle;
+        if (tabColor || panelStyle === 'gradient' || panelStyle === 'solid') {
+            menu.addItem(item => item
+                .setTitle('Set color')
+                .setIcon('palette')
+                .onClick(() => {
+                    const dummyEl = document.createElement('div');
+                    new ColorPickerModal(view.app, (color: string) => {
+                        space.color = color;
+                        view.plugin.saveSettings().then(() => view.render());
+                    }, dummyEl, space.color).open();
+                }));
+            if (space.color && space.color !== 'transparent') {
+                menu.addItem(item => item
+                    .setTitle('Reset color')
+                    .setIcon('undo')
+                    .onClick(() => {
+                        space.color = 'transparent';
+                        view.plugin.saveSettings().then(() => view.render());
+                    }));
+            }
+        }
+
+        menu.addSeparator();
+        menu.addItem(item => item
+            .setTitle('Add to new stack')
+            .setIcon('stack')
+            .onClick(() => view.createNewStackWithPortal(space)));
+
+        const otherStacks = view.plugin.settings.portalStacks.filter(s => s.id !== space.stackId);
+        if (otherStacks.length > 0) {
+            const subMenu = (menu.addItem(item => item
+                .setTitle('Add to existing stack')
+                .setIcon('arrow-right')
+            ) as unknown as { setSubmenu(): Menu }).setSubmenu();
+            otherStacks.forEach(stack => {
+                subMenu.addItem((subItem: MenuItem) => subItem
+                    .setTitle(stack.name)
+                    .onClick(() => {
+                        space.stackId = stack.id;
+                        view.rebuildTabBarOrder();
+                        view.plugin.saveSettings().then(() => view.render());
+                    }));
+            });
+        }
+
+        if (space.stackId) {
+            menu.addItem(item => item
+                .setTitle('Remove from stack')
+                .setIcon('arrow-left')
+                .onClick(() => {
+                    const compositeKey = `${space.type}:${space.path}`;
+                    delete space.stackId;
+                    if (!view.plugin.settings.tabBarOrder.includes(compositeKey)) {
+                        view.plugin.settings.tabBarOrder.push(compositeKey);
+                    }
+                    view.plugin.saveSettings().then(() => view.render());
+                }));
+        }
+
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+    }
+
+    /**
+     * Stack header context menu
+     */
+    static showStackHeaderMenu(
+        view: PortalsView,
+        stack: PortalStack,
+        event: MouseEvent
+    ): void {
+        const menu = new Menu();
+
+        menu.addItem(item => item
+            .setTitle('Rename stack')
+            .setIcon('pencil')
+            .onClick(() => {
+                new RenamePortalModal(view.app, stack.name, (newName: string) => {
+                    stack.name = newName.trim() || 'Stack';
+                    view.plugin.saveSettings().then(() => view.render());
+                }).open();
+            }));
+
+        menu.addItem(item => item
+            .setTitle('Change icon')
+            .setIcon('image')
+            .onClick(() => {
+                new IconPickerModal(view.app, (iconName: string) => {
+                    stack.icon = iconName;
+                    view.plugin.saveSettings().then(() => view.render());
+                }).open();
+            }));
+
+        menu.addItem(item => item
+            .setTitle('Set color')
+            .setIcon('palette')
+            .onClick(() => {
+                const dummyEl = document.createElement('div');
+                new ColorPickerModal(view.app, (color: string) => {
+                    stack.color = color;
+                    view.plugin.saveSettings().then(() => view.render());
+                }, dummyEl, stack.color).open();
+            }));
+
+        if (stack.color && stack.color !== 'transparent') {
+            menu.addItem(item => item
+                .setTitle('Reset color')
+                .setIcon('undo')
+                .onClick(() => {
+                    stack.color = 'transparent';
+                    view.plugin.saveSettings().then(() => view.render());
+                }));
+        }
+
+        menu.addSeparator();
+
+        menu.addItem(item => item
+            .setTitle('Delete stack')
+            .setIcon('trash')
+            .setWarning(true)
+            .onClick(() => {
+                const portalsInStack = view.plugin.settings.spaces.filter(s => s.stackId === stack.id);
+                portalsInStack.forEach(s => delete s.stackId);
+                view.plugin.settings.portalStacks = view.plugin.settings.portalStacks.filter(s => s.id !== stack.id);
+                view.plugin.settings.tabBarOrder = view.plugin.settings.tabBarOrder.filter(entry => entry !== `stack:${stack.id}`);
+                view.plugin.saveSettings().then(() => view.render());
+            }));
+
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+    }
+
+    // Right‑click menu for the main tag portal’s header summary (e.g. “#project”)
+    static showTagContextMenu(
+        view: PortalsView,
+        tagName: string,
+        iconName: string,
+        anchorEl: HTMLElement,
+        event: MouseEvent
+    ): void {
+        const menu = new Menu();
+
+        // Hide
+        menu.addItem(item => item
+            .setTitle('Hide')
+            .setIcon('eye-off')
+            .onClick(() => view.hideItem(`tag:${tagName}`))   // assuming hideItem takes a key; adjust if needed
+        );
+
+        // Context‑note actions
+        if (view.plugin.settings.enableContextNotes) {
+            menu.addSeparator();
+            const contextNote = getContextNote(view.app, view.plugin, tagName);
+            if (contextNote) {
+                menu.addItem(item => item
+                    .setTitle('Open context note')
+                    .setIcon('document')
+                    .onClick(() => view.app.workspace.getLeaf().openFile(contextNote)));
+                menu.addItem(item => item
+                    .setTitle('Delete context note')
+                    .setIcon('trash')
+                    .setWarning(true)
+                    .onClick(() => {
+                        view.saveScrollWithAnchor(anchorEl);
+                        view.deleteFile(contextNote)
+                    }));
+            } else {
+                menu.addItem(item => item
+                    .setTitle('Create context note')
+                    .setIcon('plus')
+                    .onClick(async () => {
+                        view.saveScrollWithAnchor(anchorEl);
+                        await createContextNote(view.app, view.plugin, tagName);
+                    }));
+            }
+        }
+
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+    }
+
+    /**
+     * Right‑click menu for a group tag within a tag portal (e.g. group “urgent” under #project)
+     */
+    static showGroupTagContextMenu(
+        view: PortalsView,
+        tagName: string,
+        groupKey: string,
+        groupTag: string,
+        detailsEl: HTMLElement,
+        anchorEl: HTMLElement,
+        event: MouseEvent
+    ): void {
+        const menu = new Menu();
+        const style = view.plugin.settings.treeStyle;
+
+        // Icon option (if style allows)
+        const canSetIcon = style !== 'minimal' && style !== 'shades';
+        if (canSetIcon) {
+            menu.addItem(item => item
+                .setTitle('Set custom icon')
+                .setIcon('image')
+                .onClick(() => view.setCustomIconForTagGroup(tagName, groupTag, groupKey)));
+            if (view.getCustomIcon(groupKey)) {
+                menu.addItem(item => item
+                    .setTitle('Remove custom icon')
+                    .setIcon('trash')
+                    .onClick(() => view.removeCustomIconForTagGroup(groupKey)));
+            }
+        }
+
+        // Color option (if style allows)
+        const canSetColor = style !== 'shades' && style !== 'hues' &&
+            !(style === 'portals' && view.plugin.settings.tabColorEnabled);
+        if (canSetColor) {
+            menu.addSeparator();
+            const currentColor = view.plugin.settings.tagColors[groupKey];
+            menu.addItem(item => item
+                .setTitle('Set color')
+                .setIcon('palette')
+                .onClick(() => view.setTagColor(groupKey, detailsEl)));
+            if (currentColor) {
+                menu.addItem(item => item
+                    .setTitle('Reset color')
+                    .setIcon('undo')
+                    .onClick(() => view.resetTagColor(groupKey, detailsEl)));
+            }
+        }
+
+        // Context‑note actions
+        if (view.plugin.settings.enableContextNotes) {
+            menu.addSeparator();
+            const contextNote = getContextNote(view.app, view.plugin, groupTag);
+            if (contextNote) {
+                menu.addItem(item => item
+                    .setTitle('Open context note')
+                    .setIcon('document')
+                    .onClick(() => view.app.workspace.getLeaf().openFile(contextNote)));
+                menu.addItem(item => item
+                    .setTitle('Delete context note')
+                    .setIcon('trash')
+                    .setWarning(true)
+                    .onClick(() => {
+                        view.saveScrollWithAnchor(anchorEl);
+                        view.deleteFile(contextNote)
+                    }));
+            } else {
+                menu.addItem(item => item
+                    .setTitle('Create context note')
+                    .setIcon('plus')
+                    .onClick(async () => {
+                        view.saveScrollWithAnchor(anchorEl);
+                        await createContextNote(view.app, view.plugin, groupTag);
+                    }));
+            }
+        }
+
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+    }
+
+    /**
+     * Right‑click menu for a subtag node (e.g. “#project/ideas”)
+     */
+    static showSubtagNodeContextMenu(
+        view: PortalsView,
+        tagName: string,
+        nodeFullPath: string,
+        iconName: string,
+        detailsEl: HTMLElement,
+        anchorEl: HTMLElement,
+        event: MouseEvent
+    ): void {
+        const menu = new Menu();
+        const style = view.plugin.settings.treeStyle;
+        const nodeKey = `tag:${tagName}/node:${nodeFullPath}`;
+
+        // Hide
+        menu.addItem(item => item
+            .setTitle('Hide')
+            .setIcon('eye-off')
+            .onClick(() => view.hideItem(nodeKey)));
+
+        // Icon option
+        const canSetIcon = style !== 'minimal' && style !== 'shades';
+        if (canSetIcon) {
+            menu.addItem(item => item
+                .setTitle('Set custom icon')
+                .setIcon('image')
+                .onClick(() => view.setCustomIconForTagGroup(tagName, nodeFullPath, nodeKey)));
+            if (view.getCustomIcon(nodeKey)) {
+                menu.addItem(item => item
+                    .setTitle('Remove custom icon')
+                    .setIcon('trash')
+                    .onClick(() => view.removeCustomIconForTagGroup(nodeKey)));
+            }
+        }
+
+        // Color option
+        const canSetColor = style !== 'shades' && style !== 'hues' &&
+            !(style === 'portals' && view.plugin.settings.tabColorEnabled);
+        if (canSetColor) {
+            menu.addSeparator();
+            const currentColor = view.plugin.settings.tagColors[nodeKey];
+            menu.addItem(item => item
+                .setTitle('Set color')
+                .setIcon('palette')
+                .onClick(() => view.setTagColor(nodeKey, detailsEl)));
+            if (currentColor) {
+                menu.addItem(item => item
+                    .setTitle('Reset color')
+                    .setIcon('undo')
+                    .onClick(() => view.resetTagColor(nodeKey, detailsEl)));
+            }
+        }
+
+        // Context‑note actions
+        if (view.plugin.settings.enableContextNotes) {
+            menu.addSeparator();
+            const contextNote = getContextNote(view.app, view.plugin, nodeFullPath);
+            if (contextNote) {
+                menu.addItem(item => item
+                    .setTitle('Open context note')
+                    .setIcon('document')
+                    .onClick(() => view.app.workspace.getLeaf().openFile(contextNote)));
+                menu.addItem(item => item
+                    .setTitle('Delete context note')
+                    .setIcon('trash')
+                    .setWarning(true)
+                    .onClick(() => {
+                        view.saveScrollWithAnchor(anchorEl);
+                        view.deleteFile(contextNote)
+                    }));
+            } else {
+                menu.addItem(item => item
+                    .setTitle('Create context note')
+                    .setIcon('plus')
+                    .onClick(async () => {
+                        view.saveScrollWithAnchor(anchorEl);
+                        await createContextNote(view.app, view.plugin, nodeFullPath);
+                    }));
+            }
+        }
+
+        menu.showAtPosition({ x: event.clientX, y: event.clientY });
+    }
+}

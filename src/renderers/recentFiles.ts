@@ -1,6 +1,8 @@
 import { App, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
+import { ContextMenuFactory } from '../utils/contextMenuFactory';
+
 
 export class RecentFilesRenderer {
     private app: App;
@@ -88,7 +90,7 @@ export class RecentFilesRenderer {
             fileEl.addEventListener('contextmenu', (e: MouseEvent) => {
                 e.stopPropagation();
                 e.preventDefault();
-                this.view.showFileContextMenu(e, file, fileEl);
+                ContextMenuFactory.showFileMenu(this.view, file, fileEl, e);
             });
 
             this.view.addHoverPreview(fileEl, file.path);
