@@ -13,7 +13,7 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.metadataCache.on('changed', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.updateFileCache(this.app, file);
-                this.refreshAllViews();
+                this.refreshAllTreeContent();
             }
         }));
         this.registerEvent(this.app.vault.on('create', (file) => {
@@ -333,6 +333,14 @@ export default class PortalsPlugin extends Plugin {
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {
                 leaf.view.render();
+            }
+        });
+    }
+
+    private refreshAllTreeContent() {
+        this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+            if (leaf.view instanceof PortalsView) {
+                leaf.view.renderContent();
             }
         });
     }
