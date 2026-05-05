@@ -1,6 +1,7 @@
 import { App, TFile, TFolder, Platform } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
+import { PortalsActions } from '../utils/portalsActions';
 
 export class HiddenItemsRenderer {
     private app: App;
@@ -68,13 +69,13 @@ export class HiddenItemsRenderer {
                 displayName = this.view.getDisplayName(item);
                 iconClass = 'ph-file';
                 typeLabel = 'File';
-                const customIcon = this.view.getCustomIcon(key);
+                const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
                 if (customIcon) iconClass = `ph-${customIcon}`;
             } else if (item instanceof TFolder) {
                 displayName = item.name;
                 iconClass = 'ph-folder';
                 typeLabel = 'Folder';
-                const customIcon = this.view.getCustomIcon(key);
+                const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
                 if (customIcon) iconClass = `ph-${customIcon}`;
             } else if (key.startsWith('tag:')) {
                 const withoutPrefix = key.slice(4);
@@ -95,7 +96,7 @@ export class HiddenItemsRenderer {
                     typeLabel = 'Tag';
                     iconClass = 'ph-tag';
                 }
-                const customIcon = this.view.getCustomIcon(key);
+                const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
                 if (customIcon) iconClass = `ph-${customIcon}`;
             }
 

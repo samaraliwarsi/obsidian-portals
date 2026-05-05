@@ -4,6 +4,7 @@ import type { SpaceConfig, PortalStack } from '../settings';
 import { IconPickerModal } from './iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
 import { ColorPickerModal, RenamePortalModal } from './modals';
+import { PortalsActions } from './portalsActions';
 
 interface MenuItemWithSubmenu extends MenuItem {
     setSubmenu(): Menu;
@@ -38,17 +39,17 @@ export class ContextMenuFactory {
             .setTitle('Delete')
             .setIcon('trash')
             .setWarning(true)
-            .onClick(() => view.deleteFile(file)));
+            .onClick(() => PortalsActions.deleteFile(view.app, view.plugin, view, file)));
 
         menu.addItem(item => item
             .setTitle('Duplicate')
             .setIcon('copy')
-            .onClick(() => view.duplicateFile(file)));
+            .onClick(() => PortalsActions.duplicateFile(view.app, view.plugin, view, file)));
 
         menu.addItem(item => item
             .setTitle('Rename')
             .setIcon('pencil')
-            .onClick(() => view.startRenameFile(file, fileEl)));
+            .onClick(() => PortalsActions.startRenameFile(view.app, view.plugin, view, file, fileEl)));
 
         menu.addItem(item => item
             .setTitle('Hide')
@@ -62,12 +63,12 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set custom icon')
                 .setIcon('image')
-                .onClick(() => view.setCustomIcon(file.path, file.name)));
-            if (view.getCustomIcon(file.path)) {
+                .onClick(() => PortalsActions.setCustomIcon(view.app, view.plugin, view, file.path, file.name)));
+            if (PortalsActions.getCustomIcon(view.plugin, file.path)) { //check
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')
                     .setIcon('trash')
-                    .onClick(() => view.removeCustomIcon(file.path)));
+                    .onClick(() => PortalsActions.removeCustomIcon(view.app, view.plugin, view, file.path)));
             }
         }
 
@@ -75,12 +76,12 @@ export class ContextMenuFactory {
         menu.addItem(item => item
             .setTitle('Set color')
             .setIcon('palette')
-            .onClick(() => view.setCustomColorForFile(file, fileEl)));
+            .onClick(() => PortalsActions.setCustomColorForFile(view.app, view.plugin, view, file, fileEl)));
         if (view.plugin.settings.customColors[file.path]) {
             menu.addItem(item => item
                 .setTitle('Reset folder color')
                 .setIcon('undo')
-                .onClick(() => view.resetCustomColorForFile(file)));
+                .onClick(() => PortalsActions.resetCustomColorForFile(view.app, view.plugin, view, file)));
         }
 
         menu.addSeparator();
@@ -102,17 +103,17 @@ export class ContextMenuFactory {
         menu.addItem(item => item
             .setTitle('New note')
             .setIcon('document')
-            .onClick(() => view.newNoteInFolder(folder)));
+            .onClick(() => PortalsActions.newNoteInFolder(view.app, view.plugin, view, folder)));
 
         menu.addItem(item => item
             .setTitle('New folder')
             .setIcon('folder')
-            .onClick(() => view.newFolderInFolder(folder)));
+            .onClick(() => PortalsActions.newFolderInFolder(view.app, view.plugin, view, folder)));
 
         menu.addItem(item => item
             .setTitle('New canvas')
             .setIcon('layout-dashboard')
-            .onClick(() => view.newCanvasInFolder(folder)));
+            .onClick(() => PortalsActions.newCanvasInFolder(view.app, view.plugin, view, folder)));
 
         if (view.plugin.settings.enableContextNotes) {
             const contextNote = folder.children.find((child): child is TFile =>
@@ -128,7 +129,7 @@ export class ContextMenuFactory {
                     .setWarning(true)
                     .onClick(() => {
                         view.saveScrollWithAnchor(summaryEl);
-                        view.deleteFile(contextNote)
+                        PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
                     }));
             } else {
                 menu.addItem(item => item
@@ -147,17 +148,17 @@ export class ContextMenuFactory {
             .setTitle('Delete')
             .setIcon('trash')
             .setWarning(true)
-            .onClick(() => view.deleteFolder(folder)));
+            .onClick(() => PortalsActions.deleteFolder(view.app, view.plugin, view, folder)));
 
         menu.addItem(item => item
             .setTitle('Duplicate')
             .setIcon('copy')
-            .onClick(() => view.duplicateFolder(folder)));
+            .onClick(() => PortalsActions.duplicateFolder(view.app, view.plugin, view, folder)));
 
         menu.addItem(item => item
             .setTitle('Rename')
             .setIcon('pencil')
-            .onClick(() => view.startRenameFolder(folder, summaryEl)));
+            .onClick(() => PortalsActions.startRenameFolder(view.app, view.plugin, view, folder, summaryEl)));
 
         menu.addItem(item => item
             .setTitle('Hide')
@@ -170,12 +171,12 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set custom icon')
                 .setIcon('image')
-                .onClick(() => view.setCustomIcon(folder.path, folder.name)));
-            if (view.getCustomIcon(folder.path)) {
+                .onClick(() => PortalsActions.setCustomIcon(view.app, view.plugin, view, folder.path, folder.name)));
+            if (PortalsActions.getCustomIcon(view.plugin, folder.path)) { //check
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')
                     .setIcon('trash')
-                    .onClick(() => view.removeCustomIcon(folder.path)));
+                    .onClick(() => PortalsActions.removeCustomIcon(view.app, view.plugin, view, folder.path)));
             }
         }
 
@@ -185,12 +186,12 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set color')
                 .setIcon('palette')
-                .onClick(() => view.setCustomColor(folder, summaryEl.parentElement!)));
+                .onClick(() => PortalsActions.setCustomColor(view.app, view.plugin, view, folder, summaryEl.parentElement!)));
             if (view.plugin.settings.customColors[folder.path]) {
                 menu.addItem(item => item
                     .setTitle('Reset folder color')
                     .setIcon('undo')
-                    .onClick(() => view.resetCustomColor(folder)));
+                    .onClick(() => PortalsActions.resetCustomColor(view.app, view.plugin, view, folder)));
             }
         }
 
@@ -398,7 +399,7 @@ export class ContextMenuFactory {
                     .setWarning(true)
                     .onClick(() => {
                         view.saveScrollWithAnchor(anchorEl);
-                        view.deleteFile(contextNote)
+                        PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
                     }));
             } else {
                 menu.addItem(item => item
@@ -435,12 +436,12 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set custom icon')
                 .setIcon('image')
-                .onClick(() => view.setCustomIconForTagGroup(tagName, groupTag, groupKey)));
-            if (view.getCustomIcon(groupKey)) {
+                .onClick(() => PortalsActions.setCustomIconForTagGroup(view.app, view.plugin, view, tagName, groupTag, groupKey)));
+            if (PortalsActions.getCustomIcon(view.plugin, groupKey)) { // check
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')
                     .setIcon('trash')
-                    .onClick(() => view.removeCustomIconForTagGroup(groupKey)));
+                    .onClick(() => PortalsActions.removeCustomIconForTagGroup(view.app, view.plugin, view, groupKey)));
             }
         }
 
@@ -453,12 +454,12 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set color')
                 .setIcon('palette')
-                .onClick(() => view.setTagColor(groupKey, detailsEl)));
+                .onClick(() => PortalsActions.setTagColor(view.app, view.plugin, view, groupKey, detailsEl)));
             if (currentColor) {
                 menu.addItem(item => item
                     .setTitle('Reset color')
                     .setIcon('undo')
-                    .onClick(() => view.resetTagColor(groupKey, detailsEl)));
+                    .onClick(() => PortalsActions.resetTagColor(view.app, view.plugin, view, groupKey, detailsEl)));
             }
         }
 
@@ -477,7 +478,7 @@ export class ContextMenuFactory {
                     .setWarning(true)
                     .onClick(() => {
                         view.saveScrollWithAnchor(anchorEl);
-                        view.deleteFile(contextNote)
+                        PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
                     }));
             } else {
                 menu.addItem(item => item
@@ -521,12 +522,12 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set custom icon')
                 .setIcon('image')
-                .onClick(() => view.setCustomIconForTagGroup(tagName, nodeFullPath, nodeKey)));
-            if (view.getCustomIcon(nodeKey)) {
+                .onClick(() => PortalsActions.setCustomIconForTagGroup(view.app, view.plugin, view, tagName, nodeFullPath, nodeKey)));
+            if (PortalsActions.getCustomIcon(view.plugin, nodeKey)) { // check
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')
                     .setIcon('trash')
-                    .onClick(() => view.removeCustomIconForTagGroup(nodeKey)));
+                    .onClick(() => PortalsActions.removeCustomIconForTagGroup(view.app, view.plugin, view, nodeKey)));
             }
         }
 
@@ -539,12 +540,12 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set color')
                 .setIcon('palette')
-                .onClick(() => view.setTagColor(nodeKey, detailsEl)));
+                .onClick(() => PortalsActions.setTagColor(view.app, view.plugin, view, nodeKey, detailsEl)));
             if (currentColor) {
                 menu.addItem(item => item
                     .setTitle('Reset color')
                     .setIcon('undo')
-                    .onClick(() => view.resetTagColor(nodeKey, detailsEl)));
+                    .onClick(() => PortalsActions.resetTagColor(view.app, view.plugin, view, nodeKey, detailsEl)));
             }
         }
 
@@ -563,7 +564,7 @@ export class ContextMenuFactory {
                     .setWarning(true)
                     .onClick(() => {
                         view.saveScrollWithAnchor(anchorEl);
-                        view.deleteFile(contextNote)
+                        PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
                     }));
             } else {
                 menu.addItem(item => item

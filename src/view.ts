@@ -1,13 +1,10 @@
-import { ItemView, WorkspaceLeaf, TFile, TFolder, TAbstractFile, Menu, Notice, Platform, View, Modal, App } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, TFolder, TAbstractFile, Menu, Notice, Platform, View } from 'obsidian';
 import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './settings';
 import { GroupTagsModal } from './settings';
 import { JournalRenderer } from './renderers/journalView';
-import { IconPickerModal } from './utils/iconPicker';
 import { RenamePortalModal } from './utils/modals';
-import { SelectFolderModal } from './utils/modals';
-import { ColorPickerModal } from './utils/modals';
 import { AddPortalModal } from './settings';
 import { RemovePortalModal } from './utils/modals';
 import { ChooseTabsModal } from './settings';
@@ -19,6 +16,7 @@ import { RecentFilesRenderer } from './renderers/recentFiles';
 import { HiddenItemsRenderer } from './renderers/hiddenItems';
 import { BookmarksRenderer } from './renderers/bookmarksRenderer';
 import { ContextMenuFactory } from './utils/contextMenuFactory';
+import { PortalsActions } from './utils/portalsActions';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -47,8 +45,8 @@ export class PortalsView extends ItemView {
     private floatinBtnSpecialTooltipShown = false;
     private collapseIconSpecialTooltipShown = false;
     private vaultEventRef: (() => void) | null = null;
-    private renaming: boolean = false;
-    private selectedItems: Set<string> = new Set();
+    public renaming: boolean = false;
+    public selectedItems: Set<string> = new Set();
     private isDraggingSplitter: boolean = false;
     private contextMenuFiredMap = new WeakMap<HTMLElement, boolean>();
     private currentSecondaryPanel: HTMLElement | null = null;
@@ -60,7 +58,7 @@ export class PortalsView extends ItemView {
     private bookmarksListenerRef: unknown = null;
     private firstBookmarkChange = true;
     private renderTimer: number | null = null;
-    private fileElementMap = new Map<string, HTMLElement>();
+    public fileElementMap = new Map<string, HTMLElement>();
     private journalRenderer: JournalRenderer | null = null;
     private journalFolderPath: string = '';
     private journalContainer: HTMLElement | null = null;
@@ -73,6 +71,7 @@ export class PortalsView extends ItemView {
     private recentRenderer: RecentFilesRenderer | null = null;
     private hiddenRenderer: HiddenItemsRenderer | null = null;
     private bookmarksRenderer: BookmarksRenderer | null = null;
+    public actions: PortalsActions;
     private getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -453,15 +452,15 @@ export class PortalsView extends ItemView {
             const deleteBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Delete selected' } });
             deleteBtn.createEl('i', { cls: 'ph ph-trash' });
             deleteBtn.addClass('portals-delete-btn-warn');
-            deleteBtn.addEventListener('click', () => this.deleteSelectedItems());
+            deleteBtn.addEventListener('click', () => PortalsActions.deleteSelectedItems(this.app, this.plugin, this));
 
             const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Move selected' } });
             moveBtn.createEl('i', { cls: 'ph ph-arrow-square-out' });
-            moveBtn.addEventListener('click', () => this.moveSelectedItemsToFolder());
+            moveBtn.addEventListener('click', () => PortalsActions.moveSelectedItemsToFolder(this.app, this.plugin, this));
 
             const folderBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Create folder from selected' } });
             folderBtn.createEl('i', { cls: 'ph ph-folder-plus' });
-            folderBtn.addEventListener('click', () => this.createFolderFromSelected());
+            folderBtn.addEventListener('click', () => PortalsActions.createFolderFromSelected(this.app, this.plugin, this));
         }
 
         // Reset colors button
@@ -526,7 +525,7 @@ export class PortalsView extends ItemView {
     private createFileItem(file: TFile, container: HTMLElement, openFiles: Set<string>) {
         const fileEl = container.createDiv({ cls: 'file-item' });
     
-        const customIcon = this.getCustomIcon(file.path);
+        const customIcon = PortalsActions.getCustomIcon(this.plugin, file.path);
         const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
         const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
         iconSpan.createEl('i', { cls: fileIconClass });
@@ -664,98 +663,6 @@ export class PortalsView extends ItemView {
             element.addClass('is-selected');
         }
         this.updateMultiSelectToolbar();
-    }
-
-    public getCustomIcon(path: string): string | null {
-        return this.plugin.settings.customIcons[path] || null;
-    }
-
-    public async setCustomIcon(path: string, displayName: string) {
-        new IconPickerModal(this.app, (iconName) => {
-            // capture scroll position
-            this.saveTreeScroll();
-            this.plugin.settings.customIcons[path] = iconName;
-            this.plugin.saveSettings().then(() => {
-                this.render();
-                new Notice(`Icon set for ${displayName}`);
-            });
-        }).open();
-    }
-
-    public async removeCustomIcon(path: string) {
-        // capture scroll position
-        this.saveTreeScroll();
-        delete this.plugin.settings.customIcons[path];
-        await this.plugin.saveSettings();
-        this.render();
-        new Notice('Custom icon removed');
-    }
-
-    public async setCustomIconForTagGroup(mainTag: string, groupTag: string, groupKey: string) {
-        const displayName = `#${groupTag}`;
-        new IconPickerModal(this.app, (iconName) => {
-            this.saveTreeScroll();
-            this.plugin.settings.customIcons[groupKey] = iconName;
-            this.plugin.saveSettings().then(() => {
-                this.render();
-                new Notice(`Icon set for group ${displayName}`);
-            });
-        }).open();
-    }
-
-    public async removeCustomIconForTagGroup(groupKey: string) {
-        this.saveTreeScroll();
-        delete this.plugin.settings.customIcons[groupKey];
-        await this.plugin.saveSettings();
-        this.render();
-        new Notice('Custom icon removed');
-    }
-
-    public setCustomColor(folder: TFolder, summaryEl: HTMLElement) {
-        const currentColor = this.plugin.settings.customColors[folder.path];
-        this.saveTreeScroll();
-
-        new ColorPickerModal(this.app, (color) => {
-            this.plugin.settings.customColors[folder.path] = color;
-            this.plugin.saveSettings().then(() => this.render());
-        }, summaryEl, currentColor).open();
-    }
-
-    public setCustomColorForFile(file: TFile, fileEl: HTMLElement) {
-        const currentColor = this.plugin.settings.customColors[file.path];
-        this.saveTreeScroll();
-        new ColorPickerModal(this.app, (color) => {
-            this.plugin.settings.customColors[file.path] = color;
-            this.plugin.saveSettings().then(() => this.render());
-        }, fileEl, currentColor).open();
-    }
-
-    public resetCustomColorForFile(file: TFile) {
-        this.saveTreeScroll();
-        delete this.plugin.settings.customColors[file.path];
-        this.plugin.saveSettings().then(() => this.render());
-        new Notice('File color reset');
-    }
-
-    public resetCustomColor(folder: TFolder) {
-        this.saveTreeScroll();
-        delete this.plugin.settings.customColors[folder.path];
-        this.plugin.saveSettings().then(() => this.render());       
-    }
-
-    public setTagColor(key: string, targetElement: HTMLElement) {
-        const currentColor = this.plugin.settings.tagColors[key];
-        this.saveTreeScroll();
-        new ColorPickerModal(this.app, (color) => {
-            this.plugin.settings.tagColors[key] = color;
-            this.plugin.saveSettings().then(() => this.render());
-        }, targetElement, currentColor).open();
-    }
-
-    public resetTagColor(key: string, _targetElement: HTMLElement) {
-        this.saveTreeScroll();
-        delete this.plugin.settings.tagColors[key];
-        this.plugin.saveSettings().then(() => this.render());
     }
 
     public showAddPortalModal() {
@@ -899,7 +806,7 @@ export class PortalsView extends ItemView {
         return globalEnabled && !disabledOnMobile;
     }
 
-    private scheduleRender() {
+    public scheduleRender() {
         if (this.renderTimer) {
             window.clearTimeout(this.renderTimer);
         }
@@ -942,72 +849,6 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private handleRename(file: TAbstractFile, oldPath: string) {
-        // update the custom icon mapping first 
-        if (this.plugin.settings.customIcons[oldPath]) {
-            const icon = this.plugin.settings.customIcons[oldPath]!;
-            this.plugin.settings.customIcons[file.path] = icon;
-            delete this.plugin.settings.customIcons[oldPath];
-            void this.plugin.saveSettings();
-        }
-        // Handle folder rename
-        if (file instanceof TFolder) {
-            const openFolders = this.plugin.settings.openFolders;
-            const index = openFolders.indexOf(oldPath);
-            if (index !== -1) {
-                openFolders[index] = file.path;
-                void this.plugin.saveSettings();
-            }
-            if (this.plugin.settings.selectedSpace?.type === 'folder' && 
-                this.plugin.settings.selectedSpace.path === oldPath) {
-                this.plugin.settings.selectedSpace.path = file.path;
-                void this.plugin.saveSettings();
-            }
-            // Force a full render to update the UI with the new name
-            this.scheduleRender();
-            return;
-        }
-
-        // Handle file rename (existing logic)
-        if (!(file instanceof TFile)) {
-            if (this.plugin.settings.customIcons[oldPath]) {
-                const icon = this.plugin.settings.customIcons[oldPath]!;
-                this.plugin.settings.customIcons[file.path] = icon;
-                delete this.plugin.settings.customIcons[oldPath];
-                void this.plugin.saveSettings();
-            }
-            this.scheduleRender();
-            return;
-        }
-    
-        // file rename: check if it moved to a different folder
-        const oldDir = oldPath.substring(0, oldPath.lastIndexOf('/'));
-        const newDir = file.parent?.path || '';
-        if (oldDir !== newDir) {
-            this.scheduleRender();
-            return;
-        }
-        // same folder rename - try in place update to preserve scroll
-        const element = this.fileElementMap.get(oldPath);
-        if (!element) {
-            this.scheduleRender();
-            return;
-        }
-
-        // Update displayed name
-        const nameSpan = element.querySelector('.portals-item-name') as HTMLElement;
-        if (nameSpan) {
-            nameSpan.innerText = this.getDisplayName(file);
-        }
-
-        // Update data‑path attribute
-        element.dataset.path = file.path;
-
-        // Update map key
-        this.fileElementMap.delete(oldPath);
-        this.fileElementMap.set(file.path, element);
-    }
-
     private collapseAllFolders() {
         (async () => {
             const currentSpace = this.plugin.settings.selectedSpace;
@@ -1033,6 +874,7 @@ export class PortalsView extends ItemView {
         super(leaf);
         this.plugin = plugin;
         this.lastJournalIndicatorValue = plugin.settings.journalQuoteIndicator;
+        this.actions = new PortalsActions();
     }
 
     getViewType(): string {
@@ -1050,7 +892,7 @@ export class PortalsView extends ItemView {
     async onOpen() {
         this.render();
 
-        const renameRef = this.app.vault.on('rename', (file, oldPath) => this.handleRename(file, oldPath));
+        const renameRef = this.app.vault.on('rename', (file, oldPath) => PortalsActions.handleRename(this.app, this.plugin, this, file, oldPath));
         const deleteRef = this.app.vault.on('delete', () => this.scheduleRender());
         const createRef = this.app.vault.on('create', () => this.scheduleRender());
 
@@ -1944,9 +1786,9 @@ export class PortalsView extends ItemView {
                                 new Notice('Selected space is not a valid folder.');
                             return;
                             }
-                            await this.newNoteInFolder(folder);
+                            await PortalsActions.newNoteInFolder(this.app, this.plugin, this, folder);
                         } else if (currentSpace.type === 'tag') {
-                            await this.newNoteInTagSpace(currentSpace.path);
+                            await PortalsActions.newNoteInTagSpace(this.app, this.plugin, this, currentSpace.path);
                         }
 
                     })().catch(err => console.error('Error creating note:', err));
@@ -1966,7 +1808,7 @@ export class PortalsView extends ItemView {
                                 new Notice('Selected space is not a valid folder.');
                                 return;
                             }
-                            await this.newFolderInFolder(folder);
+                            await PortalsActions.newFolderInFolder(this.app, this.plugin, this, folder);
                         })().catch(err => console.error('Error creating folder:', err));
                     });
                 } else if (currentSpace && currentSpace.type === 'tag') {
@@ -2329,7 +2171,7 @@ export class PortalsView extends ItemView {
             }
 
             // Quick‑create note for tag lists (tagName)
-            this.quickFileIcon(mainSummary, () => void this.newNoteInTagSpace(tagName))
+            this.quickFileIcon(mainSummary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this, tagName))
             
             mainSummary.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
@@ -2488,7 +2330,7 @@ export class PortalsView extends ItemView {
                 }
 
                 // icon with custom support
-                const customIcon = this.getCustomIcon(groupKey);
+                const customIcon = PortalsActions.getCustomIcon(this.plugin, groupKey);
                 const iconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-tag-simple';
                 const iconSpan = summary.createSpan({ cls: 'folder-icon' });
                 iconSpan.createEl('i', { cls: iconClass });
@@ -2496,7 +2338,7 @@ export class PortalsView extends ItemView {
                 summary.dataset.tagPath = gTag;
 
                 // Quick‑create note for tag groups flat list (mainT + gTag)
-                this.quickFileIcon(summary, () => void this.newNoteInTagSpace(tagName, [gTag]));
+                this.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this, tagName, [gTag]));
 
                 // Apply context note highlight to group tag
                 const groupTagPath = gTag;
@@ -2661,7 +2503,7 @@ export class PortalsView extends ItemView {
 
             const summary = details.createEl('summary', { cls: 'folder-summary' });
             
-            const customIcon = this.getCustomIcon(nodeKey);
+            const customIcon = PortalsActions.getCustomIcon(this.plugin, nodeKey);
             const iconClass = customIcon ? `ph ph-${customIcon}` : `ph ph-${iconName || 'tag'}`;
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
             iconSpan.createEl('i', { cls: iconClass });
@@ -2672,7 +2514,7 @@ export class PortalsView extends ItemView {
             const childrenContainer = details.createDiv({ cls: 'folder-children' });
 
             // Quick‑create note for sub tag tree sub item (node.fullpath)
-            this.quickFileIcon(summary, () => void this.newNoteInTagSpace(node.fullPath));
+            this.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this, node.fullPath));
             
             // Apply context note highlight to subtag node
             const nodeTagPath = node.fullPath; // e.g., "project/ideas"
@@ -2890,7 +2732,7 @@ export class PortalsView extends ItemView {
         mainSummary.dataset.tagPath = tagName;
 
         // Quick‑create note for sub tag tree head item (tagName)
-        this.quickFileIcon(mainSummary, () => void this.newNoteInTagSpace(tagName));
+        this.quickFileIcon(mainSummary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this, tagName));
 
         // Apply context note highlight to main tag
         const mainTagPath = tagName;
@@ -3049,7 +2891,7 @@ export class PortalsView extends ItemView {
                 groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
             }
 
-            const customIconGroup = this.getCustomIcon(groupKey);
+            const customIconGroup = PortalsActions.getCustomIcon(this.plugin, groupKey);
             const iconClass = customIconGroup ? `ph ph-${customIconGroup}` : 'ph ph-tag-simple';
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
             iconSpan.createEl('i', { cls: iconClass });
@@ -3057,7 +2899,7 @@ export class PortalsView extends ItemView {
             summary.dataset.tagPath = gTag;
 
             // Quick‑create note for tag groups subtagtree (mainT + gTag)
-            this.quickFileIcon(summary, () => void this.newNoteInTagSpace(tagName, [gTag]));
+            this.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this, tagName, [gTag]));
 
             // Apply context note highlight to group
             const groupTagPath = gTag; // e.g., "urgent"
@@ -3242,182 +3084,13 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private clearSelection() {
-    // Remove classes from all selected items
-    this.containerEl.querySelectorAll('.file-item.is-selected, .folder-summary.is-selected').forEach(el => {
-        el.removeClass('is-selected');
-    });
-    this.selectedItems.clear();
-    this.updateMultiSelectToolbar();
-}
-
-    private async deleteSelectedItems() {
-        this.saveTreeScroll();
-        if (this.selectedItems.size === 0) return;
-        const confirmMsg = `Delete ${this.selectedItems.size} item(s) permanently?`;
-        if (!confirm(confirmMsg)) return;
-        
-
-        for (const path of this.selectedItems) {
-            const item = this.app.vault.getAbstractFileByPath(path);
-            if (!item) continue;
-            try {
-                await this.app.fileManager.trashFile(item);
-                if (item instanceof TFile) {
-                    delete this.plugin.settings.customIcons[path];
-                } else if (item instanceof TFolder) {
-                    const toDelete = Object.keys(this.plugin.settings.customIcons).filter(p => p === path || p.startsWith(path + '/'));
-                    for (const iconPath of toDelete) {
-                        delete this.plugin.settings.customIcons[iconPath];
-                    }
-                }
-            } catch (err) {
-                console.error(err);
-                new Notice(`Failed to delete ${item.name}`);
-            }
-        }
-
-        if (this.renderTimer) {
-            clearTimeout(this.renderTimer);
-            this.renderTimer = null;
-        }
-
-        await this.plugin.saveSettings();
-        const deletedCount = this.selectedItems.size;
-        this.clearSelection();
-        this.renderContent();
-        new Notice(`Deleted ${deletedCount} item(s)`);
-    }
-
-    private async moveSelectedItemsToFolder() {
-        if (this.selectedItems.size === 0) return;
-        this.saveTreeScroll();
-        new SelectFolderModal(this.app, async (targetFolder) => {
-            let movedCount = 0;
-            for (const path of this.selectedItems) {
-                const item = this.app.vault.getAbstractFileByPath(path);
-                if (!item) continue;
-                const newPath = `${targetFolder.path}/${item.name}`;
-                if (this.app.vault.getAbstractFileByPath(newPath)) {
-                    new Notice(`${item.name} already exists in destination, skipped.`);
-                    continue;
-                }
-                try {
-                    await this.app.vault.rename(item, newPath);
-                    movedCount++;
-                    // Update custom icon mapping if exists
-                    if (this.plugin.settings.customIcons[path]) {
-                        this.plugin.settings.customIcons[newPath] = this.plugin.settings.customIcons[path];
-                        delete this.plugin.settings.customIcons[path];
-                    }
-                } catch (err) {
-                    console.error(err);
-                    new Notice(`Failed to move ${item.name}`);
-                }
-            }
-            await this.plugin.saveSettings();
-            this.clearSelection();
-            this.renderContent();
-            new Notice(`Moved ${movedCount} item(s) to ${targetFolder.path}`);
-        }).open();
-    }
-
-    private async createFolderFromSelected() {
-        if (this.selectedItems.size === 0) return;
-        this.saveTreeScroll();
-        const parentFolder = this.getCommonParentFolder();
-        if (!parentFolder) {
-            new Notice('Selected items are not in a common parent folder');
-            return;
-        }
-        
-        const folderName = await this.promptForFolderName();
-        if (!folderName) return;
-        
-        const newFolderPath = `${parentFolder.path}/${folderName}`;
-        if (this.app.vault.getAbstractFileByPath(newFolderPath)) {
-            new Notice('Folder already exists');
-            return;
-        }
-        
-        try {
-            await this.app.vault.createFolder(newFolderPath);
-            let movedCount = 0;
-            for (const path of this.selectedItems) {
-                const item = this.app.vault.getAbstractFileByPath(path);
-                if (!item) continue;
-                const newPath = `${newFolderPath}/${item.name}`;
-                if (this.app.vault.getAbstractFileByPath(newPath)) {
-                    new Notice(`${item.name} already exists in new folder, skipped.`);
-                    continue;
-                }
-                await this.app.vault.rename(item, newPath);
-                movedCount++;
-                // Update custom icon mapping if exists
-                if (this.plugin.settings.customIcons[path]) {
-                    this.plugin.settings.customIcons[newPath] = this.plugin.settings.customIcons[path];
-                    delete this.plugin.settings.customIcons[path];
-                }
-            }
-            await this.plugin.saveSettings();
-            this.clearSelection();
-            this.renderContent();
-            new Notice(`Created folder "${folderName}" and moved ${movedCount} item(s)`);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Failed to create folder: ${message}`);
-        }
-    }
-
-    private getCommonParentFolder(): TFolder | null {
-        let commonParent: TFolder | null = null;
-        for (const path of this.selectedItems) {
-            const item = this.app.vault.getAbstractFileByPath(path);
-            if (!item) return null;
-            
-            // Get parent folder – for root folder, parent is null, but we treat the root itself as the parent
-            let parent = item.parent;
-            if (!parent && item instanceof TFolder && item.path === '/') {
-                parent = item; // root folder is its own parent for this purpose
-            }
-            
-            if (!commonParent) commonParent = parent;
-            else if (commonParent !== parent) return null;
-        }
-        return commonParent;
-    }
-
-    private async promptForFolderName(): Promise<string | null> {
-        return new Promise((resolve) => {
-            class FolderNameModal extends Modal {
-                constructor(app: App) {
-                    super(app);
-                }
-                onOpen() {
-                    const { contentEl } = this;
-                    contentEl.createEl('h3', { text: 'Create new folder' });
-                    const input = contentEl.createEl('input', { type: 'text', placeholder: 'Folder name', cls: 'portals-search-input' });
-                    const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
-                    const okBtn = buttonDiv.createEl('button', { text: 'Create', cls: 'mod-cta' });
-                    const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
-                    okBtn.addEventListener('click', () => {
-                        const val = input.value.trim();
-                        resolve(val || null);
-                        this.close();
-                    });
-                    cancelBtn.addEventListener('click', () => {
-                        resolve(null);
-                        this.close();
-                    });
-                    input.focus();
-                    input.select();
-                }
-                onClose() {
-                    this.contentEl.empty();
-                }
-            }
-            new FolderNameModal(this.app).open();
+    public clearSelection() {
+        // Remove classes from all selected items
+        this.containerEl.querySelectorAll('.file-item.is-selected, .folder-summary.is-selected').forEach(el => {
+            el.removeClass('is-selected');
         });
+        this.selectedItems.clear();
+        this.updateMultiSelectToolbar();
     }
 
     private async resetColorsForSelected() {
@@ -3447,128 +3120,6 @@ export class PortalsView extends ItemView {
         new Notice('Icons reset for selected items');
     }
 
-    private createRenameInput(initialValue: string, onSave: (val: string) => void, onCancel: () => void): HTMLInputElement {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = initialValue;
-        input.addClass('portals-rename-input');
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                onSave(input.value);
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                onCancel();
-            }
-        });
-        return input;
-    }
-
-    public startRenameFile(file: TFile, fileEl: HTMLElement) {
-        const nameSpan = fileEl.querySelector('.portals-item-name') as HTMLElement;
-        if (!nameSpan) return;
-        const isMd = file.extension === 'md';
-        const hideExtension = this.plugin.settings.enableFileExtensionNonMD;
-        
-        let base: string;
-        if (isMd) {
-            base = file.basename;
-        } else {
-            base = hideExtension ? file.basename : file.name;
-        }
-
-        const input = this.createRenameInput(base, (newBase) => {
-            (async () => {
-                if (!newBase || newBase === base) return;
-                let newName: string;
-                if (isMd) {
-                    newName = newBase + '.' + file.extension;
-                } else {
-                    if (hideExtension) {
-                        newName = newBase + '.' + file.extension;
-                    } else {
-                        newName = newBase;
-                    }
-                }
-                const newPath = file.parent ? `${file.parent.path}/${newName}` : newName;
-                this.saveTreeScroll();
-                try {
-                    await this.app.vault.rename(file, newPath);
-                    new Notice('File renamed');
-                } catch (err) {
-                    const message = err instanceof Error ? err.message : String(err);
-                    new Notice(`Rename failed: ${message}`);
-                } finally {
-                    this.renaming = false;
-                    document.removeEventListener('mousedown', outsideClickListener);
-                    this.renderContent();
-                }
-            })().catch(err => console.error('Rename error:', err));
-        }, () => {
-            this.renaming = false;
-            document.removeEventListener('mousedown', outsideClickListener);
-            this.renderContent();
-        });
-
-        nameSpan.replaceWith(input);
-        input.focus();
-        input.select();
-        this.renaming = true;
-
-        const outsideClickListener = (e: MouseEvent) => {
-            if (!input.contains(e.target as Node)) {
-                document.removeEventListener('mousedown', outsideClickListener);
-                this.renaming = false;
-                this.renderContent();
-            }
-        };
-        document.addEventListener('mousedown', outsideClickListener);
-    }
-
-    public startRenameFolder(folder: TFolder, summaryEl: HTMLElement) {
-        const nameSpan = summaryEl.querySelector('.portals-item-name') as HTMLElement;
-        if (!nameSpan) return;
-
-        const input = this.createRenameInput(folder.name, (newName) => {
-            (async () => {
-                if (!newName || newName === folder.name) return;
-                const parent = folder.parent?.path || '';
-                const newPath = parent ? `${parent}/${newName}` : newName;
-                this.saveTreeScroll();
-                try {
-                    await this.app.vault.rename(folder, newPath);
-                    new Notice('Folder renamed');
-                } catch (err) {
-                    const message = err instanceof Error ? err.message : String(err);
-                    new Notice(`Rename failed: ${message}`);
-                } finally {
-                    this.renaming = false;
-                    document.removeEventListener('mousedown', outsideClickListener);
-                    this.renderContent();
-                }
-            })().catch(err => console.error('Rename error:', err));
-        }, () => {
-            this.renaming = false;
-            document.removeEventListener('mousedown', outsideClickListener);
-            this.renderContent();
-        });
-
-        nameSpan.replaceWith(input);
-        input.focus();
-        input.select();
-        this.renaming = true;
-
-        const outsideClickListener = (e: MouseEvent) => {
-            if (!input.contains(e.target as Node)) {
-                document.removeEventListener('mousedown', outsideClickListener);
-                this.renaming = false;
-                this.renderContent();
-            }
-        };
-        document.addEventListener('mousedown', outsideClickListener);
-    }
-
     private scrollToAndHighlight(path: string) {
         setTimeout(() => {
             const item = this.containerEl.querySelector(`[data-path="${path}"]`);
@@ -3580,16 +3131,16 @@ export class PortalsView extends ItemView {
         }, 100);
     }
 
-    private triggerRenameOnPath(path: string) {
+    public triggerRenameOnPath(path: string) {
         this.scrollToAndHighlight(path);
         setTimeout(() => {
             const item = this.containerEl.querySelector(`[data-path="${path}"]`);
             if (!item) return;
             const abstractFile = this.app.vault.getAbstractFileByPath(path);
             if (abstractFile instanceof TFile) {
-                this.startRenameFile(abstractFile, item as HTMLElement);
+                PortalsActions.startRenameFile(this.app, this.plugin, this, abstractFile, item as HTMLElement);
             } else if (abstractFile instanceof TFolder) {
-                this.startRenameFolder(abstractFile, item as HTMLElement);
+                PortalsActions.startRenameFolder(this.app, this.plugin, this, abstractFile, item as HTMLElement);
             }
         }, 200);
     }
@@ -3597,217 +3148,6 @@ export class PortalsView extends ItemView {
     private getActiveFilePath(): string | null {
         const activeFile = this.app.workspace.getActiveFile();
         return activeFile ? activeFile.path : null;
-    }
-
-    public async duplicateFolder(folder: TFolder) {
-        const parent = folder.parent;
-        const parentPath = parent ? parent.path : '';
-        let newName = `${folder.name} copy`;
-        let newPath = parentPath ? `${parentPath}/${newName}` : newName;
-        let counter = 1;
-        while (this.app.vault.getAbstractFileByPath(newPath)) {
-            counter++;
-            newName = `${folder.name} copy ${counter}`;
-            newPath = parentPath ? `${parentPath}/${newName}` : newName;
-        }
-
-        try {
-            this.saveTreeScroll();
-            const capturedScroll = this.scrollToRestore;
-            await this.app.vault.createFolder(newPath);
-            await this.copyFolderContents(folder, newPath);
-            new Notice(`Folder duplicated to ${newName}`);
-            this.scrollToRestore = capturedScroll;
-            if (this.renderTimer) {
-                clearTimeout(this.renderTimer);
-                this.renderTimer = null;
-            }
-            this.renderContent();
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Duplicate failed: ${message}`);
-        }
-    }
-
-    private async copyFolderContents(source: TFolder, destPath: string) {
-        for (const child of source.children) {
-            const childDestPath = `${destPath}/${child.name}`;
-            if (child instanceof TFolder) {
-                await this.app.vault.createFolder(childDestPath);
-                await this.copyFolderContents(child, childDestPath);
-            } else if (child instanceof TFile) {
-                await this.app.vault.copy(child, childDestPath);
-            }
-        }
-    }
-
-    public async duplicateFile(file: TFile) {
-        const dir = file.parent?.path || '';
-        const ext = file.extension;
-        const baseName = file.basename;
-        let newName = `${baseName} copy.${ext}`;
-        let newPath = dir ? `${dir}/${newName}` : newName;
-        let counter = 1;
-        while (this.app.vault.getAbstractFileByPath(newPath)) {
-            counter++;
-            newName = `${baseName} copy ${counter}.${ext}`;
-            newPath = dir ? `${dir}/${newName}` : newName;
-        }
-        try {
-            this.saveTreeScroll();
-            const capturedScroll = this.scrollToRestore;
-            await this.app.vault.copy(file, newPath);
-            new Notice(`Duplicated to ${newName}`);
-            this.scrollToRestore = capturedScroll;
-            if (this.renderTimer) {
-                clearTimeout(this.renderTimer);
-                this.renderTimer = null;
-            }
-            this.renderContent();
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Duplicate failed: ${message}`);
-        }
-    }
-
-    public async deleteFile(file: TFile) {
-        this.saveTreeScroll();
-        try {
-            await this.app.fileManager.trashFile(file);
-            delete this.plugin.settings.customIcons[file.path];
-            await this.plugin.saveSettings();
-            this.renderContent();
-            new Notice(`File "${file.name}" deleted`, 2000);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Delete failed: ${message}`, 3000);
-        }
-    }
-
-    public async deleteFolder(folder: TFolder) {
-        this.saveTreeScroll();
-        try {
-            await this.app.fileManager.trashFile(folder);
-            const toDelete = Object.keys(this.plugin.settings.customIcons).filter(path => path === folder.path || path.startsWith(folder.path + '/'));
-            for (const path of toDelete) {
-                delete this.plugin.settings.customIcons[path];
-            }
-            await this.plugin.saveSettings();
-            new Notice(`Folder "${folder.name}" deleted`, 2000);
-            this.renderContent();
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Delete failed: ${message}`, 3000);
-        }
-    }
-
-
-    // New Note creation in Folder space
-    public async newNoteInFolder(folder: TFolder) {
-        const defaultName = 'Untitled.md';
-        const basePath = folder.path === '/' ? '' : folder.path;
-        let candidate = basePath ? `${basePath}/${defaultName}` : defaultName;
-        let counter = 1;
-        while (this.app.vault.getAbstractFileByPath(candidate)) {
-            candidate = basePath ? `${basePath}/Untitled ${counter}.md` : `Untitled ${counter}.md`;
-            counter++;
-        }
-        try {
-            const newFile = await this.app.vault.create(candidate, '');
-            await this.app.workspace.getLeaf().openFile(newFile);
-
-            if (!this.plugin.settings.openFolders.includes(folder.path)) {
-                this.plugin.settings.openFolders.push(folder.path);
-                await this.plugin.saveData(this.plugin.settings);
-            }
-
-            this.renderContent();
-            this.triggerRenameOnPath(newFile.path);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Failed to create note: ${message}`);
-        }
-    }
-
-    // New Folder Creation in Folder space
-    public async newFolderInFolder(parent: TFolder) {
-        const defaultName = 'New Folder';
-        const basePath = parent.path === '/' ? '' : parent.path;
-        let candidate = basePath ? `${basePath}/${defaultName}` : defaultName;
-        let counter = 1;
-        while (this.app.vault.getAbstractFileByPath(candidate)) {
-            candidate = basePath ? `${basePath}/New Folder ${counter}` : `New Folder ${counter}`;
-            counter++;
-        }
-        try {
-            await this.app.vault.createFolder(candidate);
-
-            if (!this.plugin.settings.openFolders.includes(parent.path)) {
-                this.plugin.settings.openFolders.push(parent.path);
-                await this.plugin.saveData(this.plugin.settings);
-            }
-
-            this.renderContent();
-            this.triggerRenameOnPath(candidate);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Failed to create folder: ${message}`);
-        }
-    }
-
-    // New Canvas creation in Folder Space
-    public async newCanvasInFolder(folder: TFolder) {
-        const defaultName = 'Untitled.canvas';
-        let candidate = `${folder.path}/${defaultName}`;
-        let counter = 1;
-        while (this.app.vault.getAbstractFileByPath(candidate)) {
-            candidate = `${folder.path}/Untitled ${counter}.canvas`;
-            counter++;
-        }
-        try {
-            await this.app.vault.create(candidate, '{"nodes":[],"edges":[]}');
-            new Notice('Canvas created');
-            this.renderContent();
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Failed to create canvas: ${message}`);
-        }
-    }
-
-    // New Note Creation in Tag Space
-    public async newNoteInTagSpace(tagName: string, extraTags?: string[]) {
-        const defaultName = 'Untitled.md'
-        let candidate = defaultName;
-        let counter = 1;
-        while (this.app.vault.getAbstractFileByPath(candidate)) {
-            candidate = `Untitled ${counter}.md`;
-            counter++;
-        }
-        try {
-            const newFile = await this.app.vault.create(candidate, '');
-            // add the tag to frontmatter
-            await this.app.fileManager.processFrontMatter(newFile, (frontmatter) => {
-                const allTags = [tagName, ...(extraTags || [])];
-                if (!frontmatter.tags) {
-                    frontmatter.tags = allTags;
-                } else if (Array.isArray(frontmatter.tags)) {
-                    for (const t of allTags) {
-                        if (!frontmatter.tags.includes(t)) {
-                            frontmatter.tags.push(t);
-                        }
-                    }
-                } else {
-                    // if tags is a string, convert to array
-                    frontmatter.tags = [frontmatter.tags, ...allTags];
-                }
-            });
-            await this.app.workspace.getLeaf().openFile(newFile);
-            this.renderContent();
-            this.triggerRenameOnPath(newFile.path);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            new Notice(`Failed to create note: ${message}`);
-        }
     }
 
     private makeDropTarget(el: HTMLElement, folder: TFolder, allowFolders: boolean = false) {
@@ -3878,7 +3218,7 @@ export class PortalsView extends ItemView {
         const summary = details.createEl('summary');
         summary.addClass('folder-summary');
 
-        const customIcon = this.getCustomIcon(folder.path);
+        const customIcon = PortalsActions.getCustomIcon(this.plugin, folder.path);
         const folderIcon = customIcon || iconName;
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
         iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
@@ -3926,8 +3266,8 @@ export class PortalsView extends ItemView {
             }
         }
 
-        this.quickFolderIcon(summary, () => void this.newFolderInFolder(folder));        
-        this.quickFileIcon(summary, () => void this.newNoteInFolder(folder));
+        this.quickFolderIcon(summary, () => void PortalsActions.newFolderInFolder(this.app, this.plugin, this, folder));        
+        this.quickFileIcon(summary, () => void PortalsActions.newNoteInFolder(this.app, this.plugin, this, folder));
 
         if (!Platform.isMobile) {
             summary.draggable = true;

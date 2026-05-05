@@ -2,6 +2,7 @@ import { App, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
+import { PortalsActions } from '../utils/portalsActions';
 
 
 export class RecentFilesRenderer {
@@ -41,7 +42,7 @@ export class RecentFilesRenderer {
         for (const file of existingRecentFiles) {
             const fileEl = contentEl.createDiv({ cls: 'file-item recent-file-item' });
             // custom icon
-            const customIcon = this.view.getCustomIcon(file.path);
+            const customIcon = PortalsActions.getCustomIcon(this.plugin, file.path);
             const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
             iconSpan.createEl('i', { cls: fileIconClass });
