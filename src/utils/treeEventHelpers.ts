@@ -90,6 +90,30 @@ export class TreeEventHelpers {
         });
     }
 
+    // Handles both normal click (open file) and alt‑click (multi‑select)
+    static attachFileClickHandler(
+        fileEl: HTMLElement,
+        file: TFile,
+        view: PortalsView
+    ): void {
+        fileEl.addEventListener('click', (e: MouseEvent) => {
+            e.stopPropagation();
+            if (e.altKey) {
+                e.preventDefault();
+                if (view.selectedItems.has(file.path)) {
+                    view.selectedItems.delete(file.path);
+                    fileEl.removeClass('is-selected');
+                } else {
+                    view.selectedItems.add(file.path);
+                    fileEl.addClass('is-selected');
+                }
+            } else {
+                void view.app.workspace.getLeaf().openFile(file);
+            }
+            view.updateMultiSelectToolbar();
+        });
+    }
+
     static attachMultiSelectClick(
         el: HTMLElement,
         key: string,
@@ -186,6 +210,6 @@ export class TreeEventHelpers {
     ): void {
         TreeEventHelpers.attachTouchSwipeSelection(fileEl, file.path, view);
         TreeEventHelpers.attachDragStart(fileEl, file.path);
-        TreeEventHelpers.attachMultiSelectClick(fileEl, file.path, view);
+        TreeEventHelpers.attachFileClickHandler(fileEl, file, view);
     }
 }
