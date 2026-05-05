@@ -2477,6 +2477,18 @@ export class PortalsView extends ItemView {
             TreeEventHelpers.attachTagNodeListeners(summary, nodeKey, node.fullPath, this);
             TreeEventHelpers.attachIconContextNoteOpener(iconSpan, node.fullPath, this);
 
+            details.addEventListener('toggle', () => {
+                let expanded = this.plugin.settings.expandedTagHierarchy[tagName] || [];
+                if (details.open) {
+                    if (!expanded.includes(node.fullPath)) {
+                        expanded = [...expanded, node.fullPath];
+                    }
+                } else {
+                    expanded = expanded.filter(p => p !== node.fullPath);
+                }
+                this.plugin.settings.expandedTagHierarchy[tagName] = expanded;
+                this.plugin.saveData(this.plugin.settings).catch(console.error);
+            });
         };
 
         // Main wrapper details for the portal
@@ -2510,7 +2522,7 @@ export class PortalsView extends ItemView {
         });
 
         TreeEventHelpers.attachMainTagListeners(mainSummary, tagName, this);
-        TreeEventHelpers.attachMainTagListeners(mainIconSpan, tagName, this);
+        TreeEventHelpers.attachIconContextNoteOpener(mainIconSpan, tagName, this);
 
         // Build unified list of top-level items (subtags + groups from root files)
         interface TopLevelItem {
@@ -2678,6 +2690,8 @@ export class PortalsView extends ItemView {
 
             TreeEventHelpers.attachTagNodeListeners(summary, groupKey, gTag, this);
             TreeEventHelpers.attachIconContextNoteOpener(iconSpan, gTag, this);
+
+
         };
 
         // Render all top-level items with global index
