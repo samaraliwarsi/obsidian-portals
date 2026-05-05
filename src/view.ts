@@ -71,7 +71,6 @@ export class PortalsView extends ItemView {
     private recentRenderer: RecentFilesRenderer | null = null;
     private hiddenRenderer: HiddenItemsRenderer | null = null;
     private bookmarksRenderer: BookmarksRenderer | null = null;
-    public actions: PortalsActions;
     private getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -874,7 +873,6 @@ export class PortalsView extends ItemView {
         super(leaf);
         this.plugin = plugin;
         this.lastJournalIndicatorValue = plugin.settings.journalQuoteIndicator;
-        this.actions = new PortalsActions();
     }
 
     getViewType(): string {
@@ -907,11 +905,11 @@ export class PortalsView extends ItemView {
             if (!this.renaming) {
                 if (this.scrollToRestore === null && this.scrollAnchor === null) {
                     const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
-                    if (tree && !this.scrollAnchor) {
+                    if (tree) {
                         this.scrollToRestore = tree.scrollTop;
                     }
-                    this.renderContent();
                 }
+                this.renderContent();
             }
             if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
                 if (this.contextNotesRenderer) {
