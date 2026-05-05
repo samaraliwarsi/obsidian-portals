@@ -11,12 +11,13 @@ import { ChooseTabsModal } from './settings';
 import { PortalStack } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { TrashRenderer } from './renderers/trashRenderer';
-import { ContextNotesRenderer, isContextNote, isContextNoteFile, hasContextNote, handleContextNoteCreation, getContextNote } from './renderers/contextNotes';
+import { ContextNotesRenderer, isContextNote, isContextNoteFile, hasContextNote, getContextNote } from './renderers/contextNotes';
 import { RecentFilesRenderer } from './renderers/recentFiles';
 import { HiddenItemsRenderer } from './renderers/hiddenItems';
 import { BookmarksRenderer } from './renderers/bookmarksRenderer';
 import { ContextMenuFactory } from './utils/contextMenuFactory';
 import { PortalsActions } from './utils/portalsActions';
+import { TreeEventHelpers } from './utils/treeEventHelpers';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -429,7 +430,7 @@ export class PortalsView extends ItemView {
             });
     }
 
-    private updateMultiSelectToolbar() {
+    public updateMultiSelectToolbar() {
         const splitContainer = this.containerEl.querySelector('.portals-split-container');
         if (!splitContainer) return;
 
@@ -555,79 +556,7 @@ export class PortalsView extends ItemView {
             if (isOpen) extSpan.addClass('is-open');
         }
 
-        if (!Platform.isMobile) {
-            fileEl.draggable = true;
-            fileEl.addEventListener('dragstart', (e) => {
-                e.dataTransfer?.setData('text/plain', file.path);
-            });
-        }
-
-        let touchStartPos: { x: number; y: number } | null = null;
-        let isSwiping = false;
-
-        // Touch swipe for mobile selection
-        fileEl.addEventListener('touchstart', (e: TouchEvent) => {
-            const touch = e.touches[0];
-            if (touch) {
-                touchStartPos = { x: touch.clientX, y: touch.clientY };
-                isSwiping = false;
-            }
-        }, { passive: true });
-
-        fileEl.addEventListener('touchmove', (e: TouchEvent) => {
-            if (!touchStartPos) return;
-            const touch = e.touches[0];
-            if (!touch) return;
-            const deltaX = touch.clientX - touchStartPos.x;
-            const deltaY = touch.clientY - touchStartPos.y;
-            if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
-                isSwiping = true;
-                fileEl.addClass('swipe-active');
-            }
-        }, { passive: true });
-
-        fileEl.addEventListener('touchend', (e: TouchEvent) => {
-            if (!touchStartPos) {
-                if (isSwiping) fileEl.removeClass('swipe-active');
-                touchStartPos = null;
-                isSwiping = false;
-                return;
-            }
-            const changedTouch = e.changedTouches[0];
-            if (changedTouch && isSwiping) {
-                const deltaX = changedTouch.clientX - touchStartPos.x;
-                const deltaY = changedTouch.clientY - touchStartPos.y;
-                if (deltaX > 30 && Math.abs(deltaY) < 30) {
-                    this.toggleSelection(file, fileEl);
-                }
-            }
-            if (isSwiping) fileEl.removeClass('swipe-active');
-            touchStartPos = null;
-            isSwiping = false;
-        });
-
-        fileEl.addEventListener('touchcancel', () => {
-            if (isSwiping) fileEl.removeClass('swipe-active');
-            touchStartPos = null;
-            isSwiping = false;
-        });
-
-        fileEl.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (e.altKey) {
-                e.preventDefault();
-                if (this.selectedItems.has(file.path)) {
-                    this.selectedItems.delete(file.path);
-                    fileEl.removeClass('is-selected');
-                } else {
-                    this.selectedItems.add(file.path);
-                    fileEl.addClass('is-selected');
-                }
-            } else {
-                void this.app.workspace.getLeaf().openFile(file);
-            }
-            this.updateMultiSelectToolbar();
-        });
+        TreeEventHelpers.attachFileItemListeners(fileEl, file, this);
 
         // Enable native page preview on Ctrl/Cmd‑hover
         this.addHoverPreview(fileEl, file.path)
@@ -2176,42 +2105,8 @@ export class PortalsView extends ItemView {
                 ContextMenuFactory.showTagContextMenu(this, tagName, iconName || 'tag', mainSummary, e);
             });
 
-            // Attach click handlers for context note actions
-            mainSummary.addEventListener('click', (e) => {
-                if (e.shiftKey && this.plugin.settings.enableContextNotes) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.saveScrollWithAnchor(mainSummary);
-                    void handleContextNoteCreation(this.app, this.plugin, mainTagPath);
-                    return;
-                }
-                if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const note = getContextNote(this.app, this.plugin, mainTagPath);
-                    if (note) {
-                        void this.app.workspace.getLeaf('tab').openFile(note);
-                    } else {
-                        new Notice('No context note for this tag');
-                    }
-                    return;
-                }
-            });
-
-            // Icon click handler (if setting enabled)
-            if (this.plugin.settings.enableContextNotes && this.plugin.settings.contextNoteIconClick) {
-                mainIconSpan.style.cursor = 'pointer';
-                mainIconSpan.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const note = getContextNote(this.app, this.plugin, mainTagPath);
-                    if (note) {
-                        await this.app.workspace.getLeaf().openFile(note);
-                    } else {
-                        new Notice('No context note exists for this tag. Shift+Click to create.');
-                    }
-                });
-            }
+            TreeEventHelpers.attachMainTagListeners(mainSummary, tagName, this);
+            TreeEventHelpers.attachIconContextNoteOpener(mainIconSpan, tagName, this);
 
             // If no groups, just list all files under the main tag
             if (!groupTags || groupTags.length === 0) {
@@ -2224,7 +2119,6 @@ export class PortalsView extends ItemView {
                 }
                 return;
             }
-            
 
             // Build groups map
             const groups = new Map<string, TFile[]>();
@@ -2354,21 +2248,6 @@ export class PortalsView extends ItemView {
                     }
                 }
 
-                // Icon click handler (opens context note when setting enabled)
-                if (this.plugin.settings.enableContextNotes && this.plugin.settings.contextNoteIconClick) {
-                    iconSpan.style.cursor = 'pointer';
-                    iconSpan.addEventListener('click', async (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const note = getContextNote(this.app, this.plugin, groupTagPath);
-                        if (note) {
-                            await this.app.workspace.getLeaf().openFile(note);
-                        } else {
-                            new Notice('No context note exists for this group tag. Shift+Click to create.');
-                        }
-                    });
-                }
-
                 // contex menu for group
                 summary.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
@@ -2376,26 +2255,8 @@ export class PortalsView extends ItemView {
                     ContextMenuFactory.showGroupTagContextMenu(this, tagName, groupKey, gTag, groupDetails, summary, e);
                 });
 
-                summary.addEventListener('click', (e) => {
-                    if (e.shiftKey && this.plugin.settings.enableContextNotes) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        this.saveScrollWithAnchor(summary);
-                        void handleContextNoteCreation(this.app, this.plugin, gTag);
-                        return;
-                    }
-                    if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const note = getContextNote(this.app, this.plugin, gTag);
-                        if (note) {
-                            void this.app.workspace.getLeaf('tab').openFile(note);
-                        } else {
-                            new Notice('No context note for this group tag');
-                        }
-                        return;
-                    }
-                });
+                TreeEventHelpers.attachTagNodeListeners(summary, groupKey, gTag, this);
+                TreeEventHelpers.attachIconContextNoteOpener(iconSpan, gTag, this);
 
                 // Show context note file if setting enabled (same as subtag groups)
                 if (!this.plugin.settings.enableContextNotes || (this.plugin.settings.enableContextNotes && this.plugin.settings.showContextNotesInTree)) {
@@ -2526,21 +2387,6 @@ export class PortalsView extends ItemView {
                 }
             }
 
-            // Icon click handler (if setting enabled)
-            if (this.plugin.settings.contextNoteIconClick) {
-                iconSpan.style.cursor = 'pointer';
-                iconSpan.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const note = getContextNote(this.app, this.plugin, nodeTagPath);
-                    if (note) {
-                        await this.app.workspace.getLeaf().openFile(note);
-                    } else {
-                        new Notice('No context note exists for this subtag. Shift+Click to create.');
-                    }
-                });
-            }
-
             if (this.plugin.settings.enableContextNotes && this.plugin.settings.showContextNotesInTree) {
                 const contextNote = getContextNote(this.app, this.plugin, node.fullPath);
                 if (contextNote && !this.plugin.settings.hiddenItems[contextNote.path]) {
@@ -2550,7 +2396,6 @@ export class PortalsView extends ItemView {
                     }
                 }
             }
-
 
             const savedColor = this.plugin.settings.tagColors[nodeKey];
             const style = this.plugin.settings.treeStyle;
@@ -2629,94 +2474,9 @@ export class PortalsView extends ItemView {
                 ContextMenuFactory.showSubtagNodeContextMenu(this, tagName, node.fullPath, iconName || 'tag', details, summary, e);
             });
 
-            // Save expand/collapse state
-            details.addEventListener('toggle', () => {
-                let expanded = this.plugin.settings.expandedTagHierarchy[tagName] || [];
-                if (details.open) {
-                    if (!expanded.includes(node.fullPath)) {
-                        expanded = [...expanded, node.fullPath];
-                    }
-                } else {
-                    expanded = expanded.filter(p => p !== node.fullPath);
-                }
-                this.plugin.settings.expandedTagHierarchy[tagName] = expanded;
-                this.plugin.saveData(this.plugin.settings).catch(console.error);
-            });
+            TreeEventHelpers.attachTagNodeListeners(summary, nodeKey, node.fullPath, this);
+            TreeEventHelpers.attachIconContextNoteOpener(iconSpan, node.fullPath, this);
 
-            summary.addEventListener('click', (e) => {
-                if (e.altKey) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.toggleSelectionByKey(nodeKey, summary);
-                }
-                if (e.shiftKey && this.plugin.settings.enableContextNotes) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.saveScrollWithAnchor(summary);
-                    void handleContextNoteCreation(this.app, this.plugin, nodeTagPath);
-                    return;
-                }
-                if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const note = getContextNote(this.app, this.plugin, nodeTagPath);
-                    if (note) {
-                        void this.app.workspace.getLeaf('tab').openFile(note);
-                    } else {
-                        new Notice('No context note for this subtag');
-                    }
-                    return;
-                }
-            });
-
-            let touchStartPos: { x: number; y: number } | null = null;
-            let isSwiping = false;
-            // Touch swipe for mobile selection
-            summary.addEventListener('touchstart', (e: TouchEvent) => {
-                const touch = e.touches[0];
-                if (touch) {
-                    touchStartPos = { x: touch.clientX, y: touch.clientY };
-                    isSwiping = false;
-                }
-            }, { passive: true });
-
-            summary.addEventListener('touchmove', (e: TouchEvent) => {
-                if (!touchStartPos) return;
-                const touch = e.touches[0];
-                if (!touch) return;
-                const deltaX = touch.clientX - touchStartPos.x;
-                const deltaY = touch.clientY - touchStartPos.y;
-                if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
-                    isSwiping = true;
-                    summary.addClass('swipe-active');
-                }
-            }, { passive: true });
-
-            summary.addEventListener('touchend', (e: TouchEvent) => {
-                if (!touchStartPos) {
-                    if (isSwiping) summary.removeClass('swipe-active');
-                    touchStartPos = null;
-                    isSwiping = false;
-                    return;
-                }
-                const changedTouch = e.changedTouches[0];
-                if (changedTouch && isSwiping) {
-                    const deltaX = changedTouch.clientX - touchStartPos.x;
-                    const deltaY = changedTouch.clientY - touchStartPos.y;
-                    if (deltaX > 30 && Math.abs(deltaY) < 30) {
-                        this.toggleSelectionByKey(nodeKey, summary);
-                    }
-                }
-                if (isSwiping) summary.removeClass('swipe-active');
-                touchStartPos = null;
-                isSwiping = false;
-            });
-
-            summary.addEventListener('touchcancel', () => {
-                if (isSwiping) summary.removeClass('swipe-active');
-                touchStartPos = null;
-                isSwiping = false;
-            });
         };
 
         // Main wrapper details for the portal
@@ -2749,40 +2509,8 @@ export class PortalsView extends ItemView {
             ContextMenuFactory.showTagContextMenu(this, tagName, iconName || 'tag', mainSummary, e);
         });
 
-        mainSummary.addEventListener('click', (e) => {
-            if (e.shiftKey && this.plugin.settings.enableContextNotes) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.saveScrollWithAnchor(mainSummary);
-                void handleContextNoteCreation(this.app, this.plugin, mainTagPath);
-                return;
-            }
-            if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
-                e.preventDefault();
-                e.stopPropagation();
-                const note = getContextNote(this.app, this.plugin, mainTagPath);
-                if (note) {
-                    void this.app.workspace.getLeaf('tab').openFile(note);
-                } else {
-                    new Notice('No context note for this tag');
-                }
-                return;
-            }
-        });
-
-        if (this.plugin.settings.enableContextNotes && this.plugin.settings.contextNoteIconClick) {
-            mainIconSpan.style.cursor = 'pointer';
-            mainIconSpan.addEventListener('click', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const note = getContextNote(this.app, this.plugin, mainTagPath);
-                if (note) {
-                    await this.app.workspace.getLeaf().openFile(note);
-                } else {
-                    new Notice('No context note exists for this tag. Shift+Click to create.');
-                }
-            });
-        }
+        TreeEventHelpers.attachMainTagListeners(mainSummary, tagName, this);
+        TreeEventHelpers.attachMainTagListeners(mainIconSpan, tagName, this);
 
         // Build unified list of top-level items (subtags + groups from root files)
         interface TopLevelItem {
@@ -2911,21 +2639,6 @@ export class PortalsView extends ItemView {
                 }
             }
 
-            // Icon click handler
-            if (this.plugin.settings.contextNoteIconClick) {
-                iconSpan.style.cursor = 'pointer';
-                iconSpan.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const note = getContextNote(this.app, this.plugin, groupTagPath);
-                    if (note) {
-                        await this.app.workspace.getLeaf().openFile(note);
-                    } else {
-                        new Notice('No context note exists for this group tag. Shift+Click to create.');
-                    }
-                });
-            }
-
             if (this.plugin.settings.enableContextNotes && this.plugin.settings.showContextNotesInTree) {
                 const contextNote = getContextNote(this.app, this.plugin, gTag);
                 if (contextNote && !this.plugin.settings.hiddenItems[contextNote.path]) {
@@ -2963,74 +2676,8 @@ export class PortalsView extends ItemView {
                 this.plugin.saveData(this.plugin.settings).catch(console.error);
             });
 
-            summary.addEventListener('click', (e) => {
-                if (e.altKey) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.toggleSelectionByKey(groupKey, summary);
-                }
-                if (e.shiftKey && this.plugin.settings.enableContextNotes) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.saveScrollWithAnchor(summary);
-                    void handleContextNoteCreation(this.app, this.plugin, groupTagPath);
-                    return;
-                }
-                if ((e.metaKey || e.ctrlKey) && this.plugin.settings.enableContextNotes) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const note = getContextNote(this.app, this.plugin, groupTagPath);
-                    if (note) {
-                        void this.app.workspace.getLeaf('tab').openFile(note);
-                    } else {
-                        new Notice('No context note for this group tag');
-                    }
-                    return;
-                }
-            });
-
-            let touchStartPos: { x: number; y: number } | null = null;
-            let isSwiping = false;
-            // Touch swipe for mobile selection
-            summary.addEventListener('touchstart', (e: TouchEvent) => {
-                const touch = e.touches[0];
-                if (touch) {
-                    touchStartPos = { x: touch.clientX, y: touch.clientY };
-                    isSwiping = false;
-                }
-            }, { passive: true });
-
-            summary.addEventListener('touchmove', (e: TouchEvent) => {
-                if (!touchStartPos) return;
-                const touch = e.touches[0];
-                if (!touch) return;
-                const deltaX = touch.clientX - touchStartPos.x;
-                const deltaY = touch.clientY - touchStartPos.y;
-                if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
-                    isSwiping = true;
-                    summary.addClass('swipe-active');
-                }
-            }, { passive: true });
-
-            summary.addEventListener('touchend', (e: TouchEvent) => {
-                if (!touchStartPos) {
-                    if (isSwiping) summary.removeClass('swipe-active');
-                    touchStartPos = null;
-                    isSwiping = false;
-                    return;
-                }
-                const changedTouch = e.changedTouches[0];
-                if (changedTouch && isSwiping) {
-                    const deltaX = changedTouch.clientX - touchStartPos.x;
-                    const deltaY = changedTouch.clientY - touchStartPos.y;
-                    if (deltaX > 30 && Math.abs(deltaY) < 30) {
-                        this.toggleSelectionByKey(groupKey, summary);
-                    }
-                }
-                if (isSwiping) summary.removeClass('swipe-active');
-                touchStartPos = null;
-                isSwiping = false;
-            });
+            TreeEventHelpers.attachTagNodeListeners(summary, groupKey, gTag, this);
+            TreeEventHelpers.attachIconContextNoteOpener(iconSpan, gTag, this);
         };
 
         // Render all top-level items with global index
@@ -3235,22 +2882,6 @@ export class PortalsView extends ItemView {
             }
         }
 
-        if (this.plugin.settings.enableContextNotes && this.plugin.settings.contextNoteIconClick) {
-            iconSpan.style.cursor = 'pointer';
-            const openContextNote = async (e: Event) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const contextNote = getContextNote(this.app, this.plugin, folder);
-                if (contextNote) {
-                    await this.app.workspace.getLeaf().openFile(contextNote);
-                } else {
-                    new Notice('No context note exists for this folder. Create using Shift+Click or context menu');
-                }
-            };
-            iconSpan.addEventListener('click', openContextNote);
-            iconSpan.addEventListener('touchstart', openContextNote, { passive: false });
-        }
-
         const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
         const nameSpan = summary.createSpan({ text: displayName });
         nameSpan.addClass('portals-item-name');
@@ -3267,99 +2898,10 @@ export class PortalsView extends ItemView {
         this.quickFolderIcon(summary, () => void PortalsActions.newFolderInFolder(this.app, this.plugin, this, folder));        
         this.quickFileIcon(summary, () => void PortalsActions.newNoteInFolder(this.app, this.plugin, this, folder));
 
-        if (!Platform.isMobile) {
-            summary.draggable = true;
-            summary.addEventListener('dragstart', (e) => {
-                e.dataTransfer?.setData('text/plain', folder.path);
-            });
-        }
-
         this.makeDropTarget(summary, folder, true);
 
-        let touchStartPos: { x: number; y: number } | null = null;
-        let isSwiping = false;
-
-        summary.addEventListener('touchstart', (e: TouchEvent) => {
-            const touch = e.touches[0];
-            if (touch) {
-                touchStartPos = { x: touch.clientX, y: touch.clientY };
-                isSwiping = false;
-            }
-        }, { passive: true });
-
-        summary.addEventListener('touchmove', (e: TouchEvent) => {
-            if (!touchStartPos) return;
-            const touch = e.touches[0];
-            if (!touch) return;
-            const deltaX = touch.clientX - touchStartPos.x;
-            const deltaY = touch.clientY - touchStartPos.y;
-            if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
-                isSwiping = true;
-                summary.addClass('swipe-active');
-            }
-        }, { passive: true });
-
-        summary.addEventListener('touchend', (e: TouchEvent) => {
-            if (!touchStartPos) {
-                if (isSwiping) summary.removeClass('swipe-active');
-                touchStartPos = null;
-                isSwiping = false;
-                return;
-            }
-            const changedTouch = e.changedTouches[0];
-            if (changedTouch && isSwiping) {
-                const deltaX = changedTouch.clientX - touchStartPos.x;
-                const deltaY = changedTouch.clientY - touchStartPos.y;
-                if (deltaX > 30 && Math.abs(deltaY) < 30) {
-                    this.toggleSelection(folder, summary);
-                }
-            }
-            if (isSwiping) summary.removeClass('swipe-active');
-            touchStartPos = null;
-            isSwiping = false;
-        });
-
-        summary.addEventListener('touchcancel', () => {
-            if (isSwiping) summary.removeClass('swipe-active');
-            touchStartPos = null;
-            isSwiping = false;
-        });
-
-        summary.addEventListener('click', (e) => {
-            if (e.altKey) {
-                e.preventDefault();
-                e.stopPropagation();
-                const path = folder.path;
-                if (this.selectedItems.has(path)) {
-                    this.selectedItems.delete(path);
-                    summary.removeClass('is-selected');
-                } else {
-                    this.selectedItems.add(path);
-                    summary.addClass('is-selected');
-                }
-                this.updateMultiSelectToolbar();
-                return;
-            }
-            if (e.shiftKey && this.plugin.settings.enableContextNotes) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.saveScrollWithAnchor(summary as HTMLElement)
-                void handleContextNoteCreation(this.app, this.plugin, folder);
-                return;
-            }
-            if (e.metaKey || e.ctrlKey) {
-                e.preventDefault()
-                e.stopPropagation()
-
-                const contextNote = getContextNote(this.app, this.plugin, folder);
-                if (contextNote) {
-                    void this.app.workspace.getLeaf('tab').openFile(contextNote);
-                } else {
-                    new Notice('No context note exists for this folder', 2000);
-                }
-            }
-        });
-
+        TreeEventHelpers.attachFolderSummaryListeners(summary, folder, this);
+        TreeEventHelpers.attachIconContextNoteOpener(iconSpan, folder, this);
 
         summary.addEventListener('contextmenu', (e) => {
             e.stopPropagation();
