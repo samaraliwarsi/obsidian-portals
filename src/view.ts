@@ -1625,9 +1625,16 @@ export class PortalsView extends ItemView {
         contentEl.empty();
         contentEl.className = 'portals-split-content';
         
+        // conditionals 
         if (tabId !== 'context-notes' && tabId !== 'journal') {
             contentEl.addClass(`portals-tree-style-${this.plugin.settings.treeStyle}`);
         }
+        if (tabId !== 'trash' && this.trashRenderer){
+            this.trashRenderer.destroy();
+            this.trashRenderer = null;
+        }
+        
+        // Split tab integration
         if (tabId === 'recent') {
             if (!this.recentRenderer) {
                 this.recentRenderer = new RecentFilesRenderer(this.app, this.plugin, this);
