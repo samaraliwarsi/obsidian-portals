@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, TFile, TFolder, TAbstractFile, Menu, Notice, Platform, View } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, TFolder, Menu, Notice, Platform, View } from 'obsidian';
 import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './settings';
@@ -11,13 +11,14 @@ import { ChooseTabsModal } from './settings';
 import { PortalStack } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { TrashRenderer } from './renderers/trashRenderer';
-import { ContextNotesRenderer, isContextNote, isContextNoteFile, hasContextNote, getContextNote } from './renderers/contextNotes';
+import { ContextNotesRenderer, isContextNoteFile, hasContextNote, getContextNote } from './renderers/contextNotes';
 import { RecentFilesRenderer } from './renderers/recentFiles';
 import { HiddenItemsRenderer } from './renderers/hiddenItems';
 import { BookmarksRenderer } from './renderers/bookmarksRenderer';
 import { ContextMenuFactory } from './utils/contextMenuFactory';
 import { PortalsActions } from './utils/portalsActions';
 import { TreeEventHelpers } from './utils/treeEventHelpers';
+import { FolderTreeRenderer } from './trees/foldertreeRenderer';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -166,7 +167,7 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private quickFileIcon(summary: HTMLElement, onClick: (e:MouseEvent) => void) {
+    public quickFileIcon(summary: HTMLElement, onClick: (e:MouseEvent) => void) {
         const mode = this.plugin.settings.quickAddIcon;
         if (mode === 'off') return;
         if (mode === 'desktop-only' && Platform.isMobile) return;
@@ -184,7 +185,7 @@ export class PortalsView extends ItemView {
             onClick(e);
         });
     }
-    private quickFolderIcon(summary: HTMLElement, onClick: (e:MouseEvent) => void) {
+    public quickFolderIcon(summary: HTMLElement, onClick: (e:MouseEvent) => void) {
         const mode = this.plugin.settings.quickAddIcon;
         if (mode === 'off') return;
         if (mode === 'desktop-only' && Platform.isMobile) return;
@@ -522,7 +523,7 @@ export class PortalsView extends ItemView {
         });
     }
 
-    private createFileItem(file: TFile, container: HTMLElement, openFiles: Set<string>) {
+    public createFileItem(file: TFile, container: HTMLElement, openFiles: Set<string>) {
         const fileEl = container.createDiv({ cls: 'file-item' });
     
         const customIcon = PortalsActions.getCustomIcon(this.plugin, file.path);
@@ -1596,7 +1597,7 @@ export class PortalsView extends ItemView {
                         }
                         this.applySpaceBackground(spaceContent, selectedSpace.color);
                         this.makeDropTarget(spaceContent, folder, true);
-                        this.buildFolderTree(folder, spaceContent, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
+                        new FolderTreeRenderer(this.app, this.plugin, this).render(folder, container, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
                     } else {
                         treeContainer.createEl('p', { text: `Folder not found: ${selectedSpace.path}` });
                     }
@@ -1930,7 +1931,7 @@ export class PortalsView extends ItemView {
                         }
                 this.applySpaceBackground(spaceContent, selectedSpace.color);
                 this.makeDropTarget(spaceContent, folder, true);
-                this.buildFolderTree(folder, spaceContent, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
+                new FolderTreeRenderer(this.app, this.plugin, this).render(folder, spaceContent, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
             } else {
                 treeContainer.createEl('p', { text: `Folder not found: ${selectedSpace.path}` });
             }
@@ -2781,12 +2782,12 @@ export class PortalsView extends ItemView {
         }, 200);
     }
 
-    private getActiveFilePath(): string | null {
+    public getActiveFilePath(): string | null {
         const activeFile = this.app.workspace.getActiveFile();
         return activeFile ? activeFile.path : null;
     }
 
-    private makeDropTarget(el: HTMLElement, folder: TFolder, allowFolders: boolean = false) {
+    public makeDropTarget(el: HTMLElement, folder: TFolder, allowFolders: boolean = false) {
         el.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -2841,225 +2842,5 @@ export class PortalsView extends ItemView {
                 }
             })().catch(err => console.error(err));
         });
-    }
-
-    buildFolderTree(folder: TFolder, container: HTMLElement, openFiles: Set<string>, iconName: string = 'folder', depth: number = 0, index: number = 0, totalFirstLevelFolders: number = 0) {
-        const details = container.createEl('details');
-        details.addClass('folder-details');
-
-        if (this.plugin.settings.openFolders.includes(folder.path)) {
-            details.setAttr('open', 'true');
-        }
-
-        const summary = details.createEl('summary');
-        summary.addClass('folder-summary');
-
-        const customIcon = PortalsActions.getCustomIcon(this.plugin, folder.path);
-        const folderIcon = customIcon || iconName;
-        const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-        iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
-        const hasNote = hasContextNote(this.app, this.plugin, folder);
-        if (this.plugin.settings.enableContextNotes && hasNote) {
-            const style = this.plugin.settings.contextNoteHighlightStyle;
-            if (style === 'icon') {
-                iconSpan.addClass('has-context-note-icon')
-                if (this.plugin.settings.treeStyle === 'minimal' || this.plugin.settings.treeStyle === 'shades') {
-                    summary.addClass('has-context-note-icon');
-                }
-            } else if (style === 'underline') {
-                summary.addClass('has-context-note-underline');
-                const nameSpan = summary.querySelector('.portals-item-name');
-                nameSpan?.addClass('has-context-note-underline');
-            }
-        }
-
-        const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
-        const nameSpan = summary.createSpan({ text: displayName });
-        nameSpan.addClass('portals-item-name');
-        summary.dataset.path = folder.path;
-
-        const activePath = this.getActiveFilePath();
-        if (activePath) {
-            const isAncestor = folder.path === '/' ? true : activePath.startsWith(folder.path + '/');
-            if (isAncestor) {
-                summary.createSpan({ cls: 'open-dot' });
-            }
-        }
-
-        this.quickFolderIcon(summary, () => void PortalsActions.newFolderInFolder(this.app, this.plugin, this, folder));        
-        this.quickFileIcon(summary, () => void PortalsActions.newNoteInFolder(this.app, this.plugin, this, folder));
-
-        this.makeDropTarget(summary, folder, true);
-
-        TreeEventHelpers.attachFolderSummaryListeners(summary, folder, this);
-        TreeEventHelpers.attachIconContextNoteOpener(iconSpan, folder, this);
-
-        summary.addEventListener('contextmenu', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            ContextMenuFactory.showFolderMenu(this, folder, summary, e);
-        });
-                
-        const childrenContainer = details.createDiv({ cls: 'folder-children' });
-
-        const customColor = this.plugin.settings.customColors[folder.path];
-        const style = this.plugin.settings.treeStyle;
-        const shouldApplyColor = customColor &&
-            style !== 'shades' && 
-            style !== 'hues' &&
-            !(style === 'portals' && this.plugin.settings.tabColorEnabled);
-
-        if (shouldApplyColor) {
-            summary.classList.add('has-folder-color');
-            details.classList.add('has-folder-color')
-            childrenContainer.classList.add('has-folder-color');
-            details.style.setProperty('--folder-color', customColor);
-            summary.style.setProperty('--folder-color', customColor);
-        } else {
-            summary.classList.remove('has-folder-color');
-            summary.style.removeProperty('--folder-color');
-            details.classList.remove('has-folder-color');
-            details.style.removeProperty('--folder-color')
-            childrenContainer.classList.remove('has-folder-color');
-        }
-        
-
-        // For first-level folders (depth === 1) when using shades style
-        if (depth === 1 && this.plugin.settings.treeStyle === 'shades') {
-            const minOpacity = 0.1;
-            const maxOpacity = 0.3;
-            let shadeOpacity;
-
-            const total = totalFirstLevelFolders > 0 ? totalFirstLevelFolders : 1;
-
-            if (total <= 1) {
-                shadeOpacity = minOpacity
-            } else {
-                const progress = index / (total - 1);
-                shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
-            }
-            // clamp to safe range
-            shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
-
-            summary.classList.add('shaded-folder-summary');
-            summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
-            childrenContainer.classList.add('shaded-folder-children');
-            childrenContainer.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
-        }
-
-        // For first-level folders (depth === 1) when using hues style
-        if (depth === 1 && this.plugin.settings.treeStyle === 'hues') {
-            const total = totalFirstLevelFolders > 0 ? totalFirstLevelFolders : 1;
-            let progress = index / (total - 1);
-            if (total <= 1) progress = 0.5; // middle
-
-            // Compute hue (0 to 360)
-            const hue = progress * 360;
-            // Compute opacity (same as shades logic)
-            const minOpacity = 0.1;
-            const maxOpacity = 0.3;
-            let opacity;
-            if (total <= 1) {
-                opacity = minOpacity;
-            } else {
-                opacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
-            }
-
-            summary.classList.add('hued-folder-summary');
-            summary.style.setProperty('--hue-start', String(hue));
-            summary.style.setProperty('--hue-end', String((hue + 30) % 360)); // offset 60°
-            summary.style.setProperty('--hue-opacity', String(opacity));
-
-            childrenContainer.classList.add('hued-folder-children');
-            childrenContainer.style.setProperty('--hue-start', String(hue));
-            childrenContainer.style.setProperty('--hue-end', String((hue + 30) % 360));
-            childrenContainer.style.setProperty('--hue-opacity', String(opacity * 0.6)); // children lighter
-        }
-
-
-        const loadChildren = () => {
-            if (childrenContainer.children.length > 0) return;
-
-            const sorted = this.sortFolderChildren(Array.from(folder.children));
-
-            let childIndex = 0;
-
-            for (const child of sorted) {
-                if (this.plugin.settings.hiddenItems[child.path]) continue;
-                if (child instanceof TFolder) {
-                    this.buildFolderTree(child, childrenContainer, openFiles, 'folder', depth +1, childIndex, totalFirstLevelFolders);
-                    childIndex++;
-                } else if (child instanceof TFile) {
-                    const isContextNoteFile = isContextNote(this.app, this.plugin, child, folder);
-                    if (isContextNoteFile && this.plugin.settings.enableContextNotes) {
-                        if (!this.plugin.settings.showContextNotesInTree) continue;
-                    }
-                    this.createFileItem(child, childrenContainer,openFiles);
-                }
-            };
-        }
-
-        if (details.open) {
-            loadChildren();
-        }
-
-        details.addEventListener('toggle', () => {
-            if (details.open) {
-                loadChildren();
-            }
-            const path = folder.path;
-            let openFolders = this.plugin.settings.openFolders;
-            if (details.open) {
-                if (!openFolders.includes(path)) {
-                    openFolders.push(path);
-                }
-            } else {
-                openFolders = openFolders.filter(p => p !== path);
-            }
-            this.plugin.settings.openFolders = openFolders;
-            void this.plugin.saveData(this.plugin.settings);
-        });
-    }
-
-    private sortFolderChildren(children: TAbstractFile[]): TAbstractFile[] {
-        const folders = children.filter((c): c is TFolder => c instanceof TFolder);
-        const files = children.filter((c): c is TFile => c instanceof TFile);
-
-        folders.sort((a, b) => a.name.localeCompare(b.name));
-
-        const fileSortFunc = (a: TFile, b: TFile) => {
-            let aVal: string | number, bVal: string | number;
-            switch (this.plugin.settings.sortBy) {
-                case 'name':
-                    aVal = a.name;
-                    bVal = b.name;
-                    break;
-                case 'created':
-                    aVal = a.stat.ctime;
-                    bVal = b.stat.ctime;
-                    break;
-                case 'modified':
-                    aVal = a.stat.mtime;
-                    bVal = b.stat.mtime;
-                    break;
-                default:
-                    aVal = a.name;
-                    bVal = b.name;
-            }
-            if (this.plugin.settings.sortOrder === 'asc') {
-                if (aVal < bVal) return -1;
-                if (aVal > bVal) return 1;
-                return 0;
-            } else {
-                if (aVal > bVal) return -1;
-                if (aVal < bVal) return 1;
-                return 0;
-            }
-        };
-        files.sort(fileSortFunc);
-
-        return [...folders, ...files];
     }
 }
