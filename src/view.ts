@@ -570,29 +570,6 @@ export class PortalsView extends ItemView {
         return fileEl;
     }
 
-    private toggleSelection(item: TFile | TFolder, element: HTMLElement) {
-        const path = item.path;
-        if (this.selectedItems.has(path)) {
-            this.selectedItems.delete(path);
-            element.removeClass('is-selected');
-        } else {
-            this.selectedItems.add(path);
-            element.addClass('is-selected');
-        }
-        this.updateMultiSelectToolbar();
-    }
-
-    private toggleSelectionByKey(key: string, element: HTMLElement) {
-        if (this.selectedItems.has(key)) {
-            this.selectedItems.delete(key);
-            element.removeClass('is-selected');
-        } else {
-            this.selectedItems.add(key);
-            element.addClass('is-selected');
-        }
-        this.updateMultiSelectToolbar();
-    }
-
     public showAddPortalModal() {
         new AddPortalModal(this.app, this.plugin, (path: string, type: 'folder' | 'tag') => {
             if (this.plugin.settings.spaces.some(s => s.path === path && s.type === type)) {
