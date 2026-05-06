@@ -1597,7 +1597,7 @@ export class PortalsView extends ItemView {
                         }
                         this.applySpaceBackground(spaceContent, selectedSpace.color);
                         this.makeDropTarget(spaceContent, folder, true);
-                        new FolderTreeRenderer(this.app, this.plugin, this).render(folder, container, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
+                        new FolderTreeRenderer(this.app, this.plugin, this).render(folder, spaceContent, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
                     } else {
                         treeContainer.createEl('p', { text: `Folder not found: ${selectedSpace.path}` });
                     }
