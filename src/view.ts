@@ -1,13 +1,10 @@
 import { ItemView, WorkspaceLeaf, TFile, TFolder, Notice, Platform, View } from 'obsidian';
 import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
-import { SpaceConfig } from './settings';
+import { SpaceConfig } from './types';
 import { JournalRenderer } from './renderers/journalView';
-import { RenamePortalModal } from './utils/modals';
-import { AddPortalModal } from './settings';
-import { RemovePortalModal } from './utils/modals';
-import { ChooseTabsModal } from './settings';
-import { PortalStack } from './settings';
+import { RenamePortalModal, AddPortalModal, RemovePortalModal, ChooseTabsModal,  } from './utils/modals';
+import { PortalStack } from './types';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { TrashRenderer } from './renderers/trashRenderer';
 import { ContextNotesRenderer} from './renderers/contextNotes';

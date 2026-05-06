@@ -2,7 +2,7 @@ import { App, Notice, Menu, Platform, TFolder } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
-import { GroupTagsModal } from '../settings';
+import { GroupTagsModal } from '../utils/modals';
 
 export class FloatingButtonsRenderer {
     private app: App;

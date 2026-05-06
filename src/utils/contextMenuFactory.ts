@@ -1,6 +1,6 @@
 import { Menu, TFile, TFolder, MenuItem } from 'obsidian';
 import type { PortalsView } from '../view';
-import type { SpaceConfig, PortalStack } from '../settings';
+import type { SpaceConfig, PortalStack } from '../types';
 import { IconPickerModal } from './iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
 import { ColorPickerModal, RenamePortalModal } from './modals';
