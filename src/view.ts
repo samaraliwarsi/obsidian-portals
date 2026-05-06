@@ -57,6 +57,7 @@ export class PortalsView extends ItemView {
     private isDraggingTab: boolean = false;
     private contextNotesRenderer: ContextNotesRenderer | null = null;
     private bookmarksListenerRef: unknown = null;
+    public floatingBtnSpecialTooltipShown = false;
     private firstBookmarkChange = true;
     private renderTimer: number | null = null;
     public fileElementMap = new Map<string, HTMLElement>();

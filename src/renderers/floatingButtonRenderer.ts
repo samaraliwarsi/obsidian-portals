@@ -8,11 +8,8 @@ export class FloatingButtonsRenderer {
     private app: App;
     private plugin: PortalsPlugin;
     private view: PortalsView;
-
-    private mainPanel!: HTMLElement;                // set in render()
-
+    private mainPanel!: HTMLElement;
     private contextMenuFiredMap = new WeakMap<HTMLElement, boolean>();
-    private floatinBtnSpecialTooltipShown = false;
 
     constructor(app: App, plugin: PortalsPlugin, view: PortalsView) {
         this.app = app;
@@ -20,11 +17,8 @@ export class FloatingButtonsRenderer {
         this.view = view;
     }
 
-    /**
-     * Renders all floating buttons into the given mainPanel element.
-     */
     render(mainPanel: HTMLElement): void {
-        this.mainPanel = mainPanel;                 // store for createButton
+        this.mainPanel = mainPanel;
 
         if (this.plugin.settings.floatingButtonsCollapsed) {
             this.createButton('stack-simple', 'Collapse/ Unfold', 10,
@@ -163,13 +157,7 @@ export class FloatingButtonsRenderer {
 
     // ─── private ─────────────────────────────────────────
 
-    private createButton(
-        icon: string,
-        tooltip: string,
-        bottom: number,
-        onClick: (e: MouseEvent) => void,
-        onContextMenu?: (e: MouseEvent) => void
-    ): void {
+    private createButton(icon: string, tooltip: string, bottom: number, onClick: (e: MouseEvent) => void, onContextMenu?: (e: MouseEvent) => void): void {
         // Use Obsidian's createEl so the button has the helper methods
         const btn = this.mainPanel.createEl('button', { cls: 'portals-floating-btn' });
         btn.style.bottom = bottom + 'px';
@@ -178,9 +166,9 @@ export class FloatingButtonsRenderer {
         if (!Platform.isMobile) {
             btn.addEventListener('mouseenter', () => {
                 let actualTooltip = tooltip;
-                if ((icon === 'stack' || icon === 'stack-simple') && !this.floatinBtnSpecialTooltipShown) {
+                if ((icon === 'stack' || icon === 'stack-simple') && !this.view.floatingBtnSpecialTooltipShown) {
                     actualTooltip = 'Collapse/ Right-click: fold/unfold';
-                    this.floatinBtnSpecialTooltipShown = true;
+                    this.view.floatingBtnSpecialTooltipShown = true;
                 }
                 this.view.showTooltip(actualTooltip, btn, 300);
             });
