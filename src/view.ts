@@ -1,8 +1,7 @@
-import { ItemView, WorkspaceLeaf, TFile, TFolder, Menu, Notice, Platform, View } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, TFolder, Notice, Platform, View } from 'obsidian';
 import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './settings';
-import { GroupTagsModal } from './settings';
 import { JournalRenderer } from './renderers/journalView';
 import { RenamePortalModal } from './utils/modals';
 import { AddPortalModal } from './settings';
@@ -20,6 +19,7 @@ import { PortalsActions } from './utils/portalsActions';
 import { TreeEventHelpers } from './utils/treeEventHelpers';
 import { FolderTreeRenderer } from './trees/foldertreeRenderer';
 import { TagTreeRenderer } from './trees/tagtreeRenderer';
+import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -45,13 +45,11 @@ export class PortalsView extends ItemView {
     public tooltipEl: HTMLElement | null = null;
     private tooltipTimeout: number | null = null;
     private tooltipShowTimeout: number | null = null;
-    private floatinBtnSpecialTooltipShown = false;
     private collapseIconSpecialTooltipShown = false;
     private vaultEventRef: (() => void) | null = null;
     public renaming: boolean = false;
     public selectedItems: Set<string> = new Set();
     private isDraggingSplitter: boolean = false;
-    private contextMenuFiredMap = new WeakMap<HTMLElement, boolean>();
     private currentSecondaryPanel: HTMLElement | null = null;
     private currentSplitter: HTMLElement | null = null;
     private contextNoteScrollCache = new Map<string, number>();
@@ -684,8 +682,7 @@ export class PortalsView extends ItemView {
         return openFiles;
     }
 
-
-    private toggleFloatingButtonsCollapse(e: MouseEvent) {
+    public toggleFloatingButtonsCollapse(e: MouseEvent) {
         e.preventDefault();
         const el = e.currentTarget as HTMLElement;
         el.blur();
@@ -756,7 +753,7 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private collapseAllFolders() {
+    public collapseAllFolders() {
         (async () => {
             const currentSpace = this.plugin.settings.selectedSpace;
             if (!currentSpace) return;
@@ -1616,194 +1613,8 @@ export class PortalsView extends ItemView {
                 }
             }
             this.restoreTreeScroll();
-
             // Floating buttons (attached to mainPanel)
-            const createFloatingButton = (
-                icon: string,
-                tooltip: string,
-                bottom: number,
-                onClick: (e: MouseEvent) => void,
-                onContextMenu?: (e: MouseEvent) => void
-            ) => {
-                const btn = mainPanel.createEl('button', { cls: 'portals-floating-btn' });
-                btn.style.bottom = bottom + 'px';
-                btn.empty();
-                btn.createEl('i', { cls: `ph ph-${icon}` });
-                if (!Platform.isMobile) {
-                    btn.addEventListener('mouseenter', () => {
-                        let actualTooltip = tooltip;
-                        if ((icon === 'stack' || icon === 'stack-simple') && !this.floatinBtnSpecialTooltipShown) {
-                            actualTooltip = 'Collapse/ Right-click: fold/unfold';
-                            this.floatinBtnSpecialTooltipShown = true;
-                        }
-                        this.showTooltip(actualTooltip, btn, 300);
-                    });
-                    btn.addEventListener('mouseleave', () => this.hideTooltip(100));
-                }
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const el = e.currentTarget as HTMLElement;
-                    el.blur();
-                    el.style.display = 'none';
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            el.style.display = '';
-                        });
-                    });
-                    onClick(e);
-                });
-
-                btn.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    const el = e.currentTarget as HTMLElement;
-                    el.blur();
-                    if (this.contextMenuFiredMap.get(el)) return;
-                    this.contextMenuFiredMap.set(el, true);
-                    setTimeout(() => this.contextMenuFiredMap.delete(el), 300);
-                    if (onContextMenu) {
-                        onContextMenu(e);
-                    }
-                });
-                return btn;
-            };
-
-            if (this.plugin.settings.floatingButtonsCollapsed) {
-                createFloatingButton('stack-simple', 'Collapse/ Unfold', 10,
-                    () => this.collapseAllFolders(),
-                    (e: MouseEvent) => this.toggleFloatingButtonsCollapse(e)
-                );
-            } else {
-                // Expanded mode: all four buttons
-                createFloatingButton('file-plus', 'New note', 136, () => {
-                    (async () => {
-                        const currentSpace = this.plugin.settings.spaces.find(s => 
-                            s.path === this.plugin.settings.selectedSpace?.path && 
-                            s.type === this.plugin.settings.selectedSpace?.type
-                        );
-
-                        if (!currentSpace) {
-                            new Notice('Please select a folder space first.');
-                            return;
-                        }
-
-                        if (currentSpace.type === 'folder') {
-                            const folder = this.app.vault.getAbstractFileByPath(currentSpace.path);
-                            if (!(folder instanceof TFolder)) {
-                                new Notice('Selected space is not a valid folder.');
-                            return;
-                            }
-                            await PortalsActions.newNoteInFolder(this.app, this.plugin, this, folder);
-                        } else if (currentSpace.type === 'tag') {
-                            await PortalsActions.newNoteInTagSpace(this.app, this.plugin, this, currentSpace.path);
-                        }
-
-                    })().catch(err => console.error('Error creating note:', err));
-                });
-
-                // second button: folder or filter
-                const currentSpace = this.plugin.settings.spaces.find(s =>
-                    s.path === this.plugin.settings.selectedSpace?.path &&
-                    s.type === this.plugin.settings.selectedSpace?.type
-                );
-
-                if (currentSpace && currentSpace.type === 'folder') {
-                    createFloatingButton('folder-simple-plus', 'New folder', 94, () => {
-                        (async () => {
-                            const folder = this.app.vault.getAbstractFileByPath(currentSpace.path);
-                            if (!(folder instanceof TFolder)) {
-                                new Notice('Selected space is not a valid folder.');
-                                return;
-                            }
-                            await PortalsActions.newFolderInFolder(this.app, this.plugin, this, folder);
-                        })().catch(err => console.error('Error creating folder:', err));
-                    });
-                } else if (currentSpace && currentSpace.type === 'tag') {
-                    // compute tags that co-occuer with main tag
-                    const mainTag = currentSpace.path;
-                    const allFiles = this.app.vault.getMarkdownFiles();
-                    const filesWithMainTag = allFiles.filter(file => {
-                        const cache = this.app.metadataCache.getFileCache(file);
-
-                        return cache?.tags?.some(t => t.tag === '#' + mainTag) || cache?.frontmatter?.tags?.includes(mainTag);
-                    });
-                    const tagSet = new Set<string>();
-                    filesWithMainTag.forEach(file => {
-                        const cache = this.app.metadataCache.getFileCache(file);
-                        const fileTags = [
-                            ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                            ...(cache?.frontmatter?.tags || [])
-                        ];
-                        fileTags.forEach(t => tagSet.add(t));
-                    });
-                    tagSet.delete(mainTag)
-                    const relevantTags = Array.from(tagSet).sort();
-
-                    createFloatingButton('funnel-simple', 'Tag groups', 94, (_e) => {
-                        const oldGroups = currentSpace.groupTags || [];
-                        new GroupTagsModal(this.app, this.plugin, currentSpace, (tags) => {
-                            const removed = oldGroups.filter(g => !tags.includes(g));
-                            for (const group of removed) {
-                                const key = this.getTagGroupKey(currentSpace.path, group);
-                                delete this.plugin.settings.customIcons[key];
-                            }
-                            currentSpace.groupTags = tags;
-
-                            // cleanup expandedGroups for this space
-                            const expanded = this.plugin.settings.expandedGroups[currentSpace.path];
-                            if (expanded) {
-                                const validExpanded = expanded.filter(t => currentSpace.groupTags?.includes(t));
-                                if (validExpanded.length !== expanded.length) {
-                                    this.plugin.settings.expandedGroups[currentSpace.path] = validExpanded;
-                                }
-                            }
-                            this.plugin.saveSettings().then(() => this.render());
-                        }, relevantTags).open();
-                    });
-                }
-
-                createFloatingButton('caret-circle-up-down', 'Sort', 52, (e: MouseEvent) => {
-                    const menu = new Menu();
-                    const setSort = (by: 'name' | 'created' | 'modified', order: 'asc' | 'desc') => {
-                        this.plugin.settings.sortBy = by;
-                        this.plugin.settings.sortOrder = order;
-                        void this.plugin.saveData(this.plugin.settings);
-                        this.renderContent();
-                    };
-                    menu.addItem(item => item
-                        .setTitle('Name ascending')
-                        .setChecked(this.plugin.settings.sortBy === 'name' && this.plugin.settings.sortOrder === 'asc')
-                        .onClick(() => setSort('name', 'asc')));
-                    menu.addItem(item => item
-                        .setTitle('Name descending')
-                        .setChecked(this.plugin.settings.sortBy === 'name' && this.plugin.settings.sortOrder === 'desc')
-                        .onClick(() => setSort('name', 'desc')));
-                    menu.addSeparator();
-                    menu.addItem(item => item
-                        .setTitle('Created (oldest first)')
-                        .setChecked(this.plugin.settings.sortBy === 'created' && this.plugin.settings.sortOrder === 'asc')
-                        .onClick(() => setSort('created', 'asc')));
-                    menu.addItem(item => item
-                        .setTitle('Created (newest first)')
-                        .setChecked(this.plugin.settings.sortBy === 'created' && this.plugin.settings.sortOrder === 'desc')
-                        .onClick(() => setSort('created', 'desc')));
-                    menu.addSeparator();
-                    menu.addItem(item => item
-                        .setTitle('Modified (oldest first)')
-                        .setChecked(this.plugin.settings.sortBy === 'modified' && this.plugin.settings.sortOrder === 'asc')
-                        .onClick(() => setSort('modified', 'asc')));
-                    menu.addItem(item => item
-                        .setTitle('Modified (newest first)')
-                        .setChecked(this.plugin.settings.sortBy === 'modified' && this.plugin.settings.sortOrder === 'desc')
-                        .onClick(() => setSort('modified', 'desc')));
-                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
-                });
-
-                // Collapse button with contextmenu toggling
-                createFloatingButton('stack', 'Collapse/ Fold', 10,
-                    () => this.collapseAllFolders(),
-                    (e: MouseEvent) => this.toggleFloatingButtonsCollapse(e)
-                );
-            }
+            new FloatingButtonsRenderer(this.app, this.plugin, this).render(mainPanel);
         } catch (e) {
             console.error('Portals render error:', e);
         }
