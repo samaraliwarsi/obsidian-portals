@@ -269,7 +269,12 @@ export class RemovePortalModal extends Modal {
     }
 
     onOpen() {
+        this.renderRemovalList();
+    }
+
+    private renderRemovalList() {
         const { contentEl } = this;
+        contentEl.empty();
         this.contentEl.addClass('portals-modal');
         this.contentEl.addClass('remove-portal-modal');
         contentEl.createEl('h3', { text: 'Remove portal tab' });
@@ -291,11 +296,10 @@ export class RemovePortalModal extends Modal {
             const removeBtn = row.createEl('button', { text: 'Remove', cls: 'mod-warning' });
             removeBtn.addEventListener('click', () => {
                 this.onRemove(space);
-                this.close();
+                this.renderRemovalList();
             });
         }
     }
-
     onClose() {
         this.contentEl.empty();
     }
