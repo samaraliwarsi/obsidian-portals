@@ -69,7 +69,7 @@ export class TreeEventHelpers {
         anchorEl?: HTMLElement
     ): void {
         el.addEventListener('click', (e: MouseEvent) => {
-            if (e.shiftKey && view.plugin.settings.enableContextNotes) {
+            if (e.shiftKey && !e.altKey && view.plugin.settings.enableContextNotes) {
                 e.preventDefault();
                 e.stopPropagation();
                 view.saveScrollWithAnchor(anchorEl || el);
@@ -100,12 +100,20 @@ export class TreeEventHelpers {
             e.stopPropagation();
             if (e.altKey) {
                 e.preventDefault();
-                if (view.selectedItems.has(file.path)) {
-                    view.selectedItems.delete(file.path);
-                    fileEl.removeClass('is-selected');
+                const key = file.path;
+                if (e.shiftKey && view.rangeSelectionAnchor) {
+                    // Alt+Shift range selector
+                    view.selectRange(view.rangeSelectionAnchor, key);
                 } else {
-                    view.selectedItems.add(file.path);
-                    fileEl.addClass('is-selected');
+                    if (view.selectedItems.has(file.path)) {
+                        view.selectedItems.delete(file.path);
+                        fileEl.removeClass('is-selected');
+                        view.rangeSelectionAnchor = null;
+                    } else {
+                        view.selectedItems.add(file.path);
+                        fileEl.addClass('is-selected');
+                        view.rangeSelectionAnchor = key;
+                    }
                 }
             } else {
                 void view.app.workspace.getLeaf().openFile(file);
@@ -114,21 +122,26 @@ export class TreeEventHelpers {
         });
     }
 
-    static attachMultiSelectClick(
-        el: HTMLElement,
-        key: string,
-        view: PortalsView
-    ): void {
+    static attachMultiSelectClick(el: HTMLElement, key: string, view: PortalsView): void {
         el.addEventListener('click', (e: MouseEvent) => {
             if (e.altKey) {
                 e.preventDefault();
                 e.stopPropagation();
-                if (view.selectedItems.has(key)) {
-                    view.selectedItems.delete(key);
-                    el.removeClass('is-selected');
+
+                if (e.shiftKey && view.rangeSelectionAnchor) {
+                    // range selection
+                    view.selectRange(view.rangeSelectionAnchor, key);
                 } else {
-                    view.selectedItems.add(key);
-                    el.addClass('is-selected');
+                    // single toggle 
+                    if (view.selectedItems.has(key)) {
+                        view.selectedItems.delete(key);
+                        el.removeClass('is-selected');
+                        view.rangeSelectionAnchor = null;
+                    } else {
+                        view.selectedItems.add(key);
+                        el.addClass('is-selected');
+                        view.rangeSelectionAnchor = key;
+                    }
                 }
                 view.updateMultiSelectToolbar();
             }

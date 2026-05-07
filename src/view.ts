@@ -65,6 +65,7 @@ export class PortalsView extends ItemView {
     public scrollToRestore: number | null = null;
     private scrollAnchor: { selector: string; offset: number } | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
+    public rangeSelectionAnchor: string | null = null;
     private lastJournalIndicatorValue: string;
     private trashRenderer: TrashRenderer | null = null;
     private recentRenderer: RecentFilesRenderer | null = null;
@@ -205,6 +206,46 @@ export class PortalsView extends ItemView {
             e.stopPropagation();
             onClick(e);
         });
+    }
+
+    public selectRange(anchorKey: string, targetKey: string) {
+        const tree = this.containerEl.querySelector('.portals-tree-container');
+        if (!tree) return;
+
+        // Collect every selectable element in the tree
+        const elements = Array.from(tree.querySelectorAll<HTMLElement>('[data-path], [data-tag-path]'));
+        const orderedKeys: string[] = [];
+        const elementMap = new Map<string, HTMLElement>();
+
+        for (const el of elements) {
+            const raw = el.dataset.path ?? el.dataset.tagPath;
+            if (!raw) continue;            // safety – should never happen
+            const itemKey: string = raw;   // explicitly a string
+
+            orderedKeys.push(itemKey);
+            elementMap.set(itemKey, el);
+        }
+
+        const startIdx = orderedKeys.indexOf(anchorKey);
+        const endIdx   = orderedKeys.indexOf(targetKey);
+        if (startIdx === -1 || endIdx === -1) return;
+
+        const from = Math.min(startIdx, endIdx);
+        const to   = Math.max(startIdx, endIdx);
+
+        // Clear previous selections without updating the toolbar multiple times
+        this.selectedItems.clear();
+        this.containerEl.querySelectorAll('.is-selected').forEach(el => el.removeClass('is-selected'));
+
+        // Apply the range selection
+        for (let i = from; i <= to; i++) {
+            const rangeKey = orderedKeys[i]!;   // rangeKey is string (from a string array)
+            this.selectedItems.add(rangeKey);
+            const el = elementMap.get(rangeKey);
+            el?.classList.add('is-selected');
+        }
+
+        this.updateMultiSelectToolbar();
     }
 
     public rebuildTabBarOrder() {
@@ -1846,6 +1887,7 @@ export class PortalsView extends ItemView {
             el.removeClass('is-selected');
         });
         this.selectedItems.clear();
+        this.rangeSelectionAnchor = null;
         this.updateMultiSelectToolbar();
     }
 
