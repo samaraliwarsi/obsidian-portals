@@ -119,6 +119,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
 
 export class SpacesSettingTab extends PluginSettingTab {
     plugin: PortalsPlugin;
+    private openSections: Set<string> = new Set();
 
     constructor(app: App, plugin: PortalsPlugin) {
         super(app, plugin);
@@ -772,6 +773,20 @@ export class SpacesSettingTab extends PluginSettingTab {
             if (portals.length === 0) return;
 
             const details = containerEl.createEl('details', { cls: 'portals-section-details' });
+
+            // restore previous open state
+            if (this.openSections.has(title)) {
+                details.open = true;
+            }
+
+            details.addEventListener('toggle', () => {
+                if (details.open) {
+                    this.openSections.add(title);
+                } else {
+                    this.openSections.delete(title);
+                }
+            })
+
 
             const summary = details.createEl('summary', { cls: 'portals-section-summary' });
             summary.createSpan({ text: title });
