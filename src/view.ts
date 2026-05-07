@@ -209,67 +209,66 @@ export class PortalsView extends ItemView {
         });
     }
 
-    public showReorderModal() {
-        const space = this.plugin.settings.selectedSpace;
-        if (!space) return;
+    /** Reorder sub‑folders of any folder */
+    public reorderFolderChildren(folderPath: string) {
+        const folder = this.app.vault.getAbstractFileByPath(folderPath);
+        if (!(folder instanceof TFolder)) return;
 
-        let items: { path: string; displayName: string }[] = [];
+        const folders = folder.children.filter(c => c instanceof TFolder) as TFolder[];
+        if (folders.length === 0) {
+            new Notice('No sub‑folders to reorder.');
+            return;
+        }
+        const items = folders.map(f => ({ path: f.path, displayName: f.name }));
+        new ReorderItemsModal(this.app, this.plugin, items).open();
+    }
 
-        if (space.type === 'folder') {
-            const folder = this.app.vault.getAbstractFileByPath(space.path);
-            if (folder instanceof TFolder) {
-                const folders = folder.children.filter(c => c instanceof TFolder) as TFolder[];
-                items = folders.map(f => ({ path: f.path, displayName: f.name }));
-            }
-        } else if (space.type === 'tag') {
-            const spaceConfig = this.plugin.settings.spaces.find(
-                s => s.path === space.path && s.type === 'tag'
-            );
-            if (!spaceConfig) return;
+    /** Reorder top‑level subtags & groups of any tag portal */
+    public reorderTagChildren(tagName: string) {
+        const spaceConfig = this.plugin.settings.spaces.find(
+            s => s.path === tagName && s.type === 'tag'
+        );
+        if (!spaceConfig) return;
 
-            const mainTag = space.path;
-            const allFiles = this.app.vault.getMarkdownFiles();
-            const subtagSet = new Set<string>();
-            const groupTagSet = new Set<string>(spaceConfig.groupTags ?? []);
+        const allFiles = this.app.vault.getMarkdownFiles();
+        const subtagSet = new Set<string>();
+        const groupTagSet = new Set<string>(spaceConfig.groupTags ?? []);
 
-            for (const file of allFiles) {
-                const cache = this.app.metadataCache.getFileCache(file);
-                const fileTags = [
-                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                    ...(cache?.frontmatter?.tags || [])
-                ];
-                for (const t of fileTags) {
-                    if (t === mainTag) continue;
-                    if (t.startsWith(mainTag + '/')) {
-                        const parts = t.split('/');
-                        if (parts.length >= 2) {
-                            const firstLevel = parts.slice(0, 2).join('/');
-                            subtagSet.add(firstLevel);
-                        }
+        for (const file of allFiles) {
+            const cache = this.app.metadataCache.getFileCache(file);
+            const fileTags = [
+                ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                ...(cache?.frontmatter?.tags || [])
+            ];
+            for (const t of fileTags) {
+                if (t === tagName) continue;
+                if (t.startsWith(tagName + '/')) {
+                    const parts = t.split('/');
+                    if (parts.length >= 2) {
+                        const firstLevel = parts.slice(0, 2).join('/');
+                        subtagSet.add(firstLevel);
                     }
                 }
             }
-
-            for (const sub of subtagSet) {
-                items.push({
-                    path: `tag:${mainTag}/node:${sub}`,
-                    displayName: sub.split('/').pop()!
-                });
-            }
-
-            for (const gTag of groupTagSet) {
-                const groupKey = this.getTagGroupKey(mainTag, gTag);
-                items.push({ path: groupKey, displayName: gTag });
-            }
-
-            items.sort((a, b) => a.displayName.localeCompare(b.displayName));
         }
 
+        const items: { path: string; displayName: string }[] = [];
+        for (const sub of subtagSet) {
+            items.push({
+                path: `tag:${tagName}/node:${sub}`,
+                displayName: sub.split('/').pop()!
+            });
+        }
+        for (const gTag of groupTagSet) {
+            const groupKey = this.getTagGroupKey(tagName, gTag);
+            items.push({ path: groupKey, displayName: gTag });
+        }
+
+        items.sort((a, b) => a.displayName.localeCompare(b.displayName));
         if (items.length === 0) {
-            new Notice('Nothing to reorder in this portal.');
+            new Notice('Nothing to reorder in this tag portal.');
             return;
         }
-
         new ReorderItemsModal(this.app, this.plugin, items).open();
     }
 
@@ -1249,6 +1248,7 @@ export class PortalsView extends ItemView {
             compactTabs: s.compactTabs,
             quickAddIcon: s.quickAddIcon,
             contextNoteFollowActive: s.contextNoteFollowActive,
+            customTreeOrder: JSON.stringify(s.customTreeOrder),
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),

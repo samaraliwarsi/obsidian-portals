@@ -92,12 +92,7 @@ export class ContextMenuFactory {
     /**
      * Folder context menu
      */
-    static showFolderMenu(
-        view: PortalsView,
-        folder: TFolder,
-        summaryEl: HTMLElement,
-        event: MouseEvent
-    ): void {
+    static showFolderMenu(view: PortalsView, folder: TFolder, summaryEl: HTMLElement, event: MouseEvent): void {
         const menu = new Menu();
 
         menu.addItem(item => item
@@ -141,8 +136,14 @@ export class ContextMenuFactory {
                     }));
             }
         }
-
         menu.addSeparator();
+
+        menu.addItem(item => item
+            .setTitle('Reorder sub-folders')
+            .setIcon('arrow-up-down')
+            .onClick(() => view.reorderFolderChildren(folder.path)));
+        menu.addSeparator();
+        
 
         menu.addItem(item => item
             .setTitle('Delete')
