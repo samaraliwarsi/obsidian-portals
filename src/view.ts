@@ -1319,7 +1319,7 @@ export class PortalsView extends ItemView {
                 group: 'portals-tab-bar',
                 draggable: '.portals-tab:not(.portals-stack-group .portals-tab), .portals-stack-group',
                 animation: 150,
-                delay: 0,
+                delay: 200,
                 delayOnTouchOnly: true,
                 touchStartThreshold: 5,
                 scrollSensitivity: 30,
@@ -1379,6 +1379,36 @@ export class PortalsView extends ItemView {
                 // Tab container
                 const tabContainer = secondaryHeader.createDiv({ cls: 'portals-split-tabs' });
                 tabContainer.toggleClass('portals-compact-tabs', this.plugin.settings.compactTabs);
+
+                // Make side‑portal tabs reorderable
+                const sideTabSortable = new Sortable(tabContainer, {
+                    animation: 150,
+                    delay: 400,
+                    delayOnTouchOnly: true,
+                    touchStartThreshold: 5,
+                    scrollSensitivity: 30,
+                    direction: 'horizontal',
+                    draggable: '.portals-split-tab',
+                    swapThreshold: 0.5,
+                    invertSwap: true,
+                    fallbackClass: 'portals-sortable-fallback',
+                    onStart: () => {
+                        // optional – nothing needed, but can set a flag if needed
+                    },
+                    onEnd: async () => {
+                        const newOrder: string[] = [];
+                        tabContainer.querySelectorAll('.portals-split-tab').forEach(el => {
+                            const id = (el as HTMLElement).dataset.tabId;
+                            if (id) newOrder.push(id);
+                        });
+                        if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.splitViewTabs)) {
+                            this.plugin.settings.splitViewTabs = newOrder;
+                            await this.plugin.saveSettings();
+                            this.lastRenderHash = this.getSettingsHash(); // prevent immediate re‑render
+                        }
+                    }
+                });
+                this.sortableInstances.push(sideTabSortable);
 
                 // Get tabs from settings, ensure context-notes is present for testing
                 const tabs = this.plugin.settings.splitViewTabs || ['recent'];
