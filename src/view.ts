@@ -55,6 +55,7 @@ export class PortalsView extends ItemView {
     private contextNotesRenderer: ContextNotesRenderer | null = null;
     private bookmarksListenerRef: unknown = null;
     public floatingBtnSpecialTooltipShown = false;
+    public _activeOutsideClickListener: ((e: MouseEvent) => void) | null = null;
     private renderTimer: number | null = null;
     public fileElementMap = new Map<string, HTMLElement>();
     private journalRenderer: JournalRenderer | null = null;
@@ -1144,6 +1145,12 @@ export class PortalsView extends ItemView {
 
     render() {
         if (this.isDraggingTab) return;
+
+        if (this.renaming && this._activeOutsideClickListener) {
+            document.removeEventListener('mousedown', this._activeOutsideClickListener);
+            this._activeOutsideClickListener = null;
+            this.renaming = false;
+        }
 
         if (!this.plugin.settings.enableContextNotes && this.contextNotesRenderer) {
             this.contextNotesRenderer.destroy();

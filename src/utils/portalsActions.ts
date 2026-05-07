@@ -498,12 +498,14 @@ export class PortalsActions {
                 } finally {
                     view.renaming = false;
                     document.removeEventListener('mousedown', outsideClickListener);
+                    view._activeOutsideClickListener = null;
                     view.renderContent();
                 }
             })().catch(err => console.error('Rename error:', err));
         }, () => {
             view.renaming = false;
             document.removeEventListener('mousedown', outsideClickListener);
+            view._activeOutsideClickListener = null;
             view.renderContent();
         });
 
@@ -519,6 +521,7 @@ export class PortalsActions {
                 view.renderContent();
             }
         };
+        view._activeOutsideClickListener = outsideClickListener;
         document.addEventListener('mousedown', outsideClickListener);
     }
 
@@ -541,12 +544,14 @@ export class PortalsActions {
                 } finally {
                     view.renaming = false;
                     document.removeEventListener('mousedown', outsideClickListener);
+                    view._activeOutsideClickListener = null;
                     view.renderContent();
                 }
             })().catch(err => console.error('Rename error:', err));
         }, () => {
             view.renaming = false;
             document.removeEventListener('mousedown', outsideClickListener);
+            view._activeOutsideClickListener = null;
             view.renderContent();
         });
 
@@ -562,6 +567,7 @@ export class PortalsActions {
                 view.renderContent();
             }
         };
+        view._activeOutsideClickListener = outsideClickListener;
         document.addEventListener('mousedown', outsideClickListener);
     }
 
