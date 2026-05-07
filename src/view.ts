@@ -55,7 +55,6 @@ export class PortalsView extends ItemView {
     private contextNotesRenderer: ContextNotesRenderer | null = null;
     private bookmarksListenerRef: unknown = null;
     public floatingBtnSpecialTooltipShown = false;
-    private firstBookmarkChange = true;
     private renderTimer: number | null = null;
     public fileElementMap = new Map<string, HTMLElement>();
     private journalRenderer: JournalRenderer | null = null;
@@ -832,7 +831,6 @@ export class PortalsView extends ItemView {
         }));
 
         const setupBookmarksListener = () => {
-            console.time('bookrmarks render');
             // @ts-expect-error - accessing internal plugin API
             const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks');
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
