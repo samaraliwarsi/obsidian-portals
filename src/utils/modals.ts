@@ -393,7 +393,7 @@ export class RemovePortalModal extends Modal {
 
     // ==================== ADD PORTAL MODAL ====================
 export class AddPortalModal extends Modal {
-    private selectedPath: string = '';
+    private selectedPaths: Set<string> = new Set;
     private currentTab: 'root' | 'sub' | 'tag' = 'root';
     private searchInput!: HTMLInputElement;
     private resultsContainer!: HTMLElement;
@@ -440,7 +440,7 @@ export class AddPortalModal extends Modal {
             }
             tab.addEventListener('click', () => {
                 this.currentTab = id;
-                this.selectedPath = '';
+                this.selectedPaths.clear();
                 this.filterResults();
                 
                 // Remove active class from all tabs, then add to clicked tab
@@ -466,15 +466,20 @@ export class AddPortalModal extends Modal {
 
         this.filterResults();
 
+        contentEl.createSpan({ text: 'Alt-click to select multiple', cls: 'portals-modal-subtext' });
+
         const buttonDiv = contentEl.createDiv({ cls: 'portals-modal-button-container' });
         buttonDiv.createEl('button', { text: 'Cancel' }).addEventListener('click', () => this.close());
         const addBtn = buttonDiv.createEl('button', { text: 'Add', cls: 'mod-cta' });
         addBtn.addEventListener('click', () => {
-            if (!this.selectedPath) {
-                new Notice('Please select a folder or tag.');
+            if (this.selectedPaths.size === 0) {
+                new Notice('Please select atleast one folder or tag.');
                 return;
             }
-            this.onChoose(this.selectedPath, this.currentTab === 'tag' ? 'tag' : 'folder');
+            const type = this.currentTab === 'tag' ? 'tag' : 'folder';
+            for (const path of this.selectedPaths) {
+                this.onChoose(path, type);
+            }
             this.close();
         });
     }
@@ -490,20 +495,29 @@ export class AddPortalModal extends Modal {
                 const item = this.resultsContainer.createDiv({ cls: 'add-portal-item' });
                 const displayText = '#' + tag + (isUsed ? ' (in use)' : '');
                 item.setText(displayText);
+                if (this.selectedPaths.has(tag)) item.addClass('is-selected');
                 if (isUsed) {
                     item.addClass('portals-already-used');
                     // Add checkmark icon
                     const checkSpan = item.createSpan({ cls: 'portals-check-icon' });
                     checkSpan.createEl('i', { cls: 'ph ph-check' });
                 }
-                item.addEventListener('click', () => {
+                item.addEventListener('click', (e: MouseEvent) => {
                     if (isUsed) {
                         new Notice('This tag is already a portal.');
                         return;
                     }
-                    this.resultsContainer.querySelectorAll('.add-portal-item').forEach(el => el.removeClass('is-selected'));
-                    item.addClass('is-selected');
-                    this.selectedPath = tag;
+                    if (e.altKey) {
+                        if (this.selectedPaths.has(tag)) {
+                            this.selectedPaths.delete(tag);
+                        } else {
+                            this.selectedPaths.add(tag);
+                        }
+                    } else {
+                        this.selectedPaths.clear();
+                        this.selectedPaths.add(tag);
+                    }
+                    this.filterResults();
                 });
             }
         } else {
@@ -514,20 +528,29 @@ export class AddPortalModal extends Modal {
                 const item = this.resultsContainer.createDiv({ cls: 'add-portal-item' });
                 const displayText = folder.path + (isUsed ? ' (in use)' : '');
                 item.setText(displayText);
+                if (this.selectedPaths.has(folder.path)) item.addClass('is-selected');
                 if (isUsed) {
                     item.addClass('portals-already-used');
                     // Add checkmark icon
                     const checkSpan = item.createSpan({ cls: 'portals-check-icon' });
                     checkSpan.createEl('i', { cls: 'ph ph-check' });
                 }
-                item.addEventListener('click', () => {
+                item.addEventListener('click', (e: MouseEvent) => {
                     if (isUsed) {
                         new Notice('This folder is already a portal.');
                         return;
                     }
-                    this.resultsContainer.querySelectorAll('.add-portal-item').forEach(el => el.removeClass('is-selected'));
-                    item.addClass('is-selected');
-                    this.selectedPath = folder.path;
+                    if (e.altKey) {
+                        if (this.selectedPaths.has(folder.path)) {
+                            this.selectedPaths.delete(folder.path);
+                        } else {
+                            this.selectedPaths.add(folder.path);
+                        }
+                    } else {
+                        this.selectedPaths.clear();
+                        this.selectedPaths.add(folder.path);
+                    }
+                    this.filterResults();
                 });
             }
         }
