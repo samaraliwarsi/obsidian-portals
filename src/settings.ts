@@ -59,6 +59,7 @@ export interface SpacesSettings {
     clinicState: { selectedProperty: string; selectedValue: string };
     compactTabs: boolean;
     quickAddIcon: 'off' | 'on' | 'desktop-only';
+    customTreeOrder: Record<string, number>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -115,6 +116,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     clinicState: { selectedProperty: '', selectedValue: '' },
     compactTabs: false,
     quickAddIcon: 'desktop-only',
+    customTreeOrder: {},
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

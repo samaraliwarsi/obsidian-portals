@@ -555,8 +555,16 @@ export class TagTreeRenderer {
             }
         }
 
-        // HLIST: SSort alphabetically
-        topLevelItems.sort((a, b) => a.name.localeCompare(b.name));
+        // HLIST: Sorting  alphabetically
+        const orderMap = this.plugin.settings.customTreeOrder;
+        topLevelItems.sort((a, b) => {
+            const aKey = a.type === 'subtag' ? (a.data as TagNode).fullPath : `tag:${tagName}/group:${a.name}`;
+            const bKey = b.type === 'subtag' ? (b.data as TagNode).fullPath : `tag:${tagName}/group:${b.name}`;
+            const aPos = orderMap[aKey] ?? Number.MAX_SAFE_INTEGER;
+            const bPos = orderMap[bKey] ?? Number.MAX_SAFE_INTEGER;
+            if (aPos !== bPos) return aPos - bPos;
+            return a.name.localeCompare(b.name);
+        });
 
         // HLIST: GROUPS INSIDE HEIRARACHAL TAGS
         const renderSingleGroup = (gTag: string, files: TFile[], parentEl: HTMLElement, level: number, idx: number, total: number) => {

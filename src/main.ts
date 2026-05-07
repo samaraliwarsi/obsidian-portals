@@ -93,6 +93,19 @@ export default class PortalsPlugin extends Plugin {
                 }
             }
         });
+        
+        this.addCommand({
+            id: 'reorder-portal-items',
+            name: 'Reorder folders/tags',
+            callback: () => {
+                const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+                if (leaf && leaf.view instanceof PortalsView) {
+                    leaf.view.showReorderModal();
+                } else {
+                    new Notice('Please open the Portals view first.');
+                }
+            }
+        });
 
         this.registerView(
             VIEW_TYPE_PORTALS,

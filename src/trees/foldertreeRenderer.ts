@@ -195,8 +195,22 @@ export class FolderTreeRenderer {
         const folders = children.filter((c): c is TFolder => c instanceof TFolder);
         const files = children.filter((c): c is TFile => c instanceof TFile);
 
-        folders.sort((a, b) => a.name.localeCompare(b.name));
+        // custom folder or tag order
+        const orderMap = this.plugin.settings.customTreeOrder;
+        const hasCustom = folders.some(f => orderMap[f.path] !== undefined);
 
+        if (hasCustom) {
+            folders.sort((a, b) => {
+                const aPos = orderMap[a.path] ?? Number.MAX_SAFE_INTEGER;
+                const bPos = orderMap[b.path] ?? Number.MAX_SAFE_INTEGER;
+                if (aPos !== bPos) return aPos - bPos;
+                return a.name.localeCompare(b.name);
+            });
+        } else {
+            folders.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        // Files 
         const fileSortFunc = (a: TFile, b: TFile) => {
             let aVal: string | number, bVal: string | number;
             switch (this.plugin.settings.sortBy) {

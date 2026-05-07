@@ -205,6 +205,7 @@ export class PortalsActions {
             );
             for (const path of toDelete) {
                 delete plugin.settings.customIcons[path];
+                delete plugin.settings.customTreeOrder[folder.path];
             }
             await plugin.saveSettings();
             new Notice(`Folder "${folder.name}" deleted`, 2000);
@@ -659,5 +660,13 @@ export class PortalsActions {
         element.dataset.path = file.path;
         view.fileElementMap.delete(oldPath);
         view.fileElementMap.set(file.path, element);
+
+       const order = plugin.settings.customTreeOrder;
+        if (file instanceof TFolder) {
+            if (order[oldPath] !== undefined) {
+                order[file.path] = order[oldPath];
+                delete order[oldPath];
+            }
+        } 
     }
 }

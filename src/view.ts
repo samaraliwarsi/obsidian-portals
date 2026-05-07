@@ -17,6 +17,7 @@ import { TreeEventHelpers } from './utils/treeEventHelpers';
 import { FolderTreeRenderer } from './trees/foldertreeRenderer';
 import { TagTreeRenderer } from './trees/tagtreeRenderer';
 import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
+import { ReorderItemsModal } from './utils/modals';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -206,6 +207,70 @@ export class PortalsView extends ItemView {
             e.stopPropagation();
             onClick(e);
         });
+    }
+
+    public showReorderModal() {
+        const space = this.plugin.settings.selectedSpace;
+        if (!space) return;
+
+        let items: { path: string; displayName: string }[] = [];
+
+        if (space.type === 'folder') {
+            const folder = this.app.vault.getAbstractFileByPath(space.path);
+            if (folder instanceof TFolder) {
+                const folders = folder.children.filter(c => c instanceof TFolder) as TFolder[];
+                items = folders.map(f => ({ path: f.path, displayName: f.name }));
+            }
+        } else if (space.type === 'tag') {
+            const spaceConfig = this.plugin.settings.spaces.find(
+                s => s.path === space.path && s.type === 'tag'
+            );
+            if (!spaceConfig) return;
+
+            const mainTag = space.path;
+            const allFiles = this.app.vault.getMarkdownFiles();
+            const subtagSet = new Set<string>();
+            const groupTagSet = new Set<string>(spaceConfig.groupTags ?? []);
+
+            for (const file of allFiles) {
+                const cache = this.app.metadataCache.getFileCache(file);
+                const fileTags = [
+                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                    ...(cache?.frontmatter?.tags || [])
+                ];
+                for (const t of fileTags) {
+                    if (t === mainTag) continue;
+                    if (t.startsWith(mainTag + '/')) {
+                        const parts = t.split('/');
+                        if (parts.length >= 2) {
+                            const firstLevel = parts.slice(0, 2).join('/');
+                            subtagSet.add(firstLevel);
+                        }
+                    }
+                }
+            }
+
+            for (const sub of subtagSet) {
+                items.push({
+                    path: `tag:${mainTag}/node:${sub}`,
+                    displayName: sub.split('/').pop()!
+                });
+            }
+
+            for (const gTag of groupTagSet) {
+                const groupKey = this.getTagGroupKey(mainTag, gTag);
+                items.push({ path: groupKey, displayName: gTag });
+            }
+
+            items.sort((a, b) => a.displayName.localeCompare(b.displayName));
+        }
+
+        if (items.length === 0) {
+            new Notice('Nothing to reorder in this portal.');
+            return;
+        }
+
+        new ReorderItemsModal(this.app, this.plugin, items).open();
     }
 
     public selectRange(anchorKey: string, targetKey: string) {
