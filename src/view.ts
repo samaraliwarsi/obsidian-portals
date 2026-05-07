@@ -111,6 +111,12 @@ export class PortalsView extends ItemView {
         }
     }
 
+    public cancelScheduledRender(): void {
+        if (this.renderTimer) {
+            this.renderTimer = null;
+        }
+    }
+
     public saveTreeScroll(): void {
         const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
         this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
@@ -712,7 +718,7 @@ export class PortalsView extends ItemView {
         if (this.renderTimer) {
             window.clearTimeout(this.renderTimer);
         }
-        if (this.scrollToRestore === null) {
+        if (this.scrollToRestore === null && this.scrollAnchor === null) {
             this.saveTreeScroll();
         }
         this.renderTimer = window.setTimeout(() => {
@@ -806,7 +812,7 @@ export class PortalsView extends ItemView {
 
         this.registerEvent(this.app.workspace.on('file-open', () => {
             if (!this.renaming) {
-                if (this.scrollToRestore === null && this.scrollAnchor === null) {
+                if (this.scrollToRestore === null) {
                     const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
                     if (tree) {
                         this.scrollToRestore = tree.scrollTop;

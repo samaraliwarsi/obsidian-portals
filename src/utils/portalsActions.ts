@@ -216,10 +216,23 @@ export class PortalsActions {
     }
 
     static async deleteSelectedItems(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
-        view.saveTreeScroll();
         if (view.selectedItems.size === 0) return;
         const confirmMsg = `Delete ${view.selectedItems.size} item(s) permanently?`;
         if (!confirm(confirmMsg)) return;
+
+        view.cancelScheduledRender();
+        const firstItemPath = view.selectedItems.values().next().value!;
+        const item = app.vault.getAbstractFileByPath(firstItemPath);
+        const parentFolderPath = item?.parent?.path;
+        const parentEl = parentFolderPath
+            ? view.containerEl.querySelector(`[data-path="${parentFolderPath}"]`) as HTMLElement
+            : null;
+
+        if (parentEl) {
+            view.saveScrollWithAnchor(parentEl);
+        } else {
+            view.saveTreeScroll();
+        }
 
         for (const path of view.selectedItems) {
             const item = app.vault.getAbstractFileByPath(path);
@@ -241,7 +254,6 @@ export class PortalsActions {
                 new Notice(`Failed to delete ${item.name}`);
             }
         }
-
         await plugin.saveSettings();
         const deletedCount = view.selectedItems.size;
         view.clearSelection();
@@ -251,7 +263,19 @@ export class PortalsActions {
 
     static async moveSelectedItemsToFolder(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
-        view.saveTreeScroll();   // added for scroll stability
+        view.cancelScheduledRender();
+        const firstItemPath = view.selectedItems.values().next().value!;
+        const item = app.vault.getAbstractFileByPath(firstItemPath);
+        const parentFolderPath = item?.parent?.path;
+        const parentEl = parentFolderPath
+            ? view.containerEl.querySelector(`[data-path="${parentFolderPath}"]`) as HTMLElement
+            : null;
+
+        if (parentEl) {
+            view.saveScrollWithAnchor(parentEl);
+        } else {
+            view.saveTreeScroll();
+        }
         new SelectFolderModal(app, async (targetFolder) => {
             let movedCount = 0;
             for (const path of view.selectedItems) {
@@ -284,7 +308,19 @@ export class PortalsActions {
 
     static async createFolderFromSelected(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
-        view.saveTreeScroll();   // added for scroll stability
+        view.cancelScheduledRender();
+        const firstItemPath = view.selectedItems.values().next().value!;
+        const item = app.vault.getAbstractFileByPath(firstItemPath);
+        const parentFolderPath = item?.parent?.path;
+        const parentEl = parentFolderPath
+            ? view.containerEl.querySelector(`[data-path="${parentFolderPath}"]`) as HTMLElement
+            : null;
+
+        if (parentEl) {
+            view.saveScrollWithAnchor(parentEl);
+        } else {
+            view.saveTreeScroll();
+        }
         const parentFolder = PortalsActions.getCommonParentFolder(app, view);
         if (!parentFolder) {
             new Notice('Selected items are not in a common parent folder');
