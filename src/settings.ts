@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, TFolder, Notice } from 'obsidian';
+import { App, PluginSettingTab, Setting, TFolder, Notice, Platform } from 'obsidian';
 import PortalsPlugin from './main';
 import { IconPickerModal } from './utils/iconPicker';
 import { SelectFolderModal } from './utils/modals';
@@ -931,16 +931,35 @@ export class SpacesSettingTab extends PluginSettingTab {
         }, 0);
     }
 
-    private exportSettings() {
+    private async exportSettings() {
         const data = JSON.stringify(this.plugin.settings, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `portals-settings-${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        new Notice('Settings exported');
+        const dateStr = new Date().toISOString().slice(0,10);
+        const fileName = `portals-settings-${dateStr}.json`
+
+        if (Platform.isDesktop) {
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+            new Notice('Settings exported');
+        } else {
+            try {
+                const existing = this.app.vault.getAbstractFileByPath(fileName);
+                if (existing) {
+                    new Notice (`File "${fileName}" already exists. Please rename or delete it first.`);
+                    return;
+                }
+                await this.app.vault.create(fileName, data);
+                new Notice(`Settings exported as ${fileName} in vault root`);
+            } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                new Notice(`Export failed: ${message}`);
+            }
+        }
+       
     }
 
     private importSettings() {
