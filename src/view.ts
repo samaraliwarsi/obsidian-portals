@@ -223,6 +223,20 @@ export class PortalsView extends ItemView {
         new ReorderItemsModal(this.app, this.plugin, items).open();
     }
 
+    private tagExistsInVault(tag: string): boolean {
+        const allFiles = this.app.vault.getMarkdownFiles();
+        for (const file of allFiles) {
+            const cache = this.app.metadataCache.getFileCache(file);
+            if (!cache) continue;
+            const fileTags = [
+                ...(cache.tags?.map(t => t.tag.slice(1)) ?? []),
+                ...(cache.frontmatter?.tags ?? [])
+            ];
+            if (fileTags.includes(tag)) return true;
+        }
+        return false;
+    }
+
     /** Reorder top‑level subtags & groups of any tag portal */
     public reorderTagChildren(tagName: string) {
         const spaceConfig = this.plugin.settings.spaces.find(
@@ -234,11 +248,12 @@ export class PortalsView extends ItemView {
         const subtagSet = new Set<string>();
         const groupTagSet = new Set<string>(spaceConfig.groupTags ?? []);
 
+        // Collect **existing** subtags first, then filter them
         for (const file of allFiles) {
             const cache = this.app.metadataCache.getFileCache(file);
             const fileTags = [
-                ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                ...(cache?.frontmatter?.tags || [])
+                ...(cache?.tags?.map(t => t.tag.slice(1)) ?? []),
+                ...(cache?.frontmatter?.tags ?? [])
             ];
             for (const t of fileTags) {
                 if (t === tagName) continue;
@@ -252,23 +267,41 @@ export class PortalsView extends ItemView {
             }
         }
 
+        // Keep only subtags that actually exist somewhere in the vault
+        const existingSubtags = Array.from(subtagSet).filter(sub =>
+            this.tagExistsInVault(sub)
+        );
+
+        // Keep only group tags that exist (the same filter)
+        const existingGroups = Array.from(groupTagSet).filter(grp =>
+            this.tagExistsInVault(grp)
+        );
+
         const items: { path: string; displayName: string }[] = [];
-        for (const sub of subtagSet) {
+
+        for (const sub of existingSubtags) {
             items.push({
                 path: `tag:${tagName}/node:${sub}`,
                 displayName: sub.split('/').pop()!
             });
         }
-        for (const gTag of groupTagSet) {
-            const groupKey = this.getTagGroupKey(tagName, gTag);
-            items.push({ path: groupKey, displayName: gTag });
+
+        for (const gTag of existingGroups) {
+            items.push({
+                path: this.getTagGroupKey(tagName, gTag),
+                displayName: gTag
+            });
         }
 
+        // Sort the combined list consistently (alphabetical for initial display,
+        // but the custom order will override this when the user saves)
         items.sort((a, b) => a.displayName.localeCompare(b.displayName));
+
         if (items.length === 0) {
-            new Notice('Nothing to reorder in this tag portal.');
+            new Notice('No subtags or groups to reorder.');
             return;
         }
+
         new ReorderItemsModal(this.app, this.plugin, items).open();
     }
 
