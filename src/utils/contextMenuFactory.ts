@@ -160,10 +160,13 @@ export class ContextMenuFactory {
             .setIcon('pencil')
             .onClick(() => PortalsActions.startRenameFolder(view.app, view.plugin, view, folder, summaryEl)));
 
-        menu.addItem(item => item
-            .setTitle('Hide')
-            .setIcon('eye-off')
-            .onClick(() => view.hideItem(folder.path)));
+        // Hide conditional to portal forming folder
+        if (folder.path !== view.plugin.settings.selectedSpace?.path) {
+            menu.addItem(item => item
+                .setTitle('Hide')
+                .setIcon('eye-off')
+                .onClick(() => view.hideItem(folder.path)));
+        }
 
         const style = view.plugin.settings.treeStyle;
         if (style !== 'minimal' && style !== 'shades') {
@@ -377,12 +380,14 @@ export class ContextMenuFactory {
     ): void {
         const menu = new Menu();
 
-        // Hide
-        menu.addItem(item => item
-            .setTitle('Hide')
-            .setIcon('eye-off')
-            .onClick(() => view.hideItem(`tag:${tagName}`))   // assuming hideItem takes a key; adjust if needed
-        );
+        // Hide only if its not portal root
+        if (tagName !== view.plugin.settings.selectedSpace?.path) {
+            menu.addItem(item => item
+                .setTitle('Hide')
+                .setIcon('eye-off')
+                .onClick(() => view.hideItem(`tag:${tagName}`))
+            );
+        }
 
         // Context‑note actions
         if (view.plugin.settings.enableContextNotes) {
