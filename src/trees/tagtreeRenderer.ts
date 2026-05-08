@@ -469,7 +469,15 @@ export class TagTreeRenderer {
             }
 
             // HLIST: SUBTAGS - Render child tags
-            const sortedChildren = Array.from(node.children.values()).sort((a, b) => a.name.localeCompare(b.name));
+            const orderMap = this.plugin.settings.customTreeOrder;
+            const sortedChildren = Array.from(node.children.values()).sort((a, b) => {
+                const aKey = `tag:${tagName}/node:${a.fullPath}`;
+                const bKey = `tag:${tagName}/node:${b.fullPath}`;
+                const aPos = orderMap[aKey] ?? Number.MAX_SAFE_INTEGER;
+                const bPos = orderMap[bKey] ?? Number.MAX_SAFE_INTEGER;
+                if (aPos !== bPos) return aPos - bPos;
+                return a.name.localeCompare(b.name);
+            });
             for (const child of sortedChildren) {
                 renderNode(child, childrenContainer, level + 1);
             }

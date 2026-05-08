@@ -2,6 +2,7 @@ import { App, Modal, TFolder, Notice, Setting } from 'obsidian';
 import PortalsPlugin from '../main';
 import { SpaceConfig } from '../types';
 import Sortable from 'sortablejs';
+import { PortalsView } from '../view';
 
 //================================= RENAME PORTAL MODAL=======================================
 
@@ -618,6 +619,7 @@ export class ReorderItemsModal extends Modal {
     constructor(
         app: App,
         private plugin: PortalsPlugin,
+        private view: PortalsView,
         private items: { path: string; displayName: string }[],
     ) {
         super(app);
@@ -631,16 +633,11 @@ export class ReorderItemsModal extends Modal {
 
         const list = contentEl.createEl('div', { cls: 'portals-sortable-list' });
 
-        // Store the current order as we manipulate it
-        const orderedKeys = this.items.map(item => item.path);
-
-        // Render items in their current order (as passed in)
-        orderedKeys.forEach(key => {
-            const item = this.items.find(i => i.path === key)!;
+        for (const item of this.items) {
             const row = list.createEl('div', { cls: 'portals-sortable-item' });
             row.createSpan({ text: item.displayName });
-            row.dataset.path = key;
-        });
+            row.dataset.path = item.path;
+        }
 
         new Sortable(list, {
             animation: 150,
@@ -651,30 +648,24 @@ export class ReorderItemsModal extends Modal {
                 const newOrder = Array.from(list.querySelectorAll('.portals-sortable-item'))
                     .map(el => (el as HTMLElement).dataset.path!);
                 // Save positions
-                newOrder.forEach((key, index) => {
-                    const item = this.items.find(i => i.path === key)!;
-                    this.plugin.settings.customTreeOrder[item.path] = index;
-                });
-                // Remove any stale entries for items no longer present
-                for (const key of Object.keys(this.plugin.settings.customTreeOrder)) {
-                    if (!this.items.some(i => i.path === key)) {
-                        delete this.plugin.settings.customTreeOrder[key];
-                    }
+                const custom = this.plugin.settings.customTreeOrder;
+                for (const item of this.items) {
+                    delete custom[item.path];
                 }
-                void this.plugin.saveSettings().then(() => {
-                    // The view will pick up the new order on next render.
+                newOrder.forEach((key, index) => {
+                    custom[key] = index;
+                });
+                this.plugin.saveData(this.plugin.settings).then(() => {
+                    this.view.renderContent();
                 });
             },
         });
-
-        // Close button
         const btnDiv = contentEl.createDiv({ cls: 'modal-button-container' });
         btnDiv.createEl('button', { text: 'Done', cls: 'mod-cta' })
             .addEventListener('click', () => this.close());
+        }
+        onClose() {
+            this.contentEl.empty();
+        }
     }
-
-    onClose() {
-        this.contentEl.empty();
-    }
-}
 

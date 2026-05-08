@@ -526,6 +526,16 @@ export class ContextMenuFactory {
         const style = view.plugin.settings.treeStyle;
         const nodeKey = `tag:${tagName}/node:${nodeFullPath}`;
 
+        // Reorder sub‑items (if there are any direct children)
+        const childrenContainer = (anchorEl as HTMLElement).parentElement?.querySelector('.folder-children');
+        if (childrenContainer && childrenContainer.querySelector(':scope > .folder-details > .folder-summary')) {
+            menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('Reorder sub‑items')
+                .setIcon('arrow-up-down')
+                .onClick(() => view.reorderChildItemsFromElement(anchorEl as HTMLElement)));
+        }
+
         // Hide
         menu.addItem(item => item
             .setTitle('Hide')

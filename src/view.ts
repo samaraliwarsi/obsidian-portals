@@ -236,7 +236,8 @@ export class PortalsView extends ItemView {
             new Notice('No sub‑folders or groups to reorder.');
             return;
         }
-        new ReorderItemsModal(this.app, this.plugin, items).open();
+        this.saveScrollWithAnchor(summaryEl);
+        new ReorderItemsModal(this.app, this.plugin, this, items).open();
     }
 
     /** Called from command palette or other places that only have a path */
