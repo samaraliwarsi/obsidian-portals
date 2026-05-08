@@ -96,15 +96,16 @@ export default class PortalsPlugin extends Plugin {
         
         this.addCommand({
             id: 'reorder-portal-items',
-            name: 'Reorder folder /tag portal',
+            name: 'Reorder folders/tags',
             callback: () => {
                 const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
                 if (!leaf || !(leaf.view instanceof PortalsView)) {
-                    new Notice('Please open the Portals view first');
+                    new Notice('Please open the Portals view first.');
                     return;
                 }
                 const space = leaf.view.plugin.settings.selectedSpace;
                 if (!space) return;
+
                 if (space.type === 'folder') {
                     leaf.view.reorderFolderChildren(space.path);
                 } else if (space.type === 'tag') {

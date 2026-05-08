@@ -60,6 +60,7 @@ export class FolderTreeRenderer {
         const nameSpan = summary.createSpan({ text: displayName });
         nameSpan.addClass('portals-item-name');
         summary.dataset.path = folder.path;
+        summary.dataset.reorderKey = folder.path;
 
         const activePath = this.view.getActiveFilePath();  // need to keep getActiveFilePath public or add a getter
         if (activePath) {
@@ -198,7 +199,6 @@ export class FolderTreeRenderer {
         // custom folder or tag order
         const orderMap = this.plugin.settings.customTreeOrder;
         const hasCustom = folders.some(f => orderMap[f.path] !== undefined);
-
         if (hasCustom) {
             folders.sort((a, b) => {
                 const aPos = orderMap[a.path] ?? Number.MAX_SAFE_INTEGER;

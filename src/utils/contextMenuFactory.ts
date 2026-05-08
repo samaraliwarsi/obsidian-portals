@@ -141,7 +141,7 @@ export class ContextMenuFactory {
         menu.addItem(item => item
             .setTitle('Reorder sub-folders')
             .setIcon('arrow-up-down')
-            .onClick(() => view.reorderFolderChildren(folder.path)));
+            .onClick(() => view.reorderChildItemsFromElement(summaryEl)));
         menu.addSeparator();
         
 
@@ -389,6 +389,16 @@ export class ContextMenuFactory {
                 .onClick(() => view.hideItem(`tag:${tagName}`))
             );
         }
+
+        // After existing menu items, before context‑note actions
+        menu.addSeparator();
+        
+        menu.addSeparator();
+        menu.addItem(item => item
+            .setTitle('Reorder groups/subtags')
+            .setIcon('arrow-up-down')
+            .onClick(() => view.reorderChildItemsFromElement(anchorEl)));
+        
 
         // Context‑note actions
         if (view.plugin.settings.enableContextNotes) {

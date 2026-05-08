@@ -197,9 +197,20 @@ export class TagTreeRenderer {
                 if (!hasGroup) ungrouped.push(file);
             }
 
+            // Sort groups according to customTreeOrder if present
+            const orderMap = this.plugin.settings.customTreeOrder;
+            const sortedGroupEntries = Array.from(groups.entries()).sort(([a], [b]) => {
+                const aKey = this.view.getTagGroupKey(tagName, a);
+                const bKey = this.view.getTagGroupKey(tagName, b);
+                const aPos = orderMap[aKey] ?? Number.MAX_SAFE_INTEGER;
+                const bPos = orderMap[bKey] ?? Number.MAX_SAFE_INTEGER;
+                if (aPos !== bPos) return aPos - bPos;
+                return a.localeCompare(b);
+            });
+
             // FLAT LIST: TAG GROUPS - Render each group as a nested details element
             let groupIndex = 0;
-            for (const [gTag, files] of groups.entries()) {
+            for (const [gTag, files] of sortedGroupEntries) {
                 if (files.length === 0) continue;
                 const groupDetails = childrenContainer.createEl('details', { cls: 'folder-details' });
                 const groupKey = this.view.getTagGroupKey(tagName, gTag);
@@ -269,6 +280,8 @@ export class TagTreeRenderer {
                 iconSpan.createEl('i', { cls: iconClass });
                 summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
                 summary.dataset.tagPath = gTag;
+                summary.dataset.reorderKey = groupKey;
+
 
                 // FLAT LIST: TAG GROUPS - Quick‑create note for tag groups flat list (mainT + gTag)
                 this.view.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName, [gTag]));
@@ -395,6 +408,7 @@ export class TagTreeRenderer {
             const nameSpan = summary.createSpan({ text: node.name });
             nameSpan.addClass('portals-item-name');
             summary.dataset.tagPath = node.fullPath;
+            summary.dataset.reorderKey = nodeKey;
 
             const childrenContainer = details.createDiv({ cls: 'folder-children' });
 
@@ -558,8 +572,8 @@ export class TagTreeRenderer {
         // HLIST: Sorting  alphabetically
         const orderMap = this.plugin.settings.customTreeOrder;
         topLevelItems.sort((a, b) => {
-            const aKey = a.type === 'subtag' ? (a.data as TagNode).fullPath : `tag:${tagName}/group:${a.name}`;
-            const bKey = b.type === 'subtag' ? (b.data as TagNode).fullPath : `tag:${tagName}/group:${b.name}`;
+            const aKey = a.type === 'subtag' ? `tag:${tagName}/node:${(a.data as TagNode).fullPath}` : `tag:${tagName}/group:${a.name}`;
+            const bKey = b.type === 'subtag' ? `tag:${tagName}/node:${(b.data as TagNode).fullPath}` : `tag:${tagName}/group:${b.name}`;
             const aPos = orderMap[aKey] ?? Number.MAX_SAFE_INTEGER;
             const bPos = orderMap[bKey] ?? Number.MAX_SAFE_INTEGER;
             if (aPos !== bPos) return aPos - bPos;
@@ -623,6 +637,7 @@ export class TagTreeRenderer {
             iconSpan.createEl('i', { cls: iconClass });
             summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
             summary.dataset.tagPath = gTag;
+            summary.dataset.reorderKey = groupKey;
 
             // HLIST: GROUPS - Quick‑create note for tag groups subtagtree (mainT + gTag)
             this.view.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName, [gTag]));

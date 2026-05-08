@@ -209,100 +209,71 @@ export class PortalsView extends ItemView {
         });
     }
 
-    /** Reorder sub‑folders of any folder */
-    public reorderFolderChildren(folderPath: string) {
-        const folder = this.app.vault.getAbstractFileByPath(folderPath);
-        if (!(folder instanceof TFolder)) return;
+    // Reads folder/tag summaries directly from the DOM container
+    private getChildSummaryItems(container: HTMLElement): { path: string; displayName: string }[] {
+        const items: { path: string; displayName: string }[] = [];
+        const summaries = container.querySelectorAll<HTMLElement>(
+            ':scope > .folder-details > .folder-summary'
+        );
+        summaries.forEach(summary => {
+            const key = summary.dataset.reorderKey || summary.dataset.path || summary.dataset.tagPath;
+            const name = summary.querySelector('.portals-item-name')?.textContent ?? '';
+            if (key && name) items.push({ path: key, displayName: name });
+        });
+        return items;
+    }
 
-        const folders = folder.children.filter(c => c instanceof TFolder) as TFolder[];
-        if (folders.length === 0) {
-            new Notice('No sub‑folders to reorder.');
+    /** Reorder the children of the given folder/tag summary element */
+    public reorderChildItemsFromElement(summaryEl: HTMLElement): void {
+        const container = summaryEl.parentElement?.querySelector('.folder-children') as HTMLElement;
+        if (!container) {
+            new Notice('Could not find the children container.');
             return;
         }
-        const items = folders.map(f => ({ path: f.path, displayName: f.name }));
+
+        const items = this.getChildSummaryItems(container);
+        if (items.length === 0) {
+            new Notice('No sub‑folders or groups to reorder.');
+            return;
+        }
         new ReorderItemsModal(this.app, this.plugin, items).open();
     }
 
-    private tagExistsInVault(tag: string): boolean {
-        const allFiles = this.app.vault.getMarkdownFiles();
-        for (const file of allFiles) {
-            const cache = this.app.metadataCache.getFileCache(file);
-            if (!cache) continue;
-            const fileTags = [
-                ...(cache.tags?.map(t => t.tag.slice(1)) ?? []),
-                ...(cache.frontmatter?.tags ?? [])
-            ];
-            if (fileTags.includes(tag)) return true;
-        }
-        return false;
-    }
-
-    /** Reorder top‑level subtags & groups of any tag portal */
-    public reorderTagChildren(tagName: string) {
-        const spaceConfig = this.plugin.settings.spaces.find(
-            s => s.path === tagName && s.type === 'tag'
+    /** Called from command palette or other places that only have a path */
+    public reorderFolderChildren(folderPath: string): void {
+        const summaries = this.containerEl.querySelectorAll<HTMLElement>(
+            '.folder-details > .folder-summary'
         );
-        if (!spaceConfig) return;
-
-        const allFiles = this.app.vault.getMarkdownFiles();
-        const subtagSet = new Set<string>();
-        const groupTagSet = new Set<string>(spaceConfig.groupTags ?? []);
-
-        // Collect **existing** subtags first, then filter them
-        for (const file of allFiles) {
-            const cache = this.app.metadataCache.getFileCache(file);
-            const fileTags = [
-                ...(cache?.tags?.map(t => t.tag.slice(1)) ?? []),
-                ...(cache?.frontmatter?.tags ?? [])
-            ];
-            for (const t of fileTags) {
-                if (t === tagName) continue;
-                if (t.startsWith(tagName + '/')) {
-                    const parts = t.split('/');
-                    if (parts.length >= 2) {
-                        const firstLevel = parts.slice(0, 2).join('/');
-                        subtagSet.add(firstLevel);
-                    }
-                }
+        let found: HTMLElement | null = null;
+        for (const s of Array.from(summaries)) {
+            if (s.dataset.path === folderPath) {
+                found = s;
+                break;
             }
         }
-
-        // Keep only subtags that actually exist somewhere in the vault
-        const existingSubtags = Array.from(subtagSet).filter(sub =>
-            this.tagExistsInVault(sub)
-        );
-
-        // Keep only group tags that exist (the same filter)
-        const existingGroups = Array.from(groupTagSet).filter(grp =>
-            this.tagExistsInVault(grp)
-        );
-
-        const items: { path: string; displayName: string }[] = [];
-
-        for (const sub of existingSubtags) {
-            items.push({
-                path: `tag:${tagName}/node:${sub}`,
-                displayName: sub.split('/').pop()!
-            });
-        }
-
-        for (const gTag of existingGroups) {
-            items.push({
-                path: this.getTagGroupKey(tagName, gTag),
-                displayName: gTag
-            });
-        }
-
-        // Sort the combined list consistently (alphabetical for initial display,
-        // but the custom order will override this when the user saves)
-        items.sort((a, b) => a.displayName.localeCompare(b.displayName));
-
-        if (items.length === 0) {
-            new Notice('No subtags or groups to reorder.');
+        if (!found) {
+            new Notice(`Folder "${folderPath}" not found.`);
             return;
         }
+        this.reorderChildItemsFromElement(found);
+    }
 
-        new ReorderItemsModal(this.app, this.plugin, items).open();
+    public reorderTagChildren(tagName: string): void {
+        const summaries = this.containerEl.querySelectorAll<HTMLElement>(
+            '.folder-details > .folder-summary'
+        );
+        let found: HTMLElement | null = null;
+        for (const s of Array.from(summaries)) {
+            if (s.dataset.tagPath === tagName) {
+                found = s;
+                break;
+            }
+        }
+        if (!found) {
+            new Notice(`Tag "${tagName}" not found.`);
+            return;
+        }
+        this.reorderChildItemsFromElement(found);
     }
 
     public selectRange(anchorKey: string, targetKey: string) {
