@@ -641,6 +641,7 @@ export class ReorderItemsModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
+        this.containerEl.addClass('portals-reorder-modal-container');
         contentEl.addClass('portals-modal');
         contentEl.addClass('portals-reorder-modal');
         contentEl.createEl('h3', { text: 'Reorder items' });
@@ -649,10 +650,10 @@ export class ReorderItemsModal extends Modal {
 
         for (const item of this.items) {
             const row = list.createEl('div', { cls: 'portals-sortable-item' });
-            row.createSpan({ cls: 'portals-reorder-handle'})
-                .createEl('i', { cls: 'ph ph-dots-six-vertical' });
             row.createSpan({ text: item.displayName });
             row.dataset.path = item.path;
+            row.createSpan({ cls: 'portals-reorder-handle'})
+                .createEl('i', { cls: 'ph ph-dots-six-vertical' });
         }
         if (this.sourceEl) {
             this.sourceEl.addClass('portals-reordering-source-active');

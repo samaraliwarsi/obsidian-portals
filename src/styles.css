@@ -7708,6 +7708,26 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 /*========================REORDER MODAL=============================*/
 
+.portals-reorder-modal-container .modal {
+  position: static;
+  transform: none;
+  width: max-content;
+  max-width: 80vw;
+  min-width: 250px;
+  margin: 5vh auto 0 auto;
+  justify-content: center;
+
+}
+
+.portals-reorder-modal h3 {
+  font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
 .portals-reorder-modal .portals-sortable-list {
     max-height: 50vh;
     overflow-y: auto;
@@ -7718,12 +7738,16 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .portals-reorder-modal .portals-sortable-item {
     display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     align-items: center;
     justify-content: space-between;
     padding: 0.5em 1em;
     border-bottom: 1px solid var(--background-modifier-border);
     cursor: grab;
     transition: background 0.15s;
+    font-size: small;
 }
 
 .portals-reorder-modal .portals-sortable-item:hover {
@@ -7756,8 +7780,12 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 }
 
 .portals-reordering-details-closed-active {
-    outline: 1px solid var(--text-faint) !important;
-    outline-offset: -2px;
+    background-color: var(--background-modifier-hover);
+}
+
+.portals-reorder-modal .modal-button-container button.mod-cta:hover {
+ background-color: var(--interactive-accent-hover);
+ filter: brightness(1.05);
 }
 
 
