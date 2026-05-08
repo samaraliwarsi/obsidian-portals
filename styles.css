@@ -7783,10 +7783,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     background-color: var(--background-modifier-hover);
     border-radius: 4px;
     filter: brightness(1.1);
-    box-shadow: 
-      1px 0 0 0 var(--text-faint),
-      -1px 0 0 0 var(--text-faint),
-      0 1px 0 0 var(--text-faint) !important;
 }
 
 .portals-reorder-modal .modal-button-container button.mod-cta:hover {
