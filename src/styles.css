@@ -7767,7 +7767,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 }
 
 .portals-reordering-source-active {
-    box-shadow: 0 -3px 0 0 var(--interactive-accent) !important;
+    box-shadow: 0 -2px 0 0 var(--interactive-accent) !important;
     border-radius: 6px;
 }
 
@@ -7781,6 +7781,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .portals-reordering-details-closed-active {
     background-color: var(--background-modifier-hover);
+    border-radius: 4px;
+    filter: brightness(1.1);
 }
 
 .portals-reorder-modal .modal-button-container button.mod-cta:hover {

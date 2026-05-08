@@ -225,16 +225,33 @@ export class PortalsView extends ItemView {
 
     /** Reorder the children of the given folder/tag summary element */
     public reorderChildItemsFromElement(summaryEl: HTMLElement): void {
+        const detailsEl = summaryEl.parentElement as HTMLDetailsElement;
+        if (!detailsEl?.classList.contains('folder-details')) {
+            new Notice('Invalid folder element');
+            return;
+        }
+        
+        const wasOpen = detailsEl.open;
+        if (!wasOpen) {
+            detailsEl.open = true;
+            detailsEl.dispatchEvent(new Event('toggle'));
+        }
+
         const container = summaryEl.parentElement?.querySelector('.folder-children') as HTMLElement;
         if (!container) {
             new Notice('Could not find the children container.');
+            if (!wasOpen) detailsEl.open = false;
             return;
         }
 
         const items = this.getChildSummaryItems(container);
         if (items.length === 0) {
-            new Notice('No sub‑folders or groups to reorder.');
+            new Notice('No sub‑folders or sub-tags to reorder.');
+            if (!wasOpen) detailsEl.open = false;
             return;
+        }
+        if (!wasOpen) {
+            detailsEl.open = false;
         }
         this.saveScrollWithAnchor(summaryEl);
         new ReorderItemsModal(this.app, this.plugin, this, items, summaryEl).open();
