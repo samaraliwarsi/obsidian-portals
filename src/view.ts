@@ -237,7 +237,7 @@ export class PortalsView extends ItemView {
             return;
         }
         this.saveScrollWithAnchor(summaryEl);
-        new ReorderItemsModal(this.app, this.plugin, this, items).open();
+        new ReorderItemsModal(this.app, this.plugin, this, items, summaryEl).open();
     }
 
     /** Called from command palette or other places that only have a path */
