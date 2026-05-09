@@ -6024,7 +6024,7 @@ display: inline-block;
 width: 6px;
 height: 6px;
 border-radius: 50%;
-background-color: var(--interactive-accent);
+background-color: var(--space-border-color, var(--interactive-accent));
 box-shadow: 0 0 0 1px var(--background-primary);
 margin-left: 4px;
 vertical-align: middle;
@@ -6041,7 +6041,7 @@ vertical-align: middle;
 }
 
 .file-extension.is-open {
-    color: var(--text-accent);
+    color: var(--space-border-color, var(--text-accent));
 }
 
 /* Highlight for newly created items */
@@ -6593,7 +6593,7 @@ body.portals-dragging {
 }
 
 .folder-icon.has-context-note-icon i {
-    color: var(--interactive-accent);
+    color: var(--space-border-color, var(--interactive-accent));
 }
 
 .folder-summary.has-context-note-underline .portals-item-name {
