@@ -1,4 +1,4 @@
-import { App, Modal, TFolder, Notice, Setting, TFile } from 'obsidian';
+import { App, Modal, TFolder, Notice, Setting, TFile, Menu } from 'obsidian';
 import PortalsPlugin from '../main';
 import { SpaceConfig } from '../types';
 import Sortable from 'sortablejs';
@@ -701,6 +701,12 @@ export class ReorderItemsModal extends Modal {
 
 // ==================BULK FRONTMATTER MODAL=============================================
 
+declare module 'obsidian' {
+    interface Menu {
+        dom?: HTMLElement;
+    }
+}
+
 export class BulkFrontmatterPopup {
     private app: App;
     private plugin: PortalsPlugin;
@@ -708,8 +714,8 @@ export class BulkFrontmatterPopup {
     private files: TFile[];
     private container!: HTMLElement;
     private backdrop!: HTMLElement;
-    private propertySelect!: HTMLSelectElement;
-    private valueSelect!: HTMLSelectElement;
+    private propBtn!: HTMLButtonElement;
+    private valBtn!: HTMLButtonElement;
     private propertySearchPopover: SearchPopover | null = null;
     private valueSearchPopover: SearchPopover | null = null;
     private allProperties: string[] = [];
@@ -769,36 +775,61 @@ export class BulkFrontmatterPopup {
         }
         this.allProperties = Array.from(propSet).sort();
 
-        // ── Property row ──
-        new Setting(container)
-            .setName('Property')
-            .addDropdown(d => {
-                this.propertySelect = d.selectEl;
-                this.propertySelect.createEl('option', { text: '-- choose or type --', value: '' });
-                this.allProperties.forEach(p => this.propertySelect.createEl('option', { text: p, value: p }));
-                d.setValue(this.propertyName)
-                 .onChange((v) => {
-                     this.propertyName = v;
-                     this.updateValueOptions();
-                 });
+       // ── Property picker ──
+        const propRow = container.createDiv({ cls: 'bulk-fm-row' });
+        propRow.createSpan({ text: 'Property' });
+        this.propBtn = propRow.createEl('button', {
+            text: this.propertyName || '-- choose --',
+            //cls: 'journal-btn fm-property-btn',
+        });
+        // Left‑click → show menu of all properties
+        this.propBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const menu = new Menu();
+            menu.dom?.addClass?.('bulk-fm-menu');
+            this.allProperties.forEach(p => {
+                menu.addItem(item => item
+                    .setTitle(p)
+                    .onClick(() => {
+                        this.propertyName = p;
+                        this.propBtn.setText(p);
+                        this.value = '';
+                        this.valBtn.setText('-- choose --');
+                        this.updateValueOptions();
+                    }));
             });
-        this.propertySelect.addEventListener('contextmenu', (e) => {
+            menu.showAtMouseEvent(e);
+        });
+        // Right‑click → SearchPopover for quick filtering
+        this.propBtn.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            this.showPropertySearch();
+            this.showPropertySearch(this.propBtn);
         });
 
-        // ── Value row ──
-        new Setting(container)
-            .setName('Value')
-            .addDropdown(d => {
-                this.valueSelect = d.selectEl;
-                d.setValue(this.value)
-                 .onChange((v) => { this.value = v; });
+        // ── Value picker ──
+        const valRow = container.createDiv({ cls: 'bulk-fm-row' });
+        valRow.createSpan({ text: 'Value' });
+        this.valBtn = valRow.createEl('button', {
+            text: this.value || '-- choose --',
+            //cls: 'journal-btn fm-value-btn',
+        });
+        this.valBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const menu = new Menu();
+            menu.dom?.addClass?.('bulk-fm-menu');
+            this.propertyValues.forEach(v => {
+                menu.addItem(item => item
+                    .setTitle(v)
+                    .onClick(() => {
+                        this.value = v;
+                        this.valBtn.setText(v);
+                    }));
             });
-        this.rebuildValueDropdown();
-        this.valueSelect.addEventListener('contextmenu', (e) => {
+            menu.showAtMouseEvent(e);
+        });
+        this.valBtn.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            this.showValueSearch();
+            this.showValueSearch(this.valBtn);
         });
 
         // ── Buttons ──
@@ -807,6 +838,8 @@ export class BulkFrontmatterPopup {
             .addEventListener('click', () => this.apply('add'));
         btnDiv.createEl('button', { text: 'Remove', cls: 'mod-warning' })
             .addEventListener('click', () => this.apply('remove'));
+        btnDiv.createEl('button', { text: 'Close' })
+            .addEventListener('click', () => this.close());
     }
 
     private updateValueOptions(): void {
@@ -823,40 +856,32 @@ export class BulkFrontmatterPopup {
             }
         }
         this.propertyValues = Array.from(valSet).sort();
-        this.rebuildValueDropdown();
     }
 
-    private rebuildValueDropdown(): void {
-        this.valueSelect.empty();
-        this.valueSelect.createEl('option', { text: '-- choose or type --', value: '' });
-        this.propertyValues.forEach(v => {
-            this.valueSelect.createEl('option', { text: v, value: v });
-        });
-        this.valueSelect.value = this.value;
-    }
-
-    private showPropertySearch(): void {
+    private showPropertySearch(anchor: HTMLElement): void {
         this.propertySearchPopover?.destroy();
-        const popover = new SearchPopover(this.propertySelect, {
+        const popover = new SearchPopover(anchor, {
             items: this.allProperties,
             currentSelected: this.propertyName,
             onSelect: (item) => {
                 this.propertyName = item;
-                this.propertySelect.value = item;
+                this.propBtn.setText(item);
+                this.value = '';
+                this.valBtn.setText('--choose--');
                 this.updateValueOptions();
             },
         });
         this.propertySearchPopover = popover;
     }
 
-    private showValueSearch(): void {
+    private showValueSearch(anchor: HTMLElement): void {
         this.valueSearchPopover?.destroy();
-        const popover = new SearchPopover(this.valueSelect, {
+        const popover = new SearchPopover(anchor, {
             items: this.propertyValues,
             currentSelected: this.value,
             onSelect: (item) => {
                 this.value = item;
-                this.valueSelect.value = item;
+                this.valBtn.setText(item);
             },
         });
         this.valueSearchPopover = popover;
@@ -897,10 +922,14 @@ export class BulkFrontmatterPopup {
             }
         }
         if (changed) {
+            const savedSelection = new Set(this.view.selectedItems);
             await this.plugin.saveSettings();
             this.view.renderContent();
+            this.view.selectedItems = savedSelection;
+            setTimeout(() => this.view.reapplySelectionHighlights(), 50);
         }
         new Notice(`Updated ${changed} file(s).`);
-        this.close();
+        this.value = '';
+        this.valBtn.setText('-- choose --');
     }
 }

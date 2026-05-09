@@ -640,6 +640,21 @@ export class PortalsView extends ItemView {
         }
     }
 
+    public reapplySelectionHighlights(): void {
+        if (this.selectedItems.size === 0) return;
+
+        const tree = this.containerEl.querySelector('.portals-tree-container');
+        if (!tree) return;
+
+        tree.querySelectorAll<HTMLElement>('[data-path], [data-tag-path]').forEach(el => {
+            const key = el.dataset.path || el.dataset.tagPath || '';
+            if (this.selectedItems.has(key)) {
+                el.addClass('is-selected');
+            }
+        });
+        this.updateMultiSelectToolbar();
+    }
+
     public addHoverPreview(el: HTMLElement, filePath: string) {
         // only enable if page preview makes sense (ignore URLs.. etc)
         if (!filePath || filePath.startsWith('http')) return;
