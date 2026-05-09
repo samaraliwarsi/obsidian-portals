@@ -88,6 +88,14 @@ export class SearchPopover {
         }
     }
 
+    public focus(): void {
+        this.input?.focus();
+    }
+
+    public getInput(): HTMLInputElement {
+        return this.input;
+    }
+
     destroy() {
         document.removeEventListener('click', this.clickOutsideHandler, { capture: true });
         this.popover.remove();

@@ -17,7 +17,7 @@ import { TreeEventHelpers } from './utils/treeEventHelpers';
 import { FolderTreeRenderer } from './trees/foldertreeRenderer';
 import { TagTreeRenderer } from './trees/tagtreeRenderer';
 import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
-import { ReorderItemsModal } from './utils/modals';
+import { ReorderItemsModal, BulkFrontmatterPopup} from './utils/modals';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -111,6 +111,17 @@ export class PortalsView extends ItemView {
                 }
             }
         }
+    }
+
+    public showBulkFrontmatterModal(): void {
+        const files = Array.from(this.selectedItems)
+            .map(p => this.app.vault.getAbstractFileByPath(p))
+            .filter((f): f is TFile => f instanceof TFile && f.extension === 'md');
+        if (files.length === 0) {
+            new Notice('Select at least one markdown file.');
+            return;
+        }
+        new BulkFrontmatterPopup(this.app, this.plugin, this, files).open();
     }
 
     public cancelScheduledRender(): void {
@@ -603,6 +614,11 @@ export class PortalsView extends ItemView {
         const resetIconBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Reset icons' } });
         resetIconBtn.createEl('i', { cls: 'ph ph-image' });
         resetIconBtn.addEventListener('click', () => this.resetIconsForSelected());
+
+        // frontmatter edit modal
+        const fmBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Edit frontmatter' } });
+        fmBtn.createEl('i', { cls: 'ph ph-list-plus' });
+        fmBtn.addEventListener('click', () => this.showBulkFrontmatterModal());
 
         // Hide button
         const hideBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Hide selected' } });

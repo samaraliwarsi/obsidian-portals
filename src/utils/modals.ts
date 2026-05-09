@@ -1,8 +1,9 @@
-import { App, Modal, TFolder, Notice, Setting } from 'obsidian';
+import { App, Modal, TFolder, Notice, Setting, TFile } from 'obsidian';
 import PortalsPlugin from '../main';
 import { SpaceConfig } from '../types';
 import Sortable from 'sortablejs';
 import { PortalsView } from '../view';
+import { SearchPopover } from './searchPopover';
 
 //================================= RENAME PORTAL MODAL=======================================
 
@@ -698,3 +699,208 @@ export class ReorderItemsModal extends Modal {
         }
     }
 
+// ==================BULK FRONTMATTER MODAL=============================================
+
+export class BulkFrontmatterPopup {
+    private app: App;
+    private plugin: PortalsPlugin;
+    private view: PortalsView;
+    private files: TFile[];
+    private container!: HTMLElement;
+    private backdrop!: HTMLElement;
+    private propertySelect!: HTMLSelectElement;
+    private valueSelect!: HTMLSelectElement;
+    private propertySearchPopover: SearchPopover | null = null;
+    private valueSearchPopover: SearchPopover | null = null;
+    private allProperties: string[] = [];
+    private propertyValues: string[] = [];
+    private propertyType: 'string' | 'number' | 'boolean' = 'string';
+    private propertyName = '';
+    private value = '';
+    private keyHandler: (e: KeyboardEvent) => void;
+
+    constructor(app: App, plugin: PortalsPlugin, view: PortalsView, files: TFile[]) {
+        this.app = app;
+        this.plugin = plugin;
+        this.view = view;
+        this.files = files;
+
+        // Key handler for Escape
+        this.keyHandler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') this.close();
+        };
+    }
+
+    open(): void {
+        // Backdrop
+        this.backdrop = document.body.createDiv('portals-bulk-backdrop');
+        this.backdrop.addEventListener('click', () => this.close());
+
+        // Container
+        this.container = document.body.createDiv('portals-bulk-modal');
+        this.container.addClass('bulk-fm-modal');
+        // Stop clicks inside from closing
+        this.container.addEventListener('click', (e) => e.stopPropagation());
+
+        this.buildUI();
+        document.addEventListener('keydown', this.keyHandler);
+    }
+
+    close(): void {
+        this.propertySearchPopover?.destroy();
+        this.valueSearchPopover?.destroy();
+        this.backdrop?.remove();
+        this.container?.remove();
+        document.removeEventListener('keydown', this.keyHandler);
+    }
+
+    private buildUI(): void {
+        const { container, files } = this;
+
+        // Title
+        container.createEl('h3', { text: 'Bulk frontmatter editing' });
+        container.createEl('p', { text: `${files.length} markdown file(s)` });
+
+        // Gather all known properties
+        const propSet = new Set<string>();
+        for (const file of this.app.vault.getMarkdownFiles()) {
+            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+            if (fm) Object.keys(fm).forEach(k => propSet.add(k));
+        }
+        this.allProperties = Array.from(propSet).sort();
+
+        // ── Property row ──
+        new Setting(container)
+            .setName('Property')
+            .addDropdown(d => {
+                this.propertySelect = d.selectEl;
+                this.propertySelect.createEl('option', { text: '-- choose or type --', value: '' });
+                this.allProperties.forEach(p => this.propertySelect.createEl('option', { text: p, value: p }));
+                d.setValue(this.propertyName)
+                 .onChange((v) => {
+                     this.propertyName = v;
+                     this.updateValueOptions();
+                 });
+            });
+        this.propertySelect.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.showPropertySearch();
+        });
+
+        // ── Value row ──
+        new Setting(container)
+            .setName('Value')
+            .addDropdown(d => {
+                this.valueSelect = d.selectEl;
+                d.setValue(this.value)
+                 .onChange((v) => { this.value = v; });
+            });
+        this.rebuildValueDropdown();
+        this.valueSelect.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.showValueSearch();
+        });
+
+        // ── Buttons ──
+        const btnDiv = container.createDiv({ cls: 'modal-button-container' });
+        btnDiv.createEl('button', { text: 'Save', cls: 'mod-cta' })
+            .addEventListener('click', () => this.apply('add'));
+        btnDiv.createEl('button', { text: 'Remove', cls: 'mod-warning' })
+            .addEventListener('click', () => this.apply('remove'));
+    }
+
+    private updateValueOptions(): void {
+        const valSet = new Set<string>();
+        this.propertyType = 'string';
+        for (const file of this.app.vault.getMarkdownFiles()) {
+            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+            const v = fm?.[this.propertyName];
+            if (v !== undefined) {
+                if (typeof v === 'number') this.propertyType = 'number';
+                else if (typeof v === 'boolean') this.propertyType = 'boolean';
+                const vals = Array.isArray(v) ? v : [v];
+                vals.forEach(x => valSet.add(String(x)));
+            }
+        }
+        this.propertyValues = Array.from(valSet).sort();
+        this.rebuildValueDropdown();
+    }
+
+    private rebuildValueDropdown(): void {
+        this.valueSelect.empty();
+        this.valueSelect.createEl('option', { text: '-- choose or type --', value: '' });
+        this.propertyValues.forEach(v => {
+            this.valueSelect.createEl('option', { text: v, value: v });
+        });
+        this.valueSelect.value = this.value;
+    }
+
+    private showPropertySearch(): void {
+        this.propertySearchPopover?.destroy();
+        const popover = new SearchPopover(this.propertySelect, {
+            items: this.allProperties,
+            currentSelected: this.propertyName,
+            onSelect: (item) => {
+                this.propertyName = item;
+                this.propertySelect.value = item;
+                this.updateValueOptions();
+            },
+        });
+        this.propertySearchPopover = popover;
+    }
+
+    private showValueSearch(): void {
+        this.valueSearchPopover?.destroy();
+        const popover = new SearchPopover(this.valueSelect, {
+            items: this.propertyValues,
+            currentSelected: this.value,
+            onSelect: (item) => {
+                this.value = item;
+                this.valueSelect.value = item;
+            },
+        });
+        this.valueSearchPopover = popover;
+    }
+
+    private parseValue(input: string): string | number | boolean {
+        if (this.propertyType === 'number') {
+            const n = parseFloat(input);
+            return isNaN(n) ? 0 : n;
+        } else if (this.propertyType === 'boolean') {
+            return input.toLowerCase() === 'true';
+        }
+        return input;
+    }
+
+    private async apply(op: 'add' | 'remove'): Promise<void> {
+        if (!this.propertyName) {
+            new Notice('Please select or type a property name.');
+            return;
+        }
+        let changed = 0;
+        for (const file of this.files) {
+            if (file.extension !== 'md') continue;
+            try {
+                await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+                    if (op === 'add') {
+                        fm[this.propertyName] = this.parseValue(this.value);
+                        changed++;
+                    } else {
+                        if (fm[this.propertyName] !== undefined) {
+                            delete fm[this.propertyName];
+                            changed++;
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error(`Failed to process frontmatter for ${file.path}`, e);
+            }
+        }
+        if (changed) {
+            await this.plugin.saveSettings();
+            this.view.renderContent();
+        }
+        new Notice(`Updated ${changed} file(s).`);
+        this.close();
+    }
+}

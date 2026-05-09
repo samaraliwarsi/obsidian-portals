@@ -7211,7 +7211,7 @@ button.unhide-btn-all:not(.clickable-icon):hover {
     box-shadow: var(--shadow-s);
     padding: 6px;
     max-height: min(60vh, 400px);
-    z-index: 50;
+    z-index: 51;
     width: auto;
     max-width: 200px;
     display: flex;
@@ -7789,6 +7789,29 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
  filter: brightness(1.05);
 }
 
+/*=======================BULK FRONTMATTER MODAL======================================*/
+
+.portals-bulk-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 45;
+}
+
+.portals-bulk-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 45;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-l);
+    padding: 1.5em 2em;
+    min-width: 320px;
+    max-width: 90vw;
+}
 
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
 
