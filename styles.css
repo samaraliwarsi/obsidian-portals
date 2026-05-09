@@ -7713,10 +7713,9 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   transform: none;
   width: max-content;
   max-width: 80vw;
-  min-width: 250px;
+  min-width: 300px;
   margin: 5vh auto 0 auto;
   justify-content: center;
-
 }
 
 .portals-reorder-modal h3 {

@@ -30,6 +30,22 @@ export class TagTreeRenderer {
         this.view = view;
     }
 
+    private shouldShowOpenDot(tagPath: string, isGroup: boolean): boolean {
+        const activeFile = this.app.workspace.getActiveFile();
+        if (!activeFile) return false;
+        const cache = this.app.metadataCache.getFileCache(activeFile);
+        if (!cache) return false;
+        const fileTags = [
+            ...(cache.tags?.map(t => t.tag.slice(1)) ?? []),
+            ...(cache.frontmatter?.tags ?? [])
+        ];
+        if (isGroup) {
+            return fileTags.includes(tagPath);   // exact match for group tags
+        }
+        // Main tag or subtag: direct match or hierarchical prefix
+        return fileTags.some(t => t === tagPath || t.startsWith(tagPath + '/'));
+    }
+
     // Highlights the summary/icon if a context note exists
     private applyContextNoteHighlight(summary: HTMLElement, iconSpan: HTMLElement, tagPath: string): void {
         if (!this.plugin.settings.enableContextNotes
@@ -147,6 +163,11 @@ export class TagTreeRenderer {
             mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
             const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
             mainSummary.dataset.tagPath = tagName;
+
+            // FLAT LIST: opendot
+            if (this.shouldShowOpenDot(tagName, false)) {
+                mainSummary.createSpan({ cls: 'open-dot' });
+            }
 
             // FLAT LIST: Apply context note highlight to main tag
             const mainTagPath = tagName; // e.g., "project"
@@ -282,6 +303,10 @@ export class TagTreeRenderer {
                 summary.dataset.tagPath = gTag;
                 summary.dataset.reorderKey = groupKey;
 
+                // FLAT LIST: open-dot
+                if (this.shouldShowOpenDot(gTag, true)) {
+                    summary.createSpan({ cls: 'open-dot' });
+                }
 
                 // FLAT LIST: TAG GROUPS - Quick‑create note for tag groups flat list (mainT + gTag)
                 this.view.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName, [gTag]));
@@ -410,6 +435,11 @@ export class TagTreeRenderer {
             summary.dataset.tagPath = node.fullPath;
             summary.dataset.reorderKey = nodeKey;
 
+            // HLIST: SUBTAGS - opendot
+            if (this.shouldShowOpenDot(node.fullPath, false)) {
+                summary.createSpan({ cls: 'open-dot' });
+            }
+
             const childrenContainer = details.createDiv({ cls: 'folder-children' });
 
             // HLIST: SUBTAGS - Quick‑create note for sub tag tree sub item (node.fullpath)
@@ -529,6 +559,11 @@ export class TagTreeRenderer {
         const mainChildren = mainDetails.createDiv({ cls: 'folder-children' });
         mainSummary.dataset.tagPath = tagName;
 
+        // HLIST: opendot
+        if (this.shouldShowOpenDot(tagName, false)) {
+            mainSummary.createSpan({ cls: 'open-dot' });
+        }
+
         // HLIST: Quick‑create note for sub tag tree head item (tagName)
         this.view.quickFileIcon(mainSummary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName));
 
@@ -646,6 +681,11 @@ export class TagTreeRenderer {
             summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
             summary.dataset.tagPath = gTag;
             summary.dataset.reorderKey = groupKey;
+
+            // HLIST: GROUPS - open-dot
+            if (this.shouldShowOpenDot(gTag, true)) {
+                summary.createSpan({ cls: 'open-dot' });
+            }
 
             // HLIST: GROUPS - Quick‑create note for tag groups subtagtree (mainT + gTag)
             this.view.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName, [gTag]));
