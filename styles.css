@@ -7794,7 +7794,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 .portals-fm-backdrop {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--background-modifier-cover);
     z-index: 45;
 }
 
@@ -7804,9 +7804,9 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 45;
-    background: var(--background-primary);
+    background: var(--modal-background);
     border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-m);
+    border-radius: var(--radius-l);
     box-shadow: var(--shadow-l);
     padding: 1em;
     width: auto;
@@ -7824,7 +7824,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .portals-fm-modal-select-status {
   font-size: 10px;
-  color: var(--text-faint);
+  color: var(--text-accent);
   font-style: italic;
   padding: 5px 0;
   margin: 5px 0;
@@ -7835,30 +7835,33 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .fm-input-wrapper {
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 8px;
-  margin-top: 4px;
+  margin: 16px 0;
 }
 
 .fm-type-wrapper {
   display: flex;
-  border-top: 1px solid var(--background-modifier-border);
-  border-bottom: 1px solid var(--background-modifier-border);
+  border-top: 1px dashed var(--background-modifier-border);
+  border-bottom: 1px dashed var(--background-modifier-border);
   padding: 5px 0;
   margin: 5px 0;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .fm-wrapper-text {
   font-size: 15px;
   color: var(--text-muted);
+  font-weight: bold;
+  margin: 4px 0;
 }
 
 .fm-type-text {
-  font-size: 15px;
+  font-size: var(--font-ui-smaller);
   color: var(--text-muted);
+  margin: 0 4px;
 }
 
 .fm-input-wrapper .fm-input-group {
@@ -7871,6 +7874,13 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .fm-input-wrapper .fm-input-group input {
     flex: 1;
+}
+
+.portals-fm-search-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
 }
 
 .fm-input-group .fm-input-btn {
@@ -7886,9 +7896,25 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   padding: 2px 8px;
   color: var(--text-muted);
   font-size: var(--font-ui-small);
+  align-items: center;
+  justify-content: center;
 }
 
-.fm-input-group .fm-input-btn:hover {
+.fm-type-wrapper .fm-type-btn {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  width: auto;
+  white-space: nowrap;
+  padding: 2px 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.fm-input-group .fm-input-btn:hover,
+.fm-type-wrapper .fm-type-btn:hover {
   background: var(--background-modifier-hover);
 }
 

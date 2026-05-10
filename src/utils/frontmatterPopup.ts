@@ -78,7 +78,7 @@ export class FrontmatterPopup {
         container.createEl('p', {
             text: files.length === 1
             ? `Editing frontmatter of ${files[0]?.name ?? 'a file'}`
-            : `${files.length} markdown files`,
+            : `Editing frontmatter of ${files.length} markdown files`,
             cls: 'portals-fm-modal-select-status'
         });
 
@@ -129,7 +129,7 @@ export class FrontmatterPopup {
             type: 'text',
             placeholder: 'Custom property name',
             value: this.propertyName,
-            cls: 'portals-search-input',
+            cls: 'portals-fm-search-input',
         });
         this.propertyInput.addEventListener('input', () => {
             this.propertyName = this.propertyInput.value;
@@ -143,8 +143,11 @@ export class FrontmatterPopup {
 
         // ── Type selector ──
         const typeRow = container.createDiv({ cls: 'fm-type-wrapper' });
-        typeRow.createSpan({ text: 'Type', cls: 'fm-type-text' });
-        this.propertyTypeSelect = typeRow.createEl('select', { cls: 'dropdown' });
+        typeRow.createSpan({ text: 'Select type for new property or value:', cls: 'fm-type-text' });
+        this.propertyTypeSelect = typeRow.createEl('select', { 
+            cls: 'fm-type-btn',
+            attr: { 'aria-label': 'Choose type' }
+        });
         ['string', 'number', 'boolean', 'date', 'datetime', 'list'].forEach(t => {
             const opt = this.propertyTypeSelect.createEl('option', { text: t, value: t });
             if (t === this.propertyType) opt.selected = true;
@@ -227,19 +230,19 @@ export class FrontmatterPopup {
             this.valueInput = this.valueGroup.createEl('input', {
                 type: 'date',
                 value: this.value,
-                cls: 'portals-search-input',
+                cls: 'portals-fm-search-input',
             });
         } else if (this.propertyType === 'datetime') {
             this.valueInput = this.valueGroup.createEl('input', {
                 type: 'datetime-local',
                 value: this.value,
-                cls: 'portals-search-input',
+                cls: 'portals-fm-search-input',
             });
         } else {
             this.valueInput = this.valueGroup.createEl('input', {
                 type: 'text',
                 value: this.value,
-                cls: 'portals-search-input',
+                cls: 'portals-fm-search-input',
             });
         }
         this.valueInput.addEventListener('input', () => {
