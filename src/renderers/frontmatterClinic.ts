@@ -4,6 +4,7 @@ import { SearchPopover } from '../utils/searchPopover';
 import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../utils/frontmatterPopup';
+import { TreeEventHelpers } from '../utils/treeEventHelpers';
 
 interface PropertyValueCounts {
     counts: Map<string, Map<string, number>>;
@@ -512,6 +513,12 @@ export class FrontmatterClinicRenderer {
                     fileRow.createSpan({ text: displayValue, cls: 'fm-current-value' });
                 }
             }
+
+            TreeEventHelpers.attachTouchSwipeSelection(fileRow, file.path, this.view);
+            fileRow.addEventListener('touchend', () => {
+                setTimeout(() => this.updateClinicToolbar(), 0);
+            });
+
             fileRow.addEventListener('click', (e: MouseEvent) => {
                 if (e.altKey) {
                     e.preventDefault();
