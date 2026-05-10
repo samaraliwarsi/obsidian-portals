@@ -132,9 +132,7 @@ export class BookmarksRenderer {
                         if (item.path) {
                             const file = this.app.vault.getAbstractFileByPath(item.path);
                             if (file instanceof TFile) {
-                                this.view.suspendSidePortalUpdates = true;
                                 void this.app.workspace.getLeaf().openFile(file);
-                                setTimeout(() => { this.view.suspendSidePortalUpdates = false; }, 100);
                             } else if (file instanceof TFolder) {
                                 void this.app.workspace.openLinkText(item.path, '/', false);
                             }

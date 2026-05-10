@@ -536,9 +536,7 @@ export class FrontmatterClinicRenderer {
                     }
                     this.updateClinicToolbar();
                 } else {
-                    this.view.suspendSidePortalUpdates = true;
                     this.app.workspace.getLeaf().openFile(file);
-                    setTimeout(() => { this.view.suspendSidePortalUpdates = false });
                 }
             });
             fileRow.addEventListener('click', () => {

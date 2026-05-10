@@ -1,6 +1,5 @@
 import { App, TFile, TFolder } from 'obsidian';
 import PortalsPlugin from '../main';
-import { PortalsView } from '../view';
 
 interface HoverPreviewView {
     addHoverPreview(el: HTMLElement, filepath: string): void;
@@ -29,7 +28,6 @@ export class JournalRenderer {
     private filesWithWrongDelimiters = new Set<string>();
     private wrongDelimiterChecked?: Set<string>;
     private destroyed = false;
-    private view: PortalsView;
 
     private startProgressTimer = () => {
         if (this.destroyed) return;
@@ -82,11 +80,10 @@ export class JournalRenderer {
     }
 
 
-    constructor(app: App, plugin: PortalsPlugin, container: HTMLElement, view: PortalsView) {
+    constructor(app: App, plugin: PortalsPlugin, container: HTMLElement) {
         this.app = app;
         this.plugin = plugin;
         this.container = container;
-        this.view = view;
     }
 
     async render() {
@@ -380,9 +377,7 @@ export class JournalRenderer {
             });
 
             card.addEventListener('click', () => {
-                this.view.suspendSidePortalUpdates = true;
                 void this.app.workspace.getLeaf().openFile(n);
-                setTimeout(() => { this.view.suspendSidePortalUpdates = false; }, 100);
             });
 
             card.addEventListener('contextmenu', (e: MouseEvent) => {

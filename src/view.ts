@@ -73,13 +73,11 @@ export class PortalsView extends ItemView {
     private recentRenderer: RecentFilesRenderer | null = null;
     private hiddenRenderer: HiddenItemsRenderer | null = null;
     private bookmarksRenderer: BookmarksRenderer | null = null;
-    public suspendSidePortalUpdates = false;
     public getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
 
     public async refreshJournalTab() {
-        if (this.suspendSidePortalUpdates) return;
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
         if (this.plugin.settings.activeSplitTab === 'journal') {
@@ -1016,15 +1014,13 @@ export class PortalsView extends ItemView {
                 }
                 this.renderContent();
             }
-            if (!this.suspendSidePortalUpdates) {
-                if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
-                    if (this.contextNotesRenderer) {
-                        this.contextNotesRenderer.saveScroll(this.contextNotesRenderer.getCurrentNotePath() ?? undefined);
-                    }
-                    const sp = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement;
-                    if (sp) {
-                        void this.renderSplitTabContent(sp, 'context-notes');
-                    }
+            if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
+                if (this.contextNotesRenderer) {
+                    this.contextNotesRenderer.saveScroll(this.contextNotesRenderer.getCurrentNotePath() ?? undefined);
+                }
+                const sp = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement;
+                if (sp) {
+                    void this.renderSplitTabContent(sp, 'context-notes');
                 }
             }
         }));
@@ -1041,7 +1037,6 @@ export class PortalsView extends ItemView {
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
                 const ref = bookmarksPlugin.instance.on('changed', () => {
                     if (this.plugin.settings.activeSplitTab !== 'bookmarks') return;
-                    if (this.suspendSidePortalUpdates) return;
                     const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement | null;
                     if (secondaryPanel) {
                         const contentEl = secondaryPanel.querySelector('.portals-split-content') as HTMLElement | null;
@@ -1929,7 +1924,7 @@ export class PortalsView extends ItemView {
                 }
                 // create new renderer
                 this.journalContainer = contentEl.createDiv();
-                this.journalRenderer = new JournalRenderer(this.app, this.plugin, this.journalContainer, this);
+                this.journalRenderer = new JournalRenderer(this.app, this.plugin, this.journalContainer);
                 this.journalFolderPath = currentFolderPath;
                 await this.journalRenderer.render();
             }
@@ -2008,7 +2003,6 @@ export class PortalsView extends ItemView {
     }
 
     public refreshRecentTab() {
-        if (this.suspendSidePortalUpdates) return;
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
         if (this.plugin.settings.activeSplitTab === 'recent') {

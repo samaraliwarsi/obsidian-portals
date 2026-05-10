@@ -552,7 +552,9 @@ export class ContextNotesRenderer {
         });
 
         const fileOpenRef = this.app.workspace.on('file-open', () => {
-            if (!this.destroyed) this.render();
+            if (!this.destroyed && this.plugin.settings.activeSplitTab === 'context-notes') {
+                this.render();
+            }
         });
 
         this.eventRefs.push(modifyRef, renameRef, deleteRef, fileOpenRef);
