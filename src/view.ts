@@ -17,7 +17,8 @@ import { TreeEventHelpers } from './utils/treeEventHelpers';
 import { FolderTreeRenderer } from './trees/foldertreeRenderer';
 import { TagTreeRenderer } from './trees/tagtreeRenderer';
 import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
-import { ReorderItemsModal, BulkFrontmatterPopup} from './utils/modals';
+import { ReorderItemsModal } from './utils/modals';
+import { FrontmatterPopup } from './utils/frontmatterPopup';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -121,7 +122,7 @@ export class PortalsView extends ItemView {
             new Notice('Select at least one markdown file.');
             return;
         }
-        new BulkFrontmatterPopup(this.app, this.plugin, this, files).open();
+        new FrontmatterPopup(this.app, this.plugin, this, files).open();
     }
 
     public cancelScheduledRender(): void {

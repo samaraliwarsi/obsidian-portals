@@ -5,6 +5,7 @@ import { IconPickerModal } from './iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
 import { ColorPickerModal, RenamePortalModal } from './modals';
 import { PortalsActions } from './portalsActions';
+import { FrontmatterPopup } from './frontmatterPopup';
 
 interface MenuItemWithSubmenu extends MenuItem {
     setSubmenu(): Menu;
@@ -32,6 +33,11 @@ export class ContextMenuFactory {
             .setTitle('Open to the right')
             .setIcon('file-symlink')
             .onClick(() => view.app.workspace.getLeaf('split', 'vertical').openFile(file)));
+
+        menu.addItem(item => item
+            .setTitle('Edit frontmatter')
+            .setIcon('list-plus')
+            .onClick(() => new FrontmatterPopup(view.app, view.plugin, view, [file]).open()));
 
         menu.addSeparator();
 
