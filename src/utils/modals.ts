@@ -707,6 +707,8 @@ declare module 'obsidian' {
     }
 }
 
+type PropertyType = 'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'list';
+
 export class BulkFrontmatterPopup {
     private app: App;
     private plugin: PortalsPlugin;
@@ -715,12 +717,18 @@ export class BulkFrontmatterPopup {
     private container!: HTMLElement;
     private backdrop!: HTMLElement;
     private propBtn!: HTMLButtonElement;
+    private propertyInput!: HTMLInputElement;
+    private propertyIsExisting = false;
     private valBtn!: HTMLButtonElement;
+    private valueInput!: HTMLInputElement;
+    private valueIsExisting = false;
+    private valueGroup!: HTMLElement;
+    propertyTypeSelect!: HTMLSelectElement;
     private propertySearchPopover: SearchPopover | null = null;
     private valueSearchPopover: SearchPopover | null = null;
     private allProperties: string[] = [];
     private propertyValues: string[] = [];
-    private propertyType: 'string' | 'number' | 'boolean' = 'string';
+    private propertyType: PropertyType = 'string';
     private propertyName = '';
     private value = '';
     private keyHandler: (e: KeyboardEvent) => void;
@@ -778,9 +786,11 @@ export class BulkFrontmatterPopup {
        // ── Property picker ──
         const propRow = container.createDiv({ cls: 'bulk-fm-row' });
         propRow.createSpan({ text: 'Property' });
-        this.propBtn = propRow.createEl('button', {
+        const propGroup = propRow.createDiv({ cls: 'bulk-fm-input-group' });
+        this.propBtn = propGroup.createEl('button', {
             text: this.propertyName || '-- choose --',
-            //cls: 'journal-btn fm-property-btn',
+            cls: 'clickable-icon',
+            attr: { 'aria-label': 'Choose existing property' },
         });
         // Left‑click → show menu of all properties
         this.propBtn.addEventListener('click', (e) => {
@@ -793,25 +803,59 @@ export class BulkFrontmatterPopup {
                     .onClick(() => {
                         this.propertyName = p;
                         this.propBtn.setText(p);
-                        this.value = '';
-                        this.valBtn.setText('-- choose --');
+                        this.propertyInput.value = p;
+                        this.propertyIsExisting = true;
+                        this.derivePropertyType();
                         this.updateValueOptions();
+                        this.updateValueInput();
                     }));
             });
             menu.showAtMouseEvent(e);
         });
-        // Right‑click → SearchPopover for quick filtering
         this.propBtn.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             this.showPropertySearch(this.propBtn);
         });
 
+        this.propertyInput = propGroup.createEl('input', {
+            type: 'text',
+            placeholder: 'Custom property name',
+            value: this.propertyName,
+            cls: 'portals-search-input',
+        });
+        this.propertyInput.addEventListener('input', () => {
+            this.propertyName = this.propertyInput.value;
+            this.propBtn.setText(this.propertyName || 'Existing');
+            this.propertyIsExisting = false;
+            this.derivePropertyType();
+            this.updateValueOptions();
+            this.updateValueInput();
+        });
+
+        // ── Type selector ──
+        const typeRow = container.createDiv({ cls: 'bulk-fm-row' });
+        typeRow.createSpan({ text: 'Type' });
+        this.propertyTypeSelect = typeRow.createEl('select', { cls: 'dropdown' });
+        ['string', 'number', 'boolean', 'date', 'datetime', 'list'].forEach(t => {
+            const opt = this.propertyTypeSelect.createEl('option', { text: t, value: t });
+            if (t === this.propertyType) opt.selected = true;
+        });
+        this.propertyTypeSelect.addEventListener('change', () => {
+            this.propertyType = this.propertyTypeSelect.value as PropertyType;
+            this.updateValueInput();
+            this.value = '';
+            this.valBtn.setText('Existing');
+        }); 
+
         // ── Value picker ──
         const valRow = container.createDiv({ cls: 'bulk-fm-row' });
         valRow.createSpan({ text: 'Value' });
-        this.valBtn = valRow.createEl('button', {
-            text: this.value || '-- choose --',
-            //cls: 'journal-btn fm-value-btn',
+        const valGroup = valRow.createDiv({ cls: 'bulk-fm-input-group' });
+        this.valueGroup = valGroup;
+        this.valBtn = valGroup.createEl('button', {
+            text: this.value || 'Existing',
+            cls: 'clickable-icon',
+            attr: { 'aria-label': 'Choose existing value' },
         });
         this.valBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -823,6 +867,8 @@ export class BulkFrontmatterPopup {
                     .onClick(() => {
                         this.value = v;
                         this.valBtn.setText(v);
+                        this.valueInput.value = v;
+                        this.valueIsExisting = true;                     
                     }));
             });
             menu.showAtMouseEvent(e);
@@ -831,6 +877,8 @@ export class BulkFrontmatterPopup {
             e.preventDefault();
             this.showValueSearch(this.valBtn);
         });
+        
+        this.updateValueInput();
 
         // ── Buttons ──
         const btnDiv = container.createDiv({ cls: 'modal-button-container' });
@@ -842,15 +890,130 @@ export class BulkFrontmatterPopup {
             .addEventListener('click', () => this.close());
     }
 
+    private updateValueInput(): void {
+        if (this.valueInput) this.valueInput.remove();
+        
+        const oldBtn = this.valueGroup.querySelector('.portals-today-btn');
+        if (oldBtn) oldBtn.remove();
+
+        if (this.propertyType === 'date') {
+            this.valueInput = this.valueGroup.createEl('input', {
+                type: 'date',
+                value: this.value,
+                cls: 'portals-search-input',
+            });
+        } else if (this.propertyType === 'datetime') {
+            this.valueInput = this.valueGroup.createEl('input', {
+                type: 'datetime-local',
+                value: this.value,
+                cls: 'portals-search-input',
+            });
+        } else {
+            this.valueInput = this.valueGroup.createEl('input', {
+                type: 'text',
+                placeholder: 'Custom value',
+                value: this.value,
+                cls: 'portals-search-input',
+            });
+        }
+
+        this.valueInput.addEventListener('input', () => {
+            this.value = this.valueInput.value;
+            this.valBtn.setText(this.value || 'Existing');
+            this.valueIsExisting = false;
+        });
+        this.valueInput.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.showValueSearch(this.valueInput);
+        });
+        
+        // If date/datetime, add a "Today" button
+        if (this.propertyType === 'date' || this.propertyType === 'datetime') {
+            const todayBtn = this.valueGroup.createEl('button', {
+                text: 'Today',
+                cls: 'clickable-icon portals-today-btn',
+                attr: { 'aria-label': 'Set to today' },
+            });
+            todayBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const now = new Date();
+                if (this.propertyType === 'date') {
+                    const yyyy = now.getFullYear();
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    const dd = String(now.getDate()).padStart(2, '0');
+                    const dateStr = `${yyyy}-${mm}-${dd}`;
+                    this.value = dateStr;
+                    this.valueInput.value = dateStr;
+                } else {
+                    // datetime-local expects YYYY-MM-DDTHH:MM
+                    const yyyy = now.getFullYear();
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    const dd = String(now.getDate()).padStart(2, '0');
+                    const hh = String(now.getHours()).padStart(2, '0');
+                    const min = String(now.getMinutes()).padStart(2, '0');
+                    const datetimeStr = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+                    this.value = datetimeStr;
+                    this.valueInput.value = datetimeStr;
+                }
+                this.valBtn.setText(this.value || 'Existing');
+                this.valueIsExisting = false;
+            });
+        }
+    }
+
+    private derivePropertyType(): void {
+        if (!this.propertyName) {
+            this.propertyType = 'string';
+            this.propertyTypeSelect.value = 'string';
+            return;
+        }
+
+        let type: PropertyType | null = null;
+        for (const file of this.app.vault.getMarkdownFiles()) {
+            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+            const v = fm?.[this.propertyName];
+            if (v === undefined) continue;
+
+            // Determine the type of this value
+            let currentType: PropertyType;
+            if (Array.isArray(v)) {
+                currentType = 'list';
+            } else if (typeof v === 'number') {
+                currentType = 'number';
+            } else if (typeof v === 'boolean') {
+                currentType = 'boolean';
+            } else {
+                // string, also could be date/datetime – but we can't auto‑detect,
+                // so keep as string unless the user changes manually
+                currentType = 'string';
+            }
+
+            // If we already have a type and it differs, fall back to string (mixed)
+            if (type !== null && type !== currentType) {
+                type = 'string';
+                break;          // can't be more specific, stop scanning
+            }
+            type = currentType;
+        }
+
+        // Fallback to string if somehow the value doesn't stick
+        if (!this.propertyTypeSelect.value) {
+            this.propertyTypeSelect.value = 'string';
+        }
+
+        // If no existing property, default to string
+        if (type === null) type = 'string';
+
+        this.propertyType = type;
+        this.propertyTypeSelect.value = type;
+    }
+
     private updateValueOptions(): void {
         const valSet = new Set<string>();
-        this.propertyType = 'string';
         for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
             const v = fm?.[this.propertyName];
             if (v !== undefined) {
-                if (typeof v === 'number') this.propertyType = 'number';
-                else if (typeof v === 'boolean') this.propertyType = 'boolean';
                 const vals = Array.isArray(v) ? v : [v];
                 vals.forEach(x => valSet.add(String(x)));
             }
@@ -866,9 +1029,12 @@ export class BulkFrontmatterPopup {
             onSelect: (item) => {
                 this.propertyName = item;
                 this.propBtn.setText(item);
+                this.propertyInput.value = item;
+                this.propertyIsExisting = true;
                 this.value = '';
                 this.valBtn.setText('--choose--');
                 this.updateValueOptions();
+                this.updateValueInput();
             },
         });
         this.propertySearchPopover = popover;
@@ -882,19 +1048,45 @@ export class BulkFrontmatterPopup {
             onSelect: (item) => {
                 this.value = item;
                 this.valBtn.setText(item);
+                this.valueInput.value = item;
+                this.valueIsExisting = true;
             },
         });
         this.valueSearchPopover = popover;
     }
 
-    private parseValue(input: string): string | number | boolean {
-        if (this.propertyType === 'number') {
-            const n = parseFloat(input);
-            return isNaN(n) ? 0 : n;
-        } else if (this.propertyType === 'boolean') {
-            return input.toLowerCase() === 'true';
+    private parseValue(input: string): string | number | boolean | string[] {
+        switch (this.propertyType) {
+            case 'number': {
+                const n = parseFloat(input);
+                return isNaN(n) ? 0 : n;
+            }
+            case 'boolean':
+                return input.toLowerCase() === 'true';
+            case 'list':
+                return input.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            case 'date':
+            case 'datetime':
+                return input; // ISO string
+            default:
+                return input;
         }
-        return input;
+    }
+
+    private getOriginalTypedValue(): unknown {
+        if (!this.propertyName || !this.value) return undefined;
+        for (const file of this.app.vault.getMarkdownFiles()) {
+            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+            if (!fm) continue;
+            const raw = fm[this.propertyName];
+            if (raw === undefined) continue;
+            const vals = Array.isArray(raw) ? raw : [raw];
+            if (vals.some(v => String(v) === this.value)) {
+                // Found the original value. Return the raw value as-is.
+                return Array.isArray(raw) ? raw : raw;
+            }
+        }
+        return undefined;
     }
 
     private async apply(op: 'add' | 'remove'): Promise<void> {
@@ -908,6 +1100,14 @@ export class BulkFrontmatterPopup {
             try {
                 await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
                     if (op === 'add') {
+                        if (this.propertyIsExisting && this.valueIsExisting) {
+                            const originalVal = this.getOriginalTypedValue();
+                            if (originalVal !== undefined) {
+                                fm[this.propertyName] = originalVal;
+                                changed++;
+                                return;
+                            }
+                        }
                         fm[this.propertyName] = this.parseValue(this.value);
                         changed++;
                     } else {
