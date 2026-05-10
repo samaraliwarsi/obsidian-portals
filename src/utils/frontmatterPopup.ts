@@ -143,7 +143,7 @@ export class FrontmatterPopup {
 
         // ── Type selector ──
         const typeRow = container.createDiv({ cls: 'fm-type-wrapper' });
-        typeRow.createSpan({ text: 'Select type for new property or value:', cls: 'fm-type-text' });
+        typeRow.createSpan({ text: 'Ensure type on new items, ignore on existing items:', cls: 'fm-type-text' });
         this.typeBtn = typeRow.createEl('button', {
             text: this.propertyType,
             cls: 'fm-type-btn',
