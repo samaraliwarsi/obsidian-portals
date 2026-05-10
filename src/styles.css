@@ -7791,14 +7791,14 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 /*=======================BULK FRONTMATTER MODAL======================================*/
 
-.portals-bulk-backdrop {
+.portals-fm-backdrop {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 45;
 }
 
-.portals-bulk-modal {
+.portals-fm-modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -7808,11 +7808,89 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-l);
-    padding: 1.5em 2em;
+    padding: 1em;
+    width: auto;
     min-width: 320px;
-    max-width: 90vw;
+    max-width: 70vw;
 }
 
+.portals-fm-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 10;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+}
+
+.portals-fm-modal-select-status {
+  font-size: 10px;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: 5px 0;
+  margin: 5px 0;
+  border-top: 1px solid var(--background-modifier-border);
+  border-bottom: 1px solid var(--background-modifier-border);
+  text-align: right;
+}
+
+.fm-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
+.fm-type-wrapper {
+  display: flex;
+  border-top: 1px solid var(--background-modifier-border);
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding: 5px 0;
+  margin: 5px 0;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fm-wrapper-text {
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.fm-type-text {
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.fm-input-wrapper .fm-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.fm-input-wrapper .fm-input-group input {
+    flex: 1;
+}
+
+.fm-input-group .fm-input-btn {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.fm-input-group .fm-input-btn:hover {
+  background: var(--background-modifier-hover);
+}
 
 @media (hover: hover) and (pointer: fine) {
   .bulk-fm-menu .menu-scroll {

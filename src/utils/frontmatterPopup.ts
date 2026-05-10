@@ -49,11 +49,11 @@ export class FrontmatterPopup {
 
     open(): void {
         // Backdrop
-        this.backdrop = document.body.createDiv('portals-bulk-backdrop');
+        this.backdrop = document.body.createDiv('portals-fm-backdrop');
         this.backdrop.addEventListener('click', () => this.close());
 
         // Container
-        this.container = document.body.createDiv('portals-bulk-modal');
+        this.container = document.body.createDiv('portals-fm-modal');
         this.container.addClass('bulk-fm-modal');
         // Stop clicks inside from closing
         this.container.addEventListener('click', (e) => e.stopPropagation());
@@ -75,10 +75,11 @@ export class FrontmatterPopup {
 
         // Title
         container.createEl('h3', { text: 'Frontmatter editing' });
-       container.createEl('p', {
+        container.createEl('p', {
             text: files.length === 1
             ? `Editing frontmatter of ${files[0]?.name ?? 'a file'}`
             : `${files.length} markdown files`,
+            cls: 'portals-fm-modal-select-status'
         });
 
         // Gather all known properties
@@ -90,13 +91,13 @@ export class FrontmatterPopup {
         this.allProperties = Array.from(propSet).sort();
 
        // ── Property picker ──
-        const propRow = container.createDiv({ cls: 'bulk-fm-row' });
-        propRow.createSpan({ text: 'Property' });
-        const propGroup = propRow.createDiv({ cls: 'bulk-fm-input-group' });
+        const propRow = container.createDiv({ cls: 'fm-input-wrapper' });
+        propRow.createSpan({ text: 'Property', cls: 'fm-wrapper-text' });
+        const propGroup = propRow.createDiv({ cls: 'fm-input-group' });
         this.propBtn = propGroup.createEl('button', {
-            text: this.propertyName || '-- choose --',
-            cls: 'clickable-icon',
-            attr: { 'aria-label': 'Choose existing property' },
+            text: this.propertyName || 'Choose from existing, right-click to search',
+            cls: 'fm-input-btn',
+            attr: { 'aria-label': 'Select or search properties' },
         });
         // Left‑click → show menu of all properties
         this.propBtn.addEventListener('click', (e) => {
@@ -110,6 +111,7 @@ export class FrontmatterPopup {
                         this.propertyName = p;
                         this.propBtn.setText(p);
                         this.propertyInput.value = p;
+                        this.updateValueInputState();
                         this.propertyIsExisting = true;
                         this.derivePropertyType();
                         this.updateValueOptions();
@@ -131,6 +133,7 @@ export class FrontmatterPopup {
         });
         this.propertyInput.addEventListener('input', () => {
             this.propertyName = this.propertyInput.value;
+            this.updateValueInputState();
             this.propBtn.setText(this.propertyName || 'Existing');
             this.propertyIsExisting = false;
             this.derivePropertyType();
@@ -139,8 +142,8 @@ export class FrontmatterPopup {
         });
 
         // ── Type selector ──
-        const typeRow = container.createDiv({ cls: 'bulk-fm-row' });
-        typeRow.createSpan({ text: 'Type' });
+        const typeRow = container.createDiv({ cls: 'fm-type-wrapper' });
+        typeRow.createSpan({ text: 'Type', cls: 'fm-type-text' });
         this.propertyTypeSelect = typeRow.createEl('select', { cls: 'dropdown' });
         ['string', 'number', 'boolean', 'date', 'datetime', 'list'].forEach(t => {
             const opt = this.propertyTypeSelect.createEl('option', { text: t, value: t });
@@ -150,20 +153,23 @@ export class FrontmatterPopup {
             this.propertyType = this.propertyTypeSelect.value as PropertyType;
             this.updateValueInput();
             this.value = '';
-            this.valBtn.setText('Existing');
+            this.updateValueInputState();
         }); 
 
         // ── Value picker ──
-        const valRow = container.createDiv({ cls: 'bulk-fm-row' });
-        valRow.createSpan({ text: 'Value' });
-        const valGroup = valRow.createDiv({ cls: 'bulk-fm-input-group' });
+        const valRow = container.createDiv({ cls: 'fm-input-wrapper' });
+        valRow.createSpan({ text: 'Value', cls: 'fm-wrapper-text' });
+        const valGroup = valRow.createDiv({ cls: 'fm-input-group' });
         this.valueGroup = valGroup;
         this.valBtn = valGroup.createEl('button', {
-            text: this.value || 'Existing',
-            cls: 'clickable-icon',
-            attr: { 'aria-label': 'Choose existing value' },
+            cls: 'fm-input-btn',
+            attr: { 'aria-label': 'Select or search values' },
         });
         this.valBtn.addEventListener('click', (e) => {
+            if (!this.propertyName) {
+                new Notice('Please select a property first.');
+                return;
+            }
             e.stopPropagation();
             const menu = new Menu();
             menu.dom?.addClass?.('bulk-fm-menu');
@@ -172,8 +178,8 @@ export class FrontmatterPopup {
                     .setTitle(v)
                     .onClick(() => {
                         this.value = v;
-                        this.valBtn.setText(v);
                         this.valueInput.value = v;
+                        this.updateValueInputState();
                         this.valueIsExisting = true;                     
                     }));
             });
@@ -194,14 +200,29 @@ export class FrontmatterPopup {
             .addEventListener('click', () => this.apply('remove'));
         btnDiv.createEl('button', { text: 'Close' })
             .addEventListener('click', () => this.close());
+
+        this.updateValueInputState();
+    }
+
+    private updateValueInputState(): void {
+        if (!this.valBtn || !this.valueInput) return;
+        if (this.propertyName) {
+            // Normal active state
+            this.valBtn.setText(this.value || 'Choose from existing, right-click to search');
+            this.valueInput.disabled = false;
+            this.valueInput.placeholder = 'Type or select a value';
+        } else {
+            // No property selected yet – disable and show guidance
+            this.valBtn.setText('Select a property first');
+            this.valueInput.disabled = true;
+            this.valueInput.placeholder = 'Select a property first';
+        }
     }
 
     private updateValueInput(): void {
         if (this.valueInput) this.valueInput.remove();
-        
         const oldBtn = this.valueGroup.querySelector('.portals-today-btn');
         if (oldBtn) oldBtn.remove();
-
         if (this.propertyType === 'date') {
             this.valueInput = this.valueGroup.createEl('input', {
                 type: 'date',
@@ -217,22 +238,19 @@ export class FrontmatterPopup {
         } else {
             this.valueInput = this.valueGroup.createEl('input', {
                 type: 'text',
-                placeholder: 'Custom value',
                 value: this.value,
                 cls: 'portals-search-input',
             });
         }
-
         this.valueInput.addEventListener('input', () => {
             this.value = this.valueInput.value;
-            this.valBtn.setText(this.value || 'Existing');
+            this.updateValueInputState();
             this.valueIsExisting = false;
         });
         this.valueInput.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             this.showValueSearch(this.valueInput);
         });
-        
         // If date/datetime, add a "Today" button
         if (this.propertyType === 'date' || this.propertyType === 'datetime') {
             const todayBtn = this.valueGroup.createEl('button', {
@@ -261,10 +279,11 @@ export class FrontmatterPopup {
                     this.value = datetimeStr;
                     this.valueInput.value = datetimeStr;
                 }
-                this.valBtn.setText(this.value || 'Existing');
+                this.updateValueInputState();
                 this.valueIsExisting = false;
             });
         }
+        this.updateValueInputState();
     }
 
     private derivePropertyType(): void {
@@ -336,9 +355,9 @@ export class FrontmatterPopup {
                 this.propertyName = item;
                 this.propBtn.setText(item);
                 this.propertyInput.value = item;
+                this.updateValueInputState();
                 this.propertyIsExisting = true;
                 this.value = '';
-                this.valBtn.setText('--choose--');
                 this.updateValueOptions();
                 this.updateValueInput();
             },
@@ -353,8 +372,8 @@ export class FrontmatterPopup {
             currentSelected: this.value,
             onSelect: (item) => {
                 this.value = item;
-                this.valBtn.setText(item);
                 this.valueInput.value = item;
+                this.updateValueInputState();
                 this.valueIsExisting = true;
             },
         });
@@ -396,10 +415,6 @@ export class FrontmatterPopup {
     }
 
     private async apply(op: 'add' | 'remove'): Promise<void> {
-        if (!this.propertyName) {
-            new Notice('Please select or type a property name.');
-            return;
-        }
         let changed = 0;
         for (const file of this.files) {
             if (file.extension !== 'md') continue;
@@ -436,6 +451,6 @@ export class FrontmatterPopup {
         }
         new Notice(`Updated ${changed} file(s).`);
         this.value = '';
-        this.valBtn.setText('-- choose --');
+        this.updateValueInputState();
     }
 }
