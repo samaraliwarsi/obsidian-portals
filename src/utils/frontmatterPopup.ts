@@ -159,12 +159,13 @@ export class FrontmatterPopup {
                     .onClick(() => {
                         this.propertyType = t;
                         this.typeBtn.setText(t);
+                        this.updateValueInput();
                         this.updateValueOptions();
                         this.value = '';
                         this.valBtn.setText('Select a property first');
                     }));
-                });
-                menu.showAtMouseEvent(e);
+            });
+            menu.showAtMouseEvent(e);
         });
         
 
@@ -233,7 +234,7 @@ export class FrontmatterPopup {
 
     private updateValueInput(): void {
         if (this.valueInput) this.valueInput.remove();
-        const oldBtn = this.valueGroup.querySelector('.portals-today-btn');
+        const oldBtn = this.valueGroup.querySelector('.fm-today-btn');
         if (oldBtn) oldBtn.remove();
         if (this.propertyType === 'date') {
             this.valueInput = this.valueGroup.createEl('input', {
@@ -267,7 +268,7 @@ export class FrontmatterPopup {
         if (this.propertyType === 'date' || this.propertyType === 'datetime') {
             const todayBtn = this.valueGroup.createEl('button', {
                 text: 'Today',
-                cls: 'clickable-icon portals-today-btn',
+                cls: 'fm-today-btn',
                 attr: { 'aria-label': 'Set to today' },
             });
             todayBtn.addEventListener('click', (e) => {
@@ -332,6 +333,7 @@ export class FrontmatterPopup {
         if (type === null) type = 'string';
         this.propertyType = type;
         this.typeBtn.setText(type);
+        this.updateValueInput();
     }
 
     private updateValueOptions(): void {
