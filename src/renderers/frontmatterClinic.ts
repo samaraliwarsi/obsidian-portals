@@ -2,7 +2,8 @@ import { App, TFile, Notice, Menu, Platform } from 'obsidian';
 import PortalsPlugin from '../main';
 import { SearchPopover } from '../utils/searchPopover';
 import { PortalsView } from '../view';
-
+import { ContextMenuFactory } from '../utils/contextMenuFactory';
+import { FrontmatterPopup } from '../utils/frontmatterPopup';
 
 interface PropertyValueCounts {
     counts: Map<string, Map<string, number>>;
@@ -27,6 +28,7 @@ export class FrontmatterClinicRenderer {
     private filteredFiles: TFile[] = [];
     private activeSearchPopover: SearchPopover | null = null;
     private view: PortalsView;
+    private clinicToolbar: HTMLElement | null = null;
 
     static async buildCache(app: App) {
         if (clinicCache.ready) return;
@@ -174,6 +176,58 @@ export class FrontmatterClinicRenderer {
         clinicCache.buildingPromise = null;
     }
 
+    private updateClinicToolbar(): void {
+    if (this.clinicToolbar) {
+        this.clinicToolbar.remove();
+        this.clinicToolbar = null;
+    }
+
+    const selectedInView = this.filteredFiles.filter(
+            f => this.view.selectedItems.has(f.path)
+        );
+        if (selectedInView.length === 0) return;
+
+        const toolbar = this.container.createDiv({ cls: 'fm-clinic-toolbar' });
+        this.clinicToolbar = toolbar;
+
+        const editBtn = toolbar.createEl('button', {
+            cls: 'clickable-icon',
+            attr: { 'aria-label': 'Edit frontmatter for selected files' },
+        });
+        editBtn.createEl('i', { cls: 'ph ph-list-plus' });
+        editBtn.addEventListener('click', () => {
+            new FrontmatterPopup(this.app, this.plugin, this.view, selectedInView).open();
+        });
+
+        // 2. Reset colors
+        const resetColorBtn = toolbar.createEl('button', {
+            cls: 'clickable-icon',
+            attr: { 'aria-label': 'Reset colors' },
+        });
+        resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
+        resetColorBtn.addEventListener('click', () => {
+            for (const file of selectedInView) {
+                delete this.plugin.settings.customColors[file.path];
+            }
+            this.plugin.saveSettings().then(() => this.view.render());
+        });
+
+        // 4. Deselect
+        const deselectBtn = toolbar.createEl('button', {
+            cls: 'clickable-icon',
+            attr: { 'aria-label': 'Deselect all' },
+        });
+        deselectBtn.createEl('i', { cls: 'ph ph-x' });
+        deselectBtn.addEventListener('click', () => {
+            this.view.clearSelection();
+            this.updateClinicToolbar();
+        });
+
+        toolbar.createSpan({
+            cls: 'portals-selection-count',
+            text: `${selectedInView.length} selected`,
+        });
+    }
 
     static getProperties() {
         return clinicCache.properties;
@@ -255,8 +309,6 @@ export class FrontmatterClinicRenderer {
             text: this.selectedProperty || 'Select property', 
             cls: 'journal-btn-text' 
         });
-
-        
 
         propBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -433,12 +485,17 @@ export class FrontmatterClinicRenderer {
             const fileRow = listContainer.createDiv({ cls: 'file-item fm-file-item' });
             fileRow.dataset.path = file.path;
             //const fileRow = listContainer.createDiv({ cls: 'fm-clinic-file-row' });
-            
+
             // File name (click to open)
             const nameSpan = fileRow.createSpan({ text: file.basename, cls: 'fm-file-name' });
-            nameSpan.addEventListener('click', () => {
-                this.app.workspace.getLeaf().openFile(file);
-            });
+
+            const savedColor = this.plugin.settings.customColors[file.path];
+            if (savedColor) {
+                fileRow.classList.add('has-file-color');
+                fileRow.style.setProperty('--file-color', savedColor);
+                const icon = fileRow.querySelector('.file-icon i') as HTMLElement | null;
+                if (icon) icon.addClass('has-file-color');
+            }
 
             // Display current value(s) for selected property
             if (this.selectedProperty) {
@@ -455,12 +512,51 @@ export class FrontmatterClinicRenderer {
                     fileRow.createSpan({ text: displayValue, cls: 'fm-current-value' });
                 }
             }
+            fileRow.addEventListener('click', (e: MouseEvent) => {
+                if (e.altKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const key = file.path;
+                    if (e.shiftKey && this.view.rangeSelectionAnchor) {
+                        const list = this.container.querySelector('.fm-clinic-file-list') as HTMLElement;
+                        if (list) {
+                            this.view.selectRangeInContainer(list, this.view.rangeSelectionAnchor, key);
+                            this.updateClinicToolbar();
+                        }
+                        return;
+                    }
+                    if (this.view.selectedItems.has(key)) {
+                        this.view.selectedItems.delete(key);
+                        fileRow.removeClass('is-selected');
+                        if (this.view.rangeSelectionAnchor === key) this.view.rangeSelectionAnchor = null;
+                    } else {
+                        this.view.selectedItems.add(key);
+                        fileRow.addClass('is-selected');
+                        this.view.rangeSelectionAnchor = key;
+                    }
+                    this.updateClinicToolbar();
+                } else {
+                    this.view.suspendSidePortalUpdates = true;
+                    this.app.workspace.getLeaf().openFile(file);
+                    setTimeout(() => { this.view.suspendSidePortalUpdates = false });
+                }
+            });
+            fileRow.addEventListener('click', () => {
+                setTimeout(() => this.updateClinicToolbar(), 0);
+            });
+
+            nameSpan.addEventListener('contextmenu', (e: MouseEvent) => {
+                e.stopPropagation();
+                e.preventDefault();
+                ContextMenuFactory.showFileMenu(this.view, file, nameSpan, e);
+            });
         }
         // Enable native page preview on file rows
         this.container.querySelectorAll('.fm-file-item[data-path]').forEach((row) => {
             const path = (row as HTMLElement).dataset.path;
             if (path) this.view.addHoverPreview(row as HTMLElement, path);
         });
+        this.updateClinicToolbar();
     }
 
     private filterFiles() {

@@ -85,7 +85,9 @@ export class RecentFilesRenderer {
             }
             fileEl.addEventListener('click', (e: MouseEvent) => {
                 e.stopPropagation();
+                this.view.suspendSidePortalUpdates = true;
                 void this.app.workspace.getLeaf().openFile(file);
+                setTimeout(() => { this.view.suspendSidePortalUpdates = false; }, 100);
             });
 
             fileEl.addEventListener('contextmenu', (e: MouseEvent) => {

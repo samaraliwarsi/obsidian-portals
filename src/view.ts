@@ -73,11 +73,13 @@ export class PortalsView extends ItemView {
     private recentRenderer: RecentFilesRenderer | null = null;
     private hiddenRenderer: HiddenItemsRenderer | null = null;
     private bookmarksRenderer: BookmarksRenderer | null = null;
+    public suspendSidePortalUpdates = false;
     public getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
 
     public async refreshJournalTab() {
+        if (this.suspendSidePortalUpdates) return;
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
         if (this.plugin.settings.activeSplitTab === 'journal') {
@@ -123,6 +125,35 @@ export class PortalsView extends ItemView {
             return;
         }
         new FrontmatterPopup(this.app, this.plugin, this, files).open();
+    }
+
+    public selectRangeInContainer(container: HTMLElement, anchorKey: string, targetKey: string): void {
+        const elements = Array.from(container.querySelectorAll<HTMLElement>('[data-path]'));
+        const orderedKeys: string[] = [];
+        const elMap = new Map<string, HTMLElement>();
+
+        for (const el of elements) {
+            const key = el.dataset.path!;
+            orderedKeys.push(key);
+            elMap.set(key, el);
+        }
+
+        const startIdx = orderedKeys.indexOf(anchorKey);
+        const endIdx   = orderedKeys.indexOf(targetKey);
+        if (startIdx === -1 || endIdx === -1) return;
+
+        const from = Math.min(startIdx, endIdx);
+        const to   = Math.max(startIdx, endIdx);
+
+        this.selectedItems.clear();
+        container.querySelectorAll('.is-selected').forEach(el => el.removeClass('is-selected'));
+
+        for (let i = from; i <= to; i++) {
+            const rangeKey = orderedKeys[i]!;
+            this.selectedItems.add(rangeKey);
+            const el = elMap.get(rangeKey);
+            el?.classList.add('is-selected');
+        }
     }
 
     public cancelScheduledRender(): void {
@@ -617,9 +648,15 @@ export class PortalsView extends ItemView {
         resetIconBtn.addEventListener('click', () => this.resetIconsForSelected());
 
         // frontmatter edit modal
-        const fmBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Edit frontmatter' } });
-        fmBtn.createEl('i', { cls: 'ph ph-list-plus' });
-        fmBtn.addEventListener('click', () => this.showBulkFrontmatterModal());
+        const hasMarkdown =  Array.from(this.selectedItems).some(key => {
+            const f = this.app.vault.getAbstractFileByPath(key);
+            return f instanceof TFile && f.extension === 'md';
+        })
+        if (hasMarkdown) {
+            const fmBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Edit frontmatter' } });
+            fmBtn.createEl('i', { cls: 'ph ph-list-plus' });
+            fmBtn.addEventListener('click', () => this.showBulkFrontmatterModal());
+        }
 
         // Hide button
         const hideBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Hide selected' } });
@@ -979,13 +1016,15 @@ export class PortalsView extends ItemView {
                 }
                 this.renderContent();
             }
-            if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
-                if (this.contextNotesRenderer) {
-                    this.contextNotesRenderer.saveScroll(this.contextNotesRenderer.getCurrentNotePath() ?? undefined);
-                }
-                const sp = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement;
-                if (sp) {
-                    void this.renderSplitTabContent(sp, 'context-notes');
+            if (!this.suspendSidePortalUpdates) {
+                if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
+                    if (this.contextNotesRenderer) {
+                        this.contextNotesRenderer.saveScroll(this.contextNotesRenderer.getCurrentNotePath() ?? undefined);
+                    }
+                    const sp = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement;
+                    if (sp) {
+                        void this.renderSplitTabContent(sp, 'context-notes');
+                    }
                 }
             }
         }));
@@ -1002,6 +1041,7 @@ export class PortalsView extends ItemView {
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
                 const ref = bookmarksPlugin.instance.on('changed', () => {
                     if (this.plugin.settings.activeSplitTab !== 'bookmarks') return;
+                    if (this.suspendSidePortalUpdates) return;
                     const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement | null;
                     if (secondaryPanel) {
                         const contentEl = secondaryPanel.querySelector('.portals-split-content') as HTMLElement | null;
@@ -1889,7 +1929,7 @@ export class PortalsView extends ItemView {
                 }
                 // create new renderer
                 this.journalContainer = contentEl.createDiv();
-                this.journalRenderer = new JournalRenderer(this.app, this.plugin, this.journalContainer);
+                this.journalRenderer = new JournalRenderer(this.app, this.plugin, this.journalContainer, this);
                 this.journalFolderPath = currentFolderPath;
                 await this.journalRenderer.render();
             }
@@ -1968,6 +2008,7 @@ export class PortalsView extends ItemView {
     }
 
     public refreshRecentTab() {
+        if (this.suspendSidePortalUpdates) return;
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
         if (this.plugin.settings.activeSplitTab === 'recent') {
