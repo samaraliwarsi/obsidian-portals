@@ -25,7 +25,7 @@ export class FrontmatterPopup {
     private valueInput!: HTMLInputElement;
     private valueIsExisting = false;
     private valueGroup!: HTMLElement;
-    propertyTypeSelect!: HTMLSelectElement;
+    private typeBtn!: HTMLButtonElement;
     private propertySearchPopover: SearchPopover | null = null;
     private valueSearchPopover: SearchPopover | null = null;
     private allProperties: string[] = [];
@@ -144,20 +144,29 @@ export class FrontmatterPopup {
         // ── Type selector ──
         const typeRow = container.createDiv({ cls: 'fm-type-wrapper' });
         typeRow.createSpan({ text: 'Select type for new property or value:', cls: 'fm-type-text' });
-        this.propertyTypeSelect = typeRow.createEl('select', { 
+        this.typeBtn = typeRow.createEl('button', {
+            text: this.propertyType,
             cls: 'fm-type-btn',
             attr: { 'aria-label': 'Choose type' }
         });
-        ['string', 'number', 'boolean', 'date', 'datetime', 'list'].forEach(t => {
-            const opt = this.propertyTypeSelect.createEl('option', { text: t, value: t });
-            if (t === this.propertyType) opt.selected = true;
+        this.typeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const menu = new Menu();
+            menu.dom?.addClass?.('bulk-fm-menu');
+            (['string', 'number', 'boolean', 'date', 'datetime', 'list'] as PropertyType[]).forEach(t => {
+                menu.addItem(item => item
+                    .setTitle(t)
+                    .onClick(() => {
+                        this.propertyType = t;
+                        this.typeBtn.setText(t);
+                        this.updateValueOptions();
+                        this.value = '';
+                        this.valBtn.setText('Select a property first');
+                    }));
+                });
+                menu.showAtMouseEvent(e);
         });
-        this.propertyTypeSelect.addEventListener('change', () => {
-            this.propertyType = this.propertyTypeSelect.value as PropertyType;
-            this.updateValueInput();
-            this.value = '';
-            this.updateValueInputState();
-        }); 
+        
 
         // ── Value picker ──
         const valRow = container.createDiv({ cls: 'fm-input-wrapper' });
@@ -292,7 +301,7 @@ export class FrontmatterPopup {
     private derivePropertyType(): void {
         if (!this.propertyName) {
             this.propertyType = 'string';
-            this.propertyTypeSelect.value = 'string';
+            this.typeBtn.setText('string');
             return;
         }
 
@@ -302,7 +311,6 @@ export class FrontmatterPopup {
             const v = fm?.[this.propertyName];
             if (v === undefined) continue;
 
-            // Determine the type of this value
             let currentType: PropertyType;
             if (Array.isArray(v)) {
                 currentType = 'list';
@@ -311,29 +319,19 @@ export class FrontmatterPopup {
             } else if (typeof v === 'boolean') {
                 currentType = 'boolean';
             } else {
-                // string, also could be date/datetime – but we can't auto‑detect,
-                // so keep as string unless the user changes manually
                 currentType = 'string';
             }
 
-            // If we already have a type and it differs, fall back to string (mixed)
             if (type !== null && type !== currentType) {
                 type = 'string';
-                break;          // can't be more specific, stop scanning
+                break;
             }
             type = currentType;
         }
-
-        // Fallback to string if somehow the value doesn't stick
-        if (!this.propertyTypeSelect.value) {
-            this.propertyTypeSelect.value = 'string';
-        }
-
         // If no existing property, default to string
         if (type === null) type = 'string';
-
         this.propertyType = type;
-        this.propertyTypeSelect.value = type;
+        this.typeBtn.setText(type);
     }
 
     private updateValueOptions(): void {
