@@ -361,7 +361,7 @@ export class JournalRenderer {
                 if (!this.tooltipEl) return;
                 if (this.tooltipShown) return;
                 hoverTimeout = window.setTimeout(() => {
-                    this.tooltipEl!.setText('Toggle mark (right-click)');
+                    this.tooltipEl!.setText('Right-click to mark');
                     const rect = card.getBoundingClientRect();
                     this.tooltipEl!.style.top = `${rect.bottom + 6}px`;
                     this.tooltipEl!.style.left = `${rect.left + rect.width / 2}px`;

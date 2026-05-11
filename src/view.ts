@@ -464,8 +464,7 @@ export class PortalsView extends ItemView {
         // Tooltip on hover if name is long (optional)
         if (!Platform.isMobile) {
             if (this.plugin.settings.hideStackNames) {
-            header.addEventListener('mouseenter', () => this.showTooltip(stack.name, header, 300));
-            header.addEventListener('mouseleave', () => this.hideTooltip(100));
+            this.attachTooltip(header, stack.name);
             }
         }
     }

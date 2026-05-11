@@ -453,13 +453,9 @@ export class FrontmatterClinicRenderer {
                     }
                 );
             });
-
             // Reuse view’s tooltip system
-            propBtn.addEventListener('mouseenter', () => this.view.showTooltip('Right-click: find', propBtn, 300));
-            propBtn.addEventListener('mouseleave', () => this.view.hideTooltip(100));
-
-            valueBtn.addEventListener('mouseenter', () => this.view.showTooltip('Right-click: find', valueBtn, 300));
-            valueBtn.addEventListener('mouseleave', () => this.view.hideTooltip(100));
+            this.view.attachTooltip(propBtn, 'Right-click: find');
+            this.view.attachTooltip(valueBtn, 'Right-click: find');
         }
 
         const hasFiles = this.filteredFiles.length > 0;
