@@ -5277,7 +5277,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 }
 
 .portals-fm-modal .modal-button-container button.mod-warning:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.15);
 }
 
 .portals-fm-modal .modal-button-container button.mod-cta:hover {
@@ -7871,7 +7871,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 45;
-    background: var(--modal-background);
+    background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-l);
     box-shadow: var(--shadow-l);
@@ -8079,12 +8079,10 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     background: var(--background-modifier-hover);
 }
 
-.fm-yaml-btn-row .fm-yaml-btn.mod-warning {
-  color: var(--text-error);
+.fm-yaml-btn-row .fm-yaml-btn.warning {
+  color: red;
 }
-.fm-yaml-btn-row .fm-yaml-btn.mod-warning:hover {
-  color: var(--text-on-accent);
-}
+
 
 .fm-yaml-textarea::placeholder {
     color: var(--text-faint);

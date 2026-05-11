@@ -240,10 +240,9 @@ export class FrontmatterPopup {
         });
         this.clearYamlBtn = yamlBtnRow.createEl('button', { 
             text: 'Clear All',
-            cls: 'fm-yaml-btn',
+            cls: 'fm-yaml-btn warning',
             attr: { 'aria-label': 'Clear all frontmatter' },
         });
-        this.clearYamlBtn.classList.add('mod-warning');
 
         this.copyYamlBtn.disabled = this.files.length !== 1;
 
