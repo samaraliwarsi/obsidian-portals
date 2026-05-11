@@ -73,6 +73,7 @@ export class PortalsView extends ItemView {
     private recentRenderer: RecentFilesRenderer | null = null;
     private hiddenRenderer: HiddenItemsRenderer | null = null;
     private bookmarksRenderer: BookmarksRenderer | null = null;
+    public suppressGlobalToolbar = false;
     public getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -603,6 +604,7 @@ export class PortalsView extends ItemView {
     }
 
     public updateMultiSelectToolbar() {
+        if (this.suppressGlobalToolbar) return;
         const splitContainer = this.containerEl.querySelector('.portals-split-container');
         if (!splitContainer) return;
 

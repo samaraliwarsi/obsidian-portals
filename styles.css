@@ -5245,8 +5245,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     gap: 12px;
 }
 
-.portals-modal button:not(.clickable-icon),
-.portals-fm-modal .modal-button-container button:not(.clickable-icon) {
+.portals-modal button:not(.clickable-icon) {
     padding: 6px 12px;
     border-radius: 10px;
     font-weight: 500;
@@ -5274,6 +5273,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 
 .portals-fm-modal .modal-button-container button.mod-warning {
   background: var(--background-modifier-error);
+  color: var(--text-on-accent);
 }
 
 .portals-fm-modal .modal-button-container button.mod-warning:hover {
@@ -8040,11 +8040,11 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     width: 100%;
     min-height: 80px;
     font-family: var(--font-monospace);
-    font-size: var(--font-ui-small);
+    font-size: var(--font-ui-smaller);
     color: var(--text-faint);
     padding: 6px;
     border: 1px solid var(--background-modifier-border);
-    border-radius: var(--input-radius);
+    border-radius: 6px;
     background: var(--background-modifier-form-field);
     resize: vertical;
 }
@@ -8066,8 +8066,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     box-sizing: border-box;
     width: auto;
     white-space: nowrap;
-    padding: 2px 8px;
-    font-size: var(--font-ui-smaller);
+    padding: 2px 6px;
+    font-size: x-small;
     border-radius: 4px;
     border: 1px solid var(--background-modifier-border);
     background-color: var(--background-primary);
@@ -8087,6 +8087,20 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 .fm-yaml-textarea::placeholder {
     color: var(--text-faint);
     opacity: 1;
+}
+
+.portals-fm-modal .modal-button-container {
+  margin-top: 1em;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.portals-fm-modal .modal-button-container button:not(.clickable-icon) {
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    font-size: normal;
 }
 
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */

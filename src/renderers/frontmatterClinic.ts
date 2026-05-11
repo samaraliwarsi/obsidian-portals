@@ -514,9 +514,15 @@ export class FrontmatterClinicRenderer {
                 }
             }
 
+            fileRow.addEventListener('touchstart', () => {
+                this.view.suppressGlobalToolbar = true;
+            });
+
             TreeEventHelpers.attachTouchSwipeSelection(fileRow, file.path, this.view);
             fileRow.addEventListener('touchend', () => {
+                this.view.suppressGlobalToolbar = true;
                 setTimeout(() => this.updateClinicToolbar(), 0);
+                this.view.suppressGlobalToolbar = false;
             });
 
             fileRow.addEventListener('click', (e: MouseEvent) => {
@@ -524,6 +530,7 @@ export class FrontmatterClinicRenderer {
                     e.preventDefault();
                     e.stopPropagation();
                     const key = file.path;
+                    this.view.suppressGlobalToolbar = true;
                     if (e.shiftKey && this.view.rangeSelectionAnchor) {
                         const list = this.container.querySelector('.fm-clinic-file-list') as HTMLElement;
                         if (list) {
@@ -542,6 +549,7 @@ export class FrontmatterClinicRenderer {
                         this.view.rangeSelectionAnchor = key;
                     }
                     this.updateClinicToolbar();
+                    this.view.suppressGlobalToolbar = false;
                 } else {
                     this.app.workspace.getLeaf().openFile(file);
                 }

@@ -221,7 +221,7 @@ export class FrontmatterPopup {
             },
             cls: 'fm-yaml-textarea',
         });
-        this.yamlTextarea.rows = 6;
+        this.yamlTextarea.rows = 4;
 
         yamlContent.createEl('p', {
             text: 'Use "Paste to files" to apply YAML input, not "Save".',
@@ -239,7 +239,7 @@ export class FrontmatterPopup {
             attr: { 'aria-label': 'Apply frontmatter' },
         });
         this.clearYamlBtn = yamlBtnRow.createEl('button', { 
-            text: 'Clear All',
+            text: 'Clear all',
             cls: 'fm-yaml-btn warning',
             attr: { 'aria-label': 'Clear all frontmatter' },
         });
