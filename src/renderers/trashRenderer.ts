@@ -1,4 +1,5 @@
 import { App, normalizePath, Notice } from 'obsidian';
+import { PortalsView } from '../view';
 
 interface TrashItem {
     path: string;
@@ -16,10 +17,12 @@ export class TrashRenderer {
     private lastSnapshot = '';
     private rendering = false;
     private loadId = 0;
+    private view: PortalsView;
 
-    constructor(app: App, container: HTMLElement) {
+    constructor(app: App, container: HTMLElement, view: PortalsView) {
         this.app = app;
         this.container = container;
+        this.view = view;
     }
 
     public destroy() {
@@ -174,15 +177,13 @@ export class TrashRenderer {
     private addItemActions(parentEl: HTMLElement, item: TrashItem) {
         const actionBar = parentEl.createDiv({ cls: 'trash-item-actions' });
 
-        const restoreBtn = actionBar.createEl('button', {
-            cls: 'trash-action-btn', attr: { 'aria-label': 'Restore' }
-        });
-        restoreBtn.createEl('i', { cls: 'ph ph-arrow-counter-clockwise', title: 'Restore' });
+        const restoreBtn = actionBar.createEl('button', { cls: 'trash-action-btn' });
+        this.view.attachTooltip(restoreBtn, 'Restore')
+        restoreBtn.createEl('i', { cls: 'ph ph-arrow-counter-clockwise' });
 
-        const deleteBtn = actionBar.createEl('button', {
-            cls: 'trash-delete-btn', attr: { 'aria-label': 'Delete permanently' }
-        });
-        deleteBtn.createEl('i', { cls: 'ph ph-trash', title: 'Delete permanently' });
+        const deleteBtn = actionBar.createEl('button', { cls: 'trash-delete-btn' });
+        this.view.attachTooltip(deleteBtn, 'Delete item');
+        deleteBtn.createEl('i', { cls: 'ph ph-trash' });
 
         restoreBtn.addEventListener('click', async (e) => {
             e.stopPropagation();

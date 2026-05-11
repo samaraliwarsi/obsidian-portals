@@ -188,20 +188,16 @@ export class FrontmatterClinicRenderer {
             const toolbar = this.container.createDiv({ cls: 'fm-clinic-toolbar' });
             this.clinicToolbar = toolbar;
 
-            const editBtn = toolbar.createEl('button', {
-                cls: 'clickable-icon',
-                attr: { 'aria-label': 'Edit frontmatter for selected files' },
-            });
+            const editBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+            this.view.attachTooltip(editBtn, 'Edit frontmatter');
             editBtn.createEl('i', { cls: 'ph ph-list-plus' });
             editBtn.addEventListener('click', () => {
                 new FrontmatterPopup(this.app, this.plugin, this.view, selectedInView).open();
             });
 
             // 2. Reset colors
-            const resetColorBtn = toolbar.createEl('button', {
-                cls: 'clickable-icon',
-                attr: { 'aria-label': 'Reset colors' },
-            });
+            const resetColorBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+            this.view.attachTooltip(resetColorBtn, 'Reset Colors');
             resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
             resetColorBtn.addEventListener('click', () => {
                 for (const file of selectedInView) {
@@ -211,10 +207,8 @@ export class FrontmatterClinicRenderer {
             });
 
             // 4. Deselect
-            const deselectBtn = toolbar.createEl('button', {
-                cls: 'clickable-icon',
-                attr: { 'aria-label': 'Deselect all' },
-            });
+            const deselectBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+            this.view.attachTooltip(deselectBtn, 'Deselect all');
             deselectBtn.createEl('i', { cls: 'ph ph-x' });
             deselectBtn.addEventListener('click', () => {
                 this.clinicSelectedPaths.clear();

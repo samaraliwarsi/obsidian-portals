@@ -1,5 +1,6 @@
 import { App, TFile, TFolder } from 'obsidian';
 import PortalsPlugin from '../main';
+import { PortalsView } from '../view';
 
 interface HoverPreviewView {
     addHoverPreview(el: HTMLElement, filepath: string): void;
@@ -28,6 +29,7 @@ export class JournalRenderer {
     private filesWithWrongDelimiters = new Set<string>();
     private wrongDelimiterChecked?: Set<string>;
     private destroyed = false;
+    private view: PortalsView;
 
     private startProgressTimer = () => {
         if (this.destroyed) return;
@@ -80,10 +82,11 @@ export class JournalRenderer {
     }
 
 
-    constructor(app: App, plugin: PortalsPlugin, container: HTMLElement) {
+    constructor(app: App, plugin: PortalsPlugin, container: HTMLElement, view: PortalsView) {
         this.app = app;
         this.plugin = plugin;
         this.container = container;
+        this.view = view;
     }
 
     async render() {
@@ -266,6 +269,7 @@ export class JournalRenderer {
 
         // Compact filter button with icon
         const filterButton = cardsContainer.createEl('button', { cls: 'journal-btn journal-filter-btn' });
+        this.view.attachTooltip(filterButton, 'Toggle range');
         filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
         const periodSpan = filterButton.createEl('span', { text: 'All files', cls: 'journal-btn-text' });
 

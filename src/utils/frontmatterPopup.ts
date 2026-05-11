@@ -100,9 +100,9 @@ export class FrontmatterPopup {
         const propGroup = propRow.createDiv({ cls: 'fm-input-group' });
         this.propBtn = propGroup.createEl('button', {
             text: this.propertyName || 'Choose from existing, right-click to search',
-            cls: 'fm-input-btn',
-            attr: { 'aria-label': 'Select or search properties' },
+            cls: 'fm-input-btn' 
         });
+        this.view.attachTooltip(this.propBtn, 'Select property');
         // Left‑click → show menu of all properties
         this.propBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -148,11 +148,8 @@ export class FrontmatterPopup {
         // ── Type selector ──
         const typeRow = container.createDiv({ cls: 'fm-type-wrapper' });
         typeRow.createSpan({ text: 'Ensure type on new items, ignore on existing items:', cls: 'fm-type-text' });
-        this.typeBtn = typeRow.createEl('button', {
-            text: this.propertyType,
-            cls: 'fm-type-btn',
-            attr: { 'aria-label': 'Choose type' }
-        });
+        this.typeBtn = typeRow.createEl('button', { text: this.propertyType, cls: 'fm-type-btn' });
+        this.view.attachTooltip(this.typeBtn, 'Choose type');
         this.typeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const menu = new Menu();
@@ -178,10 +175,8 @@ export class FrontmatterPopup {
         valRow.createSpan({ text: 'Value', cls: 'fm-wrapper-text' });
         const valGroup = valRow.createDiv({ cls: 'fm-input-group' });
         this.valueGroup = valGroup;
-        this.valBtn = valGroup.createEl('button', {
-            cls: 'fm-input-btn',
-            attr: { 'aria-label': 'Select or search values' },
-        });
+        this.valBtn = valGroup.createEl('button', { cls: 'fm-input-btn' });
+        this.view.attachTooltip(this.valBtn, 'Select value');
         this.valBtn.addEventListener('click', (e) => {
             if (!this.propertyName) {
                 new Notice('Please select a property first.');
@@ -228,22 +223,12 @@ export class FrontmatterPopup {
             cls: 'portals-fm-modal-select-status',
         });
         const yamlBtnRow = yamlContent.createDiv({ cls: 'fm-yaml-btn-row' });
-        this.copyYamlBtn = yamlBtnRow.createEl('button', { 
-            text: 'Copy from file', 
-            cls: 'fm-yaml-btn',
-            attr: { 'aria-label': 'Copy frontmatter' },
-        });
-        this.pasteYamlBtn = yamlBtnRow.createEl('button', { 
-            text: 'Paste to files', 
-            cls: 'fm-yaml-btn',
-            attr: { 'aria-label': 'Apply frontmatter' },
-        });
-        this.clearYamlBtn = yamlBtnRow.createEl('button', { 
-            text: 'Clear all',
-            cls: 'fm-yaml-btn warning',
-            attr: { 'aria-label': 'Clear all frontmatter' },
-        });
-
+        this.copyYamlBtn = yamlBtnRow.createEl('button', { text: 'Copy from file', cls: 'fm-yaml-btn' });
+        this.view.attachTooltip(this.copyYamlBtn, 'Copy yaml');
+        this.pasteYamlBtn = yamlBtnRow.createEl('button', { text: 'Paste to files', cls: 'fm-yaml-btn' });
+        this.view.attachTooltip(this.pasteYamlBtn, 'Paste yaml ')
+        this.clearYamlBtn = yamlBtnRow.createEl('button', { text: 'Clear all', cls: 'fm-yaml-btn warning' });
+        this.view.attachTooltip(this.clearYamlBtn, 'Clear yaml');
         this.copyYamlBtn.disabled = this.files.length !== 1;
 
         // Copy action
@@ -348,22 +333,15 @@ export class FrontmatterPopup {
         const btnDiv = container.createDiv({ cls: 'modal-button-container' });
         btnDiv.createEl('button', { 
             text: 'Save', 
-            cls: 'mod-cta',
-            attr: { 'aria-label': 'Save frontmatter' },
-        })
+            cls: 'mod-cta' })
             .addEventListener('click', () => this.apply('add'));
         btnDiv.createEl('button', { 
             text: 'Remove', 
-            cls: 'mod-warning',
-            attr: { 'aria-label': 'Remove frontmatter' },
-        })
+            cls: 'mod-warning' })
             .addEventListener('click', () => this.apply('remove'));
         btnDiv.createEl('button', { 
-            text: 'Close',
-            attr: { 'aria-label': 'Exit' },
-         })
+            text: 'Close' })
             .addEventListener('click', () => this.close());
-
         this.updateValueInputState();
     }
 
@@ -416,11 +394,8 @@ export class FrontmatterPopup {
         });
         // If date/datetime, add a "Today" button
         if (this.propertyType === 'date' || this.propertyType === 'datetime') {
-            const todayBtn = this.valueGroup.createEl('button', {
-                text: 'Today',
-                cls: 'fm-today-btn',
-                attr: { 'aria-label': 'Set to today' },
-            });
+            const todayBtn = this.valueGroup.createEl('button', { text: 'Today', cls: 'fm-today-btn' });
+            this.view.attachTooltip(todayBtn, 'Set today');
             todayBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const now = new Date();

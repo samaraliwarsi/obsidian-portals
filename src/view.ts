@@ -621,27 +621,32 @@ export class PortalsView extends ItemView {
 
         if (!hasTagKeys) {
             // Add buttons (same as before)
-            const deleteBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Delete selected' } });
+            const deleteBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+            this.attachTooltip(deleteBtn, 'Delete selected');
             deleteBtn.createEl('i', { cls: 'ph ph-trash' });
             deleteBtn.addClass('portals-delete-btn-warn');
             deleteBtn.addEventListener('click', () => PortalsActions.deleteSelectedItems(this.app, this.plugin, this));
 
-            const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Move selected' } });
+            const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+            this.attachTooltip(moveBtn, 'Move selected');
             moveBtn.createEl('i', { cls: 'ph ph-arrow-square-out' });
             moveBtn.addEventListener('click', () => PortalsActions.moveSelectedItemsToFolder(this.app, this.plugin, this));
 
-            const folderBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Create folder from selected' } });
+            const folderBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+            this.attachTooltip(folderBtn, 'Create folder from selected');
             folderBtn.createEl('i', { cls: 'ph ph-folder-plus' });
             folderBtn.addEventListener('click', () => PortalsActions.createFolderFromSelected(this.app, this.plugin, this));
         }
 
         // Reset colors button
-        const resetColorBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Reset colors' } });
+        const resetColorBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+        this.attachTooltip(resetColorBtn, 'Reset colors');
         resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
         resetColorBtn.addEventListener('click', () => this.resetColorsForSelected());
 
         // Reset icons button
-        const resetIconBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Reset icons' } });
+        const resetIconBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+        this.attachTooltip(resetIconBtn, 'Reset icons');
         resetIconBtn.createEl('i', { cls: 'ph ph-image' });
         resetIconBtn.addEventListener('click', () => this.resetIconsForSelected());
 
@@ -651,17 +656,20 @@ export class PortalsView extends ItemView {
             return f instanceof TFile && f.extension === 'md';
         })
         if (hasMarkdown) {
-            const fmBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Edit frontmatter' } });
+            const fmBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+            this.attachTooltip(fmBtn, 'Edit frontmatter');
             fmBtn.createEl('i', { cls: 'ph ph-list-plus' });
             fmBtn.addEventListener('click', () => this.showBulkFrontmatterModal());
         }
 
         // Hide button
-        const hideBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Hide selected' } });
+        const hideBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+        this.attachTooltip(hideBtn, 'Hide items');
         hideBtn.createEl('i', { cls: 'ph ph-eye-slash' });
         hideBtn.addEventListener('click', () => this.hideSelectedItems());
 
-        const clearBtn = toolbar.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Clear selection' } });
+        const clearBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+        this.attachTooltip(clearBtn, 'Clear selection');
         clearBtn.createEl('i', { cls: 'ph ph-x' });
         clearBtn.addEventListener('click', () => this.clearSelection());
 
@@ -1190,6 +1198,11 @@ export class PortalsView extends ItemView {
             const tooltip = this.getTooltipEl();
             tooltip.classList.remove('is-visible');
         }
+    }
+
+    public attachTooltip(el: HTMLElement, text: string, delay: number = 300): void {
+        el.addEventListener('mouseenter', () => this.showTooltip(text, el, delay));
+        el.addEventListener('mouseleave', () => this.hideTooltip(100));
     }
 
     //-- New Drag Handler
@@ -1924,7 +1937,7 @@ export class PortalsView extends ItemView {
                 }
                 // create new renderer
                 this.journalContainer = contentEl.createDiv();
-                this.journalRenderer = new JournalRenderer(this.app, this.plugin, this.journalContainer);
+                this.journalRenderer = new JournalRenderer(this.app, this.plugin, this.journalContainer, this);
                 this.journalFolderPath = currentFolderPath;
                 await this.journalRenderer.render();
             }
@@ -1946,7 +1959,7 @@ export class PortalsView extends ItemView {
             }
             contentEl.empty();
             contentEl.addClass('portals-trash-tab');
-            this.trashRenderer = new TrashRenderer(this.app, contentEl)
+            this.trashRenderer = new TrashRenderer(this.app, contentEl, this)
             await this.trashRenderer.render();
         }
     }
