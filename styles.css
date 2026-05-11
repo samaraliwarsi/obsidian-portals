@@ -7853,7 +7853,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 /*=======================BULK FRONTMATTER MODAL======================================*/
 
 .portals-fm-backdrop {
-    position: fixed;
+    position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
     z-index: 45;
@@ -7864,15 +7864,17 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 45;
-    background: var(--background-primary);
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-l);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
-    padding: 1em;
-    width: auto;
+    padding: var(--size-4-4);
+    width: var(--dialog-width);
     min-width: 320px;
-    max-width: 70vw;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
 }
 
 .portals-fm-modal .fm-popup-title {
