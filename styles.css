@@ -5142,7 +5142,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 }
 
 .portals-add-portal-modal .setting-item-name {
-    font-size: 1.3em;
+    font-size: 1.1em;
     font-weight: 600;
     margin-top: 0;
     color: var(--text-faint);
@@ -7775,18 +7775,9 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 /*========================REORDER MODAL=============================*/
 
-.portals-reorder-modal-container .modal {
-  position: static;
-  transform: none;
-  width: max-content;
-  max-width: 80vw;
-  min-width: 300px;
-  margin: 5vh auto 0 auto;
-  justify-content: center;
-}
 
 .portals-reorder-modal h3 {
-  font-size: 1.1em;
+    font-size: 1.1em;
     font-weight: 600;
     margin-top: 0;
     margin-bottom: 10px;
@@ -7814,6 +7805,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     cursor: grab;
     transition: background 0.15s;
     font-size: small;
+    pointer-events: auto;
+    user-select: auto;
 }
 
 .portals-reorder-modal .portals-sortable-item:hover {
@@ -7885,7 +7878,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     font-size: 1.2em;
     font-weight: bold;
     margin: 16px 0;
-    color: var(--text-muted);
+    color: var(--text-faint);
 }
 
 .portals-fm-modal-select-status {

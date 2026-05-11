@@ -641,7 +641,6 @@ export class ReorderItemsModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        this.containerEl.addClass('portals-reorder-modal-container');
         contentEl.addClass('portals-modal');
         contentEl.addClass('portals-reorder-modal');
         contentEl.createEl('h3', { text: 'Reorder items' });

@@ -660,13 +660,11 @@ export class FrontmatterClinicRenderer {
                 }
             }
             if (isSwiping) el.removeClass('swipe-active');
-            touchStartPos = null; 
-            isSwiping = false;
+            touchStartPos = null; isSwiping = false;
         });
         el.addEventListener('touchcancel', () => {
             if (isSwiping) el.removeClass('swipe-active');
-            touchStartPos = null;
-            isSwiping = false;
+            touchStartPos = null; isSwiping = false;
         });
     }
 

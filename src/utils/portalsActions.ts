@@ -629,6 +629,22 @@ export class PortalsActions {
                 plugin.settings.selectedSpace.path = file.path;
                 void plugin.saveSettings();
             }
+            const customOrder = plugin.settings.customTreeOrder;
+            if (customOrder[oldPath] !== undefined) {
+                customOrder[file.path] = customOrder[oldPath];
+                delete customOrder[oldPath];
+            }
+            for (const key of Object.keys(customOrder)) {
+                if (key.startsWith(oldPath + '/')) {
+                    const newKey = file.path + key.slice(oldPath.length);
+                    const val = customOrder[key];
+                    if (val !== undefined) {
+                        customOrder[newKey] = val;
+                    }
+                    delete customOrder[key];
+                }
+            }
+            void plugin.saveData(plugin.settings);
             view.scheduleRender();
             return;
         }
