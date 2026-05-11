@@ -92,7 +92,7 @@ export class FrontmatterPopup {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
             if (fm) Object.keys(fm).forEach(k => propSet.add(k));
         }
-        this.allProperties = Array.from(propSet).sort();
+        this.allProperties = Array.from(propSet).filter(p => p.length > 0).sort();
 
        // ── Property picker ──
         const propRow = container.createDiv({ cls: 'fm-input-wrapper' });
@@ -102,7 +102,6 @@ export class FrontmatterPopup {
             text: this.propertyName || 'Choose from existing, right-click to search',
             cls: 'fm-input-btn' 
         });
-        this.view.attachTooltip(this.propBtn, 'Select property');
         // Left‑click → show menu of all properties
         this.propBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -176,7 +175,6 @@ export class FrontmatterPopup {
         const valGroup = valRow.createDiv({ cls: 'fm-input-group' });
         this.valueGroup = valGroup;
         this.valBtn = valGroup.createEl('button', { cls: 'fm-input-btn' });
-        this.view.attachTooltip(this.valBtn, 'Select value');
         this.valBtn.addEventListener('click', (e) => {
             if (!this.propertyName) {
                 new Notice('Please select a property first.');
