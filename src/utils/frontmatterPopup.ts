@@ -34,6 +34,10 @@ export class FrontmatterPopup {
     private propertyName = '';
     private value = '';
     private keyHandler: (e: KeyboardEvent) => void;
+    private yamlTextarea!: HTMLTextAreaElement;
+    private copyYamlBtn!: HTMLButtonElement;
+    private pasteYamlBtn!: HTMLButtonElement;
+    private clearYamlBtn!: HTMLButtonElement;
 
     constructor(app: App, plugin: PortalsPlugin, view: PortalsView, files: TFile[]) {
         this.app = app;
@@ -74,7 +78,7 @@ export class FrontmatterPopup {
         const { container, files } = this;
 
         // Title
-        container.createEl('h3', { text: 'Frontmatter editing' });
+        container.createDiv({ text: 'Frontmatter editing', cls: 'fm-popup-title' });
         container.createEl('p', {
             text: files.length === 1
             ? `Editing frontmatter of ${files[0]?.name ?? 'a file'}`
@@ -205,13 +209,160 @@ export class FrontmatterPopup {
         
         this.updateValueInput();
 
+        const yamlSection = container.createEl('details', { cls: 'fm-yaml-section' });
+        const yamlSummary = yamlSection.createEl('summary', { text: 'YAML section' });
+        yamlSummary.addClass('fm-yaml-summary');
+
+        const yamlContent = yamlSection.createDiv({ cls: 'fm-yaml-content' });
+
+        this.yamlTextarea = yamlContent.createEl('textarea', {
+            attr: {
+                placeholder: 'Paste YAML here, e.g.\nstatus: active\npriority: 2',
+            },
+            cls: 'fm-yaml-textarea',
+        });
+        this.yamlTextarea.rows = 6;
+
+        yamlContent.createEl('p', {
+            text: 'Use "Paste to files" to apply YAML input, not "Save".',
+            cls: 'portals-fm-modal-select-status',
+        });
+        const yamlBtnRow = yamlContent.createDiv({ cls: 'fm-yaml-btn-row' });
+        this.copyYamlBtn = yamlBtnRow.createEl('button', { 
+            text: 'Copy from file', 
+            cls: 'fm-yaml-btn',
+            attr: { 'aria-label': 'Copy frontmatter' },
+        });
+        this.pasteYamlBtn = yamlBtnRow.createEl('button', { 
+            text: 'Paste to files', 
+            cls: 'fm-yaml-btn',
+            attr: { 'aria-label': 'Apply frontmatter' },
+        });
+        this.clearYamlBtn = yamlBtnRow.createEl('button', { 
+            text: 'Clear All',
+            cls: 'fm-yaml-btn',
+            attr: { 'aria-label': 'Clear all frontmatter' },
+        });
+        this.clearYamlBtn.classList.add('mod-warning');
+
+        this.copyYamlBtn.disabled = this.files.length !== 1;
+
+        // Copy action
+        this.copyYamlBtn.addEventListener('click', async () => {
+            if (this.files.length !== 1) return;
+            const file = this.files[0];
+            if (!file) return;
+            try {
+                const content = await this.app.vault.read(file);
+                // Extract frontmatter between first two '---' lines
+                const lines = content.split('\n');
+                const firstLine = lines[0]?.trim() ?? '';
+                if (firstLine !== '---') {
+                    new Notice('File has no frontmatter.');
+                    return;
+                }
+                let endIndex = -1;
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i]?.trim() === '---') { endIndex = i; break; }
+                }
+                if (endIndex === -1) {
+                    new Notice('Invalid frontmatter.');
+                    return;
+                }
+                const yamlText = lines.slice(1, endIndex).join('\n');
+                this.yamlTextarea.value = yamlText;
+            } catch {
+                new Notice('Failed to read file.');
+            }
+        });
+
+        // Paste action
+        this.pasteYamlBtn.addEventListener('click', () => {
+            const yamlText = this.yamlTextarea.value.trim();
+            if (!yamlText) { new Notice('Please paste YAML first.'); return; }
+
+            let newProps: Record<string, unknown>;
+            try {
+                newProps = this.parseSimpleYaml(yamlText);
+            } catch {
+                new Notice('Invalid YAML. Check syntax.');
+                return;
+            }
+
+            const count = this.files.length;
+            if (count === 0) return;
+
+            let changed = 0;
+            const applyChanges = async () => {
+                for (const file of this.files) {
+                    if (file.extension !== 'md') continue;
+                    try {
+                        await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+                            for (const key of Object.keys(newProps)) {
+                                fm[key] = newProps[key];
+                            }
+                        });
+                        changed++;
+                    } catch (e) {
+                        console.error(`Failed to update frontmatter for ${file.path}`, e);
+                    }
+                }
+                if (changed) {
+                    await this.plugin.saveSettings();
+                    this.view.renderContent();
+                }
+                new Notice(`Pasted YAML into ${changed} file(s).`);
+            };
+            applyChanges();
+        });
+
+        // clear all button 
+        this.clearYamlBtn.addEventListener('click', () => {
+            if (this.files.length === 0) return;
+            if (!confirm(`Remove ALL frontmatter from ${this.files.length} file(s)? This cannot be undone.`)) return;
+
+            let cleared = 0;
+            const doClear = async () => {
+                for (const file of this.files) {
+                    if (file.extension !== 'md') continue;
+                    try {
+                        await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+                            for (const key of Object.keys(fm)) {
+                                delete fm[key];
+                            }
+                        });
+                        cleared++;
+                    } catch {
+                        console.error(`Failed to clear frontmatter for ${file.path}`);
+                    }
+                }
+                if (cleared) {
+                    await this.plugin.saveSettings();
+                    this.view.renderContent();
+                }
+                new Notice(`Cleared frontmatter in ${cleared} file(s).`);
+            };
+            doClear();
+        });
+
         // ── Buttons ──
         const btnDiv = container.createDiv({ cls: 'modal-button-container' });
-        btnDiv.createEl('button', { text: 'Save', cls: 'mod-cta' })
+        btnDiv.createEl('button', { 
+            text: 'Save', 
+            cls: 'mod-cta',
+            attr: { 'aria-label': 'Save frontmatter' },
+        })
             .addEventListener('click', () => this.apply('add'));
-        btnDiv.createEl('button', { text: 'Remove', cls: 'mod-warning' })
+        btnDiv.createEl('button', { 
+            text: 'Remove', 
+            cls: 'mod-warning',
+            attr: { 'aria-label': 'Remove frontmatter' },
+        })
             .addEventListener('click', () => this.apply('remove'));
-        btnDiv.createEl('button', { text: 'Close' })
+        btnDiv.createEl('button', { 
+            text: 'Close',
+            attr: { 'aria-label': 'Exit' },
+         })
             .addEventListener('click', () => this.close());
 
         this.updateValueInputState();
@@ -415,6 +566,62 @@ export class FrontmatterPopup {
             }
         }
         return undefined;
+    }
+
+    private parseSimpleYaml(yaml: string): Record<string, unknown> {
+        const result: Record<string, unknown> = {};
+        const lines = yaml.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            const line = (lines[i] ?? '').trimEnd();
+            if (line === '' || line.startsWith('#')) continue;
+
+            const keyMatch = /^([\w_-]+)\s*:\s*(.*)/.exec(line);
+            if (!keyMatch) continue;
+
+            const key = keyMatch[1];
+            if (!key) continue;
+
+            const valuePart = keyMatch[2] ?? '';
+            let value: string = valuePart.trim();
+
+            if (value === '') {
+                // look ahead for list items
+                const listItems: string[] = [];
+                while (i + 1 < lines.length) {
+                    const nextLine = (lines[i + 1] ?? '');
+                    const itemMatch = /^\s{2}-\s+(.+)/.exec(nextLine);
+                    if (!itemMatch) break;
+                    const item = itemMatch[1];
+                    if (item) listItems.push(item.trim());
+                    i++;
+                }
+                if (listItems.length > 0) {
+                    result[key] = listItems;
+                } else {
+                    // no inline value and no list → keep empty string
+                    result[key] = '';
+                }
+            } else {
+                // Remove surrounding quotes
+                if ((value.startsWith('"') && value.endsWith('"')) ||
+                    (value.startsWith("'") && value.endsWith("'"))) {
+                    value = value.slice(1, -1);
+                }
+                // Type conversions
+                if (value === 'true') {
+                    result[key] = true;
+                } else if (value === 'false') {
+                    result[key] = false;
+                } else if (/^-?\d+(\.\d+)?$/.test(value)) {
+                    result[key] = parseFloat(value);
+                } else if (value.startsWith('[') && value.endsWith(']')) {
+                    result[key] = value.slice(1, -1).split(',').map(s => s.trim());
+                } else {
+                    result[key] = value;
+                }
+            }
+        }
+        return result;
     }
 
     private async apply(op: 'add' | 'remove'): Promise<void> {

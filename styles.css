@@ -5245,14 +5245,16 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     gap: 12px;
 }
 
-.portals-modal button:not(.clickable-icon) {
+.portals-modal button:not(.clickable-icon),
+.portals-fm-modal .modal-button-container button:not(.clickable-icon) {
     padding: 6px 12px;
     border-radius: 10px;
     font-weight: 500;
     transition: all 0.15s;
 }
 
-.portals-modal .modal-button-container button.mod-cta {
+.portals-modal .modal-button-container button.mod-cta,
+.portals-fm-modal .modal-button-container button.mod-cta {
     background: var(--interactive-accent);
     color: var(--text-on-accent);
 }
@@ -5261,12 +5263,25 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     filter: brightness(0.95);
 }
 
-.portals-modal .modal-button-container button:not(.mod-cta) {
+.portals-modal .modal-button-container button:not(.mod-cta),
+.portals-fm-modal .modal-button-container button:not(.mod-cta) {
     background: var(--background-secondary);
 }
 
 .portals-modal .modal-button-container button:not(.mod-cta):hover {
     background: var(--background-modifier-hover);
+}
+
+.portals-fm-modal .modal-button-container button.mod-warning {
+  background: var(--background-modifier-error);
+}
+
+.portals-fm-modal .modal-button-container button.mod-warning:hover {
+  filter: brightness(1.1);
+}
+
+.portals-fm-modal .modal-button-container button.mod-cta:hover {
+  background: var(--interactive-accent-hover);
 }
 
 /*--------------------- GroupTags Modal ----------------*/
@@ -7866,22 +7881,21 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     max-width: 70vw;
 }
 
-.portals-fm-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 10;
-    margin-bottom: 10px;
-    color: var(--text-faint);
+.portals-fm-modal .fm-popup-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-muted);
 }
 
 .portals-fm-modal-select-status {
-  font-size: 10px;
-  color: var(--text-accent);
+  font-size: x-small;
+  color: var(--text-faint);
   font-style: italic;
   padding: 5px 0;
   margin: 5px 0;
-  border-top: 1px solid var(--background-modifier-border);
-  border-bottom: 1px solid var(--background-modifier-border);
+  border-top: 1px dashed var(--background-modifier-hover);
+  border-bottom: 1px dashed var(--background-modifier-hover);
   text-align: right;
 }
 
@@ -7890,7 +7904,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   width: 100%;
   flex-direction: column;
   gap: 4px;
-  margin: 16px 0;
+  margin-top: 8px;
+  margin-bottom: 16px;
 }
 
 .fm-type-wrapper {
@@ -7904,7 +7919,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 }
 
 .fm-wrapper-text {
-  font-size: 15px;
+  font-size: normal;
   color: var(--text-muted);
   font-weight: bold;
   margin: 4px 0;
@@ -7998,9 +8013,82 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     border: 1px solid var(--background-modifier-border);
     background-color: var(--background-primary);
     cursor: pointer;
+    color: var(--text-muted)
 }
 .portals-today-btn:hover {
     background: var(--background-modifier-hover);
+}
+
+.fm-yaml-section {
+    margin: 16px 0;
+    border-top: 1px dashed var(--background-modifier-hover);
+    padding-top: 16px;
+}
+
+.fm-yaml-summary {
+    font-size: normal;
+    font-weight: bold;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.fm-yaml-content {
+    margin-top: 0.5em;
+}
+
+.fm-yaml-textarea {
+    width: 100%;
+    min-height: 80px;
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-small);
+    color: var(--text-faint);
+    padding: 6px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--input-radius);
+    background: var(--background-modifier-form-field);
+    resize: vertical;
+}
+
+.fm-yaml-textarea:hover {
+  background: var(--background-modifier-form-field-hover);
+  border-color: var(--background-modifier-border-hover);
+}
+
+.fm-yaml-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 0.5em;
+}
+
+.fm-yaml-btn-row .fm-yaml-btn {
+    all: unset;
+    display: block;
+    box-sizing: border-box;
+    width: auto;
+    white-space: nowrap;
+    padding: 2px 8px;
+    font-size: var(--font-ui-smaller);
+    border-radius: 4px;
+    border: 1px solid var(--background-modifier-border);
+    background-color: var(--background-primary);
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.fm-yaml-btn:hover {
+    background: var(--background-modifier-hover);
+}
+
+.fm-yaml-btn-row .fm-yaml-btn.mod-warning {
+  color: var(--text-error);
+}
+.fm-yaml-btn-row .fm-yaml-btn.mod-warning:hover {
+  color: var(--text-on-accent);
+}
+
+.fm-yaml-textarea::placeholder {
+    color: var(--text-faint);
+    opacity: 1;
 }
 
 /* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
