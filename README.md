@@ -62,7 +62,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 ## 🚀 Quick start
 
-- First installation - use Ribbon menu to enable **Portals** view.
+- First installation - use Ribbon menu or command palette to enable **Portals** view.
 - Add portal tabs using settings or command palette. 
 - Add existing portals to stacks.
 - Drag tabs left/right to reorder.
