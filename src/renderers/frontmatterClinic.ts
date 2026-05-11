@@ -4,7 +4,6 @@ import { SearchPopover } from '../utils/searchPopover';
 import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../utils/frontmatterPopup';
-import { TreeEventHelpers } from '../utils/treeEventHelpers';
 
 interface PropertyValueCounts {
     counts: Map<string, Map<string, number>>;
@@ -30,6 +29,7 @@ export class FrontmatterClinicRenderer {
     private activeSearchPopover: SearchPopover | null = null;
     private view: PortalsView;
     private clinicToolbar: HTMLElement | null = null;
+    private clinicSelectedPaths = new Set<string>();
 
     static async buildCache(app: App) {
         if (clinicCache.ready) return;
@@ -178,56 +178,55 @@ export class FrontmatterClinicRenderer {
     }
 
     private updateClinicToolbar(): void {
-    if (this.clinicToolbar) {
-        this.clinicToolbar.remove();
-        this.clinicToolbar = null;
-    }
+        if (this.clinicToolbar) {
+            this.clinicToolbar.remove();
+            this.clinicToolbar = null;
+        }
 
-    const selectedInView = this.filteredFiles.filter(
-            f => this.view.selectedItems.has(f.path)
-        );
-        if (selectedInView.length === 0) return;
+        const selectedInView = this.filteredFiles.filter(f => this.clinicSelectedPaths.has(f.path));
+            if (selectedInView.length === 0) return;
+            const toolbar = this.container.createDiv({ cls: 'fm-clinic-toolbar' });
+            this.clinicToolbar = toolbar;
 
-        const toolbar = this.container.createDiv({ cls: 'fm-clinic-toolbar' });
-        this.clinicToolbar = toolbar;
+            const editBtn = toolbar.createEl('button', {
+                cls: 'clickable-icon',
+                attr: { 'aria-label': 'Edit frontmatter for selected files' },
+            });
+            editBtn.createEl('i', { cls: 'ph ph-list-plus' });
+            editBtn.addEventListener('click', () => {
+                new FrontmatterPopup(this.app, this.plugin, this.view, selectedInView).open();
+            });
 
-        const editBtn = toolbar.createEl('button', {
-            cls: 'clickable-icon',
-            attr: { 'aria-label': 'Edit frontmatter for selected files' },
-        });
-        editBtn.createEl('i', { cls: 'ph ph-list-plus' });
-        editBtn.addEventListener('click', () => {
-            new FrontmatterPopup(this.app, this.plugin, this.view, selectedInView).open();
-        });
+            // 2. Reset colors
+            const resetColorBtn = toolbar.createEl('button', {
+                cls: 'clickable-icon',
+                attr: { 'aria-label': 'Reset colors' },
+            });
+            resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
+            resetColorBtn.addEventListener('click', () => {
+                for (const file of selectedInView) {
+                    delete this.plugin.settings.customColors[file.path];
+                }
+                this.plugin.saveSettings().then(() => this.view.render());
+            });
 
-        // 2. Reset colors
-        const resetColorBtn = toolbar.createEl('button', {
-            cls: 'clickable-icon',
-            attr: { 'aria-label': 'Reset colors' },
-        });
-        resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
-        resetColorBtn.addEventListener('click', () => {
-            for (const file of selectedInView) {
-                delete this.plugin.settings.customColors[file.path];
-            }
-            this.plugin.saveSettings().then(() => this.view.render());
-        });
+            // 4. Deselect
+            const deselectBtn = toolbar.createEl('button', {
+                cls: 'clickable-icon',
+                attr: { 'aria-label': 'Deselect all' },
+            });
+            deselectBtn.createEl('i', { cls: 'ph ph-x' });
+            deselectBtn.addEventListener('click', () => {
+                this.clinicSelectedPaths.clear();
+                this.container.querySelectorAll('.fm-file-item.is-selected').forEach(el => el.classList.remove('is-selected'));
+                this.view.rangeSelectionAnchor = null;
+                this.updateClinicToolbar();
+            });
 
-        // 4. Deselect
-        const deselectBtn = toolbar.createEl('button', {
-            cls: 'clickable-icon',
-            attr: { 'aria-label': 'Deselect all' },
-        });
-        deselectBtn.createEl('i', { cls: 'ph ph-x' });
-        deselectBtn.addEventListener('click', () => {
-            this.view.clearSelection();
-            this.updateClinicToolbar();
-        });
-
-        toolbar.createSpan({
-            cls: 'portals-selection-count',
-            text: `${selectedInView.length} selected`,
-        });
+            toolbar.createSpan({
+                cls: 'portals-selection-count',
+                text: `${selectedInView.length} selected`,
+            });
     }
 
     static getProperties() {
@@ -241,9 +240,6 @@ export class FrontmatterClinicRenderer {
     static isCacheReady() {
         return clinicCache.ready;
     }
-
-    // ... rest of class (instance methods) ...
-
 
     private get selectedProperty(): string{
         return this.plugin.settings.clinicState?.selectedProperty ?? '';
@@ -274,6 +270,11 @@ export class FrontmatterClinicRenderer {
     }
 
     async render() {
+        this.clinicSelectedPaths.clear();
+        if (this.clinicToolbar) {
+            this.clinicToolbar.remove();
+            this.clinicToolbar = null;
+        }
         this.container.empty()
         this.container.addClass('portals-frontmatter-clinic');
 
@@ -514,48 +515,49 @@ export class FrontmatterClinicRenderer {
                 }
             }
 
-            fileRow.addEventListener('touchstart', () => {
-                this.view.suppressGlobalToolbar = true;
-            });
-
-            TreeEventHelpers.attachTouchSwipeSelection(fileRow, file.path, this.view);
-            fileRow.addEventListener('touchend', () => {
-                this.view.suppressGlobalToolbar = true;
-                setTimeout(() => this.updateClinicToolbar(), 0);
-                this.view.suppressGlobalToolbar = false;
-            });
+            this.attachClinicSwipe(fileRow, file.path);
 
             fileRow.addEventListener('click', (e: MouseEvent) => {
                 if (e.altKey) {
                     e.preventDefault();
                     e.stopPropagation();
                     const key = file.path;
-                    this.view.suppressGlobalToolbar = true;
                     if (e.shiftKey && this.view.rangeSelectionAnchor) {
                         const list = this.container.querySelector('.fm-clinic-file-list') as HTMLElement;
                         if (list) {
-                            this.view.selectRangeInContainer(list, this.view.rangeSelectionAnchor, key);
-                            this.updateClinicToolbar();
+                            const elements = Array.from(list.querySelectorAll<HTMLElement>('[data-path]'));
+                            const orderedKeys = elements.map(el => el.dataset.path!);
+                            const anchorIdx = orderedKeys.indexOf(this.view.rangeSelectionAnchor);
+                            const targetIdx = orderedKeys.indexOf(key);
+                            if (anchorIdx !== -1 && targetIdx !== -1) {
+                                const [from, to] = [Math.min(anchorIdx, targetIdx), Math.max(anchorIdx, targetIdx)];
+                                this.clinicSelectedPaths.clear();
+                                list.querySelectorAll('.is-selected').forEach(el => el.classList.remove('is-selected'));
+                                for (let i = from; i<= to; i++) {
+                                    const rangeKey = orderedKeys[i]!;
+                                    this.clinicSelectedPaths.add(rangeKey);
+                                    const el = elements[i];
+                                    if (el) el.classList.add('is-selected');
+                                }
+                            }
                         }
-                        return;
-                    }
-                    if (this.view.selectedItems.has(key)) {
-                        this.view.selectedItems.delete(key);
-                        fileRow.removeClass('is-selected');
-                        if (this.view.rangeSelectionAnchor === key) this.view.rangeSelectionAnchor = null;
                     } else {
-                        this.view.selectedItems.add(key);
-                        fileRow.addClass('is-selected');
-                        this.view.rangeSelectionAnchor = key;
+                        if (this.clinicSelectedPaths.has(key)) {
+                            this.clinicSelectedPaths.delete(key);
+                            fileRow.removeClass('is-selected');
+                            if (this.view.rangeSelectionAnchor === key) {
+                                this.view.rangeSelectionAnchor = null;
+                            }
+                        } else {
+                            this.clinicSelectedPaths.add(key);
+                            fileRow.addClass('is-selected');
+                            this.view.rangeSelectionAnchor = key;
+                        }
                     }
                     this.updateClinicToolbar();
-                    this.view.suppressGlobalToolbar = false;
                 } else {
                     this.app.workspace.getLeaf().openFile(file);
                 }
-            });
-            fileRow.addEventListener('click', () => {
-                setTimeout(() => this.updateClinicToolbar(), 0);
             });
 
             nameSpan.addEventListener('contextmenu', (e: MouseEvent) => {
@@ -612,8 +614,69 @@ export class FrontmatterClinicRenderer {
         this.filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
     }
 
+    private attachClinicSwipe(el: HTMLElement, filePath: string) {
+        let touchStartPos: { x: number; y: number } | null = null;
+        let isSwiping = false;
+
+        el.addEventListener('touchstart', (e: TouchEvent) => {
+            const touch = e.touches[0];
+            if (touch) {
+                touchStartPos = { x: touch.clientX, y: touch.clientY };
+                isSwiping = false;
+            }
+        }, { passive: true });
+
+        el.addEventListener('touchmove', (e: TouchEvent) => {
+            if (!touchStartPos) return;
+            const touch = e.touches[0];
+            if (!touch) return;
+            const deltaX = touch.clientX - touchStartPos.x;
+            const deltaY = touch.clientY - touchStartPos.y;
+            if (!isSwiping && Math.abs(deltaX) > 10 && Math.abs(deltaY) < 20) {
+                isSwiping = true;
+                el.addClass('swipe-active');
+            }
+        }, { passive: true });
+
+        el.addEventListener('touchend', (e: TouchEvent) => {
+            if (!touchStartPos) {
+                if (isSwiping) el.removeClass('swipe-active');
+                touchStartPos = null; isSwiping = false; 
+                return;
+            }
+            const changedTouch = e.changedTouches[0];
+            if (changedTouch && isSwiping) {
+                const deltaX = changedTouch.clientX - touchStartPos.x;
+                const deltaY = changedTouch.clientY - touchStartPos.y;
+                if (deltaX > 30 && Math.abs(deltaY) < 30) {
+                    if(this.clinicSelectedPaths.has(filePath)) {
+                        this.clinicSelectedPaths.delete(filePath);
+                        el.removeClass('is-selected');
+                    } else {
+                        this.clinicSelectedPaths.add(filePath);
+                        el.addClass('is-selected');
+                    }
+                    this.updateClinicToolbar();
+                }
+            }
+            if (isSwiping) el.removeClass('swipe-active');
+            touchStartPos = null; 
+            isSwiping = false;
+        });
+        el.addEventListener('touchcancel', () => {
+            if (isSwiping) el.removeClass('swipe-active');
+            touchStartPos = null;
+            isSwiping = false;
+        });
+    }
+
     public destroy() {
         this.container.empty();
+        this.clinicSelectedPaths.clear();
+        if (this.clinicToolbar) {
+            this.clinicToolbar.remove();
+            this.clinicToolbar = null;
+        }
         this.activeSearchPopover?.destroy();
     }
 }
