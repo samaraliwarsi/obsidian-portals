@@ -167,7 +167,7 @@ export class FloatingButtonsRenderer {
             btn.addEventListener('mouseenter', () => {
                 let actualTooltip = tooltip;
                 if ((icon === 'stack' || icon === 'stack-simple') && !this.view.floatingBtnSpecialTooltipShown) {
-                    actualTooltip = 'Collapse/ Right-click: fold/unfold';
+                    actualTooltip = 'Right-click: fold/unfold';
                     this.view.floatingBtnSpecialTooltipShown = true;
                 }
                 this.view.showTooltip(actualTooltip, btn, 300);

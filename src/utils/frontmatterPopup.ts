@@ -149,7 +149,6 @@ export class FrontmatterPopup {
         const typeRow = container.createDiv({ cls: 'fm-type-wrapper' });
         typeRow.createSpan({ text: 'Ensure type on new items, ignore on existing items:', cls: 'fm-type-text' });
         this.typeBtn = typeRow.createEl('button', { text: this.propertyType, cls: 'fm-type-btn' });
-        this.view.attachTooltip(this.typeBtn, 'Choose type');
         this.typeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const menu = new Menu();
@@ -166,7 +165,7 @@ export class FrontmatterPopup {
                         this.valBtn.setText('Select a property first');
                     }));
             });
-            const rect = this.valBtn.getBoundingClientRect();
+            const rect = this.typeBtn.getBoundingClientRect();
             menu.showAtPosition({ x: rect.left, y: rect.bottom });
         });
         
@@ -195,7 +194,8 @@ export class FrontmatterPopup {
                         this.valueIsExisting = true;                     
                     }));
             });
-            menu.showAtMouseEvent(e);
+            const rect = this.valBtn.getBoundingClientRect();
+            menu.showAtPosition({ x: rect.left, y: rect.bottom });
         });
         this.valBtn.addEventListener('contextmenu', (e) => {
             e.preventDefault();
@@ -223,12 +223,12 @@ export class FrontmatterPopup {
             cls: 'portals-fm-modal-select-status',
         });
         const yamlBtnRow = yamlContent.createDiv({ cls: 'fm-yaml-btn-row' });
-        this.copyYamlBtn = yamlBtnRow.createEl('button', { text: 'Copy from file', cls: 'fm-yaml-btn' });
-        this.view.attachTooltip(this.copyYamlBtn, 'Copy yaml');
-        this.pasteYamlBtn = yamlBtnRow.createEl('button', { text: 'Paste to files', cls: 'fm-yaml-btn' });
-        this.view.attachTooltip(this.pasteYamlBtn, 'Paste yaml ')
-        this.clearYamlBtn = yamlBtnRow.createEl('button', { text: 'Clear all', cls: 'fm-yaml-btn warning' });
-        this.view.attachTooltip(this.clearYamlBtn, 'Clear yaml');
+        this.copyYamlBtn = yamlBtnRow.createEl('button', { text: 'Copy', cls: 'fm-yaml-btn' });
+        this.view.attachTooltip(this.copyYamlBtn, 'Copy from file');
+        this.pasteYamlBtn = yamlBtnRow.createEl('button', { text: 'Paste', cls: 'fm-yaml-btn' });
+        this.view.attachTooltip(this.pasteYamlBtn, 'Paste to files')
+        this.clearYamlBtn = yamlBtnRow.createEl('button', { text: 'Clear', cls: 'fm-yaml-btn warning' });
+        this.view.attachTooltip(this.clearYamlBtn, 'Clear all');
         this.copyYamlBtn.disabled = this.files.length !== 1;
 
         // Copy action

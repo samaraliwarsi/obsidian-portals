@@ -1738,12 +1738,13 @@ export class PortalsView extends ItemView {
 
             // Collapse icon
             const collapseIcon = secondaryHeader.createSpan({ cls: 'portals-collapse-icon' });
-            collapseIcon.textContent = this.plugin.settings.secondaryPanelCollapsed ? '▲' : '▼';  
+            collapseIcon.textContent = this.plugin.settings.secondaryPanelCollapsed ? '▲' : '▼';
+            //this.attachTooltip(collapseIcon, 'Right-click to edit');
 
             if (!Platform.isMobile) {
                 collapseIcon.addEventListener('mouseenter', () => {
                     if (!this.collapseIconSpecialTooltipShown) {
-                        this.showTooltip('Click to expand · Right-click to configure', collapseIcon, 300);
+                        this.showTooltip('Right-click to edit', collapseIcon, 300);
                         this.collapseIconSpecialTooltipShown = true;
                     }
                 });

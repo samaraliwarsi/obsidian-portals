@@ -7914,7 +7914,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   justify-content: center;
 }
 
-.fm-wrapper-text {
+.fm-wrapper-text,
+.fm-yaml-summary {
   font-size: normal;
   color: var(--text-muted);
   font-weight: bold;
@@ -7952,7 +7953,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   box-sizing: border-box;
   border: 1px solid var(--background-modifier-border);
   background-color: var(--background-primary);
-  border-radius: 4px;
+  border-radius: var(--input-radius);
   width: 100%;
   white-space: nowrap;
   overflow: hidden;
@@ -7960,17 +7961,22 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   padding: 2px 8px;
   color: var(--text-muted);
   font-size: var(--font-ui-small);
+  line-height: var(--input-height-tight);
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  height: var(--input-height);
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
 }
 
-.fm-type-wrapper .fm-type-btn {
+.fm-type-wrapper .fm-type-btn,
+.fm-input-wrapper .fm-today-btn,
+.fm-yaml-btn-row .fm-yaml-btn {
   all: unset;
   display: block;
   box-sizing: border-box;
   border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
+  border-radius: var(--input-radius);
   background-color: var(--background-primary);
   width: auto;
   white-space: nowrap;
@@ -7978,55 +7984,28 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   cursor: pointer;
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+  height: var(--input-height-tight);
 }
 
 .fm-input-group .fm-input-btn:hover,
-.fm-type-wrapper .fm-type-btn:hover {
-  background: var(--background-modifier-hover);
-}
-
-.fm-type-btn option {
-    background: var(--background-primary);
-    color: var(--text-normal);
+.fm-type-wrapper .fm-type-btn:hover,
+.fm-input-group .fm-today-btn:hover,
+.fm-yaml-btn-row .fm-yaml-btn:hover {
+  filter: brightness(1.15);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .bulk-fm-menu .menu-scroll {
-      max-height: min(60vh, 300px);
-      overflow-y: auto;
-      width: 100%;
+    max-height: min(60vh, 300px);
+    overflow-y: auto;
   }
-}
-
-.fm-input-group .fm-today-btn {
-    all: unset;
-    display: block;
-    box-sizing: border-box;
-    width: auto;
-    white-space: nowrap;
-    padding: 2px 8px;
-    font-size: var(--font-ui-smaller);
-    border-radius: 4px;
-    border: 1px solid var(--background-modifier-border);
-    background-color: var(--background-primary);
-    cursor: pointer;
-    color: var(--text-muted)
-}
-.portals-today-btn:hover {
-    background: var(--background-modifier-hover);
 }
 
 .fm-yaml-section {
     margin: 16px 0;
     border-top: 1px dashed var(--background-modifier-hover);
     padding-top: 16px;
-}
-
-.fm-yaml-summary {
-    font-size: normal;
-    font-weight: bold;
-    color: var(--text-muted);
-    cursor: pointer;
 }
 
 .fm-yaml-content {
@@ -8041,7 +8020,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     color: var(--text-faint);
     padding: 6px;
     border: 1px solid var(--background-modifier-border);
-    border-radius: 6px;
+    border-radius: var(--text-area-radius, var(--input-radius));
     background: var(--background-modifier-form-field);
     resize: vertical;
 }
@@ -8057,27 +8036,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     margin-top: 0.5em;
 }
 
-.fm-yaml-btn-row .fm-yaml-btn {
-    all: unset;
-    display: block;
-    box-sizing: border-box;
-    width: auto;
-    white-space: nowrap;
-    padding: 2px 6px;
-    font-size: x-small;
-    border-radius: 4px;
-    border: 1px solid var(--background-modifier-border);
-    background-color: var(--background-primary);
-    cursor: pointer;
-    color: var(--text-muted);
-}
-
-.fm-yaml-btn:hover {
-    background: var(--background-modifier-hover);
-}
-
 .fm-yaml-btn-row .fm-yaml-btn.warning {
-  color: red;
+  color: var(--background-modifier-error);
 }
 
 
