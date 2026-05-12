@@ -121,7 +121,8 @@ export class FrontmatterPopup {
                         this.updateValueInput();
                     }));
             });
-            menu.showAtMouseEvent(e);
+            const rect = this.propBtn.getBoundingClientRect();
+            menu.showAtPosition({ x: rect.left, y: rect.bottom });
         });
         this.propBtn.addEventListener('contextmenu', (e) => {
             e.preventDefault();
@@ -165,7 +166,8 @@ export class FrontmatterPopup {
                         this.valBtn.setText('Select a property first');
                     }));
             });
-            menu.showAtMouseEvent(e);
+            const rect = this.valBtn.getBoundingClientRect();
+            menu.showAtPosition({ x: rect.left, y: rect.bottom });
         });
         
 
