@@ -170,7 +170,7 @@ export class FloatingButtonsRenderer {
                     actualTooltip = 'Right-click: fold/unfold';
                     this.view.floatingBtnSpecialTooltipShown = true;
                 }
-                this.view.showTooltip(actualTooltip, btn, 300);
+                this.view.showTooltip(actualTooltip, btn, 300, 'right');
             });
             btn.addEventListener('mouseleave', () => this.view.hideTooltip(100));
         }

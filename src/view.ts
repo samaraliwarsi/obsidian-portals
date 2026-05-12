@@ -1153,16 +1153,16 @@ export class PortalsView extends ItemView {
 
     private getTooltipEl(): HTMLElement {
         if (!this.tooltipEl) {
-            this.tooltipEl = document.body.createDiv({ cls: 'portals-floating-tooltip' });
+            this.tooltipEl = document.body.createDiv({ cls: 'portals-tooltip' });
         }
         return this.tooltipEl;
     }
 
-    public showTooltip(text: string, target: HTMLElement, delay: number = 0) {
+    public showTooltip(text: string, target: HTMLElement, delay: number = 0, preferred: 'above' | 'below' | 'right' | 'left' = 'below') {
         if (delay > 0) {
             if (this.tooltipShowTimeout) window.clearTimeout(this.tooltipShowTimeout);
             this.tooltipShowTimeout = window.setTimeout(() => {
-                this.showTooltip(text, target, 0);
+                this.showTooltip(text, target, 0, preferred);
                 this.tooltipShowTimeout = null;
             }, delay);
             return;
@@ -1173,10 +1173,37 @@ export class PortalsView extends ItemView {
         }
         const tooltip = this.getTooltipEl();
         tooltip.setText(text);
-        const rect = target.getBoundingClientRect();
-        tooltip.style.top = (rect.bottom + 6) + 'px';
-        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+        tooltip.classList.remove('portals-tooltip-below', 'portals-tooltip-above', 'portals-tooltip-right', 'portals-tooltip-left', 'is-visible');
+        
+        void tooltip.offsetWidth;
+        const tooltipWidth = tooltip.offsetWidth;
+        const tooltipHeight = tooltip.offsetHeight;
+        const targetRect = target.getBoundingClientRect();
+        const gap = 6;
+        const centerX = targetRect.left + targetRect.width / 2;
+        
+        switch (preferred) {
+            case 'below':
+                tooltip.style.top = (targetRect.bottom + gap) + 'px';
+                tooltip.style.left = (centerX - tooltipWidth / 2) + 'px';
+                break;
+            case 'above':
+                tooltip.style.top = (targetRect.top - tooltipHeight - gap) + 'px';
+                tooltip.style.left = (centerX - tooltipWidth / 2) + 'px';
+                break;
+            case 'right':
+                tooltip.style.top = (targetRect.top + targetRect.height / 2 - tooltipHeight / 2) + 'px';
+                tooltip.style.left = (targetRect.right + gap) + 'px';
+                break;
+            case 'left':
+                tooltip.style.top = (targetRect.top + targetRect.height / 2 - tooltipHeight / 2) + 'px';
+                tooltip.style.left = (targetRect.left - tooltipWidth - gap) + 'px';
+                break;
+        }
+        
+        tooltip.classList.add(`portals-tooltip-${preferred}`);
         tooltip.classList.add('is-visible');
+        tooltip.style.opacity = ''
     }
 
     public hideTooltip(delay = 0) {
@@ -1199,8 +1226,8 @@ export class PortalsView extends ItemView {
         }
     }
 
-    public attachTooltip(el: HTMLElement, text: string, delay: number = 300): void {
-        el.addEventListener('mouseenter', () => this.showTooltip(text, el, delay));
+    public attachTooltip(el: HTMLElement, text: string, delay: number = 300, preferred: 'above' | 'below' | 'right' | 'left' = 'below'): void {
+        el.addEventListener('mouseenter', () => this.showTooltip(text, el, delay, preferred));
         el.addEventListener('mouseleave', () => this.hideTooltip(100));
     }
 

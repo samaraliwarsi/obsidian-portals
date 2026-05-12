@@ -5809,9 +5809,9 @@ vertical-align: middle;
 
 /* ----- Floating tooltip for inactive tabs ----- */
 
-.portals-floating-tooltip {
+.portals-tooltip {
   width: fit-content;
-  max-width: 120px;
+  max-width: 240px;
   white-space: normal;
   word-break: break-word;
   text-align: center;
@@ -5824,21 +5824,21 @@ vertical-align: middle;
   line-height: var(--line-height-tight);
   pointer-events: none;
   position: fixed;
-  transform: translateX(-50%) scale(0.8);
+  transform: scale(0.8);
   z-index: var(--layer-tooltip);
   opacity: 0;
   transition: opacity 0.15s ease, transform 0.15s ease;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px var(--backround-modifier-box-shadow);
   display: block;
 }
 
-.portals-floating-tooltip.is-visible {
+.portals-tooltip.is-visible {
   opacity: 1;
-  transform: translateX(-50%) scale(1);
+  transform: scale(1);
 }
 
-.portals-floating-tooltip::before {
+.portals-tooltip::before {
     content: '';
     position: absolute;
     bottom: 100%;
@@ -5849,6 +5849,45 @@ vertical-align: middle;
     border-color: transparent transparent var(--background-modifier-message) transparent;
 }
 
+.portals-tooltip::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.portals-tooltip-below::before {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent var(--background-modifier-message) transparent;
+}
+
+.portals-tooltip-above::before {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-color: var(--background-modifier-message) transparent transparent transparent;
+}
+
+.portals-tooltip-right::before {
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 6px 6px 0;
+    border-color: transparent var(--background-modifier-message) transparent transparent;
+}
+
+.portals-tooltip-left::before {
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 0 6px 6px;
+    border-color: transparent transparent transparent var(--background-modifier-message);
+}
 
 /* ----- Alt Select ----- */
 
