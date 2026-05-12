@@ -1766,7 +1766,7 @@ export class PortalsView extends ItemView {
             // Collapse icon
             const collapseIcon = secondaryHeader.createSpan({ cls: 'portals-collapse-icon' });
             collapseIcon.textContent = this.plugin.settings.secondaryPanelCollapsed ? '▲' : '▼';
-            //this.attachTooltip(collapseIcon, 'Right-click to edit');
+            //this.attachTooltip(collapseIcon, 'Right-click to edit', 300, 'right');
 
             if (!Platform.isMobile) {
                 collapseIcon.addEventListener('mouseenter', () => {

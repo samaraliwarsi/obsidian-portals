@@ -6403,6 +6403,11 @@ body.portals-dragging {
     font-size: 12px;
     padding: 0 8px;
     cursor: pointer;
+    color: var(--text-muted);
+}
+
+.portals-collapse-icon:hover {
+  color: var(--text-normal);
 }
 
 .portals-recent-content {
