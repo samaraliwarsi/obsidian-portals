@@ -189,7 +189,9 @@ export class FrontmatterClinicRenderer {
             this.clinicToolbar = toolbar;
 
             const editBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
-            this.view.attachTooltip(editBtn, 'Edit frontmatter');
+            if (!Platform.isMobile) {
+                this.view.attachTooltip(editBtn, 'Edit frontmatter');
+            }
             editBtn.createEl('i', { cls: 'ph ph-list-plus' });
             editBtn.addEventListener('click', () => {
                 new FrontmatterPopup(this.app, this.plugin, this.view, selectedInView).open();
@@ -197,7 +199,9 @@ export class FrontmatterClinicRenderer {
 
             // 2. Reset colors
             const resetColorBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
-            this.view.attachTooltip(resetColorBtn, 'Reset Colors');
+            if (!Platform.isMobile) {
+                this.view.attachTooltip(resetColorBtn, 'Reset Colors');
+            }
             resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
             resetColorBtn.addEventListener('click', () => {
                 for (const file of selectedInView) {
@@ -208,7 +212,9 @@ export class FrontmatterClinicRenderer {
 
             // 4. Deselect
             const deselectBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
-            this.view.attachTooltip(deselectBtn, 'Deselect all');
+            if (!Platform.isMobile) {
+                this.view.attachTooltip(deselectBtn, 'Deselect all');
+            }
             deselectBtn.createEl('i', { cls: 'ph ph-x' });
             deselectBtn.addEventListener('click', () => {
                 this.clinicSelectedPaths.clear();
@@ -453,9 +459,11 @@ export class FrontmatterClinicRenderer {
                     }
                 );
             });
-            // Reuse view’s tooltip system
-            this.view.attachTooltip(propBtn, 'Right-click: find');
-            this.view.attachTooltip(valueBtn, 'Right-click: find');
+            if (!Platform.isMobile) {
+                // Reuse view’s tooltip system
+                this.view.attachTooltip(propBtn, 'Right-click: find');
+                this.view.attachTooltip(valueBtn, 'Right-click: find');
+            }
         }
 
         const hasFiles = this.filteredFiles.length > 0;

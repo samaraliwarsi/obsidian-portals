@@ -5828,7 +5828,6 @@ vertical-align: middle;
   z-index: var(--layer-tooltip);
   opacity: 0;
   transition: opacity 0.15s ease, transform 0.15s ease;
-  text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 8px var(--backround-modifier-box-shadow);
   display: block;
 }
@@ -5882,7 +5881,7 @@ vertical-align: middle;
 }
 
 .portals-tooltip-left::before {
-    right: -6px;
+    left: 100%;
     top: 50%;
     transform: translateY(-50%);
     border-width: 6px 0 6px 6px;
@@ -6649,7 +6648,7 @@ body.portals-dragging {
     padding: 2px 8px;
     background: var(--interactive-accent);
     color: var(--text-on-accent);
-    border-radius: 12px;
+    border-radius: var(--input-radius);
     text-decoration: none;
     font-size: 0.9em;
 }
@@ -6702,7 +6701,7 @@ body.portals-dragging {
     max-width: 100%;
     padding: 2px 4px;
     background: var(--background-modifier-border);
-    box-shadow: var(--shadow-s);
+    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.3);
     border-radius: 4px;
     font-size: 8px;
     color: var(--text-faint);

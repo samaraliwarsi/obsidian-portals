@@ -1,4 +1,4 @@
-import { App, TFile, Notice, Menu } from 'obsidian';
+import { App, TFile, Notice, Menu, Platform } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { SearchPopover } from './searchPopover';
@@ -102,6 +102,9 @@ export class FrontmatterPopup {
             text: this.propertyName || 'Choose from existing, right-click to search',
             cls: 'fm-input-btn' 
         });
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(this.propBtn, 'Select or search property', 300, 'right')
+        }
         // Left‑click → show menu of all properties
         this.propBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -135,6 +138,9 @@ export class FrontmatterPopup {
             value: this.propertyName,
             cls: 'portals-fm-search-input',
         });
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(this.propertyInput, 'Create new property', 300, 'right')
+        }
         this.propertyInput.addEventListener('input', () => {
             this.propertyName = this.propertyInput.value;
             this.updateValueInputState();
@@ -149,6 +155,9 @@ export class FrontmatterPopup {
         const typeRow = container.createDiv({ cls: 'fm-type-wrapper' });
         typeRow.createSpan({ text: 'Ensure type on new items, ignore on existing items:', cls: 'fm-type-text' });
         this.typeBtn = typeRow.createEl('button', { text: this.propertyType, cls: 'fm-type-btn' });
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(this.typeBtn, 'Select type', 300, 'right');
+        }
         this.typeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const menu = new Menu();
@@ -176,6 +185,9 @@ export class FrontmatterPopup {
         const valGroup = valRow.createDiv({ cls: 'fm-input-group' });
         this.valueGroup = valGroup;
         this.valBtn = valGroup.createEl('button', { cls: 'fm-input-btn' });
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(this.valBtn, 'Select or search value', 300, 'right');
+        }
         this.valBtn.addEventListener('click', (e) => {
             if (!this.propertyName) {
                 new Notice('Please select a property first.');
@@ -222,6 +234,9 @@ export class FrontmatterPopup {
             text: 'Use "Paste to files" to apply YAML input, not "Save".',
             cls: 'portals-fm-modal-select-status',
         });
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(this.yamlTextarea, 'Add custom YAML here', 300, 'right')
+        }
         const yamlBtnRow = yamlContent.createDiv({ cls: 'fm-yaml-btn-row' });
         this.copyYamlBtn = yamlBtnRow.createEl('button', { text: 'Copy', cls: 'fm-yaml-btn' });
         this.view.attachTooltip(this.copyYamlBtn, 'Copy from file');
@@ -383,6 +398,11 @@ export class FrontmatterPopup {
                 cls: 'portals-fm-search-input',
             });
         }
+
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(this.valueInput, 'Create new value', 300, 'right')
+        }
+
         this.valueInput.addEventListener('input', () => {
             this.value = this.valueInput.value;
             this.updateValueInputState();

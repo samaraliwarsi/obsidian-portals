@@ -1,4 +1,4 @@
-import { App, normalizePath, Notice } from 'obsidian';
+import { App, normalizePath, Notice, Platform } from 'obsidian';
 import { PortalsView } from '../view';
 
 interface TrashItem {
@@ -178,12 +178,16 @@ export class TrashRenderer {
         const actionBar = parentEl.createDiv({ cls: 'trash-item-actions' });
 
         const restoreBtn = actionBar.createEl('button', { cls: 'trash-action-btn' });
-        this.view.attachTooltip(restoreBtn, 'Restore')
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(restoreBtn, 'Restore', 300, 'left')
+        }
         restoreBtn.createEl('i', { cls: 'ph ph-arrow-counter-clockwise' });
 
         const deleteBtn = actionBar.createEl('button', { cls: 'trash-delete-btn' });
-        this.view.attachTooltip(deleteBtn, 'Delete item');
-        deleteBtn.createEl('i', { cls: 'ph ph-trash' });
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(deleteBtn, 'Delete item', 300, 'right');
+        }
+            deleteBtn.createEl('i', { cls: 'ph ph-trash' });
 
         restoreBtn.addEventListener('click', async (e) => {
             e.stopPropagation();

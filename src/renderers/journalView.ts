@@ -1,4 +1,4 @@
-import { App, TFile, TFolder } from 'obsidian';
+import { App, Platform, TFile, TFolder } from 'obsidian';
 import PortalsPlugin from '../main';
 import { PortalsView } from '../view';
 
@@ -261,7 +261,9 @@ export class JournalRenderer {
 
         // Compact filter button with icon
         const filterButton = cardsContainer.createEl('button', { cls: 'journal-btn journal-filter-btn' });
-        this.view.attachTooltip(filterButton, 'Toggle range', 300, 'right');
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(filterButton, 'Toggle range', 300, 'right');
+        }
         filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
         const periodSpan = filterButton.createEl('span', { text: 'All files', cls: 'journal-btn-text' });
 
@@ -347,15 +349,17 @@ export class JournalRenderer {
                     span.createEl('i', { cls: 'ph ph-warning-circle' });
                 }
             }
-            let journalTooltipShown = false;
-            card.addEventListener('mouseenter', () => {
-                if (journalTooltipShown) return;
-                journalTooltipShown = true;
-                this.view.showTooltip('Right-click to mark', card, 300);
-                card.addEventListener('mouseleave', () => {
-                    this.view.hideTooltip(100);
-                }, { once: true });
-            });
+            if (!Platform.isMobile) {
+                let journalTooltipShown = false;
+                card.addEventListener('mouseenter', () => {
+                    if (journalTooltipShown) return;
+                    journalTooltipShown = true;
+                    this.view.showTooltip('Right-click to mark', card, 300);
+                    card.addEventListener('mouseleave', () => {
+                        this.view.hideTooltip(100);
+                    }, { once: true });
+                });
+            }
             
 
             card.addEventListener('click', () => {
