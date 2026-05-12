@@ -1771,7 +1771,7 @@ export class PortalsView extends ItemView {
             if (!Platform.isMobile) {
                 collapseIcon.addEventListener('mouseenter', () => {
                     if (!this.collapseIconSpecialTooltipShown) {
-                        this.showTooltip('Right-click to edit', collapseIcon, 300);
+                        this.showTooltip('Right-click to edit', collapseIcon, 300, 'right');
                         this.collapseIconSpecialTooltipShown = true;
                     }
                 });

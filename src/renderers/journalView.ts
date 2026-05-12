@@ -20,8 +20,6 @@ export class JournalRenderer {
     private _updateQuoteAndProgress: (() => Promise<void>) | null = null;
     private currentPeriod:  string = 'All files';
     private isTogglingMark: boolean = false;
-    private tooltipEl: HTMLElement | null = null;
-    private tooltipShown = false;
     private cardsWrapper: HTMLElement | null = null;
     private allQuotes: { text: string; date: Date; file: TFile }[] = [];
     private quoteAnimationTimout: number | null = null;
@@ -191,13 +189,7 @@ export class JournalRenderer {
 
     public destroy() {
         this.destroyed = true;
-        this.stopRotation();
-        if (this.tooltipEl) {
-            this.tooltipEl.remove();
-            this.tooltipEl = null;
-        }
-        this.tooltipShown = false;
-        
+        this.stopRotation();        
         if (this.quoteAnimationTimout) {
             clearTimeout(this.quoteAnimationTimout);
             this.quoteAnimationTimout = null;
@@ -269,7 +261,7 @@ export class JournalRenderer {
 
         // Compact filter button with icon
         const filterButton = cardsContainer.createEl('button', { cls: 'journal-btn journal-filter-btn' });
-        this.view.attachTooltip(filterButton, 'Toggle range');
+        this.view.attachTooltip(filterButton, 'Toggle range', 300, 'right');
         filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
         const periodSpan = filterButton.createEl('span', { text: 'All files', cls: 'journal-btn-text' });
 
@@ -355,30 +347,16 @@ export class JournalRenderer {
                     span.createEl('i', { cls: 'ph ph-warning-circle' });
                 }
             }
-            
-            let hoverTimeout: number | null = null;
+            let journalTooltipShown = false;
             card.addEventListener('mouseenter', () => {
-                if (!this.tooltipEl) return;
-                if (this.tooltipShown) return;
-                hoverTimeout = window.setTimeout(() => {
-                    this.tooltipEl!.setText('Right-click to mark');
-                    const rect = card.getBoundingClientRect();
-                    this.tooltipEl!.style.top = `${rect.bottom + 6}px`;
-                    this.tooltipEl!.style.left = `${rect.left + rect.width / 2}px`;
-                    this.tooltipEl!.classList.add('is-visible');
-                    this.tooltipShown = true;
-                    hoverTimeout = null;     
-                }, 300);  
+                if (journalTooltipShown) return;
+                journalTooltipShown = true;
+                this.view.showTooltip('Right-click to mark', card, 300);
+                card.addEventListener('mouseleave', () => {
+                    this.view.hideTooltip(100);
+                }, { once: true });
             });
-            card.addEventListener('mouseleave', () => {
-                if (hoverTimeout) {
-                    clearTimeout(hoverTimeout);
-                    hoverTimeout = null;
-                }
-                if (this.tooltipEl) {
-                    this.tooltipEl.classList.remove('is-visible');
-                }
-            });
+            
 
             card.addEventListener('click', () => {
                 void this.app.workspace.getLeaf().openFile(n);
@@ -427,9 +405,6 @@ export class JournalRenderer {
         const progressContainer = quotesContainer.createDiv({ cls: 'journal-progress-container' });
         this.progressBar = progressContainer.createDiv({ cls: 'journal-progress-bar' });
 
-        if (!this.tooltipEl) {
-            this.tooltipEl = document.body.createDiv({ cls: 'portals-floating-tooltip' });
-        }
         // Quote display
         const quoteDisplay = quotesContainer.createDiv({ cls: 'journal-quote-display' });
 
