@@ -32,7 +32,7 @@ export class JournalRenderer {
     private startProgressTimer = () => {
         if (this.destroyed) return;
         if (this.progressInterval) {
-            clearInterval(this.progressInterval);
+            activeWindow.clearInterval(this.progressInterval);
             this.progressInterval = null;
         }
         const startTime = Date.now();
@@ -43,7 +43,7 @@ export class JournalRenderer {
                 this.progressBar.style.width = `${percent}%`;
             }
             if (elapsed >= 30000) {
-                clearInterval(this.progressInterval!);
+                activeWindow.clearInterval(this.progressInterval!);
                 this.progressInterval = null;
                 if (this._updateQuoteAndProgress) {
                     this._updateQuoteAndProgress().catch(console.error);
@@ -78,7 +78,6 @@ export class JournalRenderer {
             this.isTogglingMark = false;
         }
     }
-
 
     constructor(app: App, plugin: PortalsPlugin, container: HTMLElement, view: PortalsView) {
         this.app = app;
@@ -182,7 +181,7 @@ export class JournalRenderer {
         
     private stopRotation() {
         if (this.progressInterval) {
-            clearInterval(this.progressInterval);
+            activeWindow.clearInterval(this.progressInterval);
             this.progressInterval = null;
         }
     }
@@ -191,7 +190,7 @@ export class JournalRenderer {
         this.destroyed = true;
         this.stopRotation();        
         if (this.quoteAnimationTimout) {
-            clearTimeout(this.quoteAnimationTimout);
+            activeWindow.clearTimeout(this.quoteAnimationTimout);
             this.quoteAnimationTimout = null;
         }
         this.filesWithWrongDelimiters.clear();
@@ -265,7 +264,7 @@ export class JournalRenderer {
             this.view.attachTooltip(filterButton, 'Toggle range', 300, 'right');
         }
         filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
-        const periodSpan = filterButton.createEl('span', { text: 'All files', cls: 'journal-btn-text' });
+        const periodSpan = filterButton.createSpan({ text: 'All files', cls: 'journal-btn-text' });
 
 
         const periods = ['This month', 'This year', 'All files'] as const;
@@ -374,13 +373,13 @@ export class JournalRenderer {
         });
 
         // Enable native page preview on journal date cards
-        const view = this.app.workspace.getLeavesOfType('portals-view')
-            .map(leaf => leaf.view as unknown as HoverPreviewView | null)
-            .find(v => v?.addHoverPreview);
-        if (view) {
+        const leaves = this.app.workspace.getLeavesOfType('portals-view');
+        const firstLeaf = leaves.length > 0 ? leaves[0] :  undefined;
+        if (firstLeaf && 'addHoverPreview' in firstLeaf.view) {
+            const hoverView = firstLeaf.view as unknown as HoverPreviewView;
             this.cardsWrapper.querySelectorAll('.journal-card[data-path]').forEach(el => {
                 const path = (el as HTMLElement).dataset.path!;
-                view.addHoverPreview(el as HTMLElement, path);
+                hoverView.addHoverPreview(el as HTMLElement, path);
             });
         }
     }
@@ -414,7 +413,7 @@ export class JournalRenderer {
 
         const showQuote = (quote: { text: string; date: Date; file: TFile }) => {
             if (this.quoteAnimationTimout) {
-                clearTimeout(this.quoteAnimationTimout);
+                activeWindow.clearTimeout(this.quoteAnimationTimout);
                 this.quoteAnimationTimout = null;
             }
             quoteDisplay.classList.add('animation');
@@ -505,8 +504,12 @@ export class JournalRenderer {
         randomBtn.classList.add('active');
 
         // Button handlers
-        randomBtn.addEventListener('click', () => setMode('random'));
-        onThisDayBtn.addEventListener('click', () => setMode('onThisDay'));
+        randomBtn.addEventListener('click', () => {
+            void setMode('random');
+        });
+        onThisDayBtn.addEventListener('click', () => {
+            void setMode('onThisDay');
+        });
 
         // Start with random mode
         setTimeout(() => {

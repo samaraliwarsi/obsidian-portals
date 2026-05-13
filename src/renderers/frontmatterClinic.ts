@@ -85,7 +85,7 @@ export class FrontmatterClinicRenderer {
             currentFM.set(key, value as string | string[]);
         }
 
-        const oldFM = clinicCache.refs.fileFrontmatter.get(file.path) || new Map();
+        const oldFM: Map<string, string | string[]> = clinicCache.refs.fileFrontmatter.get(file.path) || new Map();
 
         clinicCache.noFrontmatterPaths.delete(file.path);
 
@@ -307,7 +307,7 @@ export class FrontmatterClinicRenderer {
         // Property button (funnel icon)
         const propBtn = headerRow.createEl('button', { cls: 'journal-btn fm-property-btn' });
         propBtn.createEl('i', { cls: 'ph ph-funnel' });
-        propBtn.createEl('span', { 
+        propBtn.createSpan({ 
             text: this.selectedProperty || 'Select property', 
             cls: 'journal-btn-text' 
         });
@@ -349,7 +349,7 @@ export class FrontmatterClinicRenderer {
         // Value button (funnel-simple icon)
         const valueBtn = headerRow.createEl('button', { cls: 'journal-btn fm-value-btn' });
         valueBtn.createEl('i', { cls: 'ph ph-funnel-simple' });
-        valueBtn.createEl('span', { 
+        valueBtn.createSpan({ 
             text: this.selectedValue === '' ? 'All values' : 
                 this.selectedValue === '__none__' ? 'None' : this.selectedValue,
             cls: 'journal-btn-text' 
@@ -404,7 +404,7 @@ export class FrontmatterClinicRenderer {
             
             // Apply height limit
             setTimeout(() => {
-                const menus = document.querySelectorAll('.menu');
+                const menus = activeDocument.querySelectorAll('.menu');
                 const lastMenu = menus[menus.length - 1] as HTMLElement;
                 if (lastMenu) {
                     lastMenu.classList.add('fm-value-menu');
@@ -415,12 +415,12 @@ export class FrontmatterClinicRenderer {
 
         if (!Platform.isMobile) {
             // Right‑click property button – ALWAYS opens popover
-            propBtn.addEventListener('contextmenu', async (e) => {
+            propBtn.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys());
                 properties.unshift('No frontmatter');
-                this.showSearchPopoverForClinic(propBtn, properties, this.selectedProperty, async (selected) => {
+                this.showSearchPopoverForClinic(propBtn, properties, this.selectedProperty, (selected) => {
                     if (selected === 'No frontmatter') {
                         this.selectedProperty = 'No frontmatter';
                         this.selectedValue = '';
@@ -428,7 +428,7 @@ export class FrontmatterClinicRenderer {
                         this.selectedProperty = selected;
                         this.selectedValue = '';
                     }
-                    await this.plugin.saveSettings();
+                    void this.plugin.saveSettings();
                     this.render();
                 });
             });
@@ -444,8 +444,7 @@ export class FrontmatterClinicRenderer {
                 const valuesSet = FrontmatterClinicRenderer.getProperties().get(this.selectedProperty) || new Set<string>();
                 const values = ['All values', 'None', ...Array.from(valuesSet).sort()];
                 this.showSearchPopoverForClinic(valueBtn, values,
-                    this.selectedValue === '' ? 'All values' : this.selectedValue === '__none__' ? 'None' : this.selectedValue,
-                    async (selected) => {
+                    this.selectedValue === '' ? 'All values' : this.selectedValue === '__none__' ? 'None' : this.selectedValue, (selected) => {
                         switch (selected) {
                             case 'All values':
                                 this.selectedValue = ''; break;
@@ -454,7 +453,7 @@ export class FrontmatterClinicRenderer {
                             default:
                                 this.selectedValue = selected; break;
                         }
-                        await this.plugin.saveSettings();
+                        void this.plugin.saveSettings();
                         this.render();
                     }
                 );
@@ -493,7 +492,7 @@ export class FrontmatterClinicRenderer {
             if (savedColor) {
                 fileRow.classList.add('has-file-color');
                 fileRow.style.setProperty('--file-color', savedColor);
-                const icon = fileRow.querySelector('.file-icon i') as HTMLElement | null;
+                const icon = fileRow.querySelector('.file-icon i');
                 if (icon) icon.addClass('has-file-color');
             }
 

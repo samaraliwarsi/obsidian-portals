@@ -16,7 +16,7 @@ export class SearchPopover {
         private anchor: HTMLElement,
         private options: SearchPopoverOptions
     ) {
-        this.popover = document.body.createDiv('portals-search-popover');
+        this.popover = activeDocument.body.createDiv('portals-search-popover');
 
         this.input = this.popover.createEl('input', {
             type: 'text',
@@ -41,7 +41,7 @@ export class SearchPopover {
                 this.destroy();
             }
         };
-        document.addEventListener('click', this.clickOutsideHandler, { capture: true });
+        activeDocument.addEventListener('click', this.clickOutsideHandler, { capture: true });
 
         this.input.focus();
         this.input.select();
@@ -97,7 +97,7 @@ export class SearchPopover {
     }
 
     destroy() {
-        document.removeEventListener('click', this.clickOutsideHandler, { capture: true });
+        activeDocument.removeEventListener('click', this.clickOutsideHandler, { capture: true });
         this.popover.remove();
     }
 }

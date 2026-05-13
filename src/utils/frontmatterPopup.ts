@@ -2,6 +2,7 @@ import { App, TFile, Notice, Menu, Platform } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { SearchPopover } from './searchPopover';
+import { ConfirmModal } from './modals';
 
 declare module 'obsidian' {
     interface Menu {
@@ -53,17 +54,17 @@ export class FrontmatterPopup {
 
     open(): void {
         // Backdrop
-        this.backdrop = document.body.createDiv('portals-fm-backdrop');
+        this.backdrop = activeDocument.body.createDiv('portals-fm-backdrop');
         this.backdrop.addEventListener('click', () => this.close());
 
         // Container
-        this.container = document.body.createDiv('portals-fm-modal');
+        this.container = activeDocument.body.createDiv('portals-fm-modal');
         this.container.addClass('bulk-fm-modal');
         // Stop clicks inside from closing
         this.container.addEventListener('click', (e) => e.stopPropagation());
 
         this.buildUI();
-        document.addEventListener('keydown', this.keyHandler);
+        activeDocument.addEventListener('keydown', this.keyHandler);
     }
 
     close(): void {
@@ -71,7 +72,7 @@ export class FrontmatterPopup {
         this.valueSearchPopover?.destroy();
         this.backdrop?.remove();
         this.container?.remove();
-        document.removeEventListener('keydown', this.keyHandler);
+        activeDocument.removeEventListener('keydown', this.keyHandler);
     }
 
     private buildUI(): void {
@@ -247,32 +248,34 @@ export class FrontmatterPopup {
         this.copyYamlBtn.disabled = this.files.length !== 1;
 
         // Copy action
-        this.copyYamlBtn.addEventListener('click', async () => {
-            if (this.files.length !== 1) return;
-            const file = this.files[0];
-            if (!file) return;
-            try {
-                const content = await this.app.vault.read(file);
-                // Extract frontmatter between first two '---' lines
-                const lines = content.split('\n');
-                const firstLine = lines[0]?.trim() ?? '';
-                if (firstLine !== '---') {
-                    new Notice('File has no frontmatter.');
-                    return;
+        this.copyYamlBtn.addEventListener('click', () => {
+            void (async () => {
+                if (this.files.length !== 1) return;
+                const file = this.files[0];
+                if (!file) return;
+                try {
+                    const content = await this.app.vault.read(file);
+                    // Extract frontmatter between first two '---' lines
+                    const lines = content.split('\n');
+                    const firstLine = lines[0]?.trim() ?? '';
+                    if (firstLine !== '---') {
+                        new Notice('File has no frontmatter.');
+                        return;
+                    }
+                    let endIndex = -1;
+                    for (let i = 1; i < lines.length; i++) {
+                        if (lines[i]?.trim() === '---') { endIndex = i; break; }
+                    }
+                    if (endIndex === -1) {
+                        new Notice('Invalid frontmatter.');
+                        return;
+                    }
+                    const yamlText = lines.slice(1, endIndex).join('\n');
+                    this.yamlTextarea.value = yamlText;
+                } catch {
+                    new Notice('Failed to read file.');
                 }
-                let endIndex = -1;
-                for (let i = 1; i < lines.length; i++) {
-                    if (lines[i]?.trim() === '---') { endIndex = i; break; }
-                }
-                if (endIndex === -1) {
-                    new Notice('Invalid frontmatter.');
-                    return;
-                }
-                const yamlText = lines.slice(1, endIndex).join('\n');
-                this.yamlTextarea.value = yamlText;
-            } catch {
-                new Notice('Failed to read file.');
-            }
+            })();
         });
 
         // Paste action
@@ -316,9 +319,10 @@ export class FrontmatterPopup {
         });
 
         // clear all button 
-        this.clearYamlBtn.addEventListener('click', () => {
+        this.clearYamlBtn.addEventListener('click', async () => {
             if (this.files.length === 0) return;
-            if (!confirm(`Remove ALL frontmatter from ${this.files.length} file(s)? This cannot be undone.`)) return;
+            const confirmed = await ConfirmModal.confirm(this.app, `Remove all frontmatter from ${this.files.length} file(s)? This cannot be undone.`);
+            if (!confirmed) return;
 
             let cleared = 0;
             const doClear = async () => {
@@ -349,11 +353,15 @@ export class FrontmatterPopup {
         btnDiv.createEl('button', { 
             text: 'Save', 
             cls: 'mod-cta' })
-            .addEventListener('click', () => this.apply('add'));
+            .addEventListener('click', () => {
+                void this.apply('add')
+            });
         btnDiv.createEl('button', { 
             text: 'Remove', 
             cls: 'mod-warning' })
-            .addEventListener('click', () => this.apply('remove'));
+            .addEventListener('click', () => {
+                void this.apply('remove')
+            });
         btnDiv.createEl('button', { 
             text: 'Close' })
             .addEventListener('click', () => this.close());

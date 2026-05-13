@@ -801,10 +801,10 @@ export class SpacesSettingTab extends PluginSettingTab {
                 infoDiv.empty();
                 infoDiv.addClass('portals-portal-info');
 
-                const nameSpan = infoDiv.createEl('span', { cls: 'portals-portal-name' });
+                const nameSpan = infoDiv.createSpan({ cls: 'portals-portal-name' });
                 nameSpan.textContent = getPortalDisplayName(portal);
 
-                const pathSpan = infoDiv.createEl('span', { cls: 'portals-portal-path' });
+                const pathSpan = infoDiv.createSpan({ cls: 'portals-portal-path' });
                 pathSpan.textContent = `${portal.type} · ${portal.path}`;
 
                 // Right side: controls
@@ -815,7 +815,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 // Row 1: icon name badge + icon button
                 const iconRow = controlDiv.createDiv({ cls: 'portals-icon-row' });
 
-                const iconBadge = iconRow.createEl('span', { cls: 'portals-icon-badge' });
+                const iconBadge = iconRow.createSpan({ cls: 'portals-icon-badge' });
                 iconBadge.textContent = portal.icon;
 
                 const iconBtn = iconRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
@@ -956,7 +956,8 @@ export class SpacesSettingTab extends PluginSettingTab {
         if (Platform.isDesktop) {
             const blob = new Blob([data], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const div = activeDocument.createElement('div');
+            const a = div.createEl('a');
             a.href = url;
             a.download = fileName;
             a.click();
@@ -980,7 +981,8 @@ export class SpacesSettingTab extends PluginSettingTab {
     }
 
     private importSettings() {
-        const input = document.createElement('input');
+        const div = activeDocument.createElement('div')
+        const input = div.createEl('input');
         input.type = 'file';
         input.accept = 'application/json';
         input.onchange = async () => {

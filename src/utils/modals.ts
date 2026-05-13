@@ -108,9 +108,9 @@ export class ColorPickerModal extends Modal {
         this.onSave = onSave;
         this.targetElement = targetElement;
         if (targetElement.classList.contains('file-item')) {
-            const icon = targetElement.querySelector('.file-icon i') as HTMLElement | null;
+            const icon = targetElement.querySelector('.file-icon i');
             this.originalFileTextColor = targetElement.style.color;
-            this.originalFileIconColor = icon ? icon.style.color : '';
+            this.originalFileIconColor = (icon instanceof HTMLElement) ? icon.style.color : '';
             
         }
         this.summaryElement = targetElement.querySelector('.folder-summary');
@@ -166,8 +166,10 @@ export class ColorPickerModal extends Modal {
             preview.style.backgroundColor = newColor;
             if (this.targetElement.classList.contains('file-item')) {
                 this.targetElement.style.color = newColor
-                const icon = this.targetElement.querySelector('.file-icon i') as HTMLElement | null;
-                if (icon) icon.style.color = newColor;
+                const icon = this.targetElement.querySelector('.file-icon i');
+                if (icon instanceof HTMLElement) {
+                    icon.style.color = newColor;
+                }
             } else {
                 // Add class to all elements that need it
                 this.targetElement.classList.add('has-folder-color');
@@ -195,8 +197,10 @@ export class ColorPickerModal extends Modal {
         cancelBtn.onclick = () => {
             if (this.targetElement.classList.contains('file-item')) {
                 this.targetElement.style.color = this.originalFileTextColor;
-                const icon = this.targetElement.querySelector('.file-icon i') as HTMLElement | null;
-                if (icon) icon.style.color = this.originalFileIconColor;
+                const icon = this.targetElement.querySelector('.file-icon i');
+                if (icon instanceof HTMLElement) {
+                    icon.style.color = this.originalFileIconColor;
+                }
             } else {
                 // Restore original class states
                 if (!this.originalDetailsClass) this.targetElement.classList.remove('has-folder-color');
@@ -238,8 +242,10 @@ export class ColorPickerModal extends Modal {
     onClose() { 
         if (this.targetElement.classList.contains('file-item')) {
             this.targetElement.style.color = this.originalFileTextColor;
-            const icon = this.targetElement.querySelector('.file-icon i') as HTMLElement | null;
-            if (icon) icon.style.color = this.originalFileIconColor;
+            const icon = this.targetElement.querySelector('.file-icon i');
+            if (icon instanceof HTMLElement) {
+                icon.style.color = this.originalFileIconColor;
+            }
         } else {
             if (!this.originalDetailsClass) this.targetElement.classList.remove('has-folder-color');
             else this.targetElement.classList.add('has-folder-color');
@@ -436,7 +442,7 @@ export class AddPortalModal extends Modal {
         const tabBar = contentEl.createDiv({ cls: 'add-portal-tab-bar' });
 
         const createTab = (id: 'root' | 'sub' | 'tag', label: string) => {
-            const tab = tabBar.createEl('div', { cls: 'add-portal-tab', text: label });
+            const tab = tabBar.createDiv({ cls: 'add-portal-tab', text: label });
             if (this.currentTab === id) {
                 tab.addClass('is-active');
             }
@@ -591,7 +597,7 @@ export class GroupTagsModal extends Modal {
             const div = container.createDiv({ cls: 'portals-checkbox-item' });
             const checkbox = div.createEl('input', { type: 'checkbox', value: tag });
             checkbox.checked = this.selectedTags.has(tag);
-            div.createEl('span', { text: tag });
+            div.createSpan({ text: tag });
             checkbox.addEventListener('change', (e) => {
                 if ((e.target as HTMLInputElement).checked) {
                     this.selectedTags.add(tag);
@@ -629,7 +635,7 @@ export class ReorderItemsModal extends Modal {
         super(app);
         this.sourceEl = sourceEl ?? null;
         this.detailsEl = sourceEl?.closest('.folder-details') as HTMLElement ?? null;
-        if (this.detailsEl instanceof HTMLDetailsElement) {
+        if (this.detailsEl?.instanceOf(HTMLDetailsElement)) {
             this.detailsHighlightClass = this.detailsEl.open
                 ? 'portals-reordering-details-open-active'
                 : 'portals-reordering-details-closed-active';
@@ -645,10 +651,10 @@ export class ReorderItemsModal extends Modal {
         contentEl.addClass('portals-reorder-modal');
         contentEl.createEl('h3', { text: 'Reorder items' });
 
-        const list = contentEl.createEl('div', { cls: 'portals-sortable-list' });
+        const list = contentEl.createDiv({ cls: 'portals-sortable-list' });
 
         for (const item of this.items) {
-            const row = list.createEl('div', { cls: 'portals-sortable-item' });
+            const row = list.createDiv({ cls: 'portals-sortable-item' });
             row.createSpan({ text: item.displayName });
             row.dataset.path = item.path;
             row.createSpan({ cls: 'portals-reorder-handle'})
@@ -696,3 +702,35 @@ export class ReorderItemsModal extends Modal {
             this.contentEl.empty();
         }
     }
+
+//======== CONFIRM MODAL =======================
+
+export class ConfirmModal extends Modal {
+    private resolve!: (value: boolean) => void;
+    promise: Promise<boolean>;
+    private message: string;
+
+    constructor(app: App, message: string) {
+        super(app);
+        this.message = message;
+        this.promise = new Promise<boolean>((res) => { this.resolve = res; });
+    }
+
+    onOpen() {
+        this.contentEl.addClass('portals-modal');
+        this.contentEl.createEl('p', { text: this.message, cls: 'portals-confirm-message' });
+        const btnDiv = this.contentEl.createDiv({ cls: 'modal-button-container' });
+        btnDiv.createEl('button', { text: 'Cancel' }).onclick = () => { this.resolve(false); this.close(); };
+        btnDiv.createEl('button', { text: 'OK', cls: 'mod-warning' }).onclick = () => { this.resolve(true); this.close(); };
+    }
+
+    onClose() {
+        this.contentEl.empty();
+    }
+
+    static async confirm(app: App, message: string): Promise<boolean> {
+        const modal = new ConfirmModal(app, message);
+        modal.open();
+        return modal.promise;
+    }
+}

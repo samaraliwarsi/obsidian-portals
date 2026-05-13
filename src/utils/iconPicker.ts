@@ -24,7 +24,7 @@ export class IconPickerModal extends Modal {
         });
         
 
-        const iconGrid = contentEl.createEl('div', { cls: 'portals-icon-grid' });
+        const iconGrid = contentEl.createDiv({ cls: 'portals-icon-grid' });
 
         const renderIcons = (filter: string) => {
             if (this.searchTimeout) window.clearTimeout(this.searchTimeout);
@@ -42,12 +42,12 @@ export class IconPickerModal extends Modal {
                 }
 
                 for (const name of toRender) {
-                    const iconEl = iconGrid.createEl('div', { cls: 'icon-item' });
+                    const iconEl = iconGrid.createDiv({ cls: 'icon-item' });
 
                     // Create an <i> element with the Phosphor icon class
                     iconEl.createEl('i', { cls: `ph ph-${name} portals-icon-picker-icon` });
 
-                    iconEl.createEl('span', { cls: 'portals-icon-label', text: name });
+                    iconEl.createSpan({ cls: 'portals-icon-label', text: name });
                     
 
                     iconEl.addEventListener('click', () => {
@@ -62,7 +62,7 @@ export class IconPickerModal extends Modal {
 
         searchInput.addEventListener('input', () => renderIcons(searchInput.value));
 
-        const buttonContainer = contentEl.createEl('div', { cls: 'icon-picker-buttons' });
+        const buttonContainer = contentEl.createDiv({ cls: 'icon-picker-buttons' });
         buttonContainer.createEl('button', { text: 'Cancel' })
             .addEventListener('click', () => this.close());
     }

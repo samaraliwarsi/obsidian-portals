@@ -44,7 +44,7 @@ export class FloatingButtonsRenderer {
                             return;
                         }
                         // folder is now guaranteed to be TFolder, but TS needs a hint
-                        await PortalsActions.newNoteInFolder(this.app, this.plugin, this.view, folder as TFolder);
+                        await PortalsActions.newNoteInFolder(this.app, this.plugin, this.view, folder);
                     } else if (currentSpace.type === 'tag') {
                         await PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, currentSpace.path);
                     }
@@ -65,7 +65,7 @@ export class FloatingButtonsRenderer {
                             new Notice('Selected space is not a valid folder.');
                             return;
                         }
-                        await PortalsActions.newFolderInFolder(this.app, this.plugin, this.view, folder as TFolder);
+                        await PortalsActions.newFolderInFolder(this.app, this.plugin, this.view, folder);
                     })().catch(err => console.error('Error creating folder:', err));
                 });
             } else if (currentSpace && currentSpace.type === 'tag') {
@@ -73,7 +73,7 @@ export class FloatingButtonsRenderer {
                 const allFiles = this.app.vault.getMarkdownFiles();
                 const filesWithMainTag = allFiles.filter(file => {
                     const cache = this.app.metadataCache.getFileCache(file);
-                    return cache?.tags?.some(t => t.tag === '#' + mainTag) || cache?.frontmatter?.tags?.includes(mainTag);
+                    return cache?.tags?.some(t => t.tag === '#' + mainTag) || PortalsActions.getFrontmatterTags(cache).includes(mainTag);
                 });
                 const tagSet = new Set<string>();
                 filesWithMainTag.forEach(file => {

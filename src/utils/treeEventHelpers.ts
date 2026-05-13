@@ -179,8 +179,9 @@ export class TreeEventHelpers {
                 new Notice('No context note exists for this item. Shift+Click to create.');
             }
         };
-        iconSpan.addEventListener('click', handler);
-        iconSpan.addEventListener('touchstart', handler, { passive: false });
+        const wrappedHandler = (e: Event) => { void handler(e); };
+        iconSpan.addEventListener('click', wrappedHandler);
+        iconSpan.addEventListener('touchstart', wrappedHandler, { passive: false });
     }
 
     static attachFolderSummaryListeners(

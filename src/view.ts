@@ -161,7 +161,7 @@ export class PortalsView extends ItemView {
     }
 
     public saveTreeScroll(): void {
-        const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
         this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
     }
     public restoreTreeScroll(): void {
@@ -170,34 +170,35 @@ export class PortalsView extends ItemView {
             const { selector, offset } = this.scrollAnchor;
             this.scrollAnchor = null;
             requestAnimationFrame(() => {
-                const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
-                const el = tree?.querySelector(selector) as HTMLElement | null;
-                if (tree && el) {
-                    void tree.offsetHeight;
-                    const containerRect = tree.getBoundingClientRect();
-                    const elRect = el.getBoundingClientRect();
-                    const newOffset = elRect.top - containerRect.top;
-                    tree.scrollTop = tree.scrollTop + newOffset - offset;
-                    void tree.offsetHeight;
-                    this.scrollToRestore = tree.scrollTop;
-                }
+                const treeEl = this.containerEl.querySelector('.portals-tree-container');
+                if (!(treeEl instanceof HTMLElement)) return;
+                const el = treeEl?.querySelector(selector);
+                if (!(el instanceof HTMLElement)) return;
+                void treeEl.offsetHeight;
+                const containerRect = treeEl.getBoundingClientRect();
+                const elRect = el.getBoundingClientRect();
+                const newOffset = elRect.top - containerRect.top;
+                treeEl.scrollTop = treeEl.scrollTop + newOffset - offset;
+                void treeEl.offsetHeight;
+                this.scrollToRestore = treeEl.scrollTop;
+                
             });
             return;
         }
         // fallback numeric restore
         if (this.scrollToRestore === null) return;
         requestAnimationFrame(() => {
-            const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+            const treeContainer = this.containerEl.querySelector('.portals-tree-container');
             if (treeContainer && typeof this.scrollToRestore === 'number') {
                 const maxScroll = treeContainer.scrollHeight - treeContainer.clientHeight;
-                const clamped = Math.min(this.scrollToRestore!, Math.max(0, maxScroll));
+                const clamped = Math.min(this.scrollToRestore, Math.max(0, maxScroll));
                 treeContainer.scrollTop = clamped;
                 this.scrollToRestore = null;
             }
         });
     }
     public saveScrollWithAnchor(anchorEl: HTMLElement) {
-        const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+        const tree = this.containerEl.querySelector('.portals-tree-container');
         if (!tree) return;
         const containerRect = tree.getBoundingClientRect();
         const elRect = anchorEl.getBoundingClientRect();
@@ -509,7 +510,7 @@ export class PortalsView extends ItemView {
             }
         }
 
-        const tab = parent.createEl('div', { cls: 'portals-tab' });
+        const tab = parent.createDiv({ cls: 'portals-tab' });
         if (space.path === '/') {
             tab.addClass('portals-tab-pinned');
             if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
@@ -624,30 +625,30 @@ export class PortalsView extends ItemView {
             this.attachTooltip(deleteBtn, 'Delete selected');
             deleteBtn.createEl('i', { cls: 'ph ph-trash' });
             deleteBtn.addClass('portals-delete-btn-warn');
-            deleteBtn.addEventListener('click', () => PortalsActions.deleteSelectedItems(this.app, this.plugin, this));
+            deleteBtn.addEventListener('click', () => { void PortalsActions.deleteSelectedItems(this.app, this.plugin, this); });
 
             const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
             this.attachTooltip(moveBtn, 'Move selected');
             moveBtn.createEl('i', { cls: 'ph ph-arrow-square-out' });
-            moveBtn.addEventListener('click', () => PortalsActions.moveSelectedItemsToFolder(this.app, this.plugin, this));
+            moveBtn.addEventListener('click', () => { void PortalsActions.moveSelectedItemsToFolder(this.app, this.plugin, this); });
 
             const folderBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
             this.attachTooltip(folderBtn, 'Create folder from selected');
             folderBtn.createEl('i', { cls: 'ph ph-folder-plus' });
-            folderBtn.addEventListener('click', () => PortalsActions.createFolderFromSelected(this.app, this.plugin, this));
+            folderBtn.addEventListener('click', () => { void PortalsActions.createFolderFromSelected(this.app, this.plugin, this); });
         }
 
         // Reset colors button
         const resetColorBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(resetColorBtn, 'Reset colors');
         resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
-        resetColorBtn.addEventListener('click', () => this.resetColorsForSelected());
+        resetColorBtn.addEventListener('click', () => { void this.resetColorsForSelected(); });
 
         // Reset icons button
         const resetIconBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(resetIconBtn, 'Reset icons');
         resetIconBtn.createEl('i', { cls: 'ph ph-image' });
-        resetIconBtn.addEventListener('click', () => this.resetIconsForSelected());
+        resetIconBtn.addEventListener('click', () => { this.resetIconsForSelected(); });
 
         // frontmatter edit modal
         const hasMarkdown =  Array.from(this.selectedItems).some(key => {
@@ -665,7 +666,7 @@ export class PortalsView extends ItemView {
         const hideBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(hideBtn, 'Hide items');
         hideBtn.createEl('i', { cls: 'ph ph-eye-slash' });
-        hideBtn.addEventListener('click', () => this.hideSelectedItems());
+        hideBtn.addEventListener('click', () => { void this.hideSelectedItems(); });
 
         const clearBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(clearBtn, 'Clear selection');
@@ -740,7 +741,7 @@ export class PortalsView extends ItemView {
 
         const savedColor = this.plugin.settings.customColors[file.path];
         
-        const icon = fileEl.querySelector('.file-icon i') as HTMLElement | null;
+        const icon = fileEl.querySelector('.file-icon i');
         if (savedColor) {
             fileEl.classList.add('has-file-color');
             fileEl.style.setProperty('--file-color', savedColor);
@@ -1014,7 +1015,7 @@ export class PortalsView extends ItemView {
         this.registerEvent(this.app.workspace.on('file-open', () => {
             if (!this.renaming) {
                 if (this.scrollToRestore === null) {
-                    const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement | null;
+                    const tree = this.containerEl.querySelector('.portals-tree-container');
                     if (tree) {
                         this.scrollToRestore = tree.scrollTop;
                     }
@@ -1044,17 +1045,17 @@ export class PortalsView extends ItemView {
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
                 const ref = bookmarksPlugin.instance.on('changed', () => {
                     if (this.plugin.settings.activeSplitTab !== 'bookmarks') return;
-                    const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement | null;
-                    if (secondaryPanel) {
-                        const contentEl = secondaryPanel.querySelector('.portals-split-content') as HTMLElement | null;
-                        if (contentEl) {
-                            if (this.bookmarksRenderer) {
-                                this.bookmarksRenderer.setContainer(contentEl as HTMLElement);
-                                this.bookmarksRenderer.render();
-                            } else {
-                                // fallback
-                                void this.renderSplitTabContent(secondaryPanel, 'bookmarks');
-                            }
+                    const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
+                    if (!(secondaryPanel instanceof HTMLElement)) return;
+                
+                    const contentEl = secondaryPanel.querySelector('.portals-split-content');
+                    if (contentEl instanceof HTMLElement) {
+                        if (this.bookmarksRenderer) {
+                            this.bookmarksRenderer.setContainer(contentEl);
+                            this.bookmarksRenderer.render();
+                        } else {
+                            // fallback
+                            void this.renderSplitTabContent(secondaryPanel, 'bookmarks');
                         }
                     }
                 });
@@ -1074,10 +1075,10 @@ export class PortalsView extends ItemView {
         }));
 
         // Global drag listeners
-        document.addEventListener('mousemove', this.handleDragMove);
-        document.addEventListener('touchmove', this.handleDragMove, { passive: false });
-        document.addEventListener('mouseup', this.handleDragEnd);
-        document.addEventListener('touchend', this.handleDragEnd);
+        activeDocument.addEventListener('mousemove', this.handleDragMove);
+        activeDocument.addEventListener('touchmove', this.handleDragMove, { passive: false });
+        activeDocument.addEventListener('mouseup', this.handleDragEnd);
+        activeDocument.addEventListener('touchend', this.handleDragEnd);
         await Promise.resolve()
     }
 
@@ -1133,10 +1134,10 @@ export class PortalsView extends ItemView {
             this.bookmarksListenerRef = null;
         }
 
-        document.removeEventListener('mousemove', this.handleDragMove);
-        document.removeEventListener('touchmove', this.handleDragMove);
-        document.removeEventListener('mouseup', this.handleDragEnd);
-        document.removeEventListener('touchend', this.handleDragEnd);
+        activeDocument.removeEventListener('mousemove', this.handleDragMove);
+        activeDocument.removeEventListener('touchmove', this.handleDragMove);
+        activeDocument.removeEventListener('mouseup', this.handleDragEnd);
+        activeDocument.removeEventListener('touchend', this.handleDragEnd);
 
         if (this.journalRenderer) {
             this.journalRenderer.destroy();
@@ -1153,7 +1154,7 @@ export class PortalsView extends ItemView {
 
     private getTooltipEl(): HTMLElement {
         if (!this.tooltipEl) {
-            this.tooltipEl = document.body.createDiv({ cls: 'portals-tooltip' });
+            this.tooltipEl = activeDocument.body.createDiv({ cls: 'portals-tooltip' });
         }
         return this.tooltipEl;
     }
@@ -1236,7 +1237,7 @@ export class PortalsView extends ItemView {
     private handleDragStart = (e: MouseEvent | TouchEvent) => {
         if (!this.isSidePanelEnabled()) return;
         this.isDraggingSplitter = true;
-        document.body.classList.add('portals-dragging');
+        activeDocument.body.classList.add('portals-dragging');
         e.preventDefault();
     };
 
@@ -1295,7 +1296,7 @@ export class PortalsView extends ItemView {
         }
         if (this.isDraggingSplitter) {
             this.isDraggingSplitter = false;
-            document.body.classList.remove('portals-dragging');
+            activeDocument.body.classList.remove('portals-dragging');
             if (this.isSidePanelEnabled() && this.currentSecondaryPanel) {
                 const height = parseFloat(this.currentSecondaryPanel.style.height);
                 const minHeight = 50;
@@ -1387,7 +1388,7 @@ export class PortalsView extends ItemView {
         if (this.isDraggingTab) return;
 
         if (this.renaming && this._activeOutsideClickListener) {
-            document.removeEventListener('mousedown', this._activeOutsideClickListener);
+            activeDocument.removeEventListener('mousedown', this._activeOutsideClickListener);
             this._activeOutsideClickListener = null;
             this.renaming = false;
         }
@@ -1433,7 +1434,7 @@ export class PortalsView extends ItemView {
             }
 
             // Tab bar
-            const tabBar = container.createEl('div', { cls: 'portals-tab-bar' });
+            const tabBar = container.createDiv({ cls: 'portals-tab-bar' });
             tabBar.toggleClass('portals-compact-tabs', this.plugin.settings.compactTabs);
 
             const tabBarItems: TabBarItem[] = [];
@@ -1515,32 +1516,34 @@ export class PortalsView extends ItemView {
                         onStart: () => {
                             this.isDraggingTab = true;
                         },
-                        onEnd: async (_evt: SortableEvent) => {
-                            setTimeout(async () => {
-                                requestAnimationFrame(async () => {
-                                    const newPortalOrder: SpaceConfig[] = [];
-                                    for (const child of Array.from(groupDiv.children)) {
-                                        const el = child as HTMLElement;
-                                        if (el.classList.contains('portals-tab') && !el.classList.contains('portals-stack-header-tab')) {
-                                            const path = el.dataset.path;
-                                            const type = el.dataset.type as 'folder' | 'tag';
-                                            const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
-                                            if (space) {
-                                                space.stackId = item.stack.id;
-                                                newPortalOrder.push(space);
+                        onEnd: (_evt: SortableEvent) => {
+                            void (async () => {
+                                setTimeout(async () => {
+                                    requestAnimationFrame(async () => {
+                                        const newPortalOrder: SpaceConfig[] = [];
+                                        for (const child of Array.from(groupDiv.children)) {
+                                            const el = child as HTMLElement;
+                                            if (el.classList.contains('portals-tab') && !el.classList.contains('portals-stack-header-tab')) {
+                                                const path = el.dataset.path;
+                                                const type = el.dataset.type as 'folder' | 'tag';
+                                                const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
+                                                if (space) {
+                                                    space.stackId = item.stack.id;
+                                                    newPortalOrder.push(space);
+                                                }
                                             }
                                         }
-                                    }
-                                    const otherSpaces = this.plugin.settings.spaces.filter(s => s.stackId !== item.stack.id);
-                                    const currentOrder = this.plugin.settings.spaces.filter(s => s.stackId === item.stack.id);
-                                    if (JSON.stringify(newPortalOrder) !== JSON.stringify(currentOrder)) {
-                                        this.plugin.settings.spaces = [...otherSpaces, ...newPortalOrder];
-                                        await this.plugin.saveData(this.plugin.settings);
-                                        this.lastRenderHash = this.getSettingsHash();
-                                    }
-                                    this.isDraggingTab = false;
-                                });
-                            }, 180);
+                                        const otherSpaces = this.plugin.settings.spaces.filter(s => s.stackId !== item.stack.id);
+                                        const currentOrder = this.plugin.settings.spaces.filter(s => s.stackId === item.stack.id);
+                                        if (JSON.stringify(newPortalOrder) !== JSON.stringify(currentOrder)) {
+                                            this.plugin.settings.spaces = [...otherSpaces, ...newPortalOrder];
+                                            await this.plugin.saveData(this.plugin.settings);
+                                            this.lastRenderHash = this.getSettingsHash();
+                                        }
+                                        this.isDraggingTab = false;
+                                    });
+                                }, 180);
+                            })();
                         }
                     });
                     this.sortableInstances.push(stackSortable);
@@ -1565,11 +1568,13 @@ export class PortalsView extends ItemView {
                 onStart: () => {
                     this.isDraggingTab = true;
                 },
-                onEnd: async (_evt: SortableEvent) => {
-                    setTimeout(async () => {
-                        await this.updateTabBarOrderFromDOM(tabBar);
-                        this.isDraggingTab = false;
-                    }, 180);
+                onEnd: (_evt: SortableEvent) => {
+                    void (async () => {
+                        setTimeout(async () => {
+                            await this.updateTabBarOrderFromDOM(tabBar);
+                            this.isDraggingTab = false;
+                        }, 180);
+                    })();
                 }
             });
             this.sortableInstances.push(unifiedSortable);
@@ -1629,17 +1634,19 @@ export class PortalsView extends ItemView {
                     onStart: () => {
                         // optional – nothing needed, but can set a flag if needed
                     },
-                    onEnd: async () => {
-                        const newOrder: string[] = [];
-                        tabContainer.querySelectorAll('.portals-split-tab').forEach(el => {
-                            const id = (el as HTMLElement).dataset.tabId;
-                            if (id) newOrder.push(id);
-                        });
-                        if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.splitViewTabs)) {
-                            this.plugin.settings.splitViewTabs = newOrder;
-                            await this.plugin.saveSettings();
-                            this.lastRenderHash = this.getSettingsHash(); // prevent immediate re‑render
-                        }
+                    onEnd: (_evt: SortableEvent) => {
+                        void (async () => {
+                            const newOrder: string[] = [];
+                            tabContainer.querySelectorAll('.portals-split-tab').forEach(el => {
+                                const id = (el as HTMLElement).dataset.tabId;
+                                if (id) newOrder.push(id);
+                            });
+                            if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.splitViewTabs)) {
+                                this.plugin.settings.splitViewTabs = newOrder;
+                                await this.plugin.saveSettings();
+                                this.lastRenderHash = this.getSettingsHash(); // prevent immediate re‑render
+                            }
+                        })();
                     }
                 });
                 this.sortableInstances.push(sideTabSortable);
@@ -1658,14 +1665,14 @@ export class PortalsView extends ItemView {
                 }
 
             tabs.forEach(tabId => {
-                const tabBtn = tabContainer.createEl('div', { cls: 'portals-split-tab' });
+                const tabBtn = tabContainer.createDiv({ cls: 'portals-split-tab' });
                 tabBtn.dataset.tabId = tabId;
 
                 // Add icon
                 tabBtn.createEl('i', { cls: `ph ph-${icons[tabId] || 'file'}` });
 
                 // Always create the span with class 'tab-label'
-                const span = tabBtn.createEl('span', { cls: 'tab-label' });
+                const span = tabBtn.createSpan({ cls: 'tab-label' });
                 span.textContent = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-', ' ');
                 span.addClass('hide');
 
@@ -1756,7 +1763,7 @@ export class PortalsView extends ItemView {
             });
 
             // 🔽 Scroll active side‑portal tab into view
-            const activeSplitTab = tabContainer.querySelector('.portals-split-tab.is-active') as HTMLElement | null;
+            const activeSplitTab = tabContainer.querySelector('.portals-split-tab.is-active');
             if (activeSplitTab) {
                 setTimeout(() => {
                     activeSplitTab.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
@@ -1861,7 +1868,7 @@ export class PortalsView extends ItemView {
                     if (folder && folder instanceof TFolder) {
                         // count direct children folders at first level
                         const totalFirstLevelFolders = folder.children.filter(c => c instanceof TFolder).length;
-                        const spaceContent = treeContainer.createEl('div', { cls: 'portals-space-content' });
+                        const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
                         if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
                             spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
                         } else {
@@ -1876,7 +1883,7 @@ export class PortalsView extends ItemView {
                 } else {
                     // count groups chosen
                     const groupCount = selectedSpace.groupTags?.length ?? 0;
-                    const spaceContent = treeContainer.createEl('div', { cls: 'portals-space-content' });
+                    const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
                     if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
                             spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
                         } else {
@@ -1993,7 +2000,7 @@ export class PortalsView extends ItemView {
     
     renderContent() {
         if (this.renderTimer) {
-            clearTimeout(this.renderTimer);
+            activeWindow.clearTimeout(this.renderTimer);
             this.renderTimer = null;
         }
         if (this.isDraggingTab) return;
@@ -2016,7 +2023,7 @@ export class PortalsView extends ItemView {
             const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
             if (folder && folder instanceof TFolder) {
                 const totalFirstLevelFolders = folder.children.filter(c => c instanceof TFolder).length;
-                const spaceContent = treeContainer.createEl('div', { cls: 'portals-space-content' });
+                const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
                 if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
                             spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
                         } else {
@@ -2030,7 +2037,7 @@ export class PortalsView extends ItemView {
             }
         } else {
             const groupCount = selectedSpace.groupTags?.length ?? 0;
-            const spaceContent = treeContainer.createEl('div', { cls: 'portals-space-content' });
+            const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
             if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
                             spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
                         } else {
@@ -2190,7 +2197,7 @@ export class PortalsView extends ItemView {
                     new Notice(`Failed to move: ${message}`);
                 } finally {
                     if (this.renderTimer) {
-                        clearTimeout(this.renderTimer);
+                        activeWindow.clearTimeout(this.renderTimer);
                         this.renderTimer = null;   
                     }
                     this.renderContent();

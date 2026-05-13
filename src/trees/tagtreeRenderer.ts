@@ -37,7 +37,7 @@ export class TagTreeRenderer {
         if (!cache) return false;
         const fileTags = [
             ...(cache.tags?.map(t => t.tag.slice(1)) ?? []),
-            ...(cache.frontmatter?.tags ?? [])
+            ...PortalsActions.getFrontmatterTags(cache)
         ];
         if (isGroup) {
             return fileTags.includes(tagPath);   // exact match for group tags
@@ -94,7 +94,7 @@ export class TagTreeRenderer {
             const cache = this.app.metadataCache.getFileCache(file);
             const fileTags = [
                 ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                ...(cache?.frontmatter?.tags || [])
+                ...PortalsActions.getFrontmatterTags(cache)
             ];
             return fileTags.some(t => t === tagName || t.startsWith(tagName + '/'));
         });
@@ -111,7 +111,7 @@ export class TagTreeRenderer {
             const cache = this.app.metadataCache.getFileCache(file);
             const fileTags = [
                 ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                ...(cache?.frontmatter?.tags || [])
+                ...PortalsActions.getFrontmatterTags(cache)
             ];
             for (const tag of fileTags) {
                 if (tag === tagName || tag.startsWith(tagName + '/')) {
@@ -132,7 +132,7 @@ export class TagTreeRenderer {
         if (!hasSubtags) {
             const taggedFiles = allFiles.filter(file => {
                 const cache = this.app.metadataCache.getFileCache(file);
-                return cache?.tags?.some(t => t.tag === mainTag) || cache?.frontmatter?.tags?.includes(tagName);
+                return cache?.tags?.some(t => t.tag === mainTag) || PortalsActions.getFrontmatterTags(cache).includes(tagName);
             });
             if (taggedFiles.length === 0) {
                 container.createEl('p', { text: 'No files with this tag.' });
@@ -206,7 +206,7 @@ export class TagTreeRenderer {
                 const cache = this.app.metadataCache.getFileCache(file);
                 const fileTags = new Set([
                     ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                    ...(cache?.frontmatter?.tags || [])
+                    ...PortalsActions.getFrontmatterTags(cache)
                 ]);
                 let hasGroup = false;
                 for (const gTag of groupTags) {
@@ -597,7 +597,7 @@ export class TagTreeRenderer {
                 const cache = this.app.metadataCache.getFileCache(file);
                 const fileTags = new Set([
                     ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                    ...(cache?.frontmatter?.tags || [])
+                    ...PortalsActions.getFrontmatterTags(cache)
                 ]);
                 for (const gTag of groupTags) {
                     if (fileTags.has(gTag)) {

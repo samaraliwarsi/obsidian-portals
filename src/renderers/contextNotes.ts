@@ -10,6 +10,14 @@ export interface ContextNotesView {
 
 // ====================================Helper Functions====================================
 
+function frontmatterTagsToStrings(cache: { frontmatter?: { tags?: unknown } } | null): string[] {
+    const raw = cache?.frontmatter?.tags;
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw.filter((t): t is string => typeof t === 'string');
+    if (typeof raw === 'string') return [raw];
+    return [];
+}
+
 export function getContextNote(app: App, plugin: PortalsPlugin, target: TFolder | string): TFile | undefined {
     if (target instanceof TFolder) {
         if (target.path === '/') {
@@ -56,7 +64,7 @@ export function resolveContextNote(app: App, plugin: PortalsPlugin, selectedSpac
             const cache = app.metadataCache.getFileCache(activeFile);
             const fileTags = [
                 ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                ...(cache?.frontmatter?.tags || [])
+                ...frontmatterTagsToStrings(cache)
             ];
             const belongsToPortal = fileTags.some(t => t === selectedSpace.path || t.startsWith(selectedSpace.path + '/'));
             if (belongsToPortal) {
@@ -253,7 +261,7 @@ export class ContextNotesRenderer {
     public saveScroll(overridePath?: string): void {
         const prevNotePath = overridePath ?? resolveContextNote(this.app, this.plugin, this.plugin.settings.selectedSpace)?.path;
         if (!prevNotePath) return;
-        const noteContainer = this.container.querySelector('.portals-context-note-container') as HTMLElement | null;
+        const noteContainer = this.container.querySelector('.portals-context-note-container');
         if (noteContainer) {
             const scroll = noteContainer.scrollTop
             this.scrollCache.set(prevNotePath, scroll);
@@ -344,7 +352,7 @@ export class ContextNotesRenderer {
         }
 
         // --- Cache miss: render from scratch ---
-        const noteContainer = document.createElement('div');
+        const noteContainer = activeDocument.createElement('div');
         noteContainer.addClasses(['markdown-preview-view', 'portals-context-note-container']);
 
         try {

@@ -249,7 +249,7 @@ export class ContextMenuFactory {
                 .setTitle('Set color')
                 .setIcon('palette')
                 .onClick(() => {
-                    const dummyEl = document.createElement('div');
+                    const dummyEl = activeDocument.createElement('div');
                     new ColorPickerModal(view.app, (color: string) => {
                         view.saveTreeScroll();
                         space.color = color;
@@ -343,7 +343,7 @@ export class ContextMenuFactory {
             .setTitle('Set color')
             .setIcon('palette')
             .onClick(() => {
-                const dummyEl = document.createElement('div');
+                const dummyEl = activeDocument.createElement('div');
                 new ColorPickerModal(view.app, (color: string) => {
                     stack.color = color;
                     view.plugin.saveSettings().then(() => view.render());
@@ -381,7 +381,7 @@ export class ContextMenuFactory {
     static showTagContextMenu(
         view: PortalsView,
         tagName: string,
-        iconName: string,
+        _iconName: string,
         anchorEl: HTMLElement,
         event: MouseEvent
     ): void {
@@ -458,7 +458,7 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set custom icon')
                 .setIcon('image')
-                .onClick(() => PortalsActions.setCustomIconForTagGroup(view.app, view.plugin, view, tagName, groupTag, groupKey)));
+                .onClick(() => PortalsActions.setCustomIconForTagGroup(view.app, view.plugin, view, groupTag, groupKey)));
             if (PortalsActions.getCustomIcon(view.plugin, groupKey)) { // check
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')
@@ -523,7 +523,7 @@ export class ContextMenuFactory {
         view: PortalsView,
         tagName: string,
         nodeFullPath: string,
-        iconName: string,
+        _iconName: string,
         detailsEl: HTMLElement,
         anchorEl: HTMLElement,
         event: MouseEvent
@@ -533,13 +533,13 @@ export class ContextMenuFactory {
         const nodeKey = `tag:${tagName}/node:${nodeFullPath}`;
 
         // Reorder sub‑items (if there are any direct children)
-        const childrenContainer = (anchorEl as HTMLElement).parentElement?.querySelector('.folder-children');
+        const childrenContainer = (anchorEl).parentElement?.querySelector('.folder-children');
         if (childrenContainer && childrenContainer.querySelector(':scope > .folder-details > .folder-summary')) {
             menu.addSeparator();
             menu.addItem(item => item
                 .setTitle('Reorder sub‑items')
                 .setIcon('arrow-up-down')
-                .onClick(() => view.reorderChildItemsFromElement(anchorEl as HTMLElement)));
+                .onClick(() => view.reorderChildItemsFromElement(anchorEl)));
         }
 
         // Hide
@@ -554,7 +554,7 @@ export class ContextMenuFactory {
             menu.addItem(item => item
                 .setTitle('Set custom icon')
                 .setIcon('image')
-                .onClick(() => PortalsActions.setCustomIconForTagGroup(view.app, view.plugin, view, tagName, nodeFullPath, nodeKey)));
+                .onClick(() => PortalsActions.setCustomIconForTagGroup(view.app, view.plugin, view, nodeFullPath, nodeKey)));
             if (PortalsActions.getCustomIcon(view.plugin, nodeKey)) { // check
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')

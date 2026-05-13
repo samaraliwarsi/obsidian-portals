@@ -5262,13 +5262,12 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     filter: brightness(0.95);
 }
 
-.portals-modal .modal-button-container button:not(.mod-cta),
 .portals-fm-modal .modal-button-container button:not(.mod-cta) {
     background: var(--background-secondary);
 }
 
 .portals-modal .modal-button-container button:not(.mod-cta):hover {
-    background: var(--background-modifier-hover);
+    filter: brightness(1.1);
 }
 
 .portals-fm-modal .modal-button-container button.mod-warning {

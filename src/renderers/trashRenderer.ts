@@ -1,5 +1,6 @@
 import { App, normalizePath, Notice, Platform } from 'obsidian';
 import { PortalsView } from '../view';
+import { ConfirmModal } from '../utils/modals';
 
 interface TrashItem {
     path: string;
@@ -56,9 +57,12 @@ export class TrashRenderer {
         const deleteAllBtn = btnRow.createEl('button', {
             cls: 'side-portal-btn-warn', text: 'Empty all'
         });
-        restoreAllBtn.addEventListener('click', () => this.restoreAll());
-        deleteAllBtn.addEventListener('click', () => {
-            if (confirm('Permanently delete ALL items in trash?')) this.deleteAll();
+        restoreAllBtn.addEventListener('click', () => {
+            void this.restoreAll();
+        });
+        deleteAllBtn.addEventListener('click', async () => {
+            const confirmed = await ConfirmModal.confirm(this.app, 'Permently delete all items in trash?');
+            if (confirmed) this.deleteAll();
         });
 
         // Empty tree area – will be filled asynchronously
@@ -133,34 +137,36 @@ export class TrashRenderer {
                 const childrenContainer = details.createDiv({ cls: 'folder-children' });
 
                 // Load children on first expand
-                details.addEventListener('toggle', async () => {
-                    if (!details.open || item.children !== undefined) return;
-                    try {
-                        const adapter = this.app.vault.adapter;
-                        const { files, folders } = await adapter.list(item.path);
-                        const children: TrashItem[] = [];
-                        for (const f of folders) {
-                            children.push({
-                                path: f,
-                                basename: f.split('/').pop() || f,
-                                kind: 'folder',
-                                children: undefined,
-                            });
+                details.addEventListener('toggle', () => {
+                    void (async () => {
+                        if (!details.open || item.children !== undefined) return;
+                        try {
+                            const adapter = this.app.vault.adapter;
+                            const { files, folders } = await adapter.list(item.path);
+                            const children: TrashItem[] = [];
+                            for (const f of folders) {
+                                children.push({
+                                    path: f,
+                                    basename: f.split('/').pop() || f,
+                                    kind: 'folder',
+                                    children: undefined,
+                                });
+                            }
+                            for (const f of files) {
+                                if (f.endsWith('.DS_Store')) continue;
+                                children.push({
+                                    path: f,
+                                    basename: f.split('/').pop() || f,
+                                    kind: 'file',
+                                });
+                            }
+                            item.children = children;
+                            childrenContainer.empty();
+                            this.renderTree(children, childrenContainer);
+                        } catch (e) {
+                            console.error(e);
                         }
-                        for (const f of files) {
-                            if (f.endsWith('.DS_Store')) continue;
-                            children.push({
-                                path: f,
-                                basename: f.split('/').pop() || f,
-                                kind: 'file',
-                            });
-                        }
-                        item.children = children;
-                        childrenContainer.empty();
-                        this.renderTree(children, childrenContainer);
-                    } catch (e) {
-                        console.error(e);
-                    }
+                    })();
                 });
 
                 this.addItemActions(summary, item);
@@ -189,18 +195,21 @@ export class TrashRenderer {
         }
             deleteBtn.createEl('i', { cls: 'ph ph-trash' });
 
-        restoreBtn.addEventListener('click', async (e) => {
+        restoreBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            await this.restoreItem(item);
-            await this.render();          // full refresh after restore
+            void this.restoreItem(item);
+            void this.render();          // full refresh after restore
         });
 
-        deleteBtn.addEventListener('click', async (e) => {
+        deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (confirm(`Permanently delete ${item.basename}?`)) {
-                await this.deleteItem(item);
-                await this.render();
-            }
+            void (async () => {
+                const confirmed = await ConfirmModal.confirm(this.app, `Permanently delete ${item.basename}?`);
+                if (confirmed) {
+                    await this.deleteItem(item);
+                    await this.render();
+                }
+            })();
         });
     }
 
@@ -218,7 +227,7 @@ export class TrashRenderer {
 
     private stopPolling() {
         if (this.pollInterval) {
-            clearInterval(this.pollInterval);
+            activeWindow.clearInterval(this.pollInterval);
             this.pollInterval = null;
         }
     }

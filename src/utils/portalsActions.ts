@@ -2,7 +2,7 @@ import { App, TFile, TFolder, Notice, Modal, TAbstractFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { IconPickerModal } from './iconPicker';
-import { ColorPickerModal, SelectFolderModal } from './modals';
+import { ColorPickerModal, ConfirmModal, SelectFolderModal } from './modals';
 
 // ====================================================================
 // All vault‑operation helpers, customisation helpers, and rename helpers
@@ -64,7 +64,7 @@ export class PortalsActions {
         }
     }
 
-    static async newCanvasInFolder(app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): Promise<void> {
+    static async newCanvasInFolder(app: App, _plugin: PortalsPlugin, view: PortalsView, folder: TFolder): Promise<void> {
         const defaultName = 'Untitled.canvas';
         let candidate = `${folder.path}/${defaultName}`;
         let counter = 1;
@@ -83,7 +83,7 @@ export class PortalsActions {
         }
     }
 
-    static async newNoteInTagSpace(app: App, plugin: PortalsPlugin, view: PortalsView, tagName: string, extraTags?: string[]): Promise<void> {
+    static async newNoteInTagSpace(app: App, _plugin: PortalsPlugin, view: PortalsView, tagName: string, extraTags?: string[]): Promise<void> {
         const defaultName = 'Untitled.md';
         let candidate = defaultName;
         let counter = 1;
@@ -117,7 +117,7 @@ export class PortalsActions {
         }
     }
 
-    static async duplicateFile(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile): Promise<void> {
+    static async duplicateFile(app: App, _plugin: PortalsPlugin, view: PortalsView, file: TFile): Promise<void> {
         const dir = file.parent?.path || '';
         const ext = file.extension;
         const baseName = file.basename;
@@ -143,7 +143,7 @@ export class PortalsActions {
         }
     }
 
-    static async duplicateFolder(app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): Promise<void> {
+    static async duplicateFolder(app: App, _plugin: PortalsPlugin, view: PortalsView, folder: TFolder): Promise<void> {
         const parent = folder.parent;
         const parentPath = parent ? parent.path : '';
         let newName = `${folder.name} copy`;
@@ -219,7 +219,8 @@ export class PortalsActions {
     static async deleteSelectedItems(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
         const confirmMsg = `Delete ${view.selectedItems.size} item(s) permanently?`;
-        if (!confirm(confirmMsg)) return;
+        const confirmed = await ConfirmModal.confirm(app, confirmMsg);
+        if (!confirmed) return;
 
         view.cancelScheduledRender();
         const firstItemPath = view.selectedItems.values().next().value!;
@@ -277,35 +278,46 @@ export class PortalsActions {
         } else {
             view.saveTreeScroll();
         }
-        new SelectFolderModal(app, async (targetFolder) => {
-            let movedCount = 0;
-            for (const path of view.selectedItems) {
-                const item = app.vault.getAbstractFileByPath(path);
-                if (!item) continue;
-                const newPath = `${targetFolder.path}/${item.name}`;
-                if (app.vault.getAbstractFileByPath(newPath)) {
-                    new Notice(`${item.name} already exists in destination, skipped.`);
-                    continue;
-                }
-                try {
-                    await app.vault.rename(item, newPath);
-                    movedCount++;
-                    if (plugin.settings.customIcons[path]) {
-                        plugin.settings.customIcons[newPath] = plugin.settings.customIcons[path];
-                        delete plugin.settings.customIcons[path];
+        new SelectFolderModal(app, (targetFolder) => {
+            void (async () => {
+                let movedCount = 0;
+                for (const path of view.selectedItems) {
+                    const item = app.vault.getAbstractFileByPath(path);
+                    if (!item) continue;
+                    const newPath = `${targetFolder.path}/${item.name}`;
+                    if (app.vault.getAbstractFileByPath(newPath)) {
+                        new Notice(`${item.name} already exists in destination, skipped.`);
+                        continue;
                     }
-                } catch (err) {
-                    console.error(err);
-                    new Notice(`Failed to move ${item.name}`);
+                    try {
+                        await app.vault.rename(item, newPath);
+                        movedCount++;
+                        if (plugin.settings.customIcons[path]) {
+                            plugin.settings.customIcons[newPath] = plugin.settings.customIcons[path];
+                            delete plugin.settings.customIcons[path];
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        new Notice(`Failed to move ${item.name}`);
+                    }
                 }
-            }
-            plugin.saveData(plugin.settings).then(() => {
-                view.clearSelection();
-                view.renderContent();
-                new Notice(`Moved ${movedCount} item(s) to ${targetFolder.path}`);
-            });
+                plugin.saveData(plugin.settings).then(() => {
+                    view.clearSelection();
+                    view.renderContent();
+                    new Notice(`Moved ${movedCount} item(s) to ${targetFolder.path}`);
+                });
+            })();
         }).open();
     }
+
+    static getFrontmatterTags(cache: { frontmatter?: { tags?: unknown } } | null): string[] {
+        const raw = cache?.frontmatter?.tags;
+        if (!raw) return [];
+        if (Array.isArray(raw)) return raw.filter((t): t is string => typeof t === 'string');
+        if (typeof raw === 'string') return [raw];
+        return [];
+    }
+
 
     static async createFolderFromSelected(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
@@ -422,7 +434,7 @@ export class PortalsActions {
         }).open();
     }
 
-    static async removeCustomIcon(app: App, plugin: PortalsPlugin, view: PortalsView, path: string): Promise<void> {
+    static async removeCustomIcon(_app: App, plugin: PortalsPlugin, view: PortalsView, path: string): Promise<void> {
         view.saveTreeScroll();
         delete plugin.settings.customIcons[path];
         await plugin.saveSettings();
@@ -430,7 +442,7 @@ export class PortalsActions {
         new Notice('Custom icon removed');
     }
 
-    static async setCustomIconForTagGroup(app: App, plugin: PortalsPlugin, view: PortalsView, mainTag: string, groupTag: string, groupKey: string): Promise<void> {
+    static async setCustomIconForTagGroup(app: App, plugin: PortalsPlugin, view: PortalsView, groupTag: string, groupKey: string): Promise<void> {
         const displayName = `#${groupTag}`;
         new IconPickerModal(app, (iconName) => {
             view.saveTreeScroll();
@@ -442,7 +454,7 @@ export class PortalsActions {
         }).open();
     }
 
-    static async removeCustomIconForTagGroup(app: App, plugin: PortalsPlugin, view: PortalsView, groupKey: string): Promise<void> {
+    static async removeCustomIconForTagGroup(_app: App, plugin: PortalsPlugin, view: PortalsView, groupKey: string): Promise<void> {
         view.saveTreeScroll();
         delete plugin.settings.customIcons[groupKey];
         await plugin.saveSettings();
@@ -468,14 +480,14 @@ export class PortalsActions {
         }, fileEl, currentColor).open();
     }
 
-    static resetCustomColorForFile(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile): void {
+    static resetCustomColorForFile(_app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile): void {
         view.saveTreeScroll();
         delete plugin.settings.customColors[file.path];
         plugin.saveSettings().then(() => view.render());
         new Notice('File color reset');
     }
 
-    static resetCustomColor(app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): void {
+    static resetCustomColor(_app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): void {
         view.saveTreeScroll();
         delete plugin.settings.customColors[folder.path];
         plugin.saveSettings().then(() => view.render());
@@ -490,7 +502,7 @@ export class PortalsActions {
         }, targetElement, currentColor).open();
     }
 
-    static resetTagColor(app: App, plugin: PortalsPlugin, view: PortalsView, key: string, _targetElement: HTMLElement): void {
+    static resetTagColor(_app: App, plugin: PortalsPlugin, view: PortalsView, key: string, _targetElement: HTMLElement): void {
         view.saveTreeScroll();
         delete plugin.settings.tagColors[key];
         plugin.saveSettings().then(() => view.render());
@@ -499,7 +511,7 @@ export class PortalsActions {
     // ──────── RENAME HELPERS ────────
 
     static createRenameInput(initialValue: string, onSave: (val: string) => void, onCancel: () => void): HTMLInputElement {
-        const input = document.createElement('input');
+        const input = activeDocument.createElement('input');
         input.type = 'text';
         input.value = initialValue;
         input.addClass('portals-rename-input');
@@ -534,14 +546,14 @@ export class PortalsActions {
                     new Notice(`Rename failed: ${message}`);
                 } finally {
                     view.renaming = false;
-                    document.removeEventListener('mousedown', outsideClickListener);
+                    activeDocument.removeEventListener('mousedown', outsideClickListener);
                     view._activeOutsideClickListener = null;
                     view.renderContent();
                 }
             })().catch(err => console.error('Rename error:', err));
         }, () => {
             view.renaming = false;
-            document.removeEventListener('mousedown', outsideClickListener);
+            activeDocument.removeEventListener('mousedown', outsideClickListener);
             view._activeOutsideClickListener = null;
             view.renderContent();
         });
@@ -553,16 +565,16 @@ export class PortalsActions {
 
         const outsideClickListener = (e: MouseEvent) => {
             if (!input.contains(e.target as Node)) {
-                document.removeEventListener('mousedown', outsideClickListener);
+                activeDocument.removeEventListener('mousedown', outsideClickListener);
                 view.renaming = false;
                 view.renderContent();
             }
         };
         view._activeOutsideClickListener = outsideClickListener;
-        document.addEventListener('mousedown', outsideClickListener);
+        activeDocument.addEventListener('mousedown', outsideClickListener);
     }
 
-    static startRenameFolder(app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder, summaryEl: HTMLElement): void {
+    static startRenameFolder(app: App, _plugin: PortalsPlugin, view: PortalsView, folder: TFolder, summaryEl: HTMLElement): void {
         const nameSpan = summaryEl.querySelector('.portals-item-name') as HTMLElement;
         if (!nameSpan) return;
 
@@ -580,14 +592,14 @@ export class PortalsActions {
                     new Notice(`Rename failed: ${message}`);
                 } finally {
                     view.renaming = false;
-                    document.removeEventListener('mousedown', outsideClickListener);
+                    activeDocument.removeEventListener('mousedown', outsideClickListener);
                     view._activeOutsideClickListener = null;
                     view.renderContent();
                 }
             })().catch(err => console.error('Rename error:', err));
         }, () => {
             view.renaming = false;
-            document.removeEventListener('mousedown', outsideClickListener);
+            activeDocument.removeEventListener('mousedown', outsideClickListener);
             view._activeOutsideClickListener = null;
             view.renderContent();
         });
@@ -599,17 +611,17 @@ export class PortalsActions {
 
         const outsideClickListener = (e: MouseEvent) => {
             if (!input.contains(e.target as Node)) {
-                document.removeEventListener('mousedown', outsideClickListener);
+                activeDocument.removeEventListener('mousedown', outsideClickListener);
                 view.renaming = false;
                 view.renderContent();
             }
         };
         view._activeOutsideClickListener = outsideClickListener;
-        document.addEventListener('mousedown', outsideClickListener);
+        activeDocument.addEventListener('mousedown', outsideClickListener);
     }
 
     // Vault‑rename event handler
-    static handleRename(app: App, plugin: PortalsPlugin, view: PortalsView,file: TAbstractFile, oldPath: string): void {
+    static handleRename(_app: App, plugin: PortalsPlugin, view: PortalsView,file: TAbstractFile, oldPath: string): void {
         if (plugin.settings.customIcons[oldPath]) {
             const icon = plugin.settings.customIcons[oldPath]!;
             plugin.settings.customIcons[file.path] = icon;
