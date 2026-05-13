@@ -26,3 +26,30 @@ export interface CachedMetadataWithFrontmatter {
 export interface metadataCacheWithGetTags {
     getTags(): Record< string, number>;
 }
+
+export interface BookmarkItem {
+    title?: string;
+    path?: string;
+    url?: string;
+    type?: string;
+    id?: string;
+    children?: BookmarkItem[];
+}
+
+export interface InternalBookmarksPlugin {
+    enabled: boolean;
+    instance?: {
+        on: (event: string, callback: () => void) => void;
+        off: (event: string, ref: unknown) => void;
+        items?: BookmarkItem[];
+        removeItem?: (item: BookmarkItem) => void;
+        delete?: (item: BookmarkItem) => void;
+        deleteItem?: (id: string) => void;
+    };
+}
+
+export interface PublicBookmarksAPI {
+    getBookmarks(): BookmarkItem[];
+    remove?(id: string): void;
+    items?: BookmarkItem[];
+}

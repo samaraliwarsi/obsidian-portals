@@ -1,33 +1,7 @@
 import { App, TFile, TFolder, Menu } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-
-export interface BookmarkItem {
-    title?: string;
-    path?: string;
-    url?: string;
-    type?: string;
-    id?: string;
-    children?: BookmarkItem[];
-}
-
-export interface InternalBookmarksPlugin {
-    enabled: boolean;
-    instance?: {
-        on: (event: string, callback: () => void) => void;
-        off: (event: string, ref: unknown) => void;
-        items?: BookmarkItem[];
-        removeItem?: (item: BookmarkItem) => void;
-        delete?: (item: BookmarkItem) => void;
-        deleteItem?: (id: string) => void;
-    };
-}
-
-export interface PublicBookmarksAPI {
-    getBookmarks(): BookmarkItem[];
-    remove?(id: string): void;
-    items?: BookmarkItem[];
-}
+import type { BookmarkItem, InternalBookmarksPlugin, PublicBookmarksAPI } from '../types';
 
 export class BookmarksRenderer {
     private app: App;
@@ -52,23 +26,23 @@ export class BookmarksRenderer {
         contentEl.empty();
         contentEl.addClass('bookmarks-tree');
 
-
-        // public API first, then internal fallback
         let items: BookmarkItem[] = [];
         let usePublic = false;
 
+        // Public API if available
         // @ts-expect-error - bookmarks is not in public App type
         const publicBookmarks = this.app.bookmarks as unknown as PublicBookmarksAPI | undefined;
         if (publicBookmarks) {
             if (typeof publicBookmarks.getBookmarks === 'function') {
-                items = publicBookmarks.getBookmarks() as BookmarkItem[];
+                items = publicBookmarks.getBookmarks();
                 usePublic = true;
             } else if (Array.isArray(publicBookmarks.items)) {
-                items = publicBookmarks.items as BookmarkItem[];
+                items = publicBookmarks.items;
                 usePublic = true;
             }
         }
 
+        // internal API fallback 
         if (!usePublic || items.length === 0) {
             // @ts-expect-error - accessing internal plugin API
             const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
@@ -78,11 +52,12 @@ export class BookmarksRenderer {
                 });
                 return;
             }
-            items = bookmarksPlugin.instance.items as BookmarkItem[];
-            if (!items || !Array.isArray(items)) {
+            const pluginItems = bookmarksPlugin.instance.items;
+            if (!pluginItems || !Array.isArray(pluginItems)) {
                 contentEl.createEl('p', { text: 'No bookmarks found.' });
                 return;
             }
+            items = pluginItems;
         }
 
         if (items.length === 0) {

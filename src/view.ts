@@ -10,7 +10,7 @@ import { TrashRenderer } from './renderers/trashRenderer';
 import { ContextNotesRenderer} from './renderers/contextNotes';
 import { RecentFilesRenderer } from './renderers/recentFiles';
 import { HiddenItemsRenderer } from './renderers/hiddenItems';
-import { BookmarksRenderer, InternalBookmarksPlugin } from './renderers/bookmarksRenderer';
+import { BookmarksRenderer } from './renderers/bookmarksRenderer';
 import { ContextMenuFactory } from './utils/contextMenuFactory';
 import { PortalsActions } from './utils/portalsActions';
 import { TreeEventHelpers } from './utils/treeEventHelpers';
@@ -19,6 +19,7 @@ import { TagTreeRenderer } from './trees/tagtreeRenderer';
 import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
 import { ReorderItemsModal } from './utils/modals';
 import { FrontmatterPopup } from './utils/frontmatterPopup';
+import { InternalBookmarksPlugin } from './types';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
