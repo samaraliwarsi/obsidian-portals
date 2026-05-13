@@ -130,7 +130,7 @@ export class ContextMenuFactory {
                     .setWarning(true)
                     .onClick(() => {
                         view.saveScrollWithAnchor(summaryEl);
-                        PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
+                        void PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
                     }));
             } else {
                 menu.addItem(item => item
@@ -238,7 +238,7 @@ export class ContextMenuFactory {
                 new IconPickerModal(view.app, (iconName: string) => {
                     view.saveTreeScroll();
                     space.icon = iconName;
-                    view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => view.render());
                 }).open();
             }));
 
@@ -253,7 +253,7 @@ export class ContextMenuFactory {
                     new ColorPickerModal(view.app, (color: string) => {
                         view.saveTreeScroll();
                         space.color = color;
-                        view.plugin.saveSettings().then(() => view.render());
+                        void view.plugin.saveSettings().then(() => view.render());
                     }, dummyEl, space.color).open();
                 }));
             if (space.color && space.color !== 'transparent') {
@@ -263,7 +263,7 @@ export class ContextMenuFactory {
                     .onClick(() => {
                         view.saveTreeScroll();
                         space.color = 'transparent';
-                        view.plugin.saveSettings().then(() => view.render());
+                        void view.plugin.saveSettings().then(() => view.render());
                     }));
             }
         }
@@ -286,7 +286,7 @@ export class ContextMenuFactory {
                         .onClick(() => {
                             space.stackId = stack.id;
                             view.rebuildTabBarOrder();
-                            view.plugin.saveSettings().then(() => view.render());
+                            void view.plugin.saveSettings().then(() => view.render());
                         }));
                 }
             });
@@ -302,7 +302,7 @@ export class ContextMenuFactory {
                     if (!view.plugin.settings.tabBarOrder.includes(compositeKey)) {
                         view.plugin.settings.tabBarOrder.push(compositeKey);
                     }
-                    view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => view.render());
                 }));
         }
 
@@ -325,7 +325,7 @@ export class ContextMenuFactory {
             .onClick(() => {
                 new RenamePortalModal(view.app, stack.name, (newName: string) => {
                     stack.name = newName.trim() || 'Stack';
-                    view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => view.render());
                 }).open();
             }));
 
@@ -335,7 +335,7 @@ export class ContextMenuFactory {
             .onClick(() => {
                 new IconPickerModal(view.app, (iconName: string) => {
                     stack.icon = iconName;
-                    view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => view.render());
                 }).open();
             }));
 
@@ -346,7 +346,7 @@ export class ContextMenuFactory {
                 const dummyEl = activeDocument.createElement('div');
                 new ColorPickerModal(view.app, (color: string) => {
                     stack.color = color;
-                    view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => view.render());
                 }, dummyEl, stack.color).open();
             }));
 
@@ -356,7 +356,7 @@ export class ContextMenuFactory {
                 .setIcon('undo')
                 .onClick(() => {
                     stack.color = 'transparent';
-                    view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => view.render());
                 }));
         }
 
@@ -371,7 +371,7 @@ export class ContextMenuFactory {
                 portalsInStack.forEach(s => delete s.stackId);
                 view.plugin.settings.portalStacks = view.plugin.settings.portalStacks.filter(s => s.id !== stack.id);
                 view.plugin.settings.tabBarOrder = view.plugin.settings.tabBarOrder.filter(entry => entry !== `stack:${stack.id}`);
-                view.plugin.saveSettings().then(() => view.render());
+                void view.plugin.saveSettings().then(() => view.render());
             }));
 
         menu.showAtPosition({ x: event.clientX, y: event.clientY });
@@ -421,7 +421,7 @@ export class ContextMenuFactory {
                     .setWarning(true)
                     .onClick(() => {
                         view.saveScrollWithAnchor(anchorEl);
-                        PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
+                        void PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
                     }));
             } else {
                 menu.addItem(item => item
@@ -500,7 +500,7 @@ export class ContextMenuFactory {
                     .setWarning(true)
                     .onClick(() => {
                         view.saveScrollWithAnchor(anchorEl);
-                        PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
+                        void PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
                     }));
             } else {
                 menu.addItem(item => item
@@ -596,7 +596,7 @@ export class ContextMenuFactory {
                     .setWarning(true)
                     .onClick(() => {
                         view.saveScrollWithAnchor(anchorEl);
-                        PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
+                        void PortalsActions.deleteFile(view.app, view.plugin, view, contextNote)
                     }));
             } else {
                 menu.addItem(item => item

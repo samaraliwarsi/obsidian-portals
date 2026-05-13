@@ -2,13 +2,25 @@ import { App, TFile, TFolder, Menu } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 
-interface BookmarkItem {
+export interface BookmarkItem {
     title?: string;
     path?: string;
     url?: string;
     type?: string;
     id?: string;
     children?: BookmarkItem[];
+}
+
+export interface InternalBookmarksPlugin {
+    enabled: boolean;
+    instance?: {
+        on: (event: string, callback: () => void) => void;
+        off: (event: string, ref: unknown) => void;
+        items?: BookmarkItem[];
+        removeItem?: (item: BookmarkItem) => void;
+        delete?: (item: BookmarkItem) => void;
+        deleteItem?: (id: string) => void;
+    };
 }
 
 export class BookmarksRenderer {
@@ -46,14 +58,14 @@ export class BookmarksRenderer {
                 items = publicBookmarks.getBookmarks() as BookmarkItem[];
                 usePublic = true;
             } else if (Array.isArray(publicBookmarks.items)) {
-                items = publicBookmarks.items;
+                items = publicBookmarks.items as BookmarkItem[];
                 usePublic = true;
             }
         }
 
         if (!usePublic || items.length === 0) {
             // @ts-expect-error - accessing internal plugin API
-            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks');
+            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
             if (!bookmarksPlugin?.enabled || !bookmarksPlugin.instance) {
                 contentEl.createEl('p', {
                     text: 'The bookmarks core plugin is not enabled. Settings → core plugins.'
@@ -174,7 +186,7 @@ export class BookmarksRenderer {
             }
         } else {
             // @ts-expect-error - internal plugin API
-            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks');
+            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
             if (!bookmarksPlugin?.instance) return;
             if (typeof bookmarksPlugin.instance.removeItem === 'function') {
                 bookmarksPlugin.instance.removeItem(item);

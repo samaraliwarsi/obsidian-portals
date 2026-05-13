@@ -160,15 +160,13 @@ export class TreeEventHelpers {
         }
     }
     
-    // Attach a click handler on the folder/tag icon that opens the context note.
-    // Only attaches if contextNoteIconClick is enabled.
     static attachIconContextNoteOpener(
         iconSpan: HTMLElement,
         target: TFolder | string,
         view: PortalsView
     ): void {
         if (!view.plugin.settings.enableContextNotes || !view.plugin.settings.contextNoteIconClick) return;
-        iconSpan.style.cursor = 'pointer';
+        iconSpan.classList.add('context-notes-icon-open');
         const handler = async (e: Event) => {
             e.preventDefault();
             e.stopPropagation();

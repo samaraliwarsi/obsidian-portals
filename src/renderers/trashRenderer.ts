@@ -61,8 +61,10 @@ export class TrashRenderer {
             void this.restoreAll();
         });
         deleteAllBtn.addEventListener('click', async () => {
-            const confirmed = await ConfirmModal.confirm(this.app, 'Permently delete all items in trash?');
-            if (confirmed) this.deleteAll();
+            void (async () => {
+                const confirmed = await ConfirmModal.confirm(this.app, 'Permently delete all items in trash?');
+                if (confirmed) this.deleteAll();
+            })();
         });
 
         // Empty tree area – will be filled asynchronously
@@ -90,12 +92,16 @@ export class TrashRenderer {
         this.renderTree(items, treeContainer)
 
         // ── Background full snapshot → enables accurate polling ──
-        this.buildFullSnapshot().then(snapshot => {
-            if (this.destroyed || id !== this.loadId) return;
-            this.lastSnapshot = snapshot;
-            if (!this.pollInterval) this.startPolling();
-        });
-    }
+        this.buildFullSnapshot()
+            .then(snapshot => {
+                if (this.destroyed || id !== this.loadId) return;
+                this.lastSnapshot = snapshot;
+                if (!this.pollInterval) this.startPolling();
+            })
+            .catch(err => {
+                console.error('Failed to build full snapshot for trash polling:', err)
+            });
+        }
 
     // ────────── Top‑level listing (only root of .trash, fast) ──────────
     private async loadTopLevelItems(): Promise<TrashItem[]> {
@@ -198,7 +204,7 @@ export class TrashRenderer {
         restoreBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             void this.restoreItem(item);
-            void this.render();          // full refresh after restore
+            void this.render();
         });
 
         deleteBtn.addEventListener('click', (e) => {
@@ -221,13 +227,13 @@ export class TrashRenderer {
                 this.stopPolling();
                 return;
             }
-            this.checkForChanges();
+            void this.checkForChanges();
         }, 1000);
     }
 
     private stopPolling() {
         if (this.pollInterval) {
-            activeWindow.clearInterval(this.pollInterval);
+            window.clearInterval(this.pollInterval);
             this.pollInterval = null;
         }
     }

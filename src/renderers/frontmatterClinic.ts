@@ -207,7 +207,7 @@ export class FrontmatterClinicRenderer {
                 for (const file of selectedInView) {
                     delete this.plugin.settings.customColors[file.path];
                 }
-                this.plugin.saveSettings().then(() => this.view.render());
+                void this.plugin.saveSettings().then(() => this.view.render());
             });
 
             // 4. Deselect
@@ -318,29 +318,26 @@ export class FrontmatterClinicRenderer {
             (menu as {dom?: HTMLElement}).dom?.addClass('portals-fm-dropdown');
             menu.addItem(item => item
                 .setTitle('None')
-                .onClick(async () => {
+                .onClick(() => {
                     this.selectedProperty = '';
                     this.selectedValue = '';
-                    await this.plugin.saveSettings();
-                    this.render();
+                    void this.plugin.saveSettings().then(() => this.render());
                 }));
             menu.addItem(item => item
             .setTitle('No frontmatter')
-            .onClick(async () => {
+            .onClick(() => {
                 this.selectedProperty = 'No frontmatter';
                 this.selectedValue = '';
-                await this.plugin.saveSettings();
-                this.render();
+                void this.plugin.saveSettings().then(() => this.render());
             }));
             menu.addSeparator();
             for (const prop of FrontmatterClinicRenderer.getProperties().keys()) {
                 menu.addItem(item => item
                     .setTitle(prop)
-                    .onClick(async () => {
+                    .onClick(() => {
                         this.selectedProperty = prop;
                         this.selectedValue = '';
-                        await this.plugin.saveSettings();
-                        this.render();
+                        void this.plugin.saveSettings().then(() => this.render());
                     }));
             }
             menu.showAtMouseEvent(e);
@@ -372,17 +369,15 @@ export class FrontmatterClinicRenderer {
             (menu as {dom?: HTMLElement }).dom?.addClass('portals-fm-dropdown');
             menu.addItem(item => item
                 .setTitle('All values')
-                .onClick(async () => {
+                .onClick(() => {
                     this.selectedValue = '';
-                    await this.plugin.saveSettings();
-                    this.render();
+                    void this.plugin.saveSettings().then(() => this.render());
                 }));
             menu.addItem(item => item
                 .setTitle('None')
-                .onClick(async () => {
+                .onClick(() => {
                     this.selectedValue = '__none__';
-                    await this.plugin.saveSettings();
-                    this.render();
+                    void this.plugin.saveSettings().then(() => this.render());
                 }));
             menu.addSeparator();
             
@@ -393,17 +388,16 @@ export class FrontmatterClinicRenderer {
             for (const val of sorted) {
                 menu.addItem(item => item
                     .setTitle(val)
-                    .onClick(async () => {
+                    .onClick(() => {
                         this.selectedValue = val;
-                        await this.plugin.saveSettings();
-                        this.render();
+                        void this.plugin.saveSettings().then(() => this.render());
                     }));
             }
             
             menu.showAtMouseEvent(e);
             
             // Apply height limit
-            setTimeout(() => {
+            window.setTimeout(() => {
                 const menus = activeDocument.querySelectorAll('.menu');
                 const lastMenu = menus[menus.length - 1] as HTMLElement;
                 if (lastMenu) {
@@ -429,7 +423,7 @@ export class FrontmatterClinicRenderer {
                         this.selectedValue = '';
                     }
                     void this.plugin.saveSettings();
-                    this.render();
+                    void this.render();
                 });
             });
 
@@ -453,8 +447,7 @@ export class FrontmatterClinicRenderer {
                             default:
                                 this.selectedValue = selected; break;
                         }
-                        void this.plugin.saveSettings();
-                        this.render();
+                        void this.plugin.saveSettings().then(() => this.render());
                     }
                 );
             });
@@ -499,7 +492,7 @@ export class FrontmatterClinicRenderer {
             // Display current value(s) for selected property
             if (this.selectedProperty) {
                 const cache = this.app.metadataCache.getFileCache(file);
-                const frontmatter = cache?.frontmatter;
+                const frontmatter = cache?.frontmatter as Record<string, unknown> | undefined;
                 let displayValue = '';
                 if (frontmatter && frontmatter[this.selectedProperty] !== undefined) {
                     const val = frontmatter[this.selectedProperty];
@@ -553,7 +546,7 @@ export class FrontmatterClinicRenderer {
                     }
                     this.updateClinicToolbar();
                 } else {
-                    this.app.workspace.getLeaf().openFile(file);
+                    void this.app.workspace.getLeaf().openFile(file);
                 }
             });
 
@@ -588,7 +581,7 @@ export class FrontmatterClinicRenderer {
         }
         this.filteredFiles = files.filter(file => {
             const cache = this.app.metadataCache.getFileCache(file);
-            const frontmatter = cache?.frontmatter;
+            const frontmatter = cache?.frontmatter as Record<string, unknown> | undefined;
             const propValue = frontmatter?.[this.selectedProperty];
             
             if (this.selectedValue === '') {

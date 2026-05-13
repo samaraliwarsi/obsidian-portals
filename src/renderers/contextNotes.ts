@@ -18,6 +18,10 @@ function frontmatterTagsToStrings(cache: { frontmatter?: { tags?: unknown } } | 
     return [];
 }
 
+function isHTMLElement(node: Node): node is HTMLElement {
+    return node.nodeType === Node.ELEMENT_NODE;
+}
+
 export function getContextNote(app: App, plugin: PortalsPlugin, target: TFolder | string): TFile | undefined {
     if (target instanceof TFolder) {
         if (target.path === '/') {
@@ -125,7 +129,7 @@ export function isContextNote(app: App, plugin: PortalsPlugin, file: TFile, targ
         const expectedParent = folderPath || '';
         if (file.parent?.path !== expectedParent) return false;
 
-        const cache = app.metadataCache.getFileCache(file);
+        const cache = app.metadataCache.getFileCache(file) as { frontmatter?: { tags?: unknown} } | null;
         const tags = cache?.frontmatter?.tags;
         const hasTag = Array.isArray(tags) ? tags.includes(target) : tags === target;
         const safeName = sanitizeTagForFilename(target);
@@ -344,7 +348,7 @@ export class ContextNotesRenderer {
             this.container.appendChild(cached.element);
             const savedScroll = this.scrollCache.get(targetFile.path);
             if (savedScroll !== undefined) {
-                requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
                     cached.element.scrollTop = savedScroll;
                 });
             }
@@ -400,7 +404,7 @@ export class ContextNotesRenderer {
         this.container.appendChild(noteContainer);
         const savedScroll = this.scrollCache.get(targetFile.path);
         if (savedScroll !== undefined) {
-            requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
                 noteContainer.scrollTop = savedScroll;
             });
         }
@@ -469,7 +473,7 @@ export class ContextNotesRenderer {
             for (const mut of mutations) {
                 if (mut.type === 'childList') {
                     for (const node of Array.from(mut.addedNodes)) {
-                        if (node instanceof HTMLElement) {
+                        if (isHTMLElement(node)) {
                             if (node.matches('a.internal-link')) {
                                 const href = node.getAttribute('data-href') || node.getAttribute('href');
                                 if (href) {
@@ -548,20 +552,20 @@ export class ContextNotesRenderer {
         const renameRef = this.app.vault.on('rename', (file, oldPath) => {
             const curPath = currentNotePath();
             if (curPath && (file.path === curPath || oldPath === curPath)) {
-                this.render();
+                void this.render();
             }
         });
 
         const deleteRef = this.app.vault.on('delete', (file) => {
             const curPath = currentNotePath();
             if (curPath && file.path === curPath) {
-                this.render();
+                void this.render();
             }
         });
 
         const fileOpenRef = this.app.workspace.on('file-open', () => {
             if (!this.destroyed && this.plugin.settings.activeSplitTab === 'context-notes') {
-                this.render();
+                void this.render();
             }
         });
 

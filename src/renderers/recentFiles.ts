@@ -61,7 +61,7 @@ export class RecentFilesRenderer {
                 const extSpan = fileEl.createSpan({ cls: 'file-extension' });
                 extSpan.setText('.' + file.extension.toUpperCase());
                 if (openDotspan) {
-                    openDotspan.style.display = 'none';
+                    openDotspan.classList.add('open-dot-hidden');
                 }
                 if (isOpen) {
                     extSpan.addClass('is-open');

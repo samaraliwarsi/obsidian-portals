@@ -47,7 +47,7 @@ export class HiddenItemsRenderer {
         unhideAllBtn.createEl('i', { cls: 'ph ph-eye' });
         unhideAllBtn.createSpan({ text: 'Unhide all', cls: 'unhide-btn-text' });
         unhideAllBtn.addEventListener('click', () => {
-            this.view.unhideAllItems();
+            void this.view.unhideAllItems();
         });
 
         if (rootColor) {
@@ -115,7 +115,7 @@ export class HiddenItemsRenderer {
             unhideBtn.createEl('i', { cls: 'ph ph-eye' });
             unhideBtn.addEventListener('click', (e: MouseEvent) => {
                 e.stopPropagation();
-                this.view.unhideItem(key);
+                void this.view.unhideItem(key);
             });
 
             if (!Platform.isMobile) {

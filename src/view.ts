@@ -10,7 +10,7 @@ import { TrashRenderer } from './renderers/trashRenderer';
 import { ContextNotesRenderer} from './renderers/contextNotes';
 import { RecentFilesRenderer } from './renderers/recentFiles';
 import { HiddenItemsRenderer } from './renderers/hiddenItems';
-import { BookmarksRenderer } from './renderers/bookmarksRenderer';
+import { BookmarksRenderer, InternalBookmarksPlugin } from './renderers/bookmarksRenderer';
 import { ContextMenuFactory } from './utils/contextMenuFactory';
 import { PortalsActions } from './utils/portalsActions';
 import { TreeEventHelpers } from './utils/treeEventHelpers';
@@ -169,7 +169,7 @@ export class PortalsView extends ItemView {
         if (this.scrollAnchor) {
             const { selector, offset } = this.scrollAnchor;
             this.scrollAnchor = null;
-            requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
                 const treeEl = this.containerEl.querySelector('.portals-tree-container');
                 if (!(treeEl instanceof HTMLElement)) return;
                 const el = treeEl?.querySelector(selector);
@@ -187,7 +187,7 @@ export class PortalsView extends ItemView {
         }
         // fallback numeric restore
         if (this.scrollToRestore === null) return;
-        requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
             const treeContainer = this.containerEl.querySelector('.portals-tree-container');
             if (treeContainer && typeof this.scrollToRestore === 'number') {
                 const maxScroll = treeContainer.scrollHeight - treeContainer.clientHeight;
@@ -407,7 +407,7 @@ export class PortalsView extends ItemView {
         this.plugin.settings.portalStacks.push(newStack);
         space.stackId = stackId;
         this.rebuildTabBarOrder();
-        this.plugin.saveSettings().then(() => this.render());
+        void this.plugin.saveSettings().then(() => this.render());
     }
 
     private renderStackHeader(parent: HTMLElement, stack: PortalStack) {
@@ -453,7 +453,7 @@ export class PortalsView extends ItemView {
                 }
             }
             stack.collapsed = !stack.collapsed;
-            this.plugin.saveSettings().then(() => this.render());
+            void this.plugin.saveSettings().then(() => this.render());
         });
 
         // Context menu for stack management
@@ -594,7 +594,7 @@ export class PortalsView extends ItemView {
                     .then(() => {
                         const newActiveTab = mainContainer.querySelector('.portals-tab.is-active');
                         if (newActiveTab) {
-                            setTimeout(() => {
+                            window.setTimeout(() => {
                                 newActiveTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                             }, 0);
                         }
@@ -648,7 +648,7 @@ export class PortalsView extends ItemView {
         const resetIconBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(resetIconBtn, 'Reset icons');
         resetIconBtn.createEl('i', { cls: 'ph ph-image' });
-        resetIconBtn.addEventListener('click', () => { this.resetIconsForSelected(); });
+        resetIconBtn.addEventListener('click', () => { void this.resetIconsForSelected(); });
 
         // frontmatter edit modal
         const hasMarkdown =  Array.from(this.selectedItems).some(key => {
@@ -758,7 +758,7 @@ export class PortalsView extends ItemView {
         if (this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md') {
             const extSpan = fileEl.createSpan({ cls: 'file-extension' });
             extSpan.setText('.' + file.extension.toUpperCase());
-            if (openDotSpan) openDotSpan.style.display = 'none';
+            if (openDotSpan) openDotSpan.classList.add('open-dot-hidden');
             if (isOpen) extSpan.addClass('is-open');
         }
 
@@ -791,7 +791,7 @@ export class PortalsView extends ItemView {
             if (this.plugin.settings.spaces.length === 1 && !this.plugin.settings.pinVaultRoot) {
                 this.plugin.settings.selectedSpace = { path, type };
             }
-            this.plugin.saveSettings().then(() => {
+            void this.plugin.saveSettings().then(() => {
                 this.render();
             });
         }).open();
@@ -816,7 +816,7 @@ export class PortalsView extends ItemView {
                 this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder.filter(entry => entry !== compositeKey);
             }
                 
-            this.plugin.saveSettings().then(() => this.render());
+            void this.plugin.saveSettings().then(() => this.render());
             new Notice(`Removed portal: ${space.path}`);
         }).open();
     }
@@ -902,7 +902,7 @@ export class PortalsView extends ItemView {
             this.render();
             // restore scroll after render
             if (treeContainer) {
-                requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
                     const newTree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
                     if (newTree) newTree.scrollTop = scrollPos;
                 });
@@ -938,14 +938,14 @@ export class PortalsView extends ItemView {
             } else {
                 delete space.displayName;
             }
-            this.plugin.saveSettings().then(() => this.render());
+            void this.plugin.saveSettings().then(() => this.render());
         }).open();
     }
 
     public resetPortalName(space: SpaceConfig) {
         this.saveTreeScroll();
         delete space.displayName;
-        this.plugin.saveSettings().then(() => this.render());
+        void this.plugin.saveSettings().then(() => this.render());
     }
 
     private getDefaultSpaceName(space: SpaceConfig): string {
@@ -1041,7 +1041,7 @@ export class PortalsView extends ItemView {
 
         const setupBookmarksListener = () => {
             // @ts-expect-error - accessing internal plugin API
-            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks');
+            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
                 const ref = bookmarksPlugin.instance.on('changed', () => {
                     if (this.plugin.settings.activeSplitTab !== 'bookmarks') return;
@@ -1067,9 +1067,8 @@ export class PortalsView extends ItemView {
 
         this.registerEvent(this.app.vault.on('modify', (file) => {
             if (file instanceof TFile && this.plugin.settings.activeSplitTab === 'journal') {
-                // Check if the file is inside journal folder
                 if (this.isFileInJournalFolder(file)) {
-                    this.refreshJournalTab();
+                    void this.refreshJournalTab();
                 }
             }
         }));
@@ -1204,7 +1203,6 @@ export class PortalsView extends ItemView {
         
         tooltip.classList.add(`portals-tooltip-${preferred}`);
         tooltip.classList.add('is-visible');
-        tooltip.style.opacity = ''
     }
 
     public hideTooltip(delay = 0) {
@@ -1271,7 +1269,7 @@ export class PortalsView extends ItemView {
 
         if (this.dragMoveRaf) return; // already scheduled
 
-        this.dragMoveRaf = requestAnimationFrame(() => {
+        this.dragMoveRaf = window.requestAnimationFrame(() => {
             this.dragMoveRaf = null;
             if (!secondaryPanel || !splitContainer) return;
 
@@ -1303,7 +1301,7 @@ export class PortalsView extends ItemView {
                 if (height <= minHeight + 10) {
                     this.plugin.settings.secondaryPanelCollapsed = true;
                     this.currentSecondaryPanel.classList.add('is-collapsed');
-                    this.currentSecondaryPanel.style.height = '42px';
+                    this.currentSecondaryPanel.setCssProps({ height: '42px' });
                     if (this.currentSplitter) {
                         this.currentSplitter?.classList.add('is-hidden');
                     }
@@ -1518,8 +1516,8 @@ export class PortalsView extends ItemView {
                         },
                         onEnd: (_evt: SortableEvent) => {
                             void (async () => {
-                                setTimeout(async () => {
-                                    requestAnimationFrame(async () => {
+                                window.setTimeout(async () => {
+                                    window.requestAnimationFrame(async () => {
                                         const newPortalOrder: SpaceConfig[] = [];
                                         for (const child of Array.from(groupDiv.children)) {
                                             const el = child as HTMLElement;
@@ -1570,7 +1568,7 @@ export class PortalsView extends ItemView {
                 },
                 onEnd: (_evt: SortableEvent) => {
                     void (async () => {
-                        setTimeout(async () => {
+                        window.setTimeout(async () => {
                             await this.updateTabBarOrderFromDOM(tabBar);
                             this.isDraggingTab = false;
                         }, 180);
@@ -1580,7 +1578,7 @@ export class PortalsView extends ItemView {
             this.sortableInstances.push(unifiedSortable);
                         
 
-            setTimeout(() => {
+            window.setTimeout(() => {
                 const activeTab = tabBar.querySelector('.portals-tab.is-active');
                 if (activeTab) {
                     activeTab.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
@@ -1758,14 +1756,14 @@ export class PortalsView extends ItemView {
                     if (this.contextNotesRenderer) {
                         this.contextNotesRenderer.saveScroll();
                     }
-                    this.renderSplitTabContent(secondaryPanel, tabId);
+                    void this.renderSplitTabContent(secondaryPanel, tabId);
                 });
             });
 
             // 🔽 Scroll active side‑portal tab into view
             const activeSplitTab = tabContainer.querySelector('.portals-split-tab.is-active');
             if (activeSplitTab) {
-                setTimeout(() => {
+                window.setTimeout(() => {
                     activeSplitTab.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
                 }, 0);
             }
@@ -1805,12 +1803,12 @@ export class PortalsView extends ItemView {
             if (!sidePanelEnabled) {
                 secondaryPanel.classList.add('is-disabled');
                 splitter.classList.add('is-hidden');
-                secondaryPanel.style.height = '42px';
+                secondaryPanel.setCssProps({ height: '42px' });
                 secondaryPanel.classList.add('is-collapsed');
                 const collapseIcon = secondaryHeader.querySelector('.portals-collapse-icon');
                 if (collapseIcon) collapseIcon.textContent = '▲';
             } else if (isCollapsed) {
-                secondaryPanel.style.height = '42px';
+                secondaryPanel.setCssProps({ height: '42px' });
                 secondaryPanel.classList.add('is-collapsed');
                 splitter.classList.add('is-hidden');
             } else {
@@ -1827,7 +1825,7 @@ export class PortalsView extends ItemView {
                 const newCollapsed = !this.plugin.settings.secondaryPanelCollapsed;
                 this.plugin.settings.secondaryPanelCollapsed = newCollapsed;
                 if (newCollapsed) {
-                    secondaryPanel.style.height = '42px';
+                    secondaryPanel.setCssProps({ height: '42px' });
                     secondaryPanel.classList.add('is-collapsed');
                     splitter.classList.add('is-hidden');
                     collapseIcon.textContent = '▲';
@@ -1952,7 +1950,7 @@ export class PortalsView extends ItemView {
                     () => {
                         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
                         if (secondaryPanel) {
-                            this.renderSplitTabContent(secondaryPanel as HTMLElement, 'bookmarks');
+                            void this.renderSplitTabContent(secondaryPanel as HTMLElement, 'bookmarks');
                         }
                     }
                 );
@@ -2053,7 +2051,7 @@ export class PortalsView extends ItemView {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
         if (this.plugin.settings.activeSplitTab === 'recent') {
-            this.renderSplitTabContent(secondaryPanel as HTMLElement, 'recent');
+            void this.renderSplitTabContent(secondaryPanel as HTMLElement, 'recent');
         }
     }
 
@@ -2120,19 +2118,19 @@ export class PortalsView extends ItemView {
     }
 
     private scrollToAndHighlight(path: string) {
-        setTimeout(() => {
+        window.setTimeout(() => {
             const item = this.containerEl.querySelector(`[data-path="${path}"]`);
             if (item) {
                 item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 item.addClass('portals-item-highlight');
-                setTimeout(() => item.removeClass('portals-item-highlight'), 2000);
+                window.setTimeout(() => item.removeClass('portals-item-highlight'), 2000);
             }
         }, 100);
     }
 
     public triggerRenameOnPath(path: string) {
         this.scrollToAndHighlight(path);
-        setTimeout(() => {
+        window.setTimeout(() => {
             const item = this.containerEl.querySelector(`[data-path="${path}"]`);
             if (!item) return;
             const abstractFile = this.app.vault.getAbstractFileByPath(path);

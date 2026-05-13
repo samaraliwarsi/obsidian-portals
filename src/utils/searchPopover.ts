@@ -28,7 +28,6 @@ export class SearchPopover {
 
         // Position relative to anchor
         const rect = anchor.getBoundingClientRect();
-        this.popover.style.position = 'absolute';
         this.popover.style.bottom = `${window.innerHeight - rect.top + 2}px`;
         this.popover.style.left = `${rect.left}px`;        
 

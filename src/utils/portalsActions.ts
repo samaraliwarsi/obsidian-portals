@@ -223,7 +223,9 @@ export class PortalsActions {
         if (!confirmed) return;
 
         view.cancelScheduledRender();
-        const firstItemPath = view.selectedItems.values().next().value!;
+        const firstItem = view.selectedItems.values().next();
+        if (firstItem.done) return;
+        const firstItemPath = firstItem.value;
         const item = app.vault.getAbstractFileByPath(firstItemPath);
         const parentFolderPath = item?.parent?.path;
         const parentEl = parentFolderPath
@@ -266,7 +268,9 @@ export class PortalsActions {
     static async moveSelectedItemsToFolder(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
         view.cancelScheduledRender();
-        const firstItemPath = view.selectedItems.values().next().value!;
+        const firstItem = view.selectedItems.values().next();
+        if (firstItem.done) return;
+        const firstItemPath = firstItem.value;
         const item = app.vault.getAbstractFileByPath(firstItemPath);
         const parentFolderPath = item?.parent?.path;
         const parentEl = parentFolderPath
@@ -301,7 +305,7 @@ export class PortalsActions {
                         new Notice(`Failed to move ${item.name}`);
                     }
                 }
-                plugin.saveData(plugin.settings).then(() => {
+                void plugin.saveData(plugin.settings).then(() => {
                     view.clearSelection();
                     view.renderContent();
                     new Notice(`Moved ${movedCount} item(s) to ${targetFolder.path}`);
@@ -322,7 +326,9 @@ export class PortalsActions {
     static async createFolderFromSelected(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
         view.cancelScheduledRender();
-        const firstItemPath = view.selectedItems.values().next().value!;
+        const firstItem = view.selectedItems.values().next();
+        if (firstItem.done) return;
+        const firstItemPath = firstItem.value; 
         const item = app.vault.getAbstractFileByPath(firstItemPath);
         const parentFolderPath = item?.parent?.path;
         const parentEl = parentFolderPath
@@ -427,7 +433,7 @@ export class PortalsActions {
         new IconPickerModal(app, (iconName) => {
             view.saveTreeScroll();
             plugin.settings.customIcons[path] = iconName;
-            plugin.saveSettings().then(() => {
+            void plugin.saveSettings().then(() => {
                 view.render();
                 new Notice(`Icon set for ${displayName}`);
             });
@@ -447,7 +453,7 @@ export class PortalsActions {
         new IconPickerModal(app, (iconName) => {
             view.saveTreeScroll();
             plugin.settings.customIcons[groupKey] = iconName;
-            plugin.saveSettings().then(() => {
+            void plugin.saveSettings().then(() => {
                 view.render();
                 new Notice(`Icon set for group ${displayName}`);
             });
@@ -467,7 +473,7 @@ export class PortalsActions {
         view.saveTreeScroll();
         new ColorPickerModal(app, (color) => {
             plugin.settings.customColors[folder.path] = color;
-            plugin.saveSettings().then(() => view.render());
+            void plugin.saveSettings().then(() => view.render());
         }, summaryEl, currentColor).open();
     }
 
@@ -476,21 +482,21 @@ export class PortalsActions {
         view.saveTreeScroll();
         new ColorPickerModal(app, (color) => {
             plugin.settings.customColors[file.path] = color;
-            plugin.saveSettings().then(() => view.render());
+            void plugin.saveSettings().then(() => view.render());
         }, fileEl, currentColor).open();
     }
 
     static resetCustomColorForFile(_app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile): void {
         view.saveTreeScroll();
         delete plugin.settings.customColors[file.path];
-        plugin.saveSettings().then(() => view.render());
+        void plugin.saveSettings().then(() => view.render());
         new Notice('File color reset');
     }
 
     static resetCustomColor(_app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): void {
         view.saveTreeScroll();
         delete plugin.settings.customColors[folder.path];
-        plugin.saveSettings().then(() => view.render());
+        void plugin.saveSettings().then(() => view.render());
     }
 
     static setTagColor(app: App, plugin: PortalsPlugin, view: PortalsView, key: string, targetElement: HTMLElement): void {
@@ -498,14 +504,14 @@ export class PortalsActions {
         view.saveTreeScroll();
         new ColorPickerModal(app, (color) => {
             plugin.settings.tagColors[key] = color;
-            plugin.saveSettings().then(() => view.render());
+            void plugin.saveSettings().then(() => view.render());
         }, targetElement, currentColor).open();
     }
 
     static resetTagColor(_app: App, plugin: PortalsPlugin, view: PortalsView, key: string, _targetElement: HTMLElement): void {
         view.saveTreeScroll();
         delete plugin.settings.tagColors[key];
-        plugin.saveSettings().then(() => view.render());
+        void plugin.saveSettings().then(() => view.render());
     }
 
     // ──────── RENAME HELPERS ────────

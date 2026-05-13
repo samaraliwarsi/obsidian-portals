@@ -1,9 +1,10 @@
 // @ts-check
 import eslint from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
 
-export default tseslint.config(
+export default defineConfig(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   // Config for source files (type‑aware)
@@ -25,15 +26,12 @@ export default tseslint.config(
   },
   // Config for all other files (no type‑checking)
   {
-    files: ['**/*.js', '**/*.mjs'],  // includes this config file
+    files: ['**/*.js', '**/*.mjs'],
     languageOptions: {
       globals: {
         ...globals.node,
         ...globals.browser,
       },
-    },
-    rules: {
-      // you can add simple rules here if needed
     },
   },
   {

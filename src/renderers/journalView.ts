@@ -32,7 +32,7 @@ export class JournalRenderer {
     private startProgressTimer = () => {
         if (this.destroyed) return;
         if (this.progressInterval) {
-            activeWindow.clearInterval(this.progressInterval);
+            window.clearInterval(this.progressInterval);
             this.progressInterval = null;
         }
         const startTime = Date.now();
@@ -43,7 +43,7 @@ export class JournalRenderer {
                 this.progressBar.style.width = `${percent}%`;
             }
             if (elapsed >= 30000) {
-                activeWindow.clearInterval(this.progressInterval!);
+                window.clearInterval(this.progressInterval!);
                 this.progressInterval = null;
                 if (this._updateQuoteAndProgress) {
                     this._updateQuoteAndProgress().catch(console.error);
@@ -108,7 +108,9 @@ export class JournalRenderer {
             } else {
                 // Fallback to daily notes plugin's folder
                 // @ts-expect-error - internal plugin access
-                const dailyNotesPlugin = this.app.internalPlugins?.getPluginById('daily-notes');
+                const dailyNotesPlugin = this.app.internalPlugins?.getPluginById('daily-notes') as
+                    | { enabled: boolean; instance?: { options?: { folder?: string } } }
+                    | undefined;
                 if (dailyNotesPlugin?.enabled && dailyNotesPlugin.instance?.options?.folder) {
                     const folder = this.app.vault.getAbstractFileByPath(dailyNotesPlugin.instance.options.folder);
                     if (folder instanceof TFolder) {
@@ -181,7 +183,7 @@ export class JournalRenderer {
         
     private stopRotation() {
         if (this.progressInterval) {
-            activeWindow.clearInterval(this.progressInterval);
+            window.clearInterval(this.progressInterval);
             this.progressInterval = null;
         }
     }
@@ -368,7 +370,7 @@ export class JournalRenderer {
             card.addEventListener('contextmenu', (e: MouseEvent) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
-                this.toggleMark(n);
+                void this.toggleMark(n);
             });
         });
 
@@ -422,7 +424,7 @@ export class JournalRenderer {
                 quoteDisplay.createEl('p', { text: quote.text, cls: 'journal-quote-text' });
                 quoteDisplay.createEl('small', { text: `— ${quote.date.toLocaleDateString()}`, cls: 'journal-quote-date' });
                 quoteDisplay.onclick = () => {
-                    this.app.workspace.getLeaf().openFile(quote.file);
+                    void this.app.workspace.getLeaf().openFile(quote.file);
                 };
                 quoteDisplay.classList.remove('animation');
                 this.quoteAnimationTimout = null;
@@ -512,9 +514,9 @@ export class JournalRenderer {
         });
 
         // Start with random mode
-        setTimeout(() => {
+        window.setTimeout(() => {
             if (this.container.isConnected) {
-                startRotation();
+                void startRotation();
             }
         }, 0);
     }

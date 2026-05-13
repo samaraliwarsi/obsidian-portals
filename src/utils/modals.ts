@@ -151,12 +151,10 @@ export class ColorPickerModal extends Modal {
             type: 'range',
             attr: { min: '0', max: '1', step: '0.05', value: String(this.opacity) }
         });
-        opacityInput.style.width = '100%';
+        opacityInput.classList.add('portals-opacity-input-full');
 
         const previewContainer = contentEl.createDiv({ cls: 'portals-preview-container' });
         const preview = previewContainer.createDiv();
-        preview.style.height = '30px';
-        preview.style.marginTop = '10px';
         preview.style.backgroundColor = `rgba(255, 0, 0, ${this.opacity})`;
 
         const updatePreview = () => {
@@ -683,7 +681,7 @@ export class ReorderItemsModal extends Modal {
                 newOrder.forEach((key, index) => {
                     custom[key] = index;
                 });
-                this.plugin.saveData(this.plugin.settings).then(() => {
+                void this.plugin.saveData(this.plugin.settings).then(() => {
                     this.view.renderContent();
                 });
             },

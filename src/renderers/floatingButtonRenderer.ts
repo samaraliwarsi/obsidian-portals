@@ -104,7 +104,7 @@ export class FloatingButtonsRenderer {
                                 this.plugin.settings.expandedGroups[currentSpace.path] = validExpanded;
                             }
                         }
-                        this.plugin.saveSettings().then(() => this.view.render());
+                        void this.plugin.saveSettings().then(() => this.view.render());
                     }, relevantTags).open();
                 });
             }
@@ -178,10 +178,10 @@ export class FloatingButtonsRenderer {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             btn.blur();
-            btn.style.display = 'none';
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    btn.style.display = '';
+            btn.classList.add('portals-floating-btn-hidden');
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
+                    btn.classList.remove('portals-floating-btn-hidden');
                 });
             });
             onClick(e);
@@ -192,7 +192,7 @@ export class FloatingButtonsRenderer {
             btn.blur();
             if (this.contextMenuFiredMap.get(btn)) return;
             this.contextMenuFiredMap.set(btn, true);
-            setTimeout(() => this.contextMenuFiredMap.delete(btn), 300);
+            window.setTimeout(() => this.contextMenuFiredMap.delete(btn), 300);
             if (onContextMenu) {
                 onContextMenu(e);
             }

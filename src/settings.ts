@@ -134,7 +134,7 @@ export class SpacesSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         // -------------------- EXPLORER SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Explorer settings').setHeading();
+        new Setting(containerEl).setName('Explorer').setHeading();
 
         new Setting(containerEl)
             .setName('Replace file explorer in left sidebar')
@@ -342,7 +342,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .onClick(() => {
                     new SelectFolderModal(this.app, (folder) => {
                         this.plugin.settings.tagNotesFolderPath = folder.path;
-                        this.plugin.saveSettings();
+                        void this.plugin.saveSettings();
                         this.display();
                     }).open();
                 }))
@@ -457,8 +457,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .onClick(() => {
                     new SelectFolderModal(this.app, (targetFolder) => {
                         this.plugin.settings.journalFolderPath = targetFolder.path;
-                        this.plugin.saveSettings();
-                        this.display(); // refresh the setting UI to show the new path
+                        void this.plugin.saveSettings();
+                        this.display();
                     }).open();
                 }));
 
@@ -942,7 +942,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 window.open('https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md', '_blank');
             }));
 
-        setTimeout(() => {
+        window.setTimeout(() => {
             const maxScroll = containerEl.scrollHeight - containerEl.clientHeight;
             containerEl.scrollTop = Math.min(scrollTop, maxScroll);
         }, 0);
@@ -990,7 +990,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             if (!file) return;
             try {
                 const text = await file.text();
-                const imported = JSON.parse(text);
+                const imported = JSON.parse(text) as Partial<SpacesSettings>;
                 this.plugin.settings = Object.assign({}, DEFAULT_SETTINGS, imported);
                 await this.plugin.saveSettings();
                 this.display();

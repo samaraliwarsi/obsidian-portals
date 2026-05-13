@@ -315,7 +315,7 @@ export class FrontmatterPopup {
                 }
                 new Notice(`Pasted YAML into ${changed} file(s).`);
             };
-            applyChanges();
+            void applyChanges();
         });
 
         // clear all button 
@@ -345,7 +345,7 @@ export class FrontmatterPopup {
                 }
                 new Notice(`Cleared frontmatter in ${cleared} file(s).`);
             };
-            doClear();
+            void doClear();
         });
 
         // ── Buttons ──
@@ -461,7 +461,7 @@ export class FrontmatterPopup {
 
         let type: PropertyType | null = null;
         for (const file of this.app.vault.getMarkdownFiles()) {
-            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
             const v = fm?.[this.propertyName];
             if (v === undefined) continue;
 
@@ -492,7 +492,7 @@ export class FrontmatterPopup {
     private updateValueOptions(): void {
         const valSet = new Set<string>();
         for (const file of this.app.vault.getMarkdownFiles()) {
-            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
             const v = fm?.[this.propertyName];
             if (v !== undefined) {
                 const vals = Array.isArray(v) ? v : [v];
@@ -557,7 +557,7 @@ export class FrontmatterPopup {
     private getOriginalTypedValue(): unknown {
         if (!this.propertyName || !this.value) return undefined;
         for (const file of this.app.vault.getMarkdownFiles()) {
-            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
             if (!fm) continue;
             const raw = fm[this.propertyName];
             if (raw === undefined) continue;
@@ -659,7 +659,7 @@ export class FrontmatterPopup {
             await this.plugin.saveSettings();
             this.view.renderContent();
             this.view.selectedItems = savedSelection;
-            setTimeout(() => this.view.reapplySelectionHighlights(), 50);
+            window.setTimeout(() => this.view.reapplySelectionHighlights(), 50);
         }
         new Notice(`Updated ${changed} file(s).`);
         this.value = '';
