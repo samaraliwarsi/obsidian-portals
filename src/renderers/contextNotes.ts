@@ -547,7 +547,7 @@ export class ContextNotesRenderer {
         const modifyRef = this.app.vault.on('modify', (file) => {
             if (file instanceof TFile && file.path === currentNotePath()) {
                 this.invalidateCache(file);
-                this.render();
+                void this.render();
             }
         });
 

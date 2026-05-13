@@ -319,13 +319,13 @@ export class FrontmatterPopup {
         });
 
         // clear all button 
-        this.clearYamlBtn.addEventListener('click', async () => {
+        this.clearYamlBtn.addEventListener('click', () => {
             if (this.files.length === 0) return;
-            const confirmed = await ConfirmModal.confirm(this.app, `Remove all frontmatter from ${this.files.length} file(s)? This cannot be undone.`);
-            if (!confirmed) return;
+            void (async () => {
+                const confirmed = await ConfirmModal.confirm(this.app, `Remove all frontmatter from ${this.files.length} file(s)? This cannot be undone.`);
+                if (!confirmed) return;
 
-            let cleared = 0;
-            const doClear = async () => {
+                let cleared = 0;
                 for (const file of this.files) {
                     if (file.extension !== 'md') continue;
                     try {
@@ -344,8 +344,7 @@ export class FrontmatterPopup {
                     this.view.renderContent();
                 }
                 new Notice(`Cleared frontmatter in ${cleared} file(s).`);
-            };
-            void doClear();
+            })();
         });
 
         // ── Buttons ──

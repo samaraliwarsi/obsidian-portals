@@ -60,7 +60,7 @@ export class TrashRenderer {
         restoreAllBtn.addEventListener('click', () => {
             void this.restoreAll();
         });
-        deleteAllBtn.addEventListener('click', async () => {
+        deleteAllBtn.addEventListener('click', () => {
             void (async () => {
                 const confirmed = await ConfirmModal.confirm(this.app, 'Permently delete all items in trash?');
                 if (confirmed) this.deleteAll();

@@ -428,7 +428,7 @@ export class FrontmatterClinicRenderer {
             });
 
             // Right‑click value button – only if a real property is selected
-            valueBtn.addEventListener('contextmenu', async (e) => {
+            valueBtn.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (!this.selectedProperty || this.selectedProperty === 'No frontmatter') {
