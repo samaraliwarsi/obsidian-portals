@@ -60,11 +60,11 @@ export class TrashRenderer {
         restoreAllBtn.addEventListener('click', () => {
             void this.restoreAll();
         });
-        deleteAllBtn.addEventListener('click', () => {
-            void (async () => {
-                const confirmed = await ConfirmModal.confirm(this.app, 'Permently delete all items in trash?');
-                if (confirmed) this.deleteAll();
-            })();
+        deleteAllBtn.addEventListener('click', async () => {
+            const confirmed = await ConfirmModal.confirm(this.app, 'Permently delete all items in trash?');
+            if (confirmed) {
+                void this.deleteAll();
+            }
         });
 
         // Empty tree area – will be filled asynchronously

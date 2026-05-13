@@ -2001,7 +2001,7 @@ export class PortalsView extends ItemView {
     
     renderContent() {
         if (this.renderTimer) {
-            activeWindow.clearTimeout(this.renderTimer);
+            window.clearTimeout(this.renderTimer);
             this.renderTimer = null;
         }
         if (this.isDraggingTab) return;
@@ -2198,7 +2198,7 @@ export class PortalsView extends ItemView {
                     new Notice(`Failed to move: ${message}`);
                 } finally {
                     if (this.renderTimer) {
-                        activeWindow.clearTimeout(this.renderTimer);
+                        window.clearTimeout(this.renderTimer);
                         this.renderTimer = null;   
                     }
                     this.renderContent();

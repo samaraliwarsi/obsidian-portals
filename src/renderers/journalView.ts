@@ -192,7 +192,7 @@ export class JournalRenderer {
         this.destroyed = true;
         this.stopRotation();        
         if (this.quoteAnimationTimout) {
-            activeWindow.clearTimeout(this.quoteAnimationTimout);
+            window.clearTimeout(this.quoteAnimationTimout);
             this.quoteAnimationTimout = null;
         }
         this.filesWithWrongDelimiters.clear();
@@ -415,7 +415,7 @@ export class JournalRenderer {
 
         const showQuote = (quote: { text: string; date: Date; file: TFile }) => {
             if (this.quoteAnimationTimout) {
-                activeWindow.clearTimeout(this.quoteAnimationTimout);
+                window.clearTimeout(this.quoteAnimationTimout);
                 this.quoteAnimationTimout = null;
             }
             quoteDisplay.classList.add('animation');
