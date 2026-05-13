@@ -1,7 +1,7 @@
 import { App, TFile, TFolder, Menu } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-import type { BookmarkItem, InternalBookmarksPlugin, PublicBookmarksAPI } from '../types';
+import type { BookmarkItem, InternalPluginsWithBookmarks, PublicBookmarksAPI } from '../types';
 
 export class BookmarksRenderer {
     private app: App;
@@ -45,7 +45,8 @@ export class BookmarksRenderer {
         // internal API fallback 
         if (!usePublic || items.length === 0) {
             // @ts-expect-error - accessing internal plugin API
-            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
+            const internalPlugins = this.app.internalPlugins as unknown as InternalPluginsWithBookmarks | undefined;
+            const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
             if (!bookmarksPlugin?.enabled || !bookmarksPlugin.instance) {
                 contentEl.createEl('p', {
                     text: 'The bookmarks core plugin is not enabled. Settings → core plugins.'
@@ -167,7 +168,8 @@ export class BookmarksRenderer {
             }
         } else {
             // @ts-expect-error - internal plugin API
-            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
+            const internalPlugins = this.app.internalPlugins as unknown as InternalPluginsWithBookmarks | undefined;
+            const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
             if (!bookmarksPlugin?.instance) return;
             if (typeof bookmarksPlugin.instance.removeItem === 'function') {
                 bookmarksPlugin.instance.removeItem(item);

@@ -19,7 +19,7 @@ import { TagTreeRenderer } from './trees/tagtreeRenderer';
 import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
 import { ReorderItemsModal } from './utils/modals';
 import { FrontmatterPopup } from './utils/frontmatterPopup';
-import { InternalBookmarksPlugin } from './types';
+import { InternalPluginsWithBookmarks } from './types';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -1042,7 +1042,8 @@ export class PortalsView extends ItemView {
 
         const setupBookmarksListener = () => {
             // @ts-expect-error - accessing internal plugin API
-            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
+            const internalPlugins = this.app.internalPlugins as unknown as InternalPluginsWithBookmarks | undefined;
+            const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
                 const ref = bookmarksPlugin.instance.on('changed', () => {
                     if (this.plugin.settings.activeSplitTab !== 'bookmarks') return;
@@ -1127,7 +1128,8 @@ export class PortalsView extends ItemView {
         const ref = this.bookmarksListenerRef;
         if (ref) {
             // @ts-expect-error - accessing internal plugin API
-            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
+            const internalPlugins = this.app.internalPlugins as unknown as InternalPluginsWithBookmarks | undefined;
+            const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.off === 'function') {
                 bookmarksPlugin.instance.off('changed', ref);
             }

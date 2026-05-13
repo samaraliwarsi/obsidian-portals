@@ -27,6 +27,10 @@ export interface metadataCacheWithGetTags {
     getTags(): Record< string, number>;
 }
 
+export interface InternalPluginsWithBookmarks {
+    getPluginById(id: 'bookmarks'): InternalBookmarksPlugin | undefined;
+}
+
 export interface BookmarkItem {
     title?: string;
     path?: string;
