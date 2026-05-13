@@ -1126,7 +1126,7 @@ export class PortalsView extends ItemView {
         const ref = this.bookmarksListenerRef;
         if (ref) {
             // @ts-expect-error - accessing internal plugin API
-            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks');
+            const bookmarksPlugin = this.app.internalPlugins?.getPluginById('bookmarks') as InternalBookmarksPlugin | undefined;
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.off === 'function') {
                 bookmarksPlugin.instance.off('changed', ref);
             }

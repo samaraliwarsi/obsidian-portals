@@ -1,5 +1,6 @@
 import { App, Component, MarkdownRenderer, Notice, TFile, TFolder, EventRef } from 'obsidian';
 import type PortalsPlugin from '../main';
+import { CachedMetadataWithFrontmatter } from '../types';
 
 // ────────────────View interface (avoids circular import)────────────────────────────────────────────
 export interface ContextNotesView {
@@ -129,7 +130,7 @@ export function isContextNote(app: App, plugin: PortalsPlugin, file: TFile, targ
         const expectedParent = folderPath || '';
         if (file.parent?.path !== expectedParent) return false;
 
-        const cache = app.metadataCache.getFileCache(file) as { frontmatter?: { tags?: unknown} } | null;
+        const cache = app.metadataCache.getFileCache(file) as CachedMetadataWithFrontmatter | null;
         const tags = cache?.frontmatter?.tags;
         const hasTag = Array.isArray(tags) ? tags.includes(target) : tags === target;
         const safeName = sanitizeTagForFilename(target);
@@ -190,12 +191,13 @@ export async function createContextNote(app: App, plugin: PortalsPlugin, target:
         try {
             const file = await app.vault.create(filePath, `# ${target}\n\n`);
             await app.fileManager.processFrontMatter(file, (fm) => {
-                if (!fm.tags) {
-                    fm.tags = [target];
-                } else if (Array.isArray(fm.tags)) {
-                    if (!fm.tags.includes(target)) fm.tags.push(target);
+                const data = fm as { tags?: unknown };
+                if (data.tags) {
+                    data.tags = [target];
+                } else if (Array.isArray(data.tags)) {
+                    if (!data.tags.includes(target)) data.tags.push(target);
                 } else {
-                    fm.tags = [fm.tags, target];
+                    data.tags = [fm.tags, target];
                 }
             });
             await app.workspace.getLeaf().openFile(file);

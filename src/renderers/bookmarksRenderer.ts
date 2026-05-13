@@ -23,6 +23,12 @@ export interface InternalBookmarksPlugin {
     };
 }
 
+export interface PublicBookmarksAPI {
+    getBookmarks(): BookmarkItem[];
+    remove?(id: string): void;
+    items?: BookmarkItem[];
+}
+
 export class BookmarksRenderer {
     private app: App;
     private plugin: PortalsPlugin;
@@ -51,8 +57,8 @@ export class BookmarksRenderer {
         let items: BookmarkItem[] = [];
         let usePublic = false;
 
-        // @ts-expect-error - accessing public bookmarks API
-        const publicBookmarks = this.app.bookmarks;
+        // @ts-expect-error - bookmarks is not in public App type
+        const publicBookmarks = this.app.bookmarks as unknown as PublicBookmarksAPI | undefined;
         if (publicBookmarks) {
             if (typeof publicBookmarks.getBookmarks === 'function') {
                 items = publicBookmarks.getBookmarks() as BookmarkItem[];
@@ -179,8 +185,8 @@ export class BookmarksRenderer {
 
     private deleteBookmarkItem(item: BookmarkItem, usePublic: boolean, refresh: () => void) {
         if (usePublic) {
-            // @ts-expect-error - public bookmarks API
-            const publicBookmarks = this.app.bookmarks;
+            // @ts-expect-error - bookmarks is not in public App type
+            const publicBookmarks = this.app.bookmarks as unknown as PublicBookmarksAPI | null;
             if (publicBookmarks?.remove && item.id) {
                 publicBookmarks.remove(item.id);
             }

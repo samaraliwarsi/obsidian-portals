@@ -2,10 +2,7 @@ import { Plugin, TFolder, TFile, Notice } from 'obsidian';
 import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
-
-interface metadataCacheWithGetTags {
-    getTags(): Record< string, number>;
-}
+import { CachedMetadataWithFrontmatter, metadataCacheWithGetTags } from './types';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
@@ -53,7 +50,7 @@ export default class PortalsPlugin extends Plugin {
         }
 
         this.addCommand({
-            id: 'open-portals-view',
+            id: 'open-portal-view',
             name: 'Open Explorer',
             callback: () => {
                 void this.activateView();
@@ -408,7 +405,7 @@ export default class PortalsPlugin extends Plugin {
             const base = file.basename;
             // Reverse sanitization: '--' back to '/'
             const possibleTag = base.replace(/--/g, '/');
-            const cache = this.app.metadataCache.getFileCache(file);
+            const cache = this.app.metadataCache.getFileCache(file) as CachedMetadataWithFrontmatter | null;
             const tags = cache?.frontmatter?.tags;
             const hasTag = Array.isArray(tags) ? tags.includes(possibleTag) : tags === possibleTag;
             return hasTag;

@@ -108,9 +108,9 @@ export class JournalRenderer {
             } else {
                 // Fallback to daily notes plugin's folder
                 // @ts-expect-error - internal plugin access
-                const dailyNotesPlugin = this.app.internalPlugins?.getPluginById('daily-notes') as
-                    | { enabled: boolean; instance?: { options?: { folder?: string } } }
-                    | undefined;
+                const dailyNotesPlugin = (this.app.internalPlugins as unknown as {
+                    getPluginById(id: string): { enabled: boolean; instance?: { options?: { folder?: string } } } | undefined;
+                })?.getPluginById('daily-notes');
                 if (dailyNotesPlugin?.enabled && dailyNotesPlugin.instance?.options?.folder) {
                     const folder = this.app.vault.getAbstractFileByPath(dailyNotesPlugin.instance.options.folder);
                     if (folder instanceof TFolder) {

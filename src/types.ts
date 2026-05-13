@@ -16,3 +16,13 @@ export interface PortalStack {
     collapsed: boolean;
     order?: number;
 }
+
+export interface CachedMetadataWithFrontmatter {
+    frontmatter?: {
+        tags?: unknown;
+    };
+}
+
+export interface metadataCacheWithGetTags {
+    getTags(): Record< string, number>;
+}
