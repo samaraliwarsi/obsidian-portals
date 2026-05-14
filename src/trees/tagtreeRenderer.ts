@@ -58,14 +58,7 @@ export class TagTreeRenderer {
             iconSpan.addClass('has-context-note-icon');
             summary.addClass('has-context-note-icon');
         } else if (style === 'underline') {
-            const textMuted = getComputedStyle(document.body).getPropertyValue('--text-muted').trim();
-            const nameSpan = summary.querySelector('.portals-item-name');
-            if (nameSpan instanceof HTMLElement) {
-                nameSpan.setCssProps({
-                    'text-decoration': `underline solid ${textMuted} 2px`,
-                    'text-underline-offset': '2px',
-                });
-            }
+            summary.addClass('has-context-note-underline');
         }
     }
 
