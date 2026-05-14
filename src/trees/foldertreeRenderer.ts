@@ -41,6 +41,12 @@ export class FolderTreeRenderer {
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
         iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
 
+        const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
+        const nameSpan = summary.createSpan({ text: displayName });
+        nameSpan.addClass('portals-item-name');
+        summary.dataset.path = folder.path;
+        summary.dataset.reorderKey = folder.path;
+
         const hasNote = hasContextNote(this.app, this.plugin, folder);
         if (this.plugin.settings.enableContextNotes && hasNote) {
             const style = this.plugin.settings.contextNoteHighlightStyle;
@@ -49,18 +55,17 @@ export class FolderTreeRenderer {
                 if (this.plugin.settings.treeStyle === 'minimal' || this.plugin.settings.treeStyle === 'shades') {
                     summary.addClass('has-context-note-icon');
                 }
-            } else if (style === 'underline') {
-                summary.addClass('has-context-note-underline');
-                const nameSpan = summary.querySelector('.portals-item-name');
-                nameSpan?.addClass('has-context-note-underline');
+            } else if (style === 'underline') {    
+                const textMuted = getComputedStyle(document.body).getPropertyValue('--text-muted').trim();
+                if (nameSpan instanceof HTMLElement) {
+                    nameSpan.setCssProps({
+                        'text-decoration': `underline solid ${textMuted} 2px`,
+                        'text-underline-offset': '2px',
+                    });
+                }
             }
         }
 
-        const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
-        const nameSpan = summary.createSpan({ text: displayName });
-        nameSpan.addClass('portals-item-name');
-        summary.dataset.path = folder.path;
-        summary.dataset.reorderKey = folder.path;
 
         const activePath = this.view.getActiveFilePath();  // need to keep getActiveFilePath public or add a getter
         if (activePath) {
