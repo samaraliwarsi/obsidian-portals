@@ -10,7 +10,7 @@
 }
 
 .ph {
-  font-family: "Phosphor" !important;
+  font-family: "Phosphor";
   speak: never;
   font-style: normal;
   font-weight: normal;
@@ -4636,7 +4636,6 @@ button.portals-reset-btn {
   -webkit-appearance: none;
   cursor: pointer;
   outline: none;
-  appearance: none;
   --webkit-app-region: no-drag;
   box-shadow: none;
 }
@@ -4735,7 +4734,7 @@ button.portals-reset-btn {
 
 /*---Default style custom colors--*/
 .portals-tree-style-default .folder-summary.has-folder-color {
-    background-color: var(--folder-color) !important;
+    background-color: var(--folder-color);
     border-radius: var(--radius-s, 0);
 }
 .portals-tree-style-default .folder-children.has-folder-color {
@@ -4762,7 +4761,7 @@ button.portals-reset-btn {
 
 .portals-tree-style-minimal .folder-summary::before {
     content: "•";
-    font-family: monospace !important;
+    font-family: monospace;
     font-size: 1em;
     margin-right: 4px;
     transition: transform 0.15s;
@@ -4832,7 +4831,7 @@ button.portals-reset-btn {
 /*Minimal: Split Tab*/
 .portals-split-content.portals-tree-style-minimal .file-item::before {
   content: "•";
-    font-family: monospace !important;
+    font-family: monospace;
     font-size: 1em;
     margin-right: 4px;
     transition: transform 0.15s;
@@ -4865,7 +4864,7 @@ button.portals-reset-btn {
 
 .portals-tree-style-portals .folder-summary {
     margin-left: 0;
-    padding-left: 12px !important;
+    padding-left: 12px;
     transition: background-color 0.1s;
     box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 1%, transparent);
 }
@@ -4876,21 +4875,11 @@ button.portals-reset-btn {
 }
 
 .portals-tree-style-portals .folder-children {
-    margin-left: 16px;
+    margin-left: 18px;
     padding-bottom: 2px;
     border-left: none;
 }
 
-/*Portals: Compact Mode*/
-.portals-tree-container.portals-compact-tree.portals-tree-style-leftborder .folder-children {
-    margin-left: 16px;
-}
-.portals-tree-container.portals-compact-tree.portals-tree-style-leftborder .folder-details {
-    margin: 1px 0;
-}
-.portals-tree-container.portals-compact-tree.portals-tree-style-leftborder .folder-summary {
-    padding-left: 8px !important;
-}
 
 /*Portals: Split Tab*/
 .portals-split-content.portals-tree-style-portals .file-item {
@@ -4942,7 +4931,7 @@ button.portals-reset-btn {
     background-color: rgba(128, 128, 128, var(--folder-shade-opacity, 0.15));
     border-radius: 4px;
     margin: 2px 0;
-    padding: 4px 8px !important;
+    padding: 4px 8px;
 }
 
 .portals-tree-style-shades details[open] > .folder-summary.shaded-folder-summary {
@@ -4971,7 +4960,7 @@ button.portals-reset-btn {
 
 .portals-tree-style-shades .folder-summary::before {
     content: "•";
-    font-family: monospace !important;
+    font-family: monospace;
     font-size: 1em;
     margin-right: 2px;
     transition: transform 0.15s;
@@ -5003,8 +4992,8 @@ button.portals-reset-btn {
 /* Shades - compact tree */ 
 
 .portals-tree-container.portals-compact-tree.portals-tree-style-shades .folder-children.shaded-folder-children {
-    margin-left: 0 !important;   /* set to measured bullet offset */
-    padding-left: 14px !important;
+    margin-left: 0;   /* set to measured bullet offset */
+    padding-left: 14px;
 }
 
 .portals-tree-container.portals-compact-tree.portals-tree-style-shades .folder-children {
@@ -5039,7 +5028,7 @@ button.portals-reset-btn {
     );
     border-radius: 4px;
     margin: 2px 0;
-    padding: 4px 8px !important;
+    padding: 4px 8px;
 }
 
 .portals-tree-style-hues details[open] > .folder-summary.hued-folder-summary {
@@ -5085,8 +5074,8 @@ button.portals-reset-btn {
 
 /* Hues - compact tree support */
 .portals-tree-container.portals-compact-tree.portals-tree-style-hues .folder-children.hued-folder-children {
-    margin-left: 0 !important;
-    padding-left: 14px !important;
+    margin-left: 0;
+    padding-left: 14px;
 }
 
 .portals-tree-container.portals-compact-tree.portals-tree-style-hues .folder-children {
@@ -5121,28 +5110,28 @@ button.portals-reset-btn {
 /* Light mode overrides */
 body.theme-light .portals-tree-style-hues .hued-folder-summary {
     background: linear-gradient(135deg,
-        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.3)),
-        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.3))
-    ) !important;
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.4)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.4))
+    );
 }
 body.theme-light .portals-tree-style-hues .folder-children.hued-folder-children {
     background: linear-gradient(135deg,
-        hsla(var(--hue-start, 200), 100%, 40%, calc(var(--hue-opacity, 0.3) * 0.5)),
-        hsla(var(--hue-end, 260), 100%, 40%, calc(var(--hue-opacity, 0.3) * 0.5))
-    ) !important;
+        hsla(var(--hue-start, 200), 100%, 40%, calc(var(--hue-opacity, 0.3) * 0.8)),
+        hsla(var(--hue-end, 260), 100%, 40%, calc(var(--hue-opacity, 0.3) * 0.8))
+    );
 }
 body.theme-light .portals-tree-style-hues .hued-folder-summary:hover {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9)),
         hsla(var(--hue-end, 260), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9))
-    ) !important;
+    );
 }
 /* Light mode split tab */
 body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.3)),
         hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.3))
-    ) !important;
+    );
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -5376,11 +5365,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-}
-
-.portals-group-tags-modal .modal-button-container button:not(.mod-cta):hover {
-    background: var(--background-modifier-hover);
-}
+}s
 
 /*--------------------- Remove Portal Modal ----------------*/
 
@@ -5427,18 +5412,14 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     padding-top: 16px;
 }
 
-.portals-color-modal .portals-input-container input {
-  width: 25%;
-}
-
 .portals-color-modal .portals-preview-container div {
   border-radius: 10px;
   height: 30px;
   margin-top: 10px;
 }
 
-.portals-opacity-input-full {
-    width: 100% !important;
+.portals-color-modal .portals-opacity-input-full {
+    width: 100%;
 }
 
 /*--------------------- Folder picker Modal ----------------*/
@@ -5993,8 +5974,8 @@ list-style: none;
 padding: 4px 0;
 width: 100%;
 box-sizing: border-box;
-padding-left: 12px !important;
-padding-right: 12px !important;
+padding-left: 12px;
+padding-right: 12px;
 border-radius: 4px;
 }
 
@@ -6035,8 +6016,8 @@ cursor: pointer;
 border-radius: 4px;
 width: 100%;
 box-sizing: border-box;
-padding-left: 12px !important;
-padding-right: 12px !important;
+padding-left: 12px;
+padding-right: 12px;
 margin-bottom: 8px;
 }
 
@@ -6097,7 +6078,7 @@ vertical-align: middle;
 }
 
 .open-dot-hidden {
-    display: none !important;
+    display: none;
 }
 
 /* Extension text badge for non-markdown files */ 
@@ -6117,14 +6098,14 @@ vertical-align: middle;
 /* Highlight for newly created items */
 
 .portals-item-highlight {
-background-color: 3px solid var(--interactive-accent) !important;
+background-color: 3px solid var(--interactive-accent);
 transition: border-bottom 0.5s;
 }
 
 /* Drag‑over feedback */
 
 .drag-over {
-background-color: var(--interactive-accent) !important;
+background-color: var(--interactive-accent);
 opacity: 0.7;
 }
 
@@ -6154,8 +6135,8 @@ opacity: 0.7;
 font-size: 18px;
 }
 
-.portals-floating-btn-hidden {
-  display: none !important;
+.portals-floating-btn.portals-floating-btn-hidden {
+  display: none;
 }
 
 .portals-floating-btn:focus,
@@ -6170,63 +6151,30 @@ font-size: 18px;
 /* ----- Mobile adjustments ----- */
 
 @media (max-width: 768px) {
-.portals-tab {
-padding: 8px 12px;
-font-size: 1em;
-margin-top: 2px;
-}
+  .portals-tab {
+    padding: 8px 12px;
+    font-size: 1em;
+    margin-top: 2px;
+  }
 
-.portals-tab-icon {
-width: 20px;
-height: 20px;
-}
+  .portals-tab-icon {
+    width: 20px;
+    height: 20px;
+  }
 
-.portals-tab-icon .ph {
-font-size: 20px;
-}
+  .portals-tab-icon .ph {
+  font-size: 20px;
+  }
 
-.portals-tab-bar {
-padding-bottom: 20px;
-margin-top: 15px;
-position: relative;
-}
+  .portals-tab-bar {
+    padding-bottom: 20px;
+    margin-top: 15px;
+    position: relative;
+    }
 
-.portals-tab-bar::-webkit-scrollbar {
-height: 12px;
-}
-
-/* Settings page adjustments */
-
-.portals-color-wrapper {
-flex-direction: column !important;
-align-items: flex-start !important;
-width: 100% !important;
-box-sizing: border-box;
-padding: 4px;
-}
-
-.portals-color-wrapper input[type="color"] {
-width: 100% !important;
-height: 40px !important;
-}
-
-.portals-color-wrapper input[type="range"] {
-width: 100% !important;
-}
-
-.portals-color-wrapper .portals-color-preview {
-width: 100% !important;
-height: 30px !important;
-}
-
-.portals-color-wrapper span {
-display: block;
-width: 100%;
-text-align: left;
-}
-
-
-
+  .portals-tab-bar::-webkit-scrollbar {
+    height: 12px;
+  }
 }
 
 /*===CSS for Split Panel===*/
@@ -6301,7 +6249,7 @@ text-align: left;
 }
 
 body.portals-dragging {
-    cursor: ns-resize !important;
+    cursor: ns-resize;
     user-select: none;
 }
 
@@ -6421,8 +6369,8 @@ body.portals-dragging {
 
 /* Modal selection highlight */
 .add-portal-item.is-selected {
-    background: var(--interactive-accent) !important;
-    color: var(--text-on-accent) !important;
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
 }
 
 /* ===== Settings page ===== */
@@ -6553,9 +6501,9 @@ body.portals-dragging {
 
 /* Make section headings same size as setting titles */
 .vertical-tab-content details summary {
-    font-size: var(--font-ui-small);  /* Obsidian's default for setting titles */
-    font-weight: 400 !important;                 /* normal weight (remove bold) */
-    padding: 4px 0;                   /* adjust spacing as needed */
+    font-size: var(--font-ui-small);
+    font-weight: 400;
+    padding: 4px 0;
 }
 
 /* ----- Mobile overrides (max-width: 768px) ----- */
@@ -6592,11 +6540,11 @@ body.portals-dragging {
     flex: 0 1 auto;
   }
 
-  .portals-color-compact .portals-color-input {
-    width: 50px !important;
-    height: 30px !important;
-    min-width: 50px !important;
-    max-width: 50px !important;
+  .portals-color-compact .portals-color-input input {
+    width: 50px;
+    height: 30px;
+    min-width: 50px;
+    max-width: 50px;
     border-radius: 4px;
     flex-shrink: 0;
     -webkit-appearance: none;
@@ -6639,12 +6587,10 @@ body.portals-dragging {
     background: var(--interactive-accent);
     color: var(--text-on-accent);
     border-radius: var(--input-radius);
-    text-decoration: none;
     font-size: 0.9em;
 }
 .portals-embed-link a:hover {
     background: var(--interactive-accent-hover);
-    text-decoration: none;
 }
 
 .portals-context-note-message {
@@ -6665,13 +6611,12 @@ body.portals-dragging {
 }
 
 .folder-summary.has-context-note-underline .portals-item-name {
-  text-decoration: underline;
+  text-decoration-line: underline;
   text-decoration-thickness: 2px;
   text-decoration-color: var(--text-muted);
   text-underline-offset: 2px;
 }
 
-/* Overlay – transparent, positioned top‑right, non‑interactive */
 .portals-context-note-status-overlay {
     position: absolute;
     top: 0;
@@ -6681,8 +6626,8 @@ body.portals-dragging {
     display: flex;
     justify-content: flex-end;
     padding: 2px;
-    background: transparent !important;
-    margin-right: 16px;                   /* keep a gap */
+    background: transparent;
+    margin-right: 16px;
 }
 
 .portals-context-note-status-overlay-text {
@@ -6690,8 +6635,8 @@ body.portals-dragging {
     width: fit-content;
     max-width: 100%;
     padding: 2px 4px;
-    background: var(--background-modifier-border);
-    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.3);
+    background: var(--background-primary);
+    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.1);
     border-radius: 4px;
     font-size: 8px;
     color: var(--text-faint);
@@ -6710,7 +6655,7 @@ body.portals-dragging {
 
 .portals-tree-container.portals-compact-tree .folder-summary,
 .portals-tree-container.portals-compact-tree .file-item {
-    padding: 2px 8px 2px 8px !important;
+    padding: 2px 8px 2px 8px;
     gap: 4px;
 }
 
@@ -6871,11 +6816,11 @@ body.portals-dragging {
 @media (prefers-reduced-motion: reduce) {
   .journal-quote-display,
   .journal-quote-display.animation {
-    transition: none !important;
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
+    transition: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
   }
 }
 
@@ -6924,7 +6869,7 @@ button.journal-filter-btn i {
 }
 
 .journal-card-marked {
-  border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent)) !important;
+  border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
 
 /*=============================JOURNAL-END============================*/
@@ -7001,8 +6946,6 @@ button.journal-btn.fm-value-btn {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-
 
 .fm-current-value {
     display: block;
@@ -7155,14 +7098,14 @@ button.unhide-btn:not(.clickable-icon):hover {
 }
 
 .portals-hidden-tab.portals-tree-style-shades .file-item {
-  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15)) !important;
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
 }
 
 .portals-hidden-tab.portals-tree-style-hues .file-item {
   background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
         hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
-    ) !important;
+    );
 }
 
 .portals-reset-btn.unhide-btn-all {
@@ -7417,7 +7360,7 @@ button.trash-delete-btn:not(.clickable-icon):hover {
 
 /*Shades specific*/
 .portals-split-content.portals-tree-style-shades .trash-tree > .folder-details > .folder-summary {
-  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.1)) !important;
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.1));
   margin: 0;
 }
 
@@ -7428,32 +7371,31 @@ button.trash-delete-btn:not(.clickable-icon):hover {
 .portals-split-content.portals-tree-style-shades .trash-tree > .folder-details {
   background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.05));
   border-radius: 4px;
-  margin-bottom: 4px !important;
+  margin-bottom: 4px;
 }
 
 .portals-split-content.portals-tree-style-shades .trash-tree > :last-child {
-    margin-bottom: 0px !important;
+    margin-bottom: 0px;
 }
 
-
 .portals-split-content.portals-tree-style-shades .trash-tree .folder-children .folder-summary {
-    background-color: transparent !important;
+    background-color: transparent;
     border-radius: 0;
 }
 
 .portals-split-content.portals-tree-style-shades .trash-tree .folder-children .folder-children {
-    background-color: transparent !important;
+    background-color: transparent;
     margin: 0;
 }
 
 .portals-split-content.portals-tree-style-shades .trash-tree .folder-children .file-item {
-    background-color: transparent !important;
+    background-color: transparent;
     margin: 4px;
 }
 
 .portals-split-content.portals-tree-style-shades .trash-tree .folder-summary:hover,
 .portals-split-content.portals-tree-style-shades .trash-tree .file-item:hover {
-  background-color: rgba(128, 128, 128, 0.15) !important;
+  background-color: rgba(128, 128, 128, 0.15);
   color: var(--text-normal);
   border-radius: 4px;
   filter: brightness(1.1);
@@ -7465,7 +7407,7 @@ button.trash-delete-btn:not(.clickable-icon):hover {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.08)),
         hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.08))
-    ) !important;
+    );
     border-radius: 4px;
     margin: 4px 0;
 }
@@ -7474,14 +7416,14 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
   background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
         hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
-    ) !important;
+    );
 }
 
 .portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-summary {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.1)),
         hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.1))
-    ) !important;
+    );
     margin: 0;
     border-radius: 4px;
 }
@@ -7490,7 +7432,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
   background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
         hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
-    ) !important;
+    );
 }
 
 
@@ -7499,7 +7441,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
 }
 
 .portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-children {
-    background: transparent !important;
+    background: transparent;
     border-radius: 0 0 4px 4px;
     margin: 0;
 }
@@ -7508,7 +7450,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
         hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
-    ) !important;
+    );
     border-radius: 4px;
     margin: 4px 0;
 }
@@ -7517,14 +7459,14 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
 .portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-summary,
 .portals-split-content.portals-tree-style-hues .trash-tree .folder-children .file-item,
 .portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-children {
-    background: transparent !important;
+    background: transparent;
     border-radius: 0;
     margin: 0;
 }
 
 .portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
 .portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {
-    background-color: rgba(128, 128, 128, 0.15) !important;
+    background-color: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
     border-radius: 4px;
     filter: brightness(1.1);
@@ -7532,17 +7474,10 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .f
 
 body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
 body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {
-    background-color: rgba(128, 128, 128, 0.2) !important;
+    background-color: rgba(128, 128, 128, 0.2);
     filter: brightness(1.1);
 }  
 
-.portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
-.portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {
-  background-color: rgba(128, 128, 128, 0.15) !important;
-  color: var(--text-normal);
-  border-radius: 4px;
-  filter: brightness(1.1);
-}
 
 .portals-split-content.portals-tree-style-portals .folder-summary::before,
 .portals-split-content.portals-tree-style-boxed .folder-summary::before,
@@ -7581,7 +7516,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .fil
 }
 
 .portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-children .file-item {
-  background: none !important;
+  background: none;
 }
 
 .portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-children {
@@ -7594,21 +7529,21 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .fil
   background: linear-gradient(135deg,
     hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.1)),
     hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.1))
-  ) !important;
+  );
 }
 
 body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary {
 background: linear-gradient(135deg,
     hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
     hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
-  ) !important;
+  );
 }
 
 .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-details {
   background: linear-gradient(135deg,
     hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.08)),
     hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.08))
-  ) !important;
+  );
   border-radius: 0 0 4px 4px;
   margin-bottom: 2px;
 }
@@ -7617,7 +7552,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   background: linear-gradient(135deg,
       hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
       hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
-    ) !important;
+    );
 }
 
 .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children {
@@ -7626,13 +7561,13 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary:hover,
 .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children .file-item:hover {
-  background-color: rgba(128, 128, 128, 0.15) !important;
+  background-color: rgba(128, 128, 128, 0.15);
   filter: brightness(1.1);
   color: var(--text-normal);
 }
 
 .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children .file-item {
-  background: none !important;
+  background: none;
 }
 
 
@@ -7748,7 +7683,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 }
 
 .portals-reordering-source-active {
-    box-shadow: 0 -2px 0 0 var(--interactive-accent) !important;
+    box-shadow: 0 -2px 0 0 var(--interactive-accent);
     border-radius: 6px;
 }
 
@@ -7756,7 +7691,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     box-shadow: 
       1px 0 0 0 var(--text-faint),
       -1px 0 0 0 var(--text-faint),
-      0 1px 0 0 var(--text-faint) !important;
+      0 1px 0 0 var(--text-faint);
     border-radius: 4px;
 }
 
@@ -7977,20 +7912,4 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     border-radius: 8px;
     transition: all 0.15s;
     font-size: normal;
-}
-
-/* ===== Force‑override bottom spacing (fixes theme‑added gaps) ===== */
-
-.portals-container {
-padding-bottom: 0 !important;
-}
-
-.portals-content {
-margin-top: 0 !important;
-padding-top: 0 !important;
-}
-
-.workspace-leaf-content {
-padding-bottom: 0 !important;
-margin-bottom: 0 !important;
 }
