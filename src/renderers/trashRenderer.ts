@@ -1,6 +1,7 @@
 import { App, normalizePath, Notice, Platform } from 'obsidian';
 import { PortalsView } from '../view';
 import { ConfirmModal } from '../utils/modals';
+import PortalsPlugin from '../main';
 
 interface TrashItem {
     path: string;
@@ -11,6 +12,7 @@ interface TrashItem {
 
 export class TrashRenderer {
     private app: App;
+    private plugin: PortalsPlugin;
     private container: HTMLElement;
     private items: TrashItem[] = [];
     private destroyed = false;
@@ -20,8 +22,9 @@ export class TrashRenderer {
     private loadId = 0;
     private view: PortalsView;
 
-    constructor(app: App, container: HTMLElement, view: PortalsView) {
+    constructor(app: App, plugin: PortalsPlugin, container: HTMLElement, view: PortalsView) {
         this.app = app;
+        this.plugin = plugin;
         this.container = container;
         this.view = view;
     }
@@ -49,6 +52,14 @@ export class TrashRenderer {
         this.stopPolling();
         this.container.empty();
 
+        const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+        const tabColorEnabled = this.plugin.settings.tabColorEnabled;
+        if (tabColorEnabled && rootSpace?.color && rootSpace.color !== 'transparent') {
+            this.container.style.setProperty('--trash-accent-color', rootSpace.color);
+        } else {
+            this.container.style.removeProperty('--trash-accent-color');
+        }
+
         // Buttons row – appears instantly
         const btnRow = this.container.createDiv({ cls: 'trash-btn-row' });
         const restoreAllBtn = btnRow.createEl('button', {
@@ -66,6 +77,7 @@ export class TrashRenderer {
                 if (confirmed) void this.deleteAll();
             })();
         });
+        
 
         // Empty tree area – will be filled asynchronously
         const treeContainer = this.container.createDiv({ cls: 'trash-tree' });
@@ -76,7 +88,7 @@ export class TrashRenderer {
         if (this.destroyed || id !== this.loadId) return;
 
         this.items = items;
-        treeContainer.empty();               // clear the empty placeholder
+        treeContainer.empty();
 
         if (items.length === 0) {
             treeContainer.createEl('p', {

@@ -6636,8 +6636,8 @@ body.portals-dragging {
 }
 
 .folder-summary.has-context-note-underline .portals-item-name {
-  text-decoration: underline solid var(--text-muted) 2px;
-  text-underline-offset: 2px;
+  flex: 0 1 auto;
+  box-shadow: inset 0 -1px 0 var(--text-muted);
 }
 
 .portals-context-note-status-overlay {
@@ -7320,7 +7320,7 @@ button.unhide-btn:not(.clickable-icon):hover {
 .portals-reset-btn.fm-value-btn, 
 .portals-reset-btn.side-portal-btn-warn {
   display: flex;
-  border-left: 2px solid var(--hidden-accent-color, var(--interactive-accent));
+  border-left: 2px solid var(--hidden-accent-color, var(--fm-accent-color, var(--trash-accent-color, var(--interactive-accent))));
   background: transparent;
   border-radius: 4px;
   cursor: pointer;

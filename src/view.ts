@@ -1998,7 +1998,7 @@ export class PortalsView extends ItemView {
             }
             contentEl.empty();
             contentEl.addClass('portals-trash-tab');
-            this.trashRenderer = new TrashRenderer(this.app, contentEl, this)
+            this.trashRenderer = new TrashRenderer(this.app, this.plugin, contentEl, this)
             await this.trashRenderer.render();
         }
     }
