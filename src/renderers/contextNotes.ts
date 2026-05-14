@@ -252,6 +252,7 @@ export class ContextNotesRenderer {
     private eventRefs: EventRef[] = [];
     private destroyed = false;
     private currentNotePath: string | null = null;
+    private _currentRenderToken: object | null = null;
 
     constructor(app: App, plugin: PortalsPlugin, view: ContextNotesView, container: HTMLElement, scrollCache: Map<string, number>) {
         this.app = app;
@@ -284,6 +285,8 @@ export class ContextNotesRenderer {
     public async render(): Promise<void> {
         this.destroyed = false;
         this.container.empty();
+        const token = {};
+        this._currentRenderToken = token;
 
         const targetFile = resolveContextNote(this.app, this.plugin, this.plugin.settings.selectedSpace);
         if (!targetFile) {
@@ -292,13 +295,15 @@ export class ContextNotesRenderer {
         }
 
         this.ensureContextNoteOverlay(this.container, targetFile);
-        await this.renderNote(targetFile);
+        await this.renderNote(targetFile, token);
+        if (this._currentRenderToken !== token) return;
         this.watchForInternalLinks(this.container, targetFile.path);
         this.registerVaultEvents();
     }
 
     public destroy(): void {
         this.destroyed = true;
+        this._currentRenderToken = null;
 
         if (this.linkObserver) {
             this.linkObserver.disconnect();
@@ -335,7 +340,7 @@ export class ContextNotesRenderer {
         });
     }
 
-    private async renderNote(targetFile: TFile): Promise<void> {
+    private async renderNote(targetFile: TFile, token: object): Promise<void> {
         const path = targetFile.path;
         this.currentNotePath = targetFile.path;
 
@@ -362,11 +367,13 @@ export class ContextNotesRenderer {
 
         try {
             const content = await this.app.vault.read(targetFile);
+            if (this._currentRenderToken !== token) return;
             const component = new Component();
             this.view.addChild(component);
 
             await MarkdownRenderer.render(this.app, content, noteContainer, targetFile.path, component);
             await this.processEmbeds(noteContainer, component, targetFile.path);
+            if (this._currentRenderToken !== token) return;
 
             noteContainer.addEventListener('click', (e) => {
                 const target = e.target as HTMLElement;
@@ -398,16 +405,16 @@ export class ContextNotesRenderer {
                     this.cache.delete(oldest);
                 }
             }
+            this.container.appendChild(noteContainer);
+            const savedScroll = this.scrollCache.get(targetFile.path);
+            if (savedScroll !== undefined) {
+                window.requestAnimationFrame(() => {
+                    noteContainer.scrollTop = savedScroll;
+                });
+            }
         } catch (err) {
             console.error('Error rendering context note:', err);
             noteContainer.setText('Error rendering note.');
-        }
-        this.container.appendChild(noteContainer);
-        const savedScroll = this.scrollCache.get(targetFile.path);
-        if (savedScroll !== undefined) {
-            window.requestAnimationFrame(() => {
-                noteContainer.scrollTop = savedScroll;
-            });
         }
     }
 

@@ -6216,23 +6216,30 @@ font-size: 18px;
   font-size: 12px;
 }
 
-.portals-split-content::-webkit-scrollbar {
+.portals-split-content::-webkit-scrollbar,
+.portals-context-note-container::-webkit-scrollbar, 
+.portals-tree-container::-webkit-scrollbar {
   width: 8px;
 }
 
-.portals-split-content::-webkit-scrollbar-track {
+.portals-split-content::-webkit-scrollbar-track,
+.portals-context-note-container::-webkit-scrollbar-track,
+.portals-tree-container::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.portals-split-content::-webkit-scrollbar-thumb {
+.portals-split-content::-webkit-scrollbar-thumb,
+.portals-context-note-container::-webkit-scrollbar-thumb,
+.portals-tree-container::-webkit-scrollbar-thumb {
   background: var(--background-modifier-border);
   border-radius: 4px;
 }
 
-.portals-split-content::-webkit-scrollbar-thumb:hover {
+.portals-split-content::-webkit-scrollbar-thumb:hover,
+.portals-context-note-container::-webkit-scrollbar-thumb:hover,
+.portals-tree-container::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
-
 
 /* Main panel */
 .portals-main-panel {
