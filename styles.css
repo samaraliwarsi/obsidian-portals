@@ -6241,9 +6241,6 @@ font-size: 18px;
   background: var(--text-muted);
 }
 
-.portals-tree-container::-webkit-scrollbar:active {
-  width: 8px;
-}
 /* Main panel */
 .portals-main-panel {
     flex: 1;
