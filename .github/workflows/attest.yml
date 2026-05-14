@@ -3,26 +3,31 @@ name: Attest release assets
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to attest (e.g. 1.3.0)'
+        required: true
 
 jobs:
   attest:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
       id-token: write
+      contents: read
       attestations: write
     steps:
-      - name: Download assets
+      - name: Download assets from the release
         run: |
-          gh release download ${{ github.event.release.tag_name }} \
+          gh release download ${{ github.event.inputs.tag || github.event.release.tag_name }} \
             --repo ${{ github.repository }} \
             --pattern 'main.js' \
             --pattern 'styles.css'
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Attest
-        uses: actions/attest-build-provenance@v1
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
         with:
           subject-path: |
             main.js
