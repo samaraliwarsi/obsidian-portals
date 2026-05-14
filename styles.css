@@ -4876,12 +4876,9 @@ button.portals-reset-btn {
 }
 
 .portals-tree-style-portals .folder-children {
-    border-left: none;
-}
-
-.portals-tree-style-portals .folder-children {
     margin-left: 16px;
     padding-bottom: 2px;
+    border-left: none;
 }
 
 /*Portals: Compact Mode*/
@@ -5381,26 +5378,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
   gap: 12px;
 }
 
-.portals-group-tags-modal button:not(.clickable-icon) {
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-weight: 500;
-    transition: all 0.15s;
-}
-
-.portals-group-tags-modal .modal-button-container button.mod-cta {
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
-}
-
-.portals-group-tags-modal .modal-button-container button.mod-cta:hover {
-    filter: brightness(0.95);
-}
-
-.portals-group-tags-modal .modal-button-container button:not(.mod-cta) {
-    background: var(--background-secondary);
-}
-
 .portals-group-tags-modal .modal-button-container button:not(.mod-cta):hover {
     background: var(--background-modifier-hover);
 }
@@ -5616,10 +5593,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 
 .portals-icon-picker-icon {
     font-size: 24px;
-}
-
-.icon-item:hover {
-    background-color: var(--background-modifier-hover);
 }
 
 /* ===== Settings Section ===== */
@@ -5868,14 +5841,6 @@ vertical-align: middle;
     border-color: transparent transparent var(--background-modifier-message) transparent;
 }
 
-.portals-tooltip::before {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-style: solid;
-}
-
 .portals-tooltip-below::before {
     top: -6px;
     left: 50%;
@@ -5937,7 +5902,6 @@ vertical-align: middle;
     overflow-y: hidden;
     white-space: nowrap;
     flex-wrap: nowrap;
-    flex-shrink: 1;
     min-width: 0;
     display: flex;
     align-items: center;
@@ -6572,10 +6536,6 @@ body.portals-dragging {
   -webkit-appearance: none;
   margin: 0;
 }
-.portals-color-compact input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
 
 /* Preview swatch (shows the actual color) */
 .portals-color-compact .portals-color-preview {
@@ -6646,13 +6606,6 @@ body.portals-dragging {
     background: none;
   }
 
-  .portals-color-compact input[type="number"] {
-    width: 70px;
-    height: 30px;
-    font-size: 1em;
-    padding: 4px 8px;
-    flex-shrink: 1;
-  }
 
   .portals-color-compact span {
     font-size: 1.2em;
@@ -6811,10 +6764,6 @@ body.portals-dragging {
     position: relative;
 }
 
-.journal-card-marked {
-    border-bottom: 2px solid var(--interactive-accent) !important;
-}
-
 .journal-card:hover {
     transform: scale(1.05);
     background-color: var(--background-modifier-hover);
@@ -6824,7 +6773,6 @@ body.portals-dragging {
     font-size: 0.8em;
     font-weight: bold;
     text-align: center;
-    text-justify: center;
 }
 
 .journal-cards-wrapper {
@@ -6867,7 +6815,6 @@ body.portals-dragging {
 
 /* Uncomment this for accent/ tab colors on indicator */
 /*.journal-quote-indicator i { color: var(--journal-accent-color, var(--interactive-accent)); } */
-
 
 .journal-quote-text {
     margin: 0 0 8px 0;
@@ -7041,13 +6988,6 @@ button.journal-btn.fm-value-btn {
     border-radius: 4px;
 }
 
-.portals-frontmatter-clinic .dropdown {
-    all: unset;
-    padding: 4px 6px;
-    font-size: x-small;
-    border-radius: 4px;
-}
-
 .fm-clinic-file-list {
     max-height: 300px;
     overflow-y: auto;
@@ -7062,9 +7002,7 @@ button.journal-btn.fm-value-btn {
     text-overflow: ellipsis;
 }
 
-.fm-file-name:hover {
-    text-decoration: none;
-}
+
 
 .fm-current-value {
     display: block;
@@ -7177,83 +7115,6 @@ button.clickable-icon.fm-edit-btn:hover {
   border: 1px dashed var(--interactive-accent);
 }
 
-
-/*=======================FRONTMATTER MODAL================================*/
-
-.fm-advanced-properties {
-    max-height: 300px;
-    overflow-y: auto;
-    margin: 12px 0;
-}
-
-.fm-advanced-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-.fm-advanced-key {
-    min-width: 100px;
-    font-weight: 500;
-}
-
-.fm-advanced-value {
-    flex: 1;
-}
-
-.fm-delete-property {
-    padding: 2px;
-}
-
-.fm-advanced-add-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-}
-
-.fm-advanced-add-row input {
-    flex: 1;
-}
-
-.fm-advanced-toggle {
-    display: block;
-    margin: 12px auto 0;
-    background: transparent;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 4px;
-    padding: 4px 12px;
-    cursor: pointer;
-}
-
-.fm-advanced-value {
-    width: 100%;
-}
-
-.fm-value-container {
-    flex: 1;
-    display: flex;
-    gap: 4px;
-}
-
-.fm-advanced-select {
-    flex: 2;
-    min-width: 150px;
-    max-height: 120px;
-    overflow-y: auto;
-}
-
-.fm-advanced-custom-input {
-    flex: 3;
-    min-width: 120px;
-}
-
-.fm-advanced-value-btn .menu,
-.menu:has(.fm-advanced-value-btn) {
-    max-height: 300px !important;
-    overflow-y: auto !important;
-}
-
 /*=======================HIDDEN ITEMS SIDE PORTAL=========================*/
 .hidden-type-label {
     display: block;
@@ -7355,7 +7216,6 @@ button.unhide-btn:not(.clickable-icon):hover {
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-s);
     padding: 6px;
-    max-height: min(60vh, 400px);
     z-index: var(--layer-modal);
     width: auto;
     max-width: 200px;
@@ -7675,13 +7535,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .fil
     background-color: rgba(128, 128, 128, 0.2) !important;
     filter: brightness(1.1);
 }  
-
-/* Reset nested folders completely */
-.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-summary,
-.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-children {
-    background: transparent !important;
-    border-radius: 0;
-}
 
 .portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
 .portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {

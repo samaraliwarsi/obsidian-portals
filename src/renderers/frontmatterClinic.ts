@@ -411,7 +411,6 @@ export class FrontmatterClinicRenderer {
         if (!Platform.isMobile) {
             // Right‑click property button – ALWAYS opens popover
             propBtn.addEventListener('contextmenu', (e) => {
-                console.log('🖱️ propBtn contextmenu fired');
                 e.preventDefault();
                 e.stopPropagation();
                 const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys());
