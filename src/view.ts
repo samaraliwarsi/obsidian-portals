@@ -833,7 +833,7 @@ export class PortalsView extends ItemView {
             if (!tabs.includes(this.plugin.settings.activeSplitTab)) {
                 this.plugin.settings.activeSplitTab = tabs[0] || 'recent';
             }
-            this.plugin.saveSettings().then(() => this.render());
+            void this.plugin.saveSettings().then(() => this.render());
         }).open();
     }
 
@@ -1519,29 +1519,31 @@ export class PortalsView extends ItemView {
                         },
                         onEnd: (_evt: SortableEvent) => {
                             void (async () => {
-                                window.setTimeout(async () => {
-                                    window.requestAnimationFrame(async () => {
-                                        const newPortalOrder: SpaceConfig[] = [];
-                                        for (const child of Array.from(groupDiv.children)) {
-                                            const el = child as HTMLElement;
-                                            if (el.classList.contains('portals-tab') && !el.classList.contains('portals-stack-header-tab')) {
-                                                const path = el.dataset.path;
-                                                const type = el.dataset.type as 'folder' | 'tag';
-                                                const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
-                                                if (space) {
-                                                    space.stackId = item.stack.id;
-                                                    newPortalOrder.push(space);
+                                window.setTimeout(() => {
+                                    window.requestAnimationFrame(() => {
+                                        void (async () => {
+                                            const newPortalOrder: SpaceConfig[] = [];
+                                            for (const child of Array.from(groupDiv.children)) {
+                                                const el = child as HTMLElement;
+                                                if (el.classList.contains('portals-tab') && !el.classList.contains('portals-stack-header-tab')) {
+                                                    const path = el.dataset.path;
+                                                    const type = el.dataset.type as 'folder' | 'tag';
+                                                    const space = this.plugin.settings.spaces.find(s => s.path === path && s.type === type);
+                                                    if (space) {
+                                                        space.stackId = item.stack.id;
+                                                        newPortalOrder.push(space);
+                                                    }
                                                 }
                                             }
-                                        }
-                                        const otherSpaces = this.plugin.settings.spaces.filter(s => s.stackId !== item.stack.id);
-                                        const currentOrder = this.plugin.settings.spaces.filter(s => s.stackId === item.stack.id);
-                                        if (JSON.stringify(newPortalOrder) !== JSON.stringify(currentOrder)) {
-                                            this.plugin.settings.spaces = [...otherSpaces, ...newPortalOrder];
-                                            await this.plugin.saveData(this.plugin.settings);
-                                            this.lastRenderHash = this.getSettingsHash();
-                                        }
-                                        this.isDraggingTab = false;
+                                            const otherSpaces = this.plugin.settings.spaces.filter(s => s.stackId !== item.stack.id);
+                                            const currentOrder = this.plugin.settings.spaces.filter(s => s.stackId === item.stack.id);
+                                            if (JSON.stringify(newPortalOrder) !== JSON.stringify(currentOrder)) {
+                                                this.plugin.settings.spaces = [...otherSpaces, ...newPortalOrder];
+                                                await this.plugin.saveData(this.plugin.settings);
+                                                this.lastRenderHash = this.getSettingsHash();
+                                            }
+                                            this.isDraggingTab = false;
+                                        })();
                                     });
                                 }, 180);
                             })();
@@ -1571,9 +1573,11 @@ export class PortalsView extends ItemView {
                 },
                 onEnd: (_evt: SortableEvent) => {
                     void (async () => {
-                        window.setTimeout(async () => {
-                            await this.updateTabBarOrderFromDOM(tabBar);
-                            this.isDraggingTab = false;
+                        window.setTimeout(() => {
+                            void (async () => {
+                                await this.updateTabBarOrderFromDOM(tabBar);
+                                this.isDraggingTab = false;
+                            })();
                         }, 180);
                     })();
                 }

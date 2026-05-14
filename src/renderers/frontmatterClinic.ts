@@ -85,7 +85,8 @@ export class FrontmatterClinicRenderer {
             currentFM.set(key, value as string | string[]);
         }
 
-        const oldFM: Map<string, string | string[]> = clinicCache.refs.fileFrontmatter.get(file.path) || new Map();
+        const oldFM: Map<string, string | string[]> = 
+            clinicCache.refs.fileFrontmatter.get(file.path) ?? new Map<string, string | string[]>();
 
         clinicCache.noFrontmatterPaths.delete(file.path);
 
@@ -592,11 +593,11 @@ export class FrontmatterClinicRenderer {
                 return propValue === undefined || propValue === null || 
                        (Array.isArray(propValue) && propValue.length === 0);
             } else {
-                // Show files matching the specific value
                 if (propValue === undefined) return false;
                 if (Array.isArray(propValue)) {
                     return propValue.map(v => String(v)).includes(this.selectedValue);
                 }
+                if (typeof propValue === 'object' && propValue !== null) return false;
                 return String(propValue) === this.selectedValue;
             }
         });

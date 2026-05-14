@@ -93,8 +93,7 @@ export class PortalsActions {
         }
         try {
             const newFile = await app.vault.create(candidate, '');
-            // add the tags to frontmatter
-            await app.fileManager.processFrontMatter(newFile, (frontmatter) => {
+            await app.fileManager.processFrontMatter(newFile, (frontmatter: { tags?: string | string[] }) => {
                 const allTags = [tagName, ...(extraTags || [])];
                 if (!frontmatter.tags) {
                     frontmatter.tags = allTags;

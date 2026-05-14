@@ -471,7 +471,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     .addOption('**', '** (double asterisk)')
                     .addOption('++', '++ (double plus)')
                     .addOption('||', '|| (double pipe)')
-                setTimeout(() => {
+                window.setTimeout(() => {
                     dropdown.setValue(this.plugin.settings.quoteDelimiter);
                 }, 0);
                 dropdown.onChange(async (value) => {

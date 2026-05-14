@@ -80,7 +80,7 @@ export class FloatingButtonsRenderer {
                     const cache = this.app.metadataCache.getFileCache(file);
                     const fileTags = [
                         ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                        ...(cache?.frontmatter?.tags || [])
+                        ...PortalsActions.getFrontmatterTags(cache)
                     ];
                     fileTags.forEach(t => tagSet.add(t));
                 });
