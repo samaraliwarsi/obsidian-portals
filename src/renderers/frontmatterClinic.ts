@@ -341,7 +341,9 @@ export class FrontmatterClinicRenderer {
                         void this.plugin.saveSettings().then(() => this.render());
                     }));
             }
-            menu.showAtMouseEvent(e);
+            //menu.showAtMouseEvent(e);
+            const rectP = propBtn.getBoundingClientRect();
+            menu.showAtPosition({ x: rectP.left, y: rectP.bottom });
         });
 
         // Value button (funnel-simple icon)
@@ -394,8 +396,9 @@ export class FrontmatterClinicRenderer {
                         void this.plugin.saveSettings().then(() => this.render());
                     }));
             }
-            
-            menu.showAtMouseEvent(e);
+            //menu.showAtMouseEvent(e);
+            const rectV = valueBtn.getBoundingClientRect();
+            menu.showAtPosition({ x: rectV.left, y: rectV.bottom });
             
             // Apply height limit
             window.setTimeout(() => {

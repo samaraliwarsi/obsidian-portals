@@ -6216,6 +6216,24 @@ font-size: 18px;
   font-size: 12px;
 }
 
+.portals-split-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portals-split-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portals-split-content::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.portals-split-content::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+
 /* Main panel */
 .portals-main-panel {
     flex: 1;
@@ -6879,6 +6897,23 @@ button.journal-filter-btn i {
     overflow-y: auto;
   }
 }
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
 
 .portals-frontmatter-clinic {
     padding: 4px 8px;
@@ -6933,7 +6968,7 @@ button.journal-btn.fm-value-btn {
 
 .fm-clinic-file-list {
     max-height: 300px;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 
@@ -7853,6 +7888,24 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     overflow-y: auto;
   }
 }
+
+.bulk-fm-menu .menu-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bulk-fm-menu.menu-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bulk-fm-menu .menu-scroll::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.bulk-fm-menu .menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
 
 .fm-yaml-section {
     margin: 16px 0;
