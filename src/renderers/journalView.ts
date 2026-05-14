@@ -261,7 +261,7 @@ export class JournalRenderer {
         const cardsContainer = this.container.createDiv({ cls: 'journal-cards-container' });
 
         // Compact filter button with icon
-        const filterButton = cardsContainer.createEl('button', { cls: 'journal-btn journal-filter-btn' });
+        const filterButton = cardsContainer.createEl('button', { cls: 'portals-reset-btn journal-btn journal-filter-btn' });
         if (!Platform.isMobile) {
             this.view.attachTooltip(filterButton, 'Toggle range', 300, 'right');
         }
@@ -399,10 +399,10 @@ export class JournalRenderer {
 
         // Buttons row
         const buttonRow = quotesContainer.createDiv({ cls: 'journal-quote-buttons' });
-        const randomBtn = buttonRow.createEl('button', { cls: 'journal-btn' });
+        const randomBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
         randomBtn.createEl('i', { cls: 'ph ph-dice-three'});
         randomBtn.createSpan({ text: 'Random', cls: 'journal-btn-text' });
-        const onThisDayBtn = buttonRow.createEl('button', { cls: 'journal-btn' });
+        const onThisDayBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
         onThisDayBtn.createEl('i', { cls: 'ph ph-calendar-star' });
         onThisDayBtn.createSpan({ text: 'On this day', cls: 'journal-btn-text' });
 

@@ -52,10 +52,10 @@ export class TrashRenderer {
         // Buttons row – appears instantly
         const btnRow = this.container.createDiv({ cls: 'trash-btn-row' });
         const restoreAllBtn = btnRow.createEl('button', {
-            cls: 'side-portal-btn', text: 'Restore All'
+            cls: 'portals-reset-btn side-portal-btn', text: 'Restore All'
         });
         const deleteAllBtn = btnRow.createEl('button', {
-            cls: 'side-portal-btn-warn', text: 'Empty all'
+            cls: 'portals-reset-btn side-portal-btn-warn', text: 'Empty all'
         });
         restoreAllBtn.addEventListener('click', () => {
             void this.restoreAll();

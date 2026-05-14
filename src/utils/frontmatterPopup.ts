@@ -101,7 +101,7 @@ export class FrontmatterPopup {
         const propGroup = propRow.createDiv({ cls: 'fm-input-group' });
         this.propBtn = propGroup.createEl('button', {
             text: this.propertyName || 'Choose from existing, right-click to search',
-            cls: 'fm-input-btn' 
+            cls: 'portals-reset-btn fm-input-btn' 
         });
         if (!Platform.isMobile) {
             this.view.attachTooltip(this.propBtn, 'Select or search property', 300, 'right')
@@ -185,7 +185,7 @@ export class FrontmatterPopup {
         valRow.createSpan({ text: 'Value', cls: 'fm-wrapper-text' });
         const valGroup = valRow.createDiv({ cls: 'fm-input-group' });
         this.valueGroup = valGroup;
-        this.valBtn = valGroup.createEl('button', { cls: 'fm-input-btn' });
+        this.valBtn = valGroup.createEl('button', { cls: 'portals-reset-btn fm-input-btn' });
         if (!Platform.isMobile) {
             this.view.attachTooltip(this.valBtn, 'Select or search value', 300, 'right');
         }
@@ -239,11 +239,11 @@ export class FrontmatterPopup {
             this.view.attachTooltip(this.yamlTextarea, 'Add custom YAML here', 300, 'right')
         }
         const yamlBtnRow = yamlContent.createDiv({ cls: 'fm-yaml-btn-row' });
-        this.copyYamlBtn = yamlBtnRow.createEl('button', { text: 'Copy', cls: 'fm-yaml-btn' });
+        this.copyYamlBtn = yamlBtnRow.createEl('button', { text: 'Copy', cls: 'portals-reset-btn fm-yaml-btn' });
         this.view.attachTooltip(this.copyYamlBtn, 'Copy from file');
-        this.pasteYamlBtn = yamlBtnRow.createEl('button', { text: 'Paste', cls: 'fm-yaml-btn' });
+        this.pasteYamlBtn = yamlBtnRow.createEl('button', { text: 'Paste', cls: 'portals-reset-btn fm-yaml-btn' });
         this.view.attachTooltip(this.pasteYamlBtn, 'Paste to files')
-        this.clearYamlBtn = yamlBtnRow.createEl('button', { text: 'Clear', cls: 'fm-yaml-btn warning' });
+        this.clearYamlBtn = yamlBtnRow.createEl('button', { text: 'Clear', cls: 'portals-reset-btn fm-yaml-btn warning' });
         this.view.attachTooltip(this.clearYamlBtn, 'Clear all');
         this.copyYamlBtn.disabled = this.files.length !== 1;
 

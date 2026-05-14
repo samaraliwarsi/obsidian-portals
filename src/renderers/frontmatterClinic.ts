@@ -306,11 +306,11 @@ export class FrontmatterClinicRenderer {
         const headerRow = this.container.createDiv({ cls: 'fm-clinic-header' });
         
         // Property button (funnel icon)
-        const propBtn = headerRow.createEl('button', { cls: 'journal-btn fm-property-btn' });
+        const propBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-property-btn' });
         propBtn.createEl('i', { cls: 'ph ph-funnel' });
         propBtn.createSpan({ 
             text: this.selectedProperty || 'Select property', 
-            cls: 'journal-btn-text' 
+            cls: 'fm-btn-text' 
         });
 
         propBtn.addEventListener('click', (e) => {
@@ -345,12 +345,12 @@ export class FrontmatterClinicRenderer {
         });
 
         // Value button (funnel-simple icon)
-        const valueBtn = headerRow.createEl('button', { cls: 'journal-btn fm-value-btn' });
+        const valueBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-value-btn' });
         valueBtn.createEl('i', { cls: 'ph ph-funnel-simple' });
         valueBtn.createSpan({ 
             text: this.selectedValue === '' ? 'All values' : 
                 this.selectedValue === '__none__' ? 'None' : this.selectedValue,
-            cls: 'journal-btn-text' 
+            cls: 'fm-btn-text' 
         });
 
         if (this.selectedProperty === 'No frontmatter') {
@@ -411,6 +411,7 @@ export class FrontmatterClinicRenderer {
         if (!Platform.isMobile) {
             // Right‑click property button – ALWAYS opens popover
             propBtn.addEventListener('contextmenu', (e) => {
+                console.log('🖱️ propBtn contextmenu fired');
                 e.preventDefault();
                 e.stopPropagation();
                 const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys());

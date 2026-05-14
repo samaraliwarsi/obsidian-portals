@@ -24,7 +24,6 @@
   font-feature-settings: "liga";
   -webkit-font-variant-ligatures: discretionary-ligatures;
   font-variant-ligatures: discretionary-ligatures;
-
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -4623,6 +4622,25 @@
 
 /* =========== END OF PHOSPHOR ICONS ============ */
 
+/* -------------- BUTTON RESET CLASS ----------- */
+
+button.portals-reset-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  --webkit-app-region: no-drag;
+  box-shadow: none;
+}
+
 /* =========== PORTAL PLUGIN CORE STYLES =========== */
 
 /*----------------------STACKS-----------------------------------------*/
@@ -6923,8 +6941,7 @@ body.portals-dragging {
     flex-wrap: wrap;
 }
 
-button.journal-btn:not(.clickable-icon) {
-    all: unset;
+.portals-reset-btn.journal-btn {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -6934,20 +6951,20 @@ button.journal-btn:not(.clickable-icon) {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    line-height: 1;
+    height: var(--input-height-tight);
 }
 
-button.journal-btn.active:not(.clickable-icon) {
+.portals-reset-btn.journal-btn.active {
     border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
 
-button.journal-btn:not(.clickable-icon):hover {
+.portals-reset-btn.journal-btn:hover {
   background: rgba(128, 128, 128, 0.15);
   color: var(--text-normal);
 }
 
-button.journal-btn.journal-filter-btn:not(.clickable-icon) {
-  margin-bottom: 4px;
+.portals-reset-btn.journal-btn.journal-filter-btn {
+  margin: 2px 0;
   border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
 
@@ -6986,6 +7003,10 @@ button.journal-filter-btn i {
     margin-bottom: 6px;
     width: 100%;
     border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.fm-btn-text {
+  font-size: 0.95em;
 }
 
 p.fm-noFound-txt {
@@ -7283,8 +7304,7 @@ button.unhide-btn:not(.clickable-icon):hover {
     ) !important;
 }
 
-button.unhide-btn-all:not(.clickable-icon) {
-  all: unset;
+.portals-reset-btn.unhide-btn-all {
   display: flex;
   margin-right: auto;
   border-left: 2px solid var(--hidden-accent-color, var(--interactive-accent));
@@ -7295,10 +7315,11 @@ button.unhide-btn-all:not(.clickable-icon) {
   padding: 2px 6px;
   justify-content: center;
   font-size: 0.75em;
-  gap: 4px;  
+  gap: 4px;
+  height: var(--input-height-tight);
 }
 
-button.unhide-btn-all:not(.clickable-icon):hover {
+.portals-reset-btn.unhide-btn-all:hover {
     background: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
 }
@@ -7451,8 +7472,10 @@ button.unhide-btn-all:not(.clickable-icon):hover {
   align-items: center;
 }
 
-button.side-portal-btn:not(.clickable-icon) {
-  all: unset;
+.portals-reset-btn.side-portal-btn,
+.portals-reset-btn.fm-property-btn,
+.portals-reset-btn.fm-value-btn, 
+.portals-reset-btn.side-portal-btn-warn {
   display: flex;
   border-left: 2px solid var(--hidden-accent-color, var(--interactive-accent));
   background: transparent;
@@ -7463,28 +7486,17 @@ button.side-portal-btn:not(.clickable-icon) {
   justify-content: center;
   font-size: 0.75em;
   gap: 4px;  
+  height: 20px;
 }
 
-button.side-portal-btn:not(.clickable-icon):hover {
+.portals-reset-btn.side-portal-btn:hover,
+.portals-reset-btn.fm-property-btn:hover,
+.portals-reset-btn.fm-value-btn:hover {
     background: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
 }
 
-button.side-portal-btn-warn:not(.clickable-icon) {
-  all: unset;
-  display: flex;
-  border-left: 2px solid var(--hidden-accent-color, var(--interactive-accent));
-  background: transparent;
-  border-radius: 4px;
-  cursor: pointer;
-  color: var(--text-normal);
-  padding: 2px 6px;
-  justify-content: center;
-  font-size: 0.75em;
-  gap: 4px;  
-}
-
-button.side-portal-btn-warn:not(.clickable-icon):hover {
+.portals-reset-btn.side-portal-btn-warn:hover {
     background: #ff2525;
 }
 
@@ -8004,7 +8016,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 }
 
 .fm-input-group .fm-input-btn {
-  all: unset;
   display: block;
   box-sizing: border-box;
   border: 1px solid var(--background-modifier-border);
@@ -8028,7 +8039,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 .fm-type-wrapper .fm-type-btn,
 .fm-input-wrapper .fm-today-btn,
 .fm-yaml-btn-row .fm-yaml-btn {
-  all: unset;
   display: block;
   box-sizing: border-box;
   border: 1px solid var(--background-modifier-border);
