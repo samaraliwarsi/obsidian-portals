@@ -20,8 +20,8 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - **Custom icons & colors** – tabs, folders, files, tag groups.
 - **Six visual styles** + compact tree view + bold folder names.
 - **Tag grouping & subtag support** for tag portals.
-- **Multi‑select** files, folders, and tags with `Alt+Click` or `Swipe right`. Use multi-select toolbar for actions. 
-- **Command palette** to add or remove portals and configure side portals. 
+- **Explorer operations** for files, folders, and tags such as multi-select, range-select, drag and reorder are all available in the plugin.
+- **Command palette** to add or remove portals, configure side portals, trigger reordering etc.
 - **Foldable floating action buttons** for  note/ folder creation, tag grouping, collapse and sort. 
 - **Quick-add buttons** for folders, tags to quickly create new items in target items.
 - **Custom display names** for tabs, stacks. 
@@ -33,16 +33,16 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 	- **Hidden** - Place to show files, tags and folders hidden from the main view. 
 	- **Properties** - A viewing tool for markdown files, based on their properties. 
 	- **Trash** - A trash explorer for notes and folders based on Obsidian's `.trash` folder at vault root. 
-- **Drag & drop** reordering for portal tabs and stacks (desktop).
+- **Drag & drop** reordering for portal tabs, side tabs and stacks (desktop).
 - **Mobile friendly** – Responsive design that works on small screens. Tested on Android (more platforms coming).
 - **Export/Import settings** – Backup your tab configuration or transfer it to another vault using json files from `Settings`.
 
 > For a full featured guide, checkout [Portals guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md)
 
 > [!Note]
-> - Please make sure to backup your data file after a full setup of your preferences, color & icon choices. You can backup by copying the file `.obsidian/plugins/portals/data.json` to safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates for safety measure. 
+> - Please backup your data file after setting up preferences. You can backup by copying the file `.obsidian/plugins/portals/data.json` to safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates for safety measure. 
 > - For best results,
-> 	- On mobile: Works best with Baseline Theme right now as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. Settings > Appearance > Floating Navigation. 
+> 	- On mobile: Works best with Baseline Theme right now as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. `Settings > Appearance > Floating Navigation`. 
 > 	- On desktop, you may need to turn off vault hiding if your theme hides the vault selector on the lower side. 
 
 ## ⚙️ Installation
@@ -53,6 +53,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 2. Open BRAT settings and click **Add Beta plugin**.
 3. Enter the repository URL: `https://github.com/samaraliwarsi/obsidian-portals`.
 4. Click **Add Plugin** – BRAT will download and enable the latest release.
+
 ### Manual installation
 
 1. Download the latest release from the [releases page](https://github.com/samaraliwarsi/obsidian-portals/releases).
@@ -64,8 +65,6 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 - First installation - use Ribbon menu or command palette to enable **Portals** view.
 - Add portal tabs using settings or command palette. 
-- Add existing portals to stacks.
-- Drag tabs left/right to reorder.
 - Add **Side Portals** using settings, command palette .
 - **Side Portal** can be turned off for mobile devices.
 - Customise tags, stacks and folders. 
