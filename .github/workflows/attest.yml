@@ -1,0 +1,29 @@
+name: Attest release assets
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download assets from the release
+        run: |
+          gh release download ${{ github.event.release.tag_name }} \
+            --repo ${{ github.repository }} \
+            --pattern 'main.js' \
+            --pattern 'styles.css'
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Generate attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: |
+            main.js
+            styles.css
