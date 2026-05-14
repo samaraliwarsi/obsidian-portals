@@ -12,7 +12,7 @@
 
 .ph {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: "Phosphor" !important;
+  font-family: "Phosphor";
   speak: never;
   font-style: normal;
   font-weight: normal;

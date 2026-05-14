@@ -6611,9 +6611,7 @@ body.portals-dragging {
 }
 
 .folder-summary.has-context-note-underline .portals-item-name {
-  text-decoration-line: underline;
-  text-decoration-thickness: 2px;
-  text-decoration-color: var(--text-muted);
+  text-decoration: underline solid var(--text-muted) 2px;
   text-underline-offset: 2px;
 }
 
