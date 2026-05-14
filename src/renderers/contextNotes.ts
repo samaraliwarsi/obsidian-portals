@@ -190,14 +190,13 @@ export async function createContextNote(app: App, plugin: PortalsPlugin, target:
 
         try {
             const file = await app.vault.create(filePath, `# ${target}\n\n`);
-            await app.fileManager.processFrontMatter(file, (fm) => {
-                const data = fm as { tags?: unknown };
-                if (data.tags) {
-                    data.tags = [target];
-                } else if (Array.isArray(data.tags)) {
-                    if (!data.tags.includes(target)) data.tags.push(target);
+            await app.fileManager.processFrontMatter(file, (fm: { tags?: string | string[] }) => {
+                if (!fm.tags) {
+                    fm.tags = [target];
+                } else if (Array.isArray(fm.tags)) {
+                    if (!fm.tags.includes(target)) fm.tags.push(target);
                 } else {
-                    data.tags = [fm.tags, target];
+                    fm.tags = [fm.tags, target];
                 }
             });
             await app.workspace.getLeaf().openFile(file);

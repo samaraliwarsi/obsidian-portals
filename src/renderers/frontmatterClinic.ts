@@ -597,8 +597,10 @@ export class FrontmatterClinicRenderer {
                 if (Array.isArray(propValue)) {
                     return propValue.map(v => String(v)).includes(this.selectedValue);
                 }
-                if (typeof propValue === 'object' && propValue !== null) return false;
-                return String(propValue) === this.selectedValue;
+                if (typeof propValue === 'string' || typeof propValue === 'number' || typeof propValue === 'boolean') {
+                    return String(propValue) === this.selectedValue;
+                }
+                return false;
             }
         });
         // Sort by file name
