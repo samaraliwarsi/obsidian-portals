@@ -215,6 +215,16 @@ export class TreeEventHelpers {
         TreeEventHelpers.attachMultiSelectClick(summary, key, view);
     }
 
+    static attachMiddleClickListener(fileEl: HTMLElement, file: TFile, view: PortalsView): void {
+        fileEl.addEventListener('mouseup', (e: MouseEvent) => {
+            if (e.button === 1) {
+                e.preventDefault();
+                e.stopPropagation();
+                view.openFileInNewTab(file);
+            }
+        });
+    }
+
     static attachFileItemListeners(
         fileEl: HTMLElement,
         file: TFile,
@@ -223,5 +233,6 @@ export class TreeEventHelpers {
         TreeEventHelpers.attachTouchSwipeSelection(fileEl, file.path, view);
         TreeEventHelpers.attachDragStart(fileEl, file.path);
         TreeEventHelpers.attachFileClickHandler(fileEl, file, view);
+        TreeEventHelpers.attachMiddleClickListener(fileEl, file, view);
     }
 }

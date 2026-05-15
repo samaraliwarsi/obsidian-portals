@@ -252,6 +252,10 @@ export class PortalsView extends ItemView {
         });
     }
 
+    public openFileInNewTab(file: TFile): void {
+        this.app.workspace.getLeaf('tab').openFile(file);
+    }
+
     // Reads folder/tag summaries directly from the DOM container
     private getChildSummaryItems(container: HTMLElement): { path: string; displayName: string }[] {
         const items: { path: string; displayName: string }[] = [];
@@ -1012,6 +1016,11 @@ export class PortalsView extends ItemView {
             this.app.vault.offref(createRef);
         };
 
+        this.containerEl.addEventListener('mousedown', (e: MouseEvent) => {
+            if (e.button ===1) {
+                e.preventDefault();
+            }
+        });
 
         this.registerEvent(this.app.workspace.on('file-open', () => {
             if (!this.renaming) {

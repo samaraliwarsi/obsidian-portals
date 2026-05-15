@@ -56,9 +56,7 @@ export class FolderTreeRenderer {
                     summary.addClass('has-context-note-icon');
                 }
             } else if (style === 'underline') {
-                summary.addClass('has-context-note-underline');
-                const nameSpan = summary.querySelector('.portals-item-name');
-                nameSpan?.addClass('has-context-note-underline');
+                nameSpan.addClass('has-context-note-underline');
             }
         }
 

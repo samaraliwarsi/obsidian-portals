@@ -554,10 +554,18 @@ export class FrontmatterClinicRenderer {
                 }
             });
 
-            nameSpan.addEventListener('contextmenu', (e: MouseEvent) => {
+            fileRow.addEventListener('contextmenu', (e: MouseEvent) => {
                 e.stopPropagation();
                 e.preventDefault();
                 ContextMenuFactory.showFileMenu(this.view, file, nameSpan, e);
+            });
+
+            fileRow.addEventListener('mouseup', (e: MouseEvent) => {
+                if (e.button === 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.view.openFileInNewTab(file);
+                }
             });
         }
         // Enable native page preview on file rows

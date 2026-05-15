@@ -1,3 +1,8 @@
+---
+created: 2026-05-15
+tags:
+  - portals
+---
 # Portals for Obsidian
 
 <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
@@ -40,17 +45,17 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 > For a full featured guide, checkout [Portals guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md)
 
 > [!Note]
-> - Please make sure to backup your data file after a full setup of your preferences, color & icon choices. You can backup by copying the file `.obsidian/plugins/portals/data.json` to safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates for safety measure. 
+> - Please back up your data file after preferences setup, color & icon choices. Copy the file `.obsidian/plugins/portals/data.json` to a safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates. 
 > - For best results,
-> 	- On mobile: Works best with Baseline Theme right now as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. Settings > Appearance > Floating Navigation. 
+> 	- On mobile: Works best with Baseline Theme as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. Settings > Appearance > Floating Navigation. 
 > 	- On desktop, you may need to turn off vault hiding if your theme hides the vault selector on the lower side. 
 
 ## ⚙️ Installation
-
+	
 ### Using Community Plugins
 
-1. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
-2. **Install Portals** - Click "Browse" → Search for "Portals" → Install
+1. **Enable community plugins**: Go to Settings → Community plugins → Turn on community plugins
+2. **Install Portals**: Click "Browse" → Search for "Portals" → Install
 ### Using BRAT (Beta Reviewers Auto-update Tester)
 
 1. Install the **BRAT** plugin from the Obsidian community plugins (if you haven’t already).
@@ -63,12 +68,11 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 2. Extract the files into your vault’s `.obsidian/plugins/portals/` folder.
 3. Enable the plugin in Obsidian settings.
 
-
 ## 🚀 Quick start
 
-- First installation - use Ribbon menu or command palette to enable **Portals** view.
+- First installation - use Ribbon menu or command palette to open **Portals** view.
 - Add portal tabs using settings or command palette. 
-- Add existing portals to stacks.
+- Add existing portals to stacks using `Right-click` context menu on tabs.
 - Drag tabs left/right to reorder.
 - Add **Side Portals** using settings, command palette .
 - **Side Portal** can be turned off for mobile devices.

@@ -372,6 +372,13 @@ export class JournalRenderer {
                 e.stopImmediatePropagation();
                 void this.toggleMark(n);
             });
+            card.addEventListener('mouseup',(e: MouseEvent) => {
+                if (e.button === 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.app.workspace.getLeaf('tab').openFile(n);
+                }
+            });
         });
 
         // Enable native page preview on journal date cards
