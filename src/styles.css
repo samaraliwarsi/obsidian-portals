@@ -6636,10 +6636,7 @@ body.portals-dragging {
 }
 
 span.portals-item-name.has-context-note-underline {
-  text-decoration-line: underline;
-  text-decoration-thickness: 2px;
-  text-decoration-color: var(--text-muted);
-  text-underline-offset: 2px;
+  text-decoration: underline;
 }
 
 .portals-context-note-status-overlay {
