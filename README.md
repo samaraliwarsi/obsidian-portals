@@ -50,7 +50,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 ### Using Community Plugins
 
 1. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
-2. **Install Notebook Navigator** - Click "Browse" → Search for "Portals" → Install
+2. **Install Portals** - Click "Browse" → Search for "Portals" → Install
 ### Using BRAT (Beta Reviewers Auto-update Tester)
 
 1. Install the **BRAT** plugin from the Obsidian community plugins (if you haven’t already).
