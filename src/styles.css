@@ -6635,7 +6635,7 @@ body.portals-dragging {
     color: var(--space-border-color, var(--interactive-accent));
 }
 
-span.portals-item-name.has-context-note-underline {
+.portals-item-name.has-context-note-underline {
   text-decoration: underline;
 }
 
