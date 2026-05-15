@@ -633,6 +633,12 @@ export class PortalsActions {
             delete plugin.settings.customIcons[oldPath];
             void plugin.saveSettings();
         }
+        if (plugin.settings.customColors[oldPath]) {
+            const color = plugin.settings.customColors[oldPath]!;
+            plugin.settings.customColors[file.path] = color;
+            delete plugin.settings.customColors[oldPath];
+            void plugin.saveSettings();
+        }
 
         if (file instanceof TFolder) {
             const openFolders = plugin.settings.openFolders;
