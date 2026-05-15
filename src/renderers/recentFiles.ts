@@ -94,6 +94,14 @@ export class RecentFilesRenderer {
                 ContextMenuFactory.showFileMenu(this.view, file, fileEl, e);
             });
 
+            fileEl.addEventListener('mouseup', (e: MouseEvent) => {
+                if (e.button === 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.view.openFileInNewTab(file);
+                }
+            });
+
             this.view.addHoverPreview(fileEl, file.path);
         }
     }

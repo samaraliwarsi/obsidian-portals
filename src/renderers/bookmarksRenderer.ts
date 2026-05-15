@@ -153,6 +153,17 @@ export class BookmarksRenderer {
                     );
                     menu.showAtPosition({ x: e.clientX, y: e.clientY });
                 });
+
+                fileEl.addEventListener('mouseup', (e: MouseEvent) => {
+                    if (e.button === 1 && item.path) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const abstractFile = this.app.vault.getAbstractFileByPath(item.path);
+                        if (abstractFile instanceof TFile) {
+                            this.app.workspace.getLeaf('tab').openFile(abstractFile);
+                        }
+                    }
+                });
             }
         };
 
