@@ -6635,8 +6635,7 @@ body.portals-dragging {
     color: var(--space-border-color, var(--interactive-accent));
 }
 
-.folder-summary.has-context-note-underline .portals-item-name {
-  flex: 0 1 auto;
+span.portals-item-name-text.has-context-note-underline {
   box-shadow: inset 0 -1px 0 var(--text-muted);
 }
 
