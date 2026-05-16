@@ -1,4 +1,4 @@
-import { App, TFile, Notice, Menu, Platform } from 'obsidian';
+import { App, TFile, Notice, Menu, Platform, EventRef } from 'obsidian';
 import PortalsPlugin from '../main';
 import { SearchPopover } from '../utils/searchPopover';
 import { PortalsView } from '../view';
@@ -30,6 +30,8 @@ export class FrontmatterClinicRenderer {
     private view: PortalsView;
     private clinicToolbar: HTMLElement | null = null;
     private clinicSelectedPaths = new Set<string>();
+    private frontmatterChangedRef: EventRef | null = null;
+    private clinicRenderTimeout: number | null = null;
 
     static async buildCache(app: App) {
         if (clinicCache.ready) return;
@@ -64,6 +66,16 @@ export class FrontmatterClinicRenderer {
             }
         })();
         await clinicCache.buildingPromise;
+    }
+
+    private scheduleClinicRefresh(): void {
+        if (this.clinicRenderTimeout) {
+            activeWindow.clearTimeout(this.clinicRenderTimeout)
+        }
+        this.clinicRenderTimeout = activeWindow.setTimeout(() => {
+            this.clinicRenderTimeout = null;
+            void this.render();
+        }, 100);
     }
 
     private showSearchPopoverForClinic(anchor: HTMLElement, items: string[], currentSelected: string, onSelect: (item: string) => void) {
@@ -574,6 +586,16 @@ export class FrontmatterClinicRenderer {
             if (path) this.view.addHoverPreview(row as HTMLElement, path);
         });
         this.updateClinicToolbar();
+
+        if (!this.frontmatterChangedRef) {
+            this.frontmatterChangedRef = this.app.metadataCache.on('changed', (file) => {
+                if (file instanceof TFile && file.extension === 'md') {
+                    if (this.plugin.settings.activeSplitTab === 'properties') {
+                        void this.scheduleClinicRefresh();
+                    }
+                }
+            });
+        }
     }
 
     private filterFiles() {
@@ -673,6 +695,10 @@ export class FrontmatterClinicRenderer {
     }
 
     public destroy() {
+        if (this.clinicRenderTimeout) {
+            activeWindow.clearTimeout(this.clinicRenderTimeout);
+            this.clinicRenderTimeout = null;
+        }
         this.container.empty();
         this.clinicSelectedPaths.clear();
         if (this.clinicToolbar) {
@@ -680,5 +706,10 @@ export class FrontmatterClinicRenderer {
             this.clinicToolbar = null;
         }
         this.activeSearchPopover?.destroy();
+
+        if (this.frontmatterChangedRef) {
+            this.app.metadataCache.offref(this.frontmatterChangedRef);
+            this.frontmatterChangedRef = null;
+        }
     }
 }
