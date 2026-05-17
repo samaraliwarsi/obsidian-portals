@@ -3,6 +3,7 @@ import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { CachedMetadataWithFrontmatter, metadataCacheWithGetTags } from './types';
+import { getGuideUrl } from './utils/urls';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
@@ -126,6 +127,14 @@ export default class PortalsPlugin extends Plugin {
                     new Notice('Please open the Portals view first.');
                 }
             }
+        });
+
+        this.addCommand({
+            id: 'open-guide',
+            name: 'Open guide',
+            callback: () => {
+                window.open(getGuideUrl(), '_blank');
+            },
         });
 
         this.registerView(

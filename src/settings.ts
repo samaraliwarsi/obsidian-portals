@@ -4,6 +4,7 @@ import { IconPickerModal } from './utils/iconPicker';
 import { SelectFolderModal } from './utils/modals';
 import { SpaceConfig, PortalStack } from './types';
 import { ChooseTabsModal, AddPortalModal } from './utils/modals';
+import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
@@ -964,31 +965,22 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-        .setName('Documentation')
-        .setDesc(
-            createFragment(frag => {
-                frag.appendText('Read the full ');
-                frag.createEl('a', { 
-                    text: 'Portals Guide', 
-                    href: '#' 
-                }, (a) => {
-                    a.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        window.open('https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md', '_blank');
-                    });
-                });
-                frag.appendText(' for detailed walkthroughs and tips.');
-            })
-        );
-
-        /*new Setting(containerEl)
         .setName('User guide')
-        .setDesc('Open the full documentation online, downloadable file on github.')
+        .setDesc('Open the full documentation, the guide covers everything about the plugin in a simple markdown format.')
         .addButton(button => button
             .setButtonText('Open guide')
             .onClick(() => {
-                window.open('https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md', '_blank');
-            }));*/
+                window.open(getGuideUrl(), '_blank');
+            }));
+
+        new Setting(containerEl)
+        .setName('Release notes')
+        .setDesc('See the release notes, stay upto date on the latest changes made to the plugin.')
+        .addButton(button => button
+            .setButtonText('Release notes')
+            .onClick(() => {
+                window.open(getReleaseNotesUrl(), '_blank');
+            }));
 
         window.setTimeout(() => {
             const maxScroll = containerEl.scrollHeight - containerEl.clientHeight;
