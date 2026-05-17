@@ -620,6 +620,7 @@ export class PortalsView extends ItemView {
         if (this.multiSelectToolbar) {
             this.multiSelectToolbar.remove();
             this.multiSelectToolbar = null;
+            this.hideTooltip(0);
         }
 
         if (this.selectedItems.size === 0) return;
@@ -1179,8 +1180,9 @@ export class PortalsView extends ItemView {
         if (delay > 0) {
             if (this.tooltipShowTimeout) window.clearTimeout(this.tooltipShowTimeout);
             this.tooltipShowTimeout = window.setTimeout(() => {
-                this.showTooltip(text, target, 0, preferred);
                 this.tooltipShowTimeout = null;
+                if (!target.isConnected) return;
+                this.showTooltip(text, target, 0, preferred);
             }, delay);
             return;
         }
@@ -1401,6 +1403,7 @@ export class PortalsView extends ItemView {
 
     render() {
         if (this.isDraggingTab) return;
+        this.hideTooltip(0);
 
         if (this.renaming && this._activeOutsideClickListener) {
             activeDocument.removeEventListener('mousedown', this._activeOutsideClickListener);
@@ -2019,6 +2022,7 @@ export class PortalsView extends ItemView {
     }
     
     renderContent() {
+        this.hideTooltip(0);
         if (this.renderTimer) {
             window.clearTimeout(this.renderTimer);
             this.renderTimer = null;
@@ -2109,6 +2113,7 @@ export class PortalsView extends ItemView {
         });
         this.selectedItems.clear();
         this.rangeSelectionAnchor = null;
+        this.hideTooltip(0);
         this.updateMultiSelectToolbar();
     }
 

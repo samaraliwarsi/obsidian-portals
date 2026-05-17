@@ -214,6 +214,7 @@ export class FrontmatterClinicRenderer {
         if (this.clinicToolbar) {
             this.clinicToolbar.remove();
             this.clinicToolbar = null;
+            this.view.hideTooltip(0);
         }
 
         const selectedInView = this.filteredFiles.filter(f => this.clinicSelectedPaths.has(f.path));
@@ -250,6 +251,7 @@ export class FrontmatterClinicRenderer {
             }
             deselectBtn.createEl('i', { cls: 'ph ph-x' });
             deselectBtn.addEventListener('click', () => {
+                this.view.hideTooltip(0);
                 this.clinicSelectedPaths.clear();
                 this.container.querySelectorAll('.fm-file-item.is-selected').forEach(el => el.classList.remove('is-selected'));
                 this.view.rangeSelectionAnchor = null;
