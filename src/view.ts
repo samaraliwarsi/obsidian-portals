@@ -74,6 +74,7 @@ export class PortalsView extends ItemView {
     private recentRenderer: RecentFilesRenderer | null = null;
     private hiddenRenderer: HiddenItemsRenderer | null = null;
     private bookmarksRenderer: BookmarksRenderer | null = null;
+    public clinicRenderer: FrontmatterClinicRenderer | null = null;
     public getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -123,7 +124,11 @@ export class PortalsView extends ItemView {
             new Notice('Select at least one markdown file.');
             return;
         }
-        new FrontmatterPopup(this.app, this.plugin, this, files).open();
+        if (this.plugin.settings.activeSplitTab === 'properties' && this.clinicRenderer) {
+            this.clinicRenderer.openFrontmatterModal(files);
+        } else {
+            new FrontmatterPopup(this.app, this.plugin, this, files).open();
+        }
     }
 
     public selectRangeInContainer(container: HTMLElement, anchorKey: string, targetKey: string): void {
@@ -1999,6 +2004,7 @@ export class PortalsView extends ItemView {
             contentEl.empty();
             contentEl.addClass('portals-frontmatter-clinic');
             const renderer = new FrontmatterClinicRenderer(this.app, this.plugin, contentEl, this);
+            this.clinicRenderer = renderer;
             await renderer.render();
         } else if (tabId === 'trash') {
             if (this.trashRenderer) {

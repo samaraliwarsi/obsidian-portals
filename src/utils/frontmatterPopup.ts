@@ -40,7 +40,7 @@ export class FrontmatterPopup {
     private pasteYamlBtn!: HTMLButtonElement;
     private clearYamlBtn!: HTMLButtonElement;
 
-    constructor(app: App, plugin: PortalsPlugin, view: PortalsView, files: TFile[]) {
+    constructor(app: App, plugin: PortalsPlugin, view: PortalsView, files: TFile[], private onClose?: () => void) {
         this.app = app;
         this.plugin = plugin;
         this.view = view;
@@ -73,6 +73,7 @@ export class FrontmatterPopup {
         this.backdrop?.remove();
         this.container?.remove();
         activeDocument.removeEventListener('keydown', this.keyHandler);
+        this.onClose?.();
     }
 
     private buildUI(): void {
@@ -310,7 +311,6 @@ export class FrontmatterPopup {
                     }
                 }
                 if (changed) {
-                    await this.plugin.saveSettings();
                     this.view.renderContent();
                 }
                 new Notice(`Pasted YAML into ${changed} file(s).`);
@@ -340,7 +340,6 @@ export class FrontmatterPopup {
                     }
                 }
                 if (cleared) {
-                    await this.plugin.saveSettings();
                     this.view.renderContent();
                 }
                 new Notice(`Cleared frontmatter in ${cleared} file(s).`);
@@ -655,7 +654,6 @@ export class FrontmatterPopup {
         }
         if (changed) {
             const savedSelection = new Set(this.view.selectedItems);
-            await this.plugin.saveSettings();
             this.view.renderContent();
             this.view.selectedItems = savedSelection;
             window.setTimeout(() => this.view.reapplySelectionHighlights(), 50);

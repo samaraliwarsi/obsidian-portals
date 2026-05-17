@@ -37,7 +37,13 @@ export class ContextMenuFactory {
         menu.addItem(item => item
             .setTitle('Edit frontmatter')
             .setIcon('list-plus')
-            .onClick(() => new FrontmatterPopup(view.app, view.plugin, view, [file]).open()));
+            .onClick(() => {
+                if (view.plugin.settings.activeSplitTab === 'properties' && view.clinicRenderer) {
+                    view.clinicRenderer.openFrontmatterModal([file]);
+                } else {
+                    new FrontmatterPopup(view.app, view.plugin, view, [file]).open()
+                }
+            }));
 
         menu.addSeparator();
 

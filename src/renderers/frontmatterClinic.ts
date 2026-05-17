@@ -32,6 +32,8 @@ export class FrontmatterClinicRenderer {
     private clinicSelectedPaths = new Set<string>();
     private frontmatterChangedRef: EventRef | null = null;
     private clinicRenderTimeout: number | null = null;
+    private fmModalOpen = false;
+    private deferredRefresh = false;
 
     static async buildCache(app: App) {
         if (clinicCache.ready) return;
@@ -69,6 +71,10 @@ export class FrontmatterClinicRenderer {
     }
 
     private scheduleClinicRefresh(): void {
+        if (this.fmModalOpen) {
+            this.deferredRefresh = true;
+            return;
+        }
         if (this.clinicRenderTimeout) {
             activeWindow.clearTimeout(this.clinicRenderTimeout)
         }
@@ -76,6 +82,20 @@ export class FrontmatterClinicRenderer {
             this.clinicRenderTimeout = null;
             void this.render();
         }, 100);
+    }
+    public openFrontmatterModal(files: TFile[]): void {
+        this.fmModalOpen = true;
+        this.deferredRefresh = false;
+
+        const onClose = () => {
+            this.fmModalOpen = false;
+            if (this.deferredRefresh) {
+                this.deferredRefresh = false;
+                void this.render();
+            }
+        }
+        const modal = new FrontmatterPopup(this.app, this.plugin, this.view, files, onClose);
+        modal.open();
     }
 
     private showSearchPopoverForClinic(anchor: HTMLElement, items: string[], currentSelected: string, onSelect: (item: string) => void) {
@@ -207,7 +227,7 @@ export class FrontmatterClinicRenderer {
             }
             editBtn.createEl('i', { cls: 'ph ph-list-plus' });
             editBtn.addEventListener('click', () => {
-                new FrontmatterPopup(this.app, this.plugin, this.view, selectedInView).open();
+                this.openFrontmatterModal(selectedInView);
             });
 
             // 2. Reset colors
