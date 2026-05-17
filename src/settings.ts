@@ -60,7 +60,8 @@ export interface SpacesSettings {
     compactTabs: boolean;
     quickAddIcon: 'off' | 'on' | 'desktop-only';
     customTreeOrder: Record<string, number>;
-    tabIconPosition: 'default' | 'left' | 'right';
+    tabIconPosition: 'left' | 'right';
+    stackIconPosition: 'left' | 'right';
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -118,7 +119,8 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     compactTabs: false,
     quickAddIcon: 'desktop-only',
     customTreeOrder: {},
-    tabIconPosition: 'default',
+    tabIconPosition: 'right',
+    stackIconPosition: 'left',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -259,15 +261,14 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-        .setName('Icon position')
-        .setDesc('Place the icon to the left or right of the tab, stack or side portal name. Disabled with tab name display is icon only.')
+        .setName('Tab icon position')
+        .setDesc('Place the icon to the left or right of the tab name or side portal name. Disabled with tab name display is icon only.')
         .addDropdown(dropdown => dropdown
-            .addOption('default', 'Default')
             .addOption('left', 'Left of name')
             .addOption('right', 'Right of name')
             .setValue(this.plugin.settings.tabIconPosition)
             .onChange(async (value) => {
-                this.plugin.settings.tabIconPosition = value as 'default' | 'left' | 'right';
+                this.plugin.settings.tabIconPosition = value as 'left' | 'right';
                 await this.plugin.saveSettings();
         }));
 
@@ -614,6 +615,18 @@ export class SpacesSettingTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
                 this.display();
             }));
+
+        new Setting(containerEl)
+        .setName('Stack icon position')
+        .setDesc('Place the icon to the left or right of the stack name. Disabled with stack name is hidden.')
+        .addDropdown(dropdown => dropdown
+            .addOption('left', 'Left of name')
+            .addOption('right', 'Right of name')
+            .setValue(this.plugin.settings.stackIconPosition)
+            .onChange(async (value) => {
+                this.plugin.settings.stackIconPosition = value as 'left' | 'right';
+                await this.plugin.saveSettings();
+        }));
 
         new Setting(containerEl)
         .setName('Show stack count')

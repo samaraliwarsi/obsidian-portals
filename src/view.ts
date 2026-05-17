@@ -451,14 +451,11 @@ export class PortalsView extends ItemView {
         }
 
         if (!this.plugin.settings.hideStackNames) {
-            const tabStackIconPos = this.plugin.settings.tabIconPosition;
-            if (tabStackIconPos === 'left') {
-                header.setAttribute('data-icon-position', 'left');
-            } else if (tabStackIconPos === 'right') {
-                header.setAttribute('data-icon-position', 'right');
-            } else if (tabStackIconPos === 'default') {
-                header.removeAttribute('data-icon-position');
-                header.removeAttribute('data-icon-position');
+            const stackIconPos = this.plugin.settings.stackIconPosition;
+            if (stackIconPos === 'right') {
+                header.setAttribute('stack-icon-position', 'right');
+            } else {
+                header.removeAttribute('stack-icon-position');
             }
         }
         
@@ -589,14 +586,11 @@ export class PortalsView extends ItemView {
         }
 
         if (this.plugin.settings.tabNameDisplay !== 'none') {
-            const tabStackIconPos = this.plugin.settings.tabIconPosition;
-            if (tabStackIconPos === 'left') {
-                tab.setAttribute('data-icon-position', 'left');
-            } else if (tabStackIconPos === 'right') {
-                tab.setAttribute('data-icon-position', 'right');
-            } else if (tabStackIconPos === 'default') {
-                tab.removeAttribute('data-icon-position');
-                tab.removeAttribute('data-icon-position');
+            const tabIconPos = this.plugin.settings.tabIconPosition;
+            if (tabIconPos === 'left') {
+                tab.setAttribute('tab-icon-position', 'left');
+            } else {
+                tab.removeAttribute('tab-icon-position');
             }
         }
         
@@ -1421,6 +1415,7 @@ export class PortalsView extends ItemView {
             contextNoteFollowActive: s.contextNoteFollowActive,
             customTreeOrder: JSON.stringify(s.customTreeOrder),
             tabIconPosition: s.tabIconPosition,
+            stackIconPosition: s.stackIconPosition,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
@@ -1716,14 +1711,14 @@ export class PortalsView extends ItemView {
                 const tabBtn = tabContainer.createDiv({ cls: 'portals-split-tab' });
                 tabBtn.dataset.tabId = tabId;
 
-                // Add icon
-                const iconSpan = tabBtn.createSpan({ cls: 'portals-tab-icon' });
-                iconSpan.createEl('i', { cls: `ph ph-${icons[tabId] || 'file'}` });
-
                 // Always create the span with class 'tab-label'
                 const span = tabBtn.createSpan({ cls: 'tab-label' });
                 span.textContent = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-', ' ');
                 span.addClass('hide');
+
+                // Add icon
+                const iconSpan = tabBtn.createSpan({ cls: 'portals-tab-icon' });
+                iconSpan.createEl('i', { cls: `ph ph-${icons[tabId] || 'file'}` });
 
                 // handle active state and label visibility
                 const isActive = (tabId === activeTab);
@@ -1753,14 +1748,11 @@ export class PortalsView extends ItemView {
                 }
 
                 if (this.plugin.settings.tabNameDisplay !== 'none') {
-                    const tabStackIconPos = this.plugin.settings.tabIconPosition;
-                    if (tabStackIconPos === 'left') {
-                        tabBtn.setAttribute('data-icon-position', 'left');
-                    } else if (tabStackIconPos === 'right') {
-                        tabBtn.setAttribute('data-icon-position', 'right');
-                    } else if (tabStackIconPos === 'default') {
-                        tabBtn.removeAttribute('data-icon-position');
-                        tabBtn.removeAttribute('data-icon-position');
+                    const tabIconPos = this.plugin.settings.tabIconPosition;
+                    if (tabIconPos === 'left') {
+                        tabBtn.setAttribute('tab-icon-position', 'left');
+                    } else {
+                        tabBtn.removeAttribute('tab-icon-position');
                     }
                 }
 

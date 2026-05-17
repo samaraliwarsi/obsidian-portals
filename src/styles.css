@@ -5783,26 +5783,26 @@ vertical-align: middle;
 
 /* tab icon position setting */
 
-[data-icon-position="right"], 
-[data-icon-position="left"] {
+[stack-icon-position="right"], 
+[tab-icon-position="left"] {
     display: flex;
     align-items: center;
 }
-[data-icon-position="right"] .portals-tab-icon,
-[data-icon-position="right"] .portals-split-tab .portals-tab-icon {
+[stack-icon-position="right"] .portals-tab-icon {
     order: 2;
 }
-[data-icon-position="right"] .portals-tab-name,
-[data-icon-position="right"] .portals-stack-name, 
-[data-icon-position="right"] .tab-label {
+[stack-icon-position="right"] .portals-stack-name {
     order: 1;
 }
-[data-icon-position="left"] .portals-tab-icon {
+[stack-icon-position='right'] .portals-stack-count {
+  order: 3;
+}
+
+[tab-icon-position="left"] .portals-tab-icon {
     order: 1;
 }
-[data-icon-position="left"] .portals-tab-name,
-[data-icon-position="left"] .portals-stack-name,
-[data-icon-position="left"] .tab-label {
+[tab-icon-position="left"] .portals-tab-name,
+[tab-icon-position="left"] .tab-label {
     order: 2;
 }
 
