@@ -382,16 +382,52 @@ export class ContextNotesRenderer {
                 const href = link.getAttribute('href') || link.getAttribute('data-href');
                 if (href && !href.startsWith('http://') && !href.startsWith('https://')) {
                     e.preventDefault();
+                    e.stopPropagation();
                     const resolved = this.app.metadataCache.getFirstLinkpathDest(href, targetFile.path);
                     if (resolved instanceof TFile) {
-                        void this.app.workspace.getLeaf().openFile(resolved);
+                        if (e.metaKey || e.ctrlKey) {
+                            void this.app.workspace.getLeaf('tab').openFile(resolved);
+                        } else if (e.shiftKey) {
+                            void this.app.workspace.getLeaf('split').openFile(resolved);
+                        } else {
+                            void this.app.workspace.getLeaf().openFile(resolved);
+                        }
+                    }
+                }
+            });
+            noteContainer.addEventListener('mouseup', (e: MouseEvent) => {
+                const target = e.target as HTMLElement;
+                const link = target.closest('a');
+                if (!link) return;
+                const href = link.getAttribute('href') || link.getAttribute('data-href');
+                if (href && !href.startsWith('http://') && !href.startsWith('https://')) {                    
+                    if (e.button === 1) {
+                        const resolved = this.app.metadataCache.getFirstLinkpathDest(href, targetFile.path);
+                        if (resolved instanceof TFile) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            void this.app.workspace.getLeaf('tab').openFile(resolved);
+                        }
                     }
                 }
             });
 
             noteContainer.addEventListener('click', (e) => {
                 if ((e.target as HTMLElement).closest('a')) return;
-                void this.app.workspace.getLeaf().openFile(targetFile);
+                if (e.metaKey || e.ctrlKey) {
+                    void this.app.workspace.getLeaf('tab').openFile(targetFile);
+                } else if (e.shiftKey) {
+                    void this.app.workspace.getLeaf('split').openFile(targetFile);
+                } else {
+                    void this.app.workspace.getLeaf().openFile(targetFile);
+                }
+            });
+            noteContainer.addEventListener('mouseup', (e: MouseEvent) => {
+                if (e.button === 1) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    void this.app.workspace.getLeaf('tab').openFile(targetFile);
+                }
             });
 
             this.cache.set(path, { element: noteContainer, component });
