@@ -951,13 +951,31 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
+        .setName('Documentation')
+        .setDesc(
+            createFragment(frag => {
+                frag.appendText('Read the full ');
+                frag.createEl('a', { 
+                    text: 'Portals Guide', 
+                    href: '#' 
+                }, (a) => {
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.open('https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md', '_blank');
+                    });
+                });
+                frag.appendText(' for detailed walkthroughs and tips.');
+            })
+        );
+
+        /*new Setting(containerEl)
         .setName('User guide')
         .setDesc('Open the full documentation online, downloadable file on github.')
         .addButton(button => button
             .setButtonText('Open guide')
             .onClick(() => {
                 window.open('https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md', '_blank');
-            }));
+            }));*/
 
         window.setTimeout(() => {
             const maxScroll = containerEl.scrollHeight - containerEl.clientHeight;
