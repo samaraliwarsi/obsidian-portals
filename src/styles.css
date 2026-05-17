@@ -4659,24 +4659,27 @@ button.portals-reset-btn {
 }
 
 .portals-stack-count {
-  font-size: 0.8em;
-  color: var(--text-muted);
+  font-size: 0.75em;
+  color: var(--text-faint);
+  padding: 0 2px;
+  border-radius: 6px;
+  background-color: var(--background-modifier-border);
 }
 
 .portals-stack-group {
   display: flex;
   flex-shrink: 0;
   border-top: 2px solid var(--stack-accent-color, var(--interactive-accent));
-  border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-hover) 50%, transparent);
-  border-left: 2px solid color-mix(in srgb, var(--background-modifier-hover) 50%, transparent);
-  border-right: 1px solid color-mix(in srgb, var(--background-modifier-hover) 50%, transparent);
-  border-radius: 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
+  border-radius: 6px;
   margin-right: 2px;
   overflow: hidden;
 }
 
 .portals-stack-group.is-expanded {
-  box-shadow: 0 1px rgba(128, 128, 128, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
 .portal-tab.portals-stack-header-tab {
@@ -4727,7 +4730,7 @@ button.portals-reset-btn {
 }
 
 .portals-stack-group .portals-tab-pinned {
-    border-left: 3px solid var(--tab-pinned-color, var(--interactive-accent));
+    border-left: 2px solid var(--tab-pinned-color, var(--interactive-accent));
 }
 
 /* ------------------------------ Tree Styles ------------------------------------ */
@@ -5760,6 +5763,12 @@ border-bottom-color: var(--tab-active-color, var(--interactive-accent));
 
 .portals-tab-pinned {
 border-left: 2px solid var(--tab-pinned-color, var(--interactive-accent));
+border-bottom: none;
+}
+
+.portals-tab-pinned.is-active {
+border-left: 2px solid var(--tab-pinned-color, var(--interactive-accent));
+border-bottom: 2px solid var(--tab-pinned-color, var(--interactive-accent));
 }
 
 .portals-tab-pinned:not(.is-active) {
