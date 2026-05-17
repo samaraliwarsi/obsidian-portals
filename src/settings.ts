@@ -60,6 +60,7 @@ export interface SpacesSettings {
     compactTabs: boolean;
     quickAddIcon: 'off' | 'on' | 'desktop-only';
     customTreeOrder: Record<string, number>;
+    tabIconPosition: 'default' | 'left' | 'right';
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -117,6 +118,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     compactTabs: false,
     quickAddIcon: 'desktop-only',
     customTreeOrder: {},
+    tabIconPosition: 'default',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -149,7 +151,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
         .setName('Compact tree view')
-        .setDesc('Reduce spacing to display more items in the folder or tag tree. Does not apply to bookmarks or recents')
+        .setDesc('Reduce spacing to display more items in the folder or tag tree. Does not apply to side portal.')
         .addToggle(toggle => toggle
             .setValue(this.plugin.settings.compactTree)
             .onChange(async (value) => {
@@ -160,7 +162,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
         .setName('Compact tabs')
-        .setDesc('Reduce padding and font size for portal tabs and stack headers.')
+        .setDesc('Reduce padding and font size for portal, side portal tabs and stack headers.')
         .addToggle(toggle => toggle
             .setValue(this.plugin.settings.compactTabs)
             .onChange(async (value) => {
@@ -171,7 +173,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
         .setName('Styles')
-        .setDesc('Choose a visual theme for file tree, recents & bookmarks.')
+        .setDesc('Choose a visual theme for file tree and list items in side portal.')
         .addDropdown(dropdown => dropdown
             .addOption('default', 'Default')
             .addOption('minimal', 'Minimal')
@@ -202,7 +204,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Tab colors')
-            .setDesc('Show active tab color on bottom borders of active tabs. Portals style uses the same color when enabled.')
+            .setDesc('Show active tab color on bottom borders of active tabs. Portals style uses the same color when enabled. The color of the pinned vault root is used in side portals.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.tabColorEnabled)
                 .onChange(async (value) => {
@@ -581,6 +583,19 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         // -------------------- TAB SETTINGS ----------------------------------
         new Setting(containerEl).setName('Portal tabs').setHeading();
+
+        new Setting(containerEl)
+        .setName('Tab icon position')
+        .setDesc('Place the icon to the left or right of the tab name.')
+        .addDropdown(dropdown => dropdown
+            .addOption('default', 'Default')
+            .addOption('left', 'Left of name')
+            .addOption('right', 'Right of name')
+            .setValue(this.plugin.settings.tabIconPosition)
+            .onChange(async (value) => {
+                this.plugin.settings.tabIconPosition = value as 'default' | 'left' | 'right';
+                await this.plugin.saveSettings();
+            }));
             
         const pinSetting = new Setting(containerEl)
             .setName('Pin vault')

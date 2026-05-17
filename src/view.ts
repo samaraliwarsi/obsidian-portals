@@ -450,6 +450,16 @@ export class PortalsView extends ItemView {
             header.createSpan({ cls: 'portals-stack-count', text: `${portalCount}` });
         }
 
+        const tabStackIconPos = this.plugin.settings.tabIconPosition;
+        if (tabStackIconPos === 'left') {
+            header.setAttribute('data-icon-position', 'left');
+        } else if (tabStackIconPos === 'right') {
+            header.setAttribute('data-icon-position', 'right');
+        } else if (tabStackIconPos === 'default') {
+            header.removeAttribute('data-icon-position');
+            header.removeAttribute('data-icon-position');
+        }
+        
         // Click to toggle collapse (re-render)
         header.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -549,7 +559,7 @@ export class PortalsView extends ItemView {
             shouldShowname = false;
         }
         if (shouldShowname) {
-            tab.createSpan({ text: displayName });
+            tab.createSpan({ text: displayName, cls: 'portals-tab-name' });
         } else if (!Platform.isMobile) {
             tab.addEventListener('mouseenter', () => {
                 this.showTooltip(displayName, tab, 300);
@@ -575,6 +585,17 @@ export class PortalsView extends ItemView {
             const iconSpan = tab.createSpan({ cls: 'portals-tab-icon' });
             iconSpan.createEl('i', { cls: `ph ph-${space.icon}` });
         }
+
+        const tabStackIconPos = this.plugin.settings.tabIconPosition;
+        if (tabStackIconPos === 'left') {
+            tab.setAttribute('data-icon-position', 'left');
+        } else if (tabStackIconPos === 'right') {
+            tab.setAttribute('data-icon-position', 'right');
+        } else if (tabStackIconPos === 'default') {
+            tab.removeAttribute('data-icon-position');
+            tab.removeAttribute('data-icon-position');
+        }
+        
 
         tab.addEventListener('contextmenu', (e) => {
             e.preventDefault();
@@ -1395,6 +1416,7 @@ export class PortalsView extends ItemView {
             quickAddIcon: s.quickAddIcon,
             contextNoteFollowActive: s.contextNoteFollowActive,
             customTreeOrder: JSON.stringify(s.customTreeOrder),
+            tabIconPosition: s.tabIconPosition,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
@@ -1691,7 +1713,8 @@ export class PortalsView extends ItemView {
                 tabBtn.dataset.tabId = tabId;
 
                 // Add icon
-                tabBtn.createEl('i', { cls: `ph ph-${icons[tabId] || 'file'}` });
+                const iconSpan = tabBtn.createSpan({ cls: 'portals-tab-icon' });
+                iconSpan.createEl('i', { cls: `ph ph-${icons[tabId] || 'file'}` });
 
                 // Always create the span with class 'tab-label'
                 const span = tabBtn.createSpan({ cls: 'tab-label' });
@@ -1723,6 +1746,16 @@ export class PortalsView extends ItemView {
                     if (rootColor) {
                         tabBtn.style.setProperty('--split-tab-active-color', rootColor);
                     }
+                }
+
+                const tabStackIconPos = this.plugin.settings.tabIconPosition;
+                if (tabStackIconPos === 'left') {
+                    tabBtn.setAttribute('data-icon-position', 'left');
+                } else if (tabStackIconPos === 'right') {
+                    tabBtn.setAttribute('data-icon-position', 'right');
+                } else if (tabStackIconPos === 'default') {
+                    tabBtn.removeAttribute('data-icon-position');
+                    tabBtn.removeAttribute('data-icon-position');
                 }
 
                 if (!Platform.isMobile) {
