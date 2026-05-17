@@ -16,12 +16,7 @@ export class ContextMenuFactory {
     /**
      * File item context menu (main tree and side tabs)
      */
-    static showFileMenu(
-        view: PortalsView,
-        file: TFile,
-        fileEl: HTMLElement,
-        event: MouseEvent
-    ): void {
+    static showFileMenu(view: PortalsView, file: TFile, fileEl: HTMLElement, event: MouseEvent): void {
         const menu = new Menu();
 
         menu.addItem(item => item
@@ -33,6 +28,11 @@ export class ContextMenuFactory {
             .setTitle('Open to the right')
             .setIcon('file-symlink')
             .onClick(() => view.app.workspace.getLeaf('split', 'vertical').openFile(file)));
+        
+        menu.addItem(item => item
+            .setTitle('Open below')
+            .setIcon('file-down')
+            .onClick(() => view.app.workspace.getLeaf('split', 'horizontal').openFile(file)));
 
         menu.addItem(item => item
             .setTitle('Edit frontmatter')
@@ -97,6 +97,13 @@ export class ContextMenuFactory {
         }
 
         menu.addSeparator();
+        if (view.plugin.settings.selectedSpace?.type === 'folder') {
+            menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('New folder with context')
+                .setIcon('folder-input')
+                .onClick(() => PortalsActions.setFileAsContextNote(view.app, view.plugin, view, file)));
+        }
         view.app.workspace.trigger('file-menu', menu, file, 'file-explorer');
         menu.showAtPosition({ x: event.clientX, y: event.clientY });
     }

@@ -708,4 +708,38 @@ export class PortalsActions {
             }
         } 
     }
+
+    static async setFileAsContextNote(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile): Promise<void> {
+        const parentFolder = file.parent!;
+        const folderName = file.basename;
+        const contextNoteName = `${folderName}.md`;
+        const newFolderPath = `${parentFolder.path}/${folderName}`;
+
+        if (app.vault.getAbstractFileByPath(newFolderPath)) {
+            new Notice(`A folder named "${folderName}" already exists.`);
+            return;
+        }
+        
+        const icon = plugin.settings.customIcons[file.path] ?? null;
+        const color = plugin.settings.customColors[file.path] ?? null;
+
+        view.saveTreeScroll();
+        try {
+            await app.vault.createFolder(newFolderPath);
+            const newFilePath = `${newFolderPath}/${contextNoteName}`;
+            await app.vault.rename(file, newFilePath);
+
+            if (icon) {
+                plugin.settings.customIcons[newFolderPath] = icon;
+            }
+            if (color) {
+                plugin.settings.customColors[newFolderPath] = color;
+            }
+            await plugin.saveSettings();
+            view.renderContent();
+            new Notice(`"${file.basename}" set as context note of "${folderName}".`);
+        } catch (err) {
+            new Notice(`Failed to set as context note: ${err}`);
+        }
+    }
 }
