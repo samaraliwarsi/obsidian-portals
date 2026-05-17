@@ -85,6 +85,13 @@ export class RecentFilesRenderer {
             }
             fileEl.addEventListener('click', (e: MouseEvent) => {
                 e.stopPropagation();
+                if (e.metaKey || e.ctrlKey) {
+                    e.preventDefault();
+                    void this.app.workspace.getLeaf('tab').openFile(file);
+                } else if (e.shiftKey) {
+                    e.preventDefault();
+                    void this.app.workspace.getLeaf('split').openFile(file);
+                }
                 void this.app.workspace.getLeaf().openFile(file);
             });
 

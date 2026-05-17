@@ -581,6 +581,12 @@ export class FrontmatterClinicRenderer {
                         }
                     }
                     this.updateClinicToolbar();
+                } else if (e.metaKey || e.ctrlKey) {
+                    e.preventDefault();
+                    void this.app.workspace.getLeaf('tab').openFile(file);
+                } else if (e.shiftKey) {
+                    e.preventDefault();
+                    void this.app.workspace.getLeaf('split').openFile(file);
                 } else {
                     void this.app.workspace.getLeaf().openFile(file);
                 }

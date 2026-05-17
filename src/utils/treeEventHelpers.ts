@@ -91,11 +91,7 @@ export class TreeEventHelpers {
     }
 
     // Handles both normal click (open file) and alt‑click (multi‑select)
-    static attachFileClickHandler(
-        fileEl: HTMLElement,
-        file: TFile,
-        view: PortalsView
-    ): void {
+    static attachFileClickHandler(fileEl: HTMLElement, file: TFile, view: PortalsView): void {
         fileEl.addEventListener('click', (e: MouseEvent) => {
             e.stopPropagation();
             if (e.altKey) {
@@ -115,6 +111,12 @@ export class TreeEventHelpers {
                         view.rangeSelectionAnchor = key;
                     }
                 }
+            } else if (e.metaKey || e.ctrlKey) {
+                e.preventDefault();
+                void view.app.workspace.getLeaf('tab').openFile(file);
+            } else if (e.shiftKey) {
+                e.preventDefault();
+                void view.app.workspace.getLeaf('split').openFile(file);
             } else {
                 void view.app.workspace.getLeaf().openFile(file);
             }

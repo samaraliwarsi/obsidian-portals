@@ -363,8 +363,17 @@ export class JournalRenderer {
             }
             
 
-            card.addEventListener('click', () => {
-                void this.app.workspace.getLeaf().openFile(n);
+            card.addEventListener('click', (e: MouseEvent) => {
+                e.stopPropagation();
+                if (e.metaKey || e.ctrlKey) {
+                    e.preventDefault();
+                    void this.app.workspace.getLeaf('tab').openFile(n);
+                } else if (e.shiftKey) {
+                    e.preventDefault();
+                    void this.app.workspace.getLeaf('split').openFile(n);
+                } else {
+                    void this.app.workspace.getLeaf().openFile(n);
+                }
             });
 
             card.addEventListener('contextmenu', (e: MouseEvent) => {
