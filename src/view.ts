@@ -450,14 +450,16 @@ export class PortalsView extends ItemView {
             header.createSpan({ cls: 'portals-stack-count', text: `${portalCount}` });
         }
 
-        const tabStackIconPos = this.plugin.settings.tabIconPosition;
-        if (tabStackIconPos === 'left') {
-            header.setAttribute('data-icon-position', 'left');
-        } else if (tabStackIconPos === 'right') {
-            header.setAttribute('data-icon-position', 'right');
-        } else if (tabStackIconPos === 'default') {
-            header.removeAttribute('data-icon-position');
-            header.removeAttribute('data-icon-position');
+        if (!this.plugin.settings.hideStackNames) {
+            const tabStackIconPos = this.plugin.settings.tabIconPosition;
+            if (tabStackIconPos === 'left') {
+                header.setAttribute('data-icon-position', 'left');
+            } else if (tabStackIconPos === 'right') {
+                header.setAttribute('data-icon-position', 'right');
+            } else if (tabStackIconPos === 'default') {
+                header.removeAttribute('data-icon-position');
+                header.removeAttribute('data-icon-position');
+            }
         }
         
         // Click to toggle collapse (re-render)
@@ -586,14 +588,16 @@ export class PortalsView extends ItemView {
             iconSpan.createEl('i', { cls: `ph ph-${space.icon}` });
         }
 
-        const tabStackIconPos = this.plugin.settings.tabIconPosition;
-        if (tabStackIconPos === 'left') {
-            tab.setAttribute('data-icon-position', 'left');
-        } else if (tabStackIconPos === 'right') {
-            tab.setAttribute('data-icon-position', 'right');
-        } else if (tabStackIconPos === 'default') {
-            tab.removeAttribute('data-icon-position');
-            tab.removeAttribute('data-icon-position');
+        if (this.plugin.settings.tabNameDisplay !== 'none') {
+            const tabStackIconPos = this.plugin.settings.tabIconPosition;
+            if (tabStackIconPos === 'left') {
+                tab.setAttribute('data-icon-position', 'left');
+            } else if (tabStackIconPos === 'right') {
+                tab.setAttribute('data-icon-position', 'right');
+            } else if (tabStackIconPos === 'default') {
+                tab.removeAttribute('data-icon-position');
+                tab.removeAttribute('data-icon-position');
+            }
         }
         
 
@@ -1748,14 +1752,16 @@ export class PortalsView extends ItemView {
                     }
                 }
 
-                const tabStackIconPos = this.plugin.settings.tabIconPosition;
-                if (tabStackIconPos === 'left') {
-                    tabBtn.setAttribute('data-icon-position', 'left');
-                } else if (tabStackIconPos === 'right') {
-                    tabBtn.setAttribute('data-icon-position', 'right');
-                } else if (tabStackIconPos === 'default') {
-                    tabBtn.removeAttribute('data-icon-position');
-                    tabBtn.removeAttribute('data-icon-position');
+                if (this.plugin.settings.tabNameDisplay !== 'none') {
+                    const tabStackIconPos = this.plugin.settings.tabIconPosition;
+                    if (tabStackIconPos === 'left') {
+                        tabBtn.setAttribute('data-icon-position', 'left');
+                    } else if (tabStackIconPos === 'right') {
+                        tabBtn.setAttribute('data-icon-position', 'right');
+                    } else if (tabStackIconPos === 'default') {
+                        tabBtn.removeAttribute('data-icon-position');
+                        tabBtn.removeAttribute('data-icon-position');
+                    }
                 }
 
                 if (!Platform.isMobile) {

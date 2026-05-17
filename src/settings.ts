@@ -151,7 +151,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
         .setName('Compact tree view')
-        .setDesc('Reduce spacing to display more items in the folder or tag tree. Does not apply to side portal.')
+        .setDesc('Reduce vertical spacing, summary heights in the folder or tag tree. Does not apply to side portal.')
         .addToggle(toggle => toggle
             .setValue(this.plugin.settings.compactTree)
             .onChange(async (value) => {
@@ -159,18 +159,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
                 this.display();
             }));
-
-        new Setting(containerEl)
-        .setName('Compact tabs')
-        .setDesc('Reduce padding and font size for portal, side portal tabs and stack headers.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.compactTabs)
-            .onChange(async (value) => {
-                this.plugin.settings.compactTabs = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-
+        
         new Setting(containerEl)
         .setName('Styles')
         .setDesc('Choose a visual theme for file tree and list items in side portal.')
@@ -201,17 +190,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.display();
                 }));
-
-        new Setting(containerEl)
-            .setName('Tab colors')
-            .setDesc('Show active tab color on bottom borders of active tabs. Portals style uses the same color when enabled. The color of the pinned vault root is used in side portals.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.tabColorEnabled)
-                .onChange(async (value) => {
-                    this.plugin.settings.tabColorEnabled = value;
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
+        
 
         new Setting(containerEl)
             .setName('Bold folder names')
@@ -225,22 +204,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Tab name display')
-            .setDesc('Control how tab names are shown. Tooltips always appear on hover when a name is hidden.')
-            .addDropdown(dropdown => dropdown
-                .addOption('none', 'Icons only')
-                .addOption('activeOnly', 'Show active tab name')
-                .addOption('all', 'Show all tab names')
-                .setValue(this.plugin.settings.tabNameDisplay)
-                .onChange(async (value) => {
-                    this.plugin.settings.tabNameDisplay = value as 'none' | 'activeOnly' | 'all';
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
-
-        new Setting(containerEl)
             .setName('Extension badge for non-markdown files')
-            .setDesc('Display extensions badge on non-markdown files. When extension badge is on, non-markdown files do not show extension after file name.')
+            .setDesc('Display extension badge on non-markdown files. When turned on, non-markdown files do not show extension after file name.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.enableFileExtensionNonMD)
                 .onChange(async (value) => {
@@ -265,328 +230,37 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         containerEl.createEl('hr');
 
-        // -------------------- SIDE PORTAL SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Side portal').setHeading();
-
-        new Setting(containerEl)
-            .setName('Side portal')
-            .setDesc('Show a collapsible panel at the bottom with additional tabs.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.sidePanelEnabled)
-                .onChange(async (value) => {
-                    this.plugin.settings.sidePanelEnabled = value;
-                    if (!value) {
-                        this.plugin.settings.secondaryPanelCollapsed = true;
-                    }
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
-
-        new Setting(containerEl)
-            .setName('Choose side portals')
-            .setDesc('Select which tabs appear in the side portal.')
-            .addButton(button => button
-                .setButtonText('Configure')
-                .onClick(() => {
-                    new ChooseTabsModal(this.app, this.plugin, (tabs) => {
-                        this.plugin.settings.splitViewTabs = tabs;
-                        if (!tabs.includes(this.plugin.settings.activeSplitTab)) { 
-                            this.plugin.settings.activeSplitTab = tabs[0] || 'recent';
-                        }
-                        void this.plugin.saveSettings();
-                        this.display();
-                    }).open();
-                }));
-
-        new Setting(containerEl)
-            .setName('Disable side portal on mobile')
-            .setDesc('Hide side portal on mobile devices.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.disableSidePanelOnMobile)
-                .onChange(async (value) => {
-                    this.plugin.settings.disableSidePanelOnMobile = value;
-                    await this.plugin.saveSettings();
-                    // Force all portals views to re-render
-                    this.plugin.refreshAllViews();
-                }));
-
-        containerEl.createEl('hr');
-
-        // -------------------- CONTEXT NOTES SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Context Notes').setHeading();
-
-        new Setting(containerEl)
-            .setName('Enable Context notes')
-            .setDesc('When disabled, Context notes are treated as normal files and the side panel tab shows a notice. Menu items, context note listeners and cache are removed.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableContextNotes)
-                .onChange(async (value) => {
-                    this.plugin.settings.enableContextNotes = value;
-                    if (!value) {
-                        this.plugin.settings.contextNoteFollowActive = 'off';
-                    }
-                    await this.plugin.saveSettings();
-                    this.display(); // refresh settings UI if needed
-                }));
-
-        new Setting(containerEl)
-            .setName('Tag notes folder')
-            .setDesc('Tag notes storage folder. After changing folder path, use the "Migrate" button to move the files.')
-            .addText(text => text
-                .setPlaceholder('_Tag Notes')
-                .setValue(this.plugin.settings.tagNotesFolderPath)
-                .onChange(async (value) => {
-                    this.plugin.settings.tagNotesFolderPath = value.trim() || '_Tag Notes';
-                    await this.plugin.saveSettings();
-                }))
-            .addButton(btn => btn
-                .setButtonText('Browse')
-                .onClick(() => {
-                    new SelectFolderModal(this.app, (folder) => {
-                        this.plugin.settings.tagNotesFolderPath = folder.path;
-                        void this.plugin.saveSettings();
-                        this.display();
-                    }).open();
-                }))
-            .addButton(btn => btn
-                .setButtonText('Migrate')
-                .setWarning()
-                .onClick(async () => {
-                    const result = await this.plugin.migrateTagNotes();
-                    if (result.moved > 0) {
-                        new Notice(`Moved ${result.moved} tag note(s) to "${this.plugin.settings.tagNotesFolderPath}".`);
-                    }
-                    if (result.skipped > 0) {
-                        new Notice(`Skipped ${result.skipped} note(s) — already exist in destination.`);
-                    }
-                    if (result.errors.length > 0) {
-                        new Notice(`Errors: ${result.errors.join('; ')}`);
-                    }
-                    if (result.moved === 0 && result.skipped === 0 && result.errors.length === 0) {
-                        new Notice('No tag notes found to migrate.');
-                    }
-                    this.display();
-                }))
-        
-        //-- Context Notes in Side Portal
-        new Setting(containerEl)
-            .setName('Show context notes in file tree')
-            .setDesc('When context notes are enabled, controls if they appear in file/ tag tree. If contexts notes are disabled, this setting has no effect.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showContextNotesInTree)
-                .setDisabled(!this.plugin.settings.enableContextNotes)
-                .onChange(async (value) => {
-                    this.plugin.settings.showContextNotesInTree = value;
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
-        
-        new Setting(containerEl)
-        .setName('Context note highlight type')
-        .setDesc('How to visually indicate folders and tags that have a context note.')
-        .addDropdown(dropdown => dropdown
-            .addOption('icon', 'Icon highlight')
-            .addOption('underline', 'Text underline')
-            .addOption('none', 'Off')
-            .setValue(this.plugin.settings.contextNoteHighlightStyle)
-            .onChange(async (value) => {
-                    this.plugin.settings.contextNoteHighlightStyle = value as 'icon' | 'underline' | 'none';
-                    await this.plugin.saveSettings();
-                    this.display();
-            }));
-        
-        new Setting(containerEl)
-        .setName('Open context note from icon')
-        .setDesc('When enabled, clicking the icon of a folder or tag will open its context note in the current tab.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.contextNoteIconClick)
-            .setDisabled(!this.plugin.settings.enableContextNotes)
-            .onChange(async (value) => {
-                this.plugin.settings.contextNoteIconClick = value;
-                await this.plugin.saveSettings();
-                // Refresh the view to apply cursor style
-                this.plugin.refreshAllViews();
-            }));
-
-        new Setting(containerEl)
-        .setName('Show closest context note')
-        .setDesc('Side portal shows context note for the active file\'s nearest ancestor folder (folder spaces only). Falls back to portal\'s context note if none found.')
-        .addDropdown(dropdown => dropdown
-            .addOption('off', 'Off')
-            .addOption('on-status', 'On, show status')
-            .addOption('on-noStatus', 'On, no status')
-            .setValue(this.plugin.settings.contextNoteFollowActive)
-            .setDisabled(!this.plugin.settings.enableContextNotes)
-            .onChange(async (value) => {
-                    this.plugin.settings.contextNoteFollowActive = value as 'off' | 'on-status' | 'on-noStatus';                  
-                    await this.plugin.saveSettings();
-                    this.plugin.refreshAllViews();
-                }));
-
-        containerEl.createEl('hr');
-
-        // -------------------- JOURNAL SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Journal').setHeading();
-
-        new Setting(containerEl)
-        .setName('Journal date format')
-        .setDesc('Choose date formatted used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.')
-        .addDropdown(dropdown => dropdown
-            .addOption('DD-MM-YYYY', 'DD-MM-YYYY')
-            .addOption('MM-DD-YYYY', 'MM-DD-YYYY')
-            .addOption('YYYY-MM-DD', 'YYYY-MM-DD')
-            .setValue(this.plugin.settings.journalDateFormat)
-            .onChange(async (value) => {
-                this.plugin.settings.journalDateFormat = value as 'DD-MM-YYYY' | 'MM-DD-YYYY';
-                await this.plugin.saveSettings();
-                // Refresh journal tab if open
-                this.plugin.refreshAllViews();
-            }));
-
-        new Setting(containerEl)
-            .setName('Journal folder')
-            .setDesc('Folder containing daily notes. Type the path or choose from the list. Leave empty to use the folder from the Daily Notes core plugin.')
-            .addText(text => {
-                text.setPlaceholder('e.g., Journal/Daily')
-                    .setValue(this.plugin.settings.journalFolderPath)
-                    .onChange(async (value) => {
-                        this.plugin.settings.journalFolderPath = value;
-                        await this.plugin.saveSettings();
-                    });
-                })
-                .addButton(button => button
-                .setButtonText('Browse folders')
-                .onClick(() => {
-                    new SelectFolderModal(this.app, (targetFolder) => {
-                        this.plugin.settings.journalFolderPath = targetFolder.path;
-                        void this.plugin.saveSettings();
-                        this.display();
-                    }).open();
-                }));
-
-        new Setting(containerEl)
-            .setName('Quote delimiter')
-            .setDesc('Symbols used to mark quotes in your notes. Changes made to selected quotes or symbols will reflect after obsidian reload.')
-            .addDropdown(dropdown => {
-                dropdown
-                    .addOption('==', '== (double equals)')
-                    .addOption('**', '** (double asterisk)')
-                    .addOption('++', '++ (double plus)')
-                    .addOption('||', '|| (double pipe)')
-                window.setTimeout(() => {
-                    dropdown.setValue(this.plugin.settings.quoteDelimiter);
-                }, 0);
-                dropdown.onChange(async (value) => {
-                    this.plugin.settings.quoteDelimiter = value;
-                    await this.plugin.saveSettings();
-                });
-                return dropdown;
-            });
-
-        new Setting(containerEl)
-        .setName('Show quote indicator on date cards')
-        .setDesc('Adds a small icon to journal date cards that contain at least one quote.')
-        .addDropdown(dropdown => dropdown
-            .addOption('quotes', 'Quotes')
-            .addOption('warnings', 'Warnings')
-            .addOption('all', 'All')
-            .addOption('none', 'None')
-            .setValue(this.plugin.settings.journalQuoteIndicator)
-            .onChange(async (value) => {
-                this.plugin.settings.journalQuoteIndicator = value as 'quotes' | 'warnings' | 'all' | 'none';
-                await this.plugin.saveSettings();
-                // Refresh the journal tab if it's active
-                if (this.plugin.settings.activeSplitTab === 'journal') {
-                    this.plugin.refreshAllViews();
-                }
-            }));
-
-        containerEl.createEl('hr');
-
-        // -------------------- PROPERTIES SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Properties').setHeading();
-
-        new Setting(containerEl)
-        .setName('Show current value')
-        .setDesc('Show current property value on list of files filtered by properties')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.showCurrentPropertyValue)
-            .onChange(async (value) => {
-                this.plugin.settings.showCurrentPropertyValue = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-
-        new Setting(containerEl)
-        .setName('Hide filtered count')
-        .setDesc('Hide the count display of files filtered in properties. The number is based on dropdown choices.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.hideFilteredCount)
-            .onChange(async (value) => {
-                this.plugin.settings.hideFilteredCount = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-                    
-        containerEl.createEl('hr');
-        // -------------------- PORTAL STACK SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Stacks').setHeading();
-
-        new Setting(containerEl)
-        .setName('Hide stack names')
-        .setDesc('Show only the stack icon; the name will appear in a tooltip on hover.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.hideStackNames)
-            .onChange(async (value) => {
-                this.plugin.settings.hideStackNames = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-
-        new Setting(containerEl)
-        .setName('Show stack count')
-        .setDesc('When to display the number of portals inside a stack.')
-        .addDropdown(dropdown => dropdown
-            .addOption('always', 'Always')
-            .addOption('collapsed', 'Collapsed only')
-            .addOption('never', 'Never')
-            .setValue(this.plugin.settings.showStackCount)
-            .onChange(async (value) => {
-                this.plugin.settings.showStackCount = value as 'always' | 'collapsed' | 'never';
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-
-        new Setting(containerEl)
-        .setName('Colored stack icon')
-        .setDesc('Use colors on stack icon, app accent or user defined. When turned off, stack icons use default color like tab icons.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.stackIconAccent)
-            .onChange(async (value) => {
-                this.plugin.settings.stackIconAccent = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-
-        new Setting(containerEl)
-        .setName('Auto‑collapse stacks')
-        .setDesc('When expanding a stack, automatically collapse other open stacks.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.stackAutoCollapse)
-            .onChange(async (value) => {
-                this.plugin.settings.stackAutoCollapse = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-
-        containerEl.createEl('hr');
-
         // -------------------- TAB SETTINGS ----------------------------------
+ 
         new Setting(containerEl).setName('Portal tabs').setHeading();
+        new Setting(containerEl)
+        .setName('Compact tabs')
+        .setDesc('Reduce padding and font size for portal, side portal tabs and stack headers.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.compactTabs)
+            .onChange(async (value) => {
+                this.plugin.settings.compactTabs = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
 
         new Setting(containerEl)
-        .setName('Tab icon position')
-        .setDesc('Place the icon to the left or right of the tab name.')
+            .setName('Tab name display')
+            .setDesc('Control how tab names are shown. Tooltips appear on hover only when names are hidden.')
+            .addDropdown(dropdown => dropdown
+                .addOption('none', 'Icons only')
+                .addOption('activeOnly', 'Show active tab name')
+                .addOption('all', 'Show all tab names')
+                .setValue(this.plugin.settings.tabNameDisplay)
+                .onChange(async (value) => {
+                    this.plugin.settings.tabNameDisplay = value as 'none' | 'activeOnly' | 'all';
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        new Setting(containerEl)
+        .setName('Icon position')
+        .setDesc('Place the icon to the left or right of the tab, stack or side portal name. Disabled with tab name display is icon only.')
         .addDropdown(dropdown => dropdown
             .addOption('default', 'Default')
             .addOption('left', 'Left of name')
@@ -595,11 +269,22 @@ export class SpacesSettingTab extends PluginSettingTab {
             .onChange(async (value) => {
                 this.plugin.settings.tabIconPosition = value as 'default' | 'left' | 'right';
                 await this.plugin.saveSettings();
-            }));
+        }));
+
+        new Setting(containerEl)
+            .setName('Tab colors')
+            .setDesc('Show tab color on bottom borders of active tabs. Portals style uses the same color when enabled. The color of the pinned vault root is used in side portals.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.tabColorEnabled)
+                .onChange(async (value) => {
+                    this.plugin.settings.tabColorEnabled = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
             
         const pinSetting = new Setting(containerEl)
-            .setName('Pin vault')
-            .setDesc('Show the vault root as the first tab (always on the left). You can customize its icon and color below.');
+            .setName('Show vault')
+            .setDesc('Show vault root as a tab (always with a left border). Users can customize its icon and color below.');
 
         pinSetting.addToggle(toggle => toggle
             .setValue(this.plugin.settings.pinVaultRoot)
@@ -636,8 +321,8 @@ export class SpacesSettingTab extends PluginSettingTab {
             const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
             if (rootSpace) {
                 const rootCustomSetting = new Setting(containerEl)
-                .setName('Pin vault appearance')
-                .setDesc('Customize icon and color for the pinned vault root tab.');
+                .setName('Vault tab appearance')
+                .setDesc('Customize icon and color for the vault root tab.');
 
             const controlEl = rootCustomSetting.controlEl;
             controlEl.empty();
@@ -907,7 +592,6 @@ export class SpacesSettingTab extends PluginSettingTab {
                 });
             }
         };
-        
 
         new Setting(containerEl).setName('Active tabs').setHeading();
 
@@ -917,6 +601,324 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         containerEl.createEl('hr');
 
+        // -------------------- PORTAL STACK SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Stacks').setHeading();
+
+        new Setting(containerEl)
+        .setName('Hide stack names')
+        .setDesc('Show only the stack icon; the name will appear in a tooltip on hover.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.hideStackNames)
+            .onChange(async (value) => {
+                this.plugin.settings.hideStackNames = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Show stack count')
+        .setDesc('When to display the number of portals inside a stack.')
+        .addDropdown(dropdown => dropdown
+            .addOption('always', 'Always')
+            .addOption('collapsed', 'Collapsed only')
+            .addOption('never', 'Never')
+            .setValue(this.plugin.settings.showStackCount)
+            .onChange(async (value) => {
+                this.plugin.settings.showStackCount = value as 'always' | 'collapsed' | 'never';
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Colored stack icon')
+        .setDesc('Use colors on stack icon, app accent or user defined. When turned off, stack icons use default color like tab icons.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.stackIconAccent)
+            .onChange(async (value) => {
+                this.plugin.settings.stackIconAccent = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Auto‑collapse stacks')
+        .setDesc('When expanding a stack, automatically collapse other open stacks.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.stackAutoCollapse)
+            .onChange(async (value) => {
+                this.plugin.settings.stackAutoCollapse = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        containerEl.createEl('hr');
+
+
+        // -------------------- SIDE PORTAL SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Side portal').setHeading();
+
+        new Setting(containerEl)
+            .setName('Side portal')
+            .setDesc('Show a collapsible panel at the bottom with additional tabs.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.sidePanelEnabled)
+                .onChange(async (value) => {
+                    this.plugin.settings.sidePanelEnabled = value;
+                    if (!value) {
+                        this.plugin.settings.secondaryPanelCollapsed = true;
+                    }
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        new Setting(containerEl)
+            .setName('Choose side portals')
+            .setDesc('Select which tabs appear in the side portal.')
+            .addButton(button => button
+                .setButtonText('Configure')
+                .onClick(() => {
+                    new ChooseTabsModal(this.app, this.plugin, (tabs) => {
+                        this.plugin.settings.splitViewTabs = tabs;
+                        if (!tabs.includes(this.plugin.settings.activeSplitTab)) { 
+                            this.plugin.settings.activeSplitTab = tabs[0] || 'recent';
+                        }
+                        void this.plugin.saveSettings();
+                        this.display();
+                    }).open();
+                }));
+
+        new Setting(containerEl)
+            .setName('Disable side portal on mobile')
+            .setDesc('Hide side portal on mobile devices.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.disableSidePanelOnMobile)
+                .onChange(async (value) => {
+                    this.plugin.settings.disableSidePanelOnMobile = value;
+                    await this.plugin.saveSettings();
+                    // Force all portals views to re-render
+                    this.plugin.refreshAllViews();
+                }));
+
+        containerEl.createEl('hr');
+
+        // -------------------- CONTEXT NOTES SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Context Notes').setHeading();
+
+        new Setting(containerEl)
+            .setName('Enable Context notes')
+            .setDesc('When disabled, Context notes are treated as normal files and the side portal shows a notice. Menu items, context note listeners and cache are removed.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableContextNotes)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableContextNotes = value;
+                    if (!value) {
+                        this.plugin.settings.contextNoteFollowActive = 'off';
+                    }
+                    await this.plugin.saveSettings();
+                    this.display(); // refresh settings UI if needed
+                }));
+
+        new Setting(containerEl)
+            .setName('Tag notes folder')
+            .setDesc('Tag notes storage folder. After changing folder path, use the "Migrate" button to move the files.')
+            .addText(text => text
+                .setPlaceholder('_Tag Notes')
+                .setValue(this.plugin.settings.tagNotesFolderPath)
+                .onChange(async (value) => {
+                    this.plugin.settings.tagNotesFolderPath = value.trim() || '_Tag Notes';
+                    await this.plugin.saveSettings();
+                }))
+            .addButton(btn => btn
+                .setButtonText('Browse')
+                .onClick(() => {
+                    new SelectFolderModal(this.app, (folder) => {
+                        this.plugin.settings.tagNotesFolderPath = folder.path;
+                        void this.plugin.saveSettings();
+                        this.display();
+                    }).open();
+                }))
+            .addButton(btn => btn
+                .setButtonText('Migrate')
+                .setWarning()
+                .onClick(async () => {
+                    const result = await this.plugin.migrateTagNotes();
+                    if (result.moved > 0) {
+                        new Notice(`Moved ${result.moved} tag note(s) to "${this.plugin.settings.tagNotesFolderPath}".`);
+                    }
+                    if (result.skipped > 0) {
+                        new Notice(`Skipped ${result.skipped} note(s) — already exist in destination.`);
+                    }
+                    if (result.errors.length > 0) {
+                        new Notice(`Errors: ${result.errors.join('; ')}`);
+                    }
+                    if (result.moved === 0 && result.skipped === 0 && result.errors.length === 0) {
+                        new Notice('No tag notes found to migrate.');
+                    }
+                    this.display();
+                }))
+        
+        //-- Context Notes in Side Portal
+        new Setting(containerEl)
+            .setName('Show context notes in file tree')
+            .setDesc('When context notes are enabled, controls if they appear in file/ tag tree. If contexts notes are disabled, this setting has no effect.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showContextNotesInTree)
+                .setDisabled(!this.plugin.settings.enableContextNotes)
+                .onChange(async (value) => {
+                    this.plugin.settings.showContextNotesInTree = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+        
+        new Setting(containerEl)
+        .setName('Context note highlight type')
+        .setDesc('How to visually indicate folders and tags that have a context note.')
+        .addDropdown(dropdown => dropdown
+            .addOption('icon', 'Icon highlight')
+            .addOption('underline', 'Text underline')
+            .addOption('none', 'Off')
+            .setValue(this.plugin.settings.contextNoteHighlightStyle)
+            .onChange(async (value) => {
+                    this.plugin.settings.contextNoteHighlightStyle = value as 'icon' | 'underline' | 'none';
+                    await this.plugin.saveSettings();
+                    this.display();
+            }));
+        
+        new Setting(containerEl)
+        .setName('Open context note from icon')
+        .setDesc('When enabled, clicking the icon of a folder or tag will open its context note in the current tab.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.contextNoteIconClick)
+            .setDisabled(!this.plugin.settings.enableContextNotes)
+            .onChange(async (value) => {
+                this.plugin.settings.contextNoteIconClick = value;
+                await this.plugin.saveSettings();
+                // Refresh the view to apply cursor style
+                this.plugin.refreshAllViews();
+            }));
+
+        new Setting(containerEl)
+        .setName('Show closest context note')
+        .setDesc('Side portal shows context note for the active file\'s nearest ancestor folder (folder spaces only). Falls back to portal\'s context note if none found.')
+        .addDropdown(dropdown => dropdown
+            .addOption('off', 'Off')
+            .addOption('on-status', 'On, show status')
+            .addOption('on-noStatus', 'On, no status')
+            .setValue(this.plugin.settings.contextNoteFollowActive)
+            .setDisabled(!this.plugin.settings.enableContextNotes)
+            .onChange(async (value) => {
+                    this.plugin.settings.contextNoteFollowActive = value as 'off' | 'on-status' | 'on-noStatus';                  
+                    await this.plugin.saveSettings();
+                    this.plugin.refreshAllViews();
+                }));
+
+        containerEl.createEl('hr');
+
+        // -------------------- JOURNAL SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Journal').setHeading();
+
+        new Setting(containerEl)
+        .setName('Journal date format')
+        .setDesc('Choose date format used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.')
+        .addDropdown(dropdown => dropdown
+            .addOption('DD-MM-YYYY', 'DD-MM-YYYY')
+            .addOption('MM-DD-YYYY', 'MM-DD-YYYY')
+            .addOption('YYYY-MM-DD', 'YYYY-MM-DD')
+            .setValue(this.plugin.settings.journalDateFormat)
+            .onChange(async (value) => {
+                this.plugin.settings.journalDateFormat = value as 'DD-MM-YYYY' | 'MM-DD-YYYY';
+                await this.plugin.saveSettings();
+                // Refresh journal tab if open
+                this.plugin.refreshAllViews();
+            }));
+
+        new Setting(containerEl)
+            .setName('Journal folder')
+            .setDesc('Folder containing daily notes. Type the path or choose from the list. Leave empty to use the folder from the Daily Notes core plugin.')
+            .addText(text => {
+                text.setPlaceholder('e.g., Journal/Daily')
+                    .setValue(this.plugin.settings.journalFolderPath)
+                    .onChange(async (value) => {
+                        this.plugin.settings.journalFolderPath = value;
+                        await this.plugin.saveSettings();
+                    });
+                })
+                .addButton(button => button
+                .setButtonText('Browse folders')
+                .onClick(() => {
+                    new SelectFolderModal(this.app, (targetFolder) => {
+                        this.plugin.settings.journalFolderPath = targetFolder.path;
+                        void this.plugin.saveSettings();
+                        this.display();
+                    }).open();
+                }));
+
+        new Setting(containerEl)
+            .setName('Quote delimiter')
+            .setDesc('Symbols used to mark quotes in your notes. Changes made to selected quotes or symbols will reflect after obsidian reload.')
+            .addDropdown(dropdown => {
+                dropdown
+                    .addOption('==', '== (double equals)')
+                    .addOption('**', '** (double asterisk)')
+                    .addOption('++', '++ (double plus)')
+                    .addOption('||', '|| (double pipe)')
+                window.setTimeout(() => {
+                    dropdown.setValue(this.plugin.settings.quoteDelimiter);
+                }, 0);
+                dropdown.onChange(async (value) => {
+                    this.plugin.settings.quoteDelimiter = value;
+                    await this.plugin.saveSettings();
+                });
+                return dropdown;
+            });
+
+        new Setting(containerEl)
+        .setName('Show quote indicator on date cards')
+        .setDesc('Adds a small icon to journal date cards that contain at least one quote.')
+        .addDropdown(dropdown => dropdown
+            .addOption('quotes', 'Quotes')
+            .addOption('warnings', 'Warnings')
+            .addOption('all', 'All')
+            .addOption('none', 'None')
+            .setValue(this.plugin.settings.journalQuoteIndicator)
+            .onChange(async (value) => {
+                this.plugin.settings.journalQuoteIndicator = value as 'quotes' | 'warnings' | 'all' | 'none';
+                await this.plugin.saveSettings();
+                // Refresh the journal tab if it's active
+                if (this.plugin.settings.activeSplitTab === 'journal') {
+                    this.plugin.refreshAllViews();
+                }
+            }));
+
+        containerEl.createEl('hr');
+
+        // -------------------- PROPERTIES SETTINGS ----------------------------------
+        new Setting(containerEl).setName('Properties').setHeading();
+
+        new Setting(containerEl)
+        .setName('Show current value')
+        .setDesc('Show current property value on list of files filtered by properties')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.showCurrentPropertyValue)
+            .onChange(async (value) => {
+                this.plugin.settings.showCurrentPropertyValue = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+
+        new Setting(containerEl)
+        .setName('Hide filtered count')
+        .setDesc('Hide the count display of files filtered in properties. The number is based on dropdown choices.')
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.hideFilteredCount)
+            .onChange(async (value) => {
+                this.plugin.settings.hideFilteredCount = value;
+                await this.plugin.saveSettings();
+                this.display();
+            }));
+                    
+        containerEl.createEl('hr');
+    
         // --------------------------- BACKUP / RESTORE  -----------------------------
         new Setting(containerEl).setName('Backup / restore').setHeading();
 
