@@ -285,8 +285,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
             
         const pinSetting = new Setting(containerEl)
-            .setName('Show vault')
-            .setDesc('Show vault root as a tab (always with a left border). Users can customize its icon and color below.');
+            .setName('Pin vault')
+            .setDesc('Show vault root as a pinned tab (always with a left border). Users can customize its icon and color below.');
 
         pinSetting.addToggle(toggle => toggle
             .setValue(this.plugin.settings.pinVaultRoot)
@@ -323,7 +323,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
             if (rootSpace) {
                 const rootCustomSetting = new Setting(containerEl)
-                .setName('Vault tab appearance')
+                .setName('Pinned vault appearance')
                 .setDesc('Customize icon and color for the vault root tab.');
 
             const controlEl = rootCustomSetting.controlEl;
