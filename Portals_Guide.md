@@ -1,6 +1,6 @@
 # PORTALS PLUGIN USER GUIDE
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. This guide is updated to **Version 1.3.3**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.3.3**
 
 ---
 ## INSTALLATION
@@ -144,9 +144,9 @@ Quick-add buttons are enabled by a user setting `Quick-add icons` can be turned 
 A collapsible, resizable panel at the bottom of Portals. To enable it, go to `Settings → Portals`, scroll down to **Side Portal** section and turn it on. In order to display the side portal, one of its views must be selected. Side portals can be reordered using drag and reorder. 
 
 **On Mobile** 
-Mobile display of side portal may be affected by elements based on themes. On default obsidian, turn off the `Floating navigation` in `Appearance` settings on mobile. On other themes, depending on the CSS styling, side portal visibility on mobile may be affected. to various degrees. Users can opt to disable the **Side Portal** on mobile from settings. 
+Mobile display of side portal may be affected by elements based on themes. On default obsidian, turn off the `Floating navigation` in `Appearance` settings on mobile. On other themes, depending on the CSS styling, side portal visibility on mobile may be affected to various degrees. Users can opt to disable the **Side Portal** on mobile from settings. 
 
-> Note: Side Portal works perfectly with [Baseline](https://github.com/aaaaalexis/obsidian-baseline) theme on mobile because the theme sends the vault selector to the top on mobile. Other themes that allow vault selector to be sent to top, on mobile, can also achieve the same. On desktop, some themes provide the option to hide the vault. That setting may visually conflict with side portal, its avoidable to turn off vault hiding. 
+> Note: Side Portal works perfectly with [Baseline](https://github.com/aaaaalexis/obsidian-baseline) theme on mobile because the theme sends the vault selector to the top on mobile. Other themes that allow vault selector to be sent to top, on mobile, can also achieve the same. On desktop, some themes provide the option to hide the vault. That setting may visually conflict with side portal, it is better to turn off vault hiding. 
 
 The tabs available to be displayed in **Side Portal** are as described below. 
 
@@ -185,7 +185,7 @@ The context note tab shows the associated context note of the currently active p
 - If context notes is disabled, the listeners, helpers, cache that help the feature are also turned off, making Portals somewhat lighter for users who don't prefer to use Context notes. 
 #### Context note shortcuts
 - To create a context note, use `Shift+Click` on any folder or tag, or create from `Context Menu`. If a context note already exists for the target folder, the key combo opens the context note in the current active tab. 
-- `Cmd/Ctrl+Click` on a folder or a tag to open an existing context note in a new tab editor. 
+- `Cmd/Ctrl+Click` on a folder or a tag to open an existing context note in a new tab. 
 #### Context note highlight type 
 The folders & tags that have a context note can be highlighted in two ways, using an accent color icon or underline. To toggle this, go to `Settings → Portals`, scroll down to the **Context Note** section and choose `Context note highlight type`. Context note highlight of icon color is affected by `Tab colors` setting, making each portal capable of displaying a unique color as defined by user preferences. 
 #### Open context notes from Icon
@@ -200,7 +200,7 @@ Users can choose if they want to see the context note file inside a folder or a 
 When the `Show closest context note` is enabled the context note side portal will show the context note of the parent folder of the active file. If no context note exists in the parent folder, it will look one level upwards, walking up all till the portal space or root. If none exist, it will fallback to showing the portal tab's context note. 
 
 **For Tags**
-Tag portals and hierarchy is different from folders. Tags don't have a defined *Main* (a folder's main is clear using hierarchal tree), example a file can have `Writing` tag, a `Fiction` tag and a `Writing/in-progress` tag. It can be opened in a space of `Writing` as well as `Fiction` and both portal spaces can open the other tag as a `Group tag`. For this reason, defining a main for tags is tricky and depends on user configuration. For this reason, the `Show closest context note` setting for tags is implemented differently. A file open will show its nearest relative context note within the bounds of the active portal tab. When the active tab changes, and even if the file open is the same, it'll fall back to the context note of the active portal tab. Active portal tab in tag spaces is used as the hook to set context. This is a W.I.P feature which will evolve with user feedbacks. 
+Tag portals and hierarchy is different from folders. Tags don't have a defined *Main* (a folder's main is clear using hierarchical tree), example a file can have `Writing` tag, a `Fiction` tag and a `Writing/in-progress` tag. It can be opened in a space of `Writing` as well as `Fiction` and both portal spaces can open the other tag as a `Group tag`. For this reason, defining a main for tags is tricky and depends on user configuration. For this reason, the `Show closest context note` setting for tags is implemented differently. A file open will show its nearest relative context note within the bounds of the active portal tab. When the active tab changes, and even if the file open is the same, it'll fall back to the context note of the active portal tab. Active portal tab in tag spaces is used as the hook to set context. This is a W.I.P feature which will evolve with user feedback. 
 
 > To track what's being displayed, a status overlay option has been added to the dropdown setting to show what's being displayed.
 
@@ -214,8 +214,8 @@ A dedicated side portal tab for sneak peak into daily notes. For its consistent 
 > [!info]
 > 1. The feature is designed to work with daily notes core plugin. While support is extended to other plugins/ methods of daily notes, the most reliable behaviour can be expected with the core plugin. 
 > 2. Date format matching, is critical. While the plugin is designed to use fall back date create time, its output can be inaccurate in quotes and file sorting. Hence, if date format does not match **all markdown files** in the `Journal folder`, there are two levels of warnings 
-> 	- A warning inside inside journal. 
-> 	- Further, if there are files that match the date but have other texts, a console debug message will be generated, highlighting the specific files that mismatch. To view it, users can go to console using `Cmd/Ctr+Alt+i` and turn on verbose logging. 
+> 	- A warning inside the journal. 
+> 	- Further, if there are files that match the date but have other texts, a console debug message will be generated, highlighting the specific files that mismatch. To view it, users can go to console using `Cmd+Alt+i` on MacOS or `Ctrl+Shift+i` on Windows, and turn on verbose logging. 
 > 3. Once `Journal date format` setting is applied correctly, or files are renamed to match that setting, the warnings will go away. 
 
 The **Journal** side portal has two areas in display, 
@@ -242,20 +242,20 @@ Users can turn this on from `Settings → Portals`, scroll down to **Journal** s
 ---
 ### Hidden
 **Hidden** is a side portal that shows a list of items (files, folders, tags) that appear in the portal view. 
-- Use the context menu to hide anything. Hiding a folder/ tag will also hide it's contents. However, for a hidden tag, it's content file can still appear on another folder. 
+- Use the context menu to hide anything. Hiding a folder/ tag will also hide its contents. However, for a hidden tag, its content file can still appear on another folder. 
 - Unhide options are available inside the Hidden side portal. Side portal also shows the type of item that was originally hidden, helping categorise items incase tags and folders share the same name. 
 - Tag groups cannot be hidden, the feature is not enabled on them as they can be turned off using the `Tag groups` button. 
 
 ---
 ### Properties
- **Properties** is a side portal to browse and sort markdown files by properties. The main features are as follows,
+ **Properties** is a side portal to browse and sort markdown files by properties. The main features are as follows:
  - The Property filter dropdown contains a list of all available frontmatter properties in markdown files of the vault. It can also display files with no front matter. 
 - The Value filter dropdown can help further narrow down to sort by specific values of properties selected. Value button needs some property to be selected. 
 - Both property filters have a search mode. To enable search, use `Right-click` on either dropdown buttons and type your input to reveal suggested entries from all the available ones. 
 - User preference to show the count of files queried and the option to show the value badge on files in the list. 
 - This side panel supports multi-select using `Alt+click` or `Swipe-right` on mobile. For range select, use `Alt+Shift+Click`, Multi-select options are done using multi-select toolbar for portal which has the option for bulk editing front matter properties or reset colors. Future updates will have more multi-select options available here. 
 - Property panel pauses updates while **Frontmatter editing** modal is open so that all updates can be bulk rendered in one go. This helps performance when editing large number of files. Once modal closes, the panel renders to show updated state.
-- **Cache** - Property browser works on a cache system so it lazy-loads it's data listening to actual changes in file frontmatter, file create, delete, rename etc functions. 
+- **Cache** - Property browser works on a cache system so it lazy-loads its data listening to actual changes in file frontmatter, file create, delete, rename etc functions. 
 
 ---
 ### Trash
@@ -265,7 +265,7 @@ Users can turn this on from `Settings → Portals`, scroll down to **Journal** s
 ## MORE FEATURES
 ### Custom colors for files, folders and tags
 
-**Custom colors** apply to summary, details of folders, tag groups, subtags depending upon the chosen style, and to the text of the file items. To set a custom color, `Right-click` to open context menu, choose your color and desire opacity from the modal and save. User preferences set here will be saved in the data file. In the styles section, it is described how custom colors apply differently to each style. User set colors in one style are consistent across custom color activated styles, i.e. users can switch styles and the colors will continue as chosen. 
+**Custom colors** apply to summary, details of folders, tag groups, subtags depending upon the chosen style, and to the text of the file items. To set a custom color, `Right-click` to open context menu, choose your color and desired opacity from the modal and save. User preferences set here will be saved in the data file. In the styles section, it is described how custom colors apply differently to each style. User set colors in one style are consistent across custom color activated styles, i.e. users can switch styles and the colors will continue as chosen. 
 
 > [!Note] 
 > - Custom colors do not apply to the `Shades` and `Hues` style as they carry their own gradients and hues which are set based on the total number of folders/ tag groups/ subtags. Context menu option for changing colors on those styles is disabled. 
@@ -283,7 +283,7 @@ Portals comes with Phosphor icon set embedded into the code, this works complete
 
 ---
 ### Active Dot
-The files that are open in any editor tab show an accent color dot on the right hand side of each file. The same applies to the entire folder chain or tag tree chain of the file open in the active editor tab. Inactive editor tabs do no show active dot for folder or tag chain chain. This is a default state and cannot be changed. Active dot also works in **Recents** in **Side Portal**. Active dot's color syncs with the `Tab colors` setting, using which each portal tab can display a different color of the dot, as defined by user's portal tab colors. 
+The files that are open in any editor tab show an accent color dot on the right hand side of each file. The same applies to the entire folder chain or tag tree chain of the file open in the active editor tab. Inactive editor tabs do not show active dot for folder or tag chain. This is a default state and cannot be changed. Active dot also works in **Recents** in **Side Portal**. Active dot's color syncs with the `Tab colors` setting, using which each portal tab can display a different color of the dot, as defined by user's portal tab colors. 
 
 ---
 ### Custom reordering for folders and tags
@@ -309,8 +309,8 @@ Users can select the values from the list of dropdown, search using `Right-click
 In this part users can directly apply YAML to the markdown files. Simply press `Copy from file` to load the YAML into the text area, copy it using keyboard shortcuts or context menu. Then select the file or list of files you want to apply the same YAML to, Paste the copied YAML into the text area and press `Paste to files` button. 
 
 **Important points**
-- Please note that the YAML The parser supports **only flat key-value pairs and simple, one-level lists**. For nested YAML, the frontmatter editor may fail and give errors so it is ideal to use Obsidian's built-in editor for those. 
-- YAML editing works through `Copy from file`, `Paste to files` buttons only. The buttons at the button of `Save`, `Remove` are for properties selected through dropdown or for custom properties. 
+- Please note that the YAML parser supports **only flat key-value pairs and simple, one-level lists**. For nested YAML, the frontmatter editor may fail and give errors so it is ideal to use Obsidian's built-in editor for those. 
+- YAML editing works through `Copy from file`, `Paste to files` buttons only. The buttons at the bottom, i.e. for `Save` and `Remove` are for properties selected through dropdown or for custom properties. 
 - The `Clear all` button inside YAML section can be used to clear every frontmatter property from the files selected. 
 - For individual files use the frontmatter editor from context menu. For multiple files, make sure to use the frontmatter editor from multi-select toolbar. 
  
@@ -324,7 +324,7 @@ Four buttons at the bottom‑left of the file panel (can be folded/unfolded into
 | New Note                         | file-plus     | Create a new note in the current folder/tag space.                                            |
 | New Folder (Folder portals only) | folder-plus   | Create a new subfolder.                                                                       |
 | Tag groups (Tag portals only)    | funnel        | Open the **Tag groups** modal – choose which subtags appear as separate collapsible sections. |
-| Sort files and folders           | carat-up-down | Change sorting (Name A→Z, Name Z→A, Created oldest/newest, Modified oldest/newest).           |
+| Sort files and folders           | caret-up-down | Change sorting (Name A→Z, Name Z→A, Created oldest/newest, Modified oldest/newest).           |
 | Collapse/fold                    | stack         | Click to collapse all subfolders (root stays expanded). Right click to fold/ unfold icons.    |
 
 > Collapse button has two functions: `Click` collapses the view, `Right-Click` folds/ unfolds the other 3 icons. Click to collapse works in both folded and unfolded state. A tooltip related to this is set to display once per session on hover, after which the collapse button shows its regular tooltip. 
@@ -373,7 +373,7 @@ Multi-select is available for files, folders and tags. This feature works throug
 
 ---
 ### Command palette actions
-The actions available with command palette are as follows, 
+The actions available with command palette are as follows:
 - Open explorer
 - Add portal tabs
 - Remove portal tabs
@@ -387,7 +387,7 @@ The actions available with command palette are as follows,
 ### About Folder trees
 - Any folder can be added as a portal tab via `Settings → Portals`. 
 - If the name of a folder that was added changes, the portal tab will not show any contents as portals are right now kept simply as direct paths. 
-- For any issues faced during removing a portal that has been renamed/ deleted, use the `Clean up dead portals` options in **Maintenance and help** ad the bottom of settings page. 
+- For any issues faced during removing a portal that has been renamed/ deleted, use the `Clean up dead portals` options in **Maintenance and help** at the bottom of settings page. 
 -  **Drag and Drop** : This is only available in folder trees and only on desktop. Drag and drop between portals is not available right now and planned for a future release. 
 ### About Tag trees
 Tag trees can be added using the same method as folder trees via `Settings → Portals`. The view of a tag tree depends on the type of tag usage. 
@@ -424,7 +424,7 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Pin vault root            | Always show the root as the first tab.                                                                 |
 | Pin root vault appearance | Style setting for pin root vault portal.                                                               |
 | Add new portal            | Opens a modal to add new folder/ tag portals using available data.                                     |
-| Categorised portal list   | Shows a list of all folders, tags, subfolders being use as portals.                                    |
+| Categorised portal list   | Shows a list of all folders, tags, subfolders being used as portals.                                   |
 ###### Stacks
 | Setting              | Description                                              |
 | -------------------- | -------------------------------------------------------- |
@@ -450,12 +450,12 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Open context notes from icon    | Use the setting to open context note directly from header icon.                                     |
 | Show closest context notes      | Context note side portal shows context notes based on the active file instead of the active portal. |
 ###### Journal
-| Setting                       | Description                                                                  |
-| ----------------------------- | ---------------------------------------------------------------------------- |
-| Journal date format           | Choose the date format used in daily notes folder on note title names.       |
-| Journal folder                | Folder where daily notes live.                                               |
-| Quote delimiter               | Symbols used to mark quotes, e.g, `double-equal(==)` or `double-asterix(**)` |
-| Quote indicator on date cards | Shows an indicator on journal date cards for status of quote extraction.     |
+| Setting                       | Description                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------- |
+| Journal date format           | Choose the date format used in daily notes folder on note title names.        |
+| Journal folder                | Folder where daily notes live.                                                |
+| Quote delimiter               | Symbols used to mark quotes, e.g, `double-equal(==)` or `double-asterisk(**)` |
+| Quote indicator on date cards | Shows an indicator on journal date cards for status of quote extraction.      |
 ###### Properties
 | Setting             | Description                                              |
 | ------------------- | -------------------------------------------------------- |
@@ -490,16 +490,15 @@ The plugin ID has changed from `obsidian-portals` to `portals` to follow Obsidia
 2. **Uninstall Portals**
 3. **Reinstall** the latest version
 4. **Import** using the newer version. Use the feature provided at the bottom of the settings page. Select a saved json file.
-
 ### Use Data File
 1. **Close Obsidian** completely.
->2. **Navigate to vault's `.obsidian/plugins/` folder**.
->3. Find the old folder named `obsidian-portals`. Inside it, find the file `data.json` – this contains all the portal configurations.
->4. **Create a new folder** named `portals` in the same location (if it doesn't already exist).
->5. **Copy the `data.json` file** from the `obsidian-portals` folder into the new `portals` folder.
->6. (Optional) After confirming everything works, users may delete the old `obsidian-portals` folder.
->7. **Restart Obsidian** and enable the new plugin (`Portals`). User settings should now be restored.
->8. Users can prefer to start fresh – old settings will not be used automatically.
+2. **Navigate to vault's `.obsidian/plugins/` folder**.
+3. Find the old folder named `obsidian-portals`. Inside it, find the file `data.json` – this contains all the portal configurations.
+4. **Create a new folder** named `portals` in the same location (if it doesn't already exist).
+5. **Copy the `data.json` file** from the `obsidian-portals` folder into the new `portals` folder.
+6. (Optional) After confirming everything works, users may delete the old `obsidian-portals` folder.
+7. **Restart Obsidian** and enable the new plugin (`Portals`). User settings should now be restored.
+8. Users can prefer to start fresh – old settings will not be used automatically.
 
 ---
 ## Need More Help?
