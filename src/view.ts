@@ -772,7 +772,7 @@ export class PortalsView extends ItemView {
         fileEl.dataset.path = file.path
 
         const savedColor = this.plugin.settings.customColors[file.path];
-        
+
         const icon = fileEl.querySelector('.file-icon i');
         if (savedColor) {
             fileEl.classList.add('has-file-color');
@@ -786,6 +786,29 @@ export class PortalsView extends ItemView {
         const isOpen = openFiles.has(file.path);
         let openDotSpan: HTMLSpanElement | null = null;
         if (isOpen) openDotSpan = fileEl.createSpan({ cls: 'open-dot' });
+
+        if (this.plugin.settings.showFilePreview && file.extension === 'md') {
+            fileEl.addClass('file-item-has-preview');
+            const previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
+            if (savedColor) {
+                previewEl.addClass('has-file-color');
+                previewEl.style.setProperty('--file-color', savedColor);
+            } else {
+                previewEl.removeClass('has-file-color');
+                previewEl.style.removeProperty('--file-color');
+            }
+            this.app.vault.cachedRead(file).then((content: string) => {
+                const noYaml = content.replace(/^---[\s\S]*?---/, '');
+                const plainText = noYaml
+                    .replace(/#+\s+/g, '')       // headings
+                    .replace(/\[\[.*?\]\]/g, '') // wiki links
+                    .replace(/\[.*?\]\(.*?\)/g, '') // markdown links
+                    .replace(/[*_~`>]/g, '')    // formatting
+                    .trim()
+                    .slice(0, 300);
+                previewEl.setText(plainText + (plainText.length >= 300 ? '...' : ''));
+            }).catch(() => {});
+        }
 
         if (this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md') {
             const extSpan = fileEl.createSpan({ cls: 'file-extension' });
@@ -1418,6 +1441,7 @@ export class PortalsView extends ItemView {
             customTreeOrder: JSON.stringify(s.customTreeOrder),
             tabIconPosition: s.tabIconPosition,
             stackIconPosition: s.stackIconPosition,
+            showFilePreview: s.showFilePreview,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),

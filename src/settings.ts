@@ -63,6 +63,7 @@ export interface SpacesSettings {
     customTreeOrder: Record<string, number>;
     tabIconPosition: 'left' | 'right';
     stackIconPosition: 'left' | 'right';
+    showFilePreview: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -122,6 +123,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     customTreeOrder: {},
     tabIconPosition: 'right',
     stackIconPosition: 'left',
+    showFilePreview: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -218,18 +220,29 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-        .setName('Quick‑add icons')
-        .setDesc('Choose how to show quick-add icons on folder & tag rows. Hover reveal on desktop, directly on mobile.')
-        .addDropdown(dropdown => dropdown
-            .addOption('off', 'Off')
-            .addOption('on', 'On')
-            .addOption('desktop-only', 'Desktop only')
-            .setValue(this.plugin.settings.quickAddIcon)
-            .onChange(async (value) => {
-                this.plugin.settings.quickAddIcon = value as 'off' | 'on' | 'desktop-only';
-                await this.plugin.saveSettings();
-                this.display();
-            }));
+            .setName('Quick‑add icons')
+            .setDesc('Choose how to show quick-add icons on folder & tag rows. Hover reveal on desktop, directly on mobile.')
+            .addDropdown(dropdown => dropdown
+                .addOption('off', 'Off')
+                .addOption('on', 'On')
+                .addOption('desktop-only', 'Desktop only')
+                .setValue(this.plugin.settings.quickAddIcon)
+                .onChange(async (value) => {
+                    this.plugin.settings.quickAddIcon = value as 'off' | 'on' | 'desktop-only';
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        new Setting(containerEl)
+                .setName('Show file preview')
+                .setDesc('Show a snippet of file text under the file name in folder or tag tree')
+                .addToggle(toggle => toggle
+                    .setValue(this.plugin.settings.showFilePreview)
+                    .onChange(async (value) => {
+                        this.plugin.settings.showFilePreview = value;
+                        await this.plugin.saveSettings();
+                        this.display();
+                    }));
 
         containerEl.createEl('hr');
 

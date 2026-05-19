@@ -6067,6 +6067,30 @@ margin-bottom: 8px;
 background-color: var(--background-modifier-hover);
 }
 
+.file-item-has-preview {
+  flex-wrap: wrap;
+}
+
+.portals-file-preview {
+    flex-basis: 100%;          /* force to next line */
+    order: 1;                 /* always at the bottom */
+    font-size: 0.75em;
+    color: var(--text-faint);
+    padding-left: 17.5px;
+    margin-left: 6.5px;
+    display: -webkit-box;
+    max-height: 3.9em;
+    overflow: hidden;
+    word-break: break-word;
+    border-left: 1px dashed color-mix(in srgb, var(--text-faint) 50%, transparent);
+    white-space: normal;
+    line-height: 1.3em;
+}
+
+.portals-file-preview.has-file-color {
+  color: color-mix(in srgb, var(--file-color) 30%, var(--text-faint) 70%);
+}
+
 /* File and folder names – now using dedicated class */
 
 .file-item .portals-item-name,
