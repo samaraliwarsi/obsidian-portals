@@ -3,6 +3,7 @@ import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
 import { GroupTagsModal } from '../utils/modals';
+import { getFrontmatterTags } from '../utils/tagHelpers';
 
 export class FloatingButtonsRenderer {
     private app: App;
@@ -73,14 +74,14 @@ export class FloatingButtonsRenderer {
                 const allFiles = this.app.vault.getMarkdownFiles();
                 const filesWithMainTag = allFiles.filter(file => {
                     const cache = this.app.metadataCache.getFileCache(file);
-                    return cache?.tags?.some(t => t.tag === '#' + mainTag) || PortalsActions.getFrontmatterTags(cache).includes(mainTag);
+                    return cache?.tags?.some(t => t.tag === '#' + mainTag) || getFrontmatterTags(cache).includes(mainTag);
                 });
                 const tagSet = new Set<string>();
                 filesWithMainTag.forEach(file => {
                     const cache = this.app.metadataCache.getFileCache(file);
                     const fileTags = [
                         ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                        ...PortalsActions.getFrontmatterTags(cache)
+                        ...getFrontmatterTags(cache)
                     ];
                     fileTags.forEach(t => tagSet.add(t));
                 });

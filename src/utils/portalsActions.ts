@@ -313,15 +313,6 @@ export class PortalsActions {
         }).open();
     }
 
-    static getFrontmatterTags(cache: { frontmatter?: { tags?: unknown } } | null): string[] {
-        const raw = cache?.frontmatter?.tags;
-        if (!raw) return [];
-        if (Array.isArray(raw)) return raw.filter((t): t is string => typeof t === 'string');
-        if (typeof raw === 'string') return [raw];
-        return [];
-    }
-
-
     static async createFolderFromSelected(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
         view.cancelScheduledRender();

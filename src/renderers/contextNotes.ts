@@ -1,6 +1,6 @@
 import { App, Component, MarkdownRenderer, Notice, TFile, TFolder, EventRef } from 'obsidian';
 import type PortalsPlugin from '../main';
-import { CachedMetadataWithFrontmatter } from '../types';
+import { getFrontmatterTags } from '../utils/tagHelpers';
 
 // ────────────────View interface (avoids circular import)────────────────────────────────────────────
 export interface ContextNotesView {
@@ -130,11 +130,10 @@ export function isContextNote(app: App, plugin: PortalsPlugin, file: TFile, targ
         const expectedParent = folderPath || '';
         if (file.parent?.path !== expectedParent) return false;
 
-        const cache = app.metadataCache.getFileCache(file) as CachedMetadataWithFrontmatter | null;
-        const tags = cache?.frontmatter?.tags;
-        const hasTag = Array.isArray(tags) ? tags.includes(target) : tags === target;
+        const cache = app.metadataCache.getFileCache(file);
+        const tags = getFrontmatterTags(cache);
         const safeName = sanitizeTagForFilename(target);
-        return hasTag && file.basename === safeName && file.extension === 'md';
+        return tags.includes(target) && file.basename === safeName && file.extension === 'md';
     }
 }
 

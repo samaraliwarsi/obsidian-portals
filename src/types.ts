@@ -17,16 +17,6 @@ export interface PortalStack {
     order?: number;
 }
 
-export interface CachedMetadataWithFrontmatter {
-    frontmatter?: {
-        tags?: unknown;
-    };
-}
-
-export interface metadataCacheWithGetTags {
-    getTags(): Record< string, number>;
-}
-
 export interface InternalPluginsWithBookmarks {
     getPluginById(id: 'bookmarks'): InternalBookmarksPlugin | undefined;
 }
