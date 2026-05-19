@@ -1,6 +1,6 @@
 # PORTALS PLUGIN USER GUIDE
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.3.3**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.3.4**
 
 ---
 ## INSTALLATION
@@ -400,6 +400,21 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 	- Files carrying subtags as well nested tags can appear at two places, in the nested dropdown as well as the tag group (if chosen). This is a viewing consistency, not a bug. 
 - Tag names are linked directly to form portal tabs. If the name or spelling of a tag on a file changes, the file will not be populated in the tag view. 
 - **Buttons** : Tag trees omit the `New Folder` button and display a `Tag group` button that can be used to add grouped separation to tag views based on secondary tags. 
+
+---
+## SHORTCUTS & QUICK ACTIONS OVERVIEW
+
+| **Shortcut**         | **Target**        | **Action**                                                                                                          |
+| -------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `Cmd/Ctrl+Click`     | File              | Open's a file in a new tab.                                                                                         |
+| `Cmd/Ctrl+Click`     | Folder/ Tag       | Opens the context note of a folder or a tag in a new tab, if it exists.                                             |
+| `Shift+Click`        | File              | Opens a file in a vertical split tab.                                                                               |
+| `Shift+Click`        | Folder/ Tag       | Opens the context note of a folder or a tag in the same tab.                                                        |
+| `Mouse middle-click` | File              | Opens the file in a new tab.                                                                                        |
+| `Alt-click`          | File/ Folder/ Tag | Toggles multi-select on, renders the multi-select toolbar.                                                          |
+| `Alt+Shift+click`    | File/ Folder/ Tag | Selects all items between the range of two mouse clicks, toggles multi-select on, renders the multi-select toolbar. |
+| `Swipe-right`        | File/ Folder/ Tag | Mobile devices. Toggles multi-select on or off, renders the multi-select toolbar.                                   |
+| `Cmd/Ctrl+Hover`     | File              | Page preview, if Obsidian core plugin Page Preview is on.                                                           |
 
 ---
 ## SETTINGS OVERVIEW
