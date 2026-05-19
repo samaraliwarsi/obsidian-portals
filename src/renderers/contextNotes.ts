@@ -11,14 +11,6 @@ export interface ContextNotesView {
 
 // ====================================Helper Functions====================================
 
-function frontmatterTagsToStrings(cache: { frontmatter?: { tags?: unknown } } | null): string[] {
-    const raw = cache?.frontmatter?.tags;
-    if (!raw) return [];
-    if (Array.isArray(raw)) return raw.filter((t): t is string => typeof t === 'string');
-    if (typeof raw === 'string') return [raw];
-    return [];
-}
-
 function isHTMLElement(node: Node): node is HTMLElement {
     return node.nodeType === Node.ELEMENT_NODE;
 }
@@ -69,7 +61,7 @@ export function resolveContextNote(app: App, plugin: PortalsPlugin, selectedSpac
             const cache = app.metadataCache.getFileCache(activeFile);
             const fileTags = [
                 ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                ...frontmatterTagsToStrings(cache)
+                ...getFrontmatterTags(cache)
             ];
             const belongsToPortal = fileTags.some(t => t === selectedSpace.path || t.startsWith(selectedSpace.path + '/'));
             if (belongsToPortal) {
