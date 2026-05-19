@@ -35,6 +35,10 @@ export class TrashRenderer {
         this.container.empty();
     }
 
+    public setContainer(container: HTMLElement): void {
+        this.container = container;
+    }
+
     // =============== MAIN RENDER (instant + guarded) ======================
 
     async render() {
@@ -50,7 +54,6 @@ export class TrashRenderer {
     private async actualRender() {
         // ═══════════════════ Synchronous part → visible immediately ══════════
         this.stopPolling();
-        this.container.empty();
 
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
         const tabColorEnabled = this.plugin.settings.tabColorEnabled;
@@ -60,49 +63,47 @@ export class TrashRenderer {
             this.container.style.removeProperty('--trash-accent-color');
         }
 
-        // Buttons row – appears instantly
-        const btnRow = this.container.createDiv({ cls: 'trash-btn-row' });
-        const restoreAllBtn = btnRow.createEl('button', {
-            cls: 'portals-reset-btn side-portal-btn', text: 'Restore All'
-        });
-        const deleteAllBtn = btnRow.createEl('button', {
-            cls: 'portals-reset-btn side-portal-btn-warn', text: 'Empty all'
-        });
-        restoreAllBtn.addEventListener('click', () => {
-            void this.restoreAll();
-        });
-        deleteAllBtn.addEventListener('click', () => {
-            void (async () => {
-                const confirmed = await ConfirmModal.confirm(this.app, 'Permently delete all items in trash?');
-                if (confirmed) void this.deleteAll();
-            })();
-        });
-        
-
-        // Empty tree area – will be filled asynchronously
-        const treeContainer = this.container.createDiv({ cls: 'trash-tree' });
-
-        // ═══════════════════ Asynchronous load → fills the tree ══════════════
+        //––––– Load data first–––––
         const id = ++this.loadId;
         const items = await this.loadTopLevelItems();
         if (this.destroyed || id !== this.loadId) return;
 
+        // Build the new tree **off‑screen** in a document fragment
+        const fragment = document.createDocumentFragment();
+        const newTree = fragment.createDiv({ cls: 'trash-tree' });
+
         this.items = items;
-        treeContainer.empty();
 
         if (items.length === 0) {
-            treeContainer.createEl('p', {
-                cls: 'unhide-items-message',
-                text: 'Trash is empty.'
-            });
-            this.lastSnapshot = '';
-            this.startPolling();
-            return;
+            newTree.createEl('p', { cls: 'unhide-items-message', text: 'Trash is empty.' });
+        } else {
+            this.renderTree(items, newTree);
         }
 
-        // Render the tree with lazy‑loaded subfolders
-        this.renderTree(items, treeContainer)
-
+        const oldTree = this.container.querySelector('.trash-tree');
+        if (oldTree) {
+            oldTree.replaceWith(newTree);
+        } else {
+            // First render: also create the buttons row, then append the tree
+            this.container.empty();
+            const btnRow = this.container.createDiv({ cls: 'trash-btn-row' });
+            const restoreAllBtn = btnRow.createEl('button', {
+                cls: 'portals-reset-btn side-portal-btn',
+                text: 'Restore All'
+            });
+            const deleteAllBtn = btnRow.createEl('button', {
+                cls: 'portals-reset-btn side-portal-btn-warn',
+                text: 'Empty all'
+            });
+            restoreAllBtn.addEventListener('click', () => { void this.restoreAll(); });
+            deleteAllBtn.addEventListener('click', () => {
+                void (async () => {
+                    const confirmed = await ConfirmModal.confirm(this.app, 'Permanently delete all items in trash?');
+                    if (confirmed) void this.deleteAll();
+                })();
+            });
+            this.container.appendChild(newTree);
+        }
         // ── Background full snapshot → enables accurate polling ──
         this.buildFullSnapshot()
             .then(snapshot => {

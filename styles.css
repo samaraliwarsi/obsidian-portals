@@ -7382,7 +7382,7 @@ button.unhide-btn:not(.clickable-icon):hover {
 }
 
 .portals-reset-btn.side-portal-btn-warn:hover {
-    background: #ff2525;
+    background: var(--text-error);
 }
 
 .trash-item-actions {
@@ -7391,24 +7391,7 @@ button.unhide-btn:not(.clickable-icon):hover {
   gap: 4px;
 }
 
-button.trash-action-btn:not(.clickable-icon) {
-    margin-left: auto;
-    background: none;
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--text-muted);
-    padding: 2px 4px;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75em;
-    height: 24px;
-}
-
-button.trash-action-btn:not(.clickable-icon):hover {
-    background: var(--background-modifier-hover);
-    color: var(--text-normal);
-}
-
+button.trash-action-btn:not(.clickable-icon),
 button.trash-delete-btn:not(.clickable-icon) {
     margin-left: auto;
     background: none;
@@ -7420,10 +7403,17 @@ button.trash-delete-btn:not(.clickable-icon) {
     justify-content: center;
     font-size: 0.75em;
     height: 24px;
+    box-shadow: inset 0 0 0 1px rgba(100, 100, 100, 0.1);
+    border: 1px solid var(--background-modifier-border);
+}
+
+button.trash-action-btn:not(.clickable-icon):hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
 }
 
 button.trash-delete-btn:not(.clickable-icon):hover {
-    background: #ff2525;
+    background: var(--text-error);
     color: var(--text-normal);
 }
 

@@ -2043,13 +2043,13 @@ export class PortalsView extends ItemView {
             this.clinicRenderer = renderer;
             await renderer.render();
         } else if (tabId === 'trash') {
-            if (this.trashRenderer) {
-                this.trashRenderer.destroy();
-                this.trashRenderer = null;
+            if (!this.trashRenderer) {
+                contentEl.empty();
+                contentEl.addClass('portals-trash-tab');
+                this.trashRenderer = new TrashRenderer(this.app, this.plugin, contentEl, this);
+            } else {
+                this.trashRenderer.setContainer(contentEl);                
             }
-            contentEl.empty();
-            contentEl.addClass('portals-trash-tab');
-            this.trashRenderer = new TrashRenderer(this.app, this.plugin, contentEl, this)
             await this.trashRenderer.render();
         }
     }
