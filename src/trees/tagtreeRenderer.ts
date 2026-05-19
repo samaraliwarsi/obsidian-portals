@@ -125,6 +125,25 @@ export class TagTreeRenderer {
             }
         }
 
+        if (groupTags && groupTags.length > 0) {
+            const liveGroupTags = groupTags.filter(gTag => relevantFiles.some(file => {
+                const cache = this.app.metadataCache.getFileCache(file);
+                const fileTags = [
+                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                    ...getFrontmatterTags(cache)
+                ];
+                return fileTags.includes(gTag);
+            }));
+            if (liveGroupTags.length !== groupTags.length) {
+                const space = this.plugin.settings.spaces.find(s => s.path === tagName && s.type === 'tag');
+                if (space) {
+                    space.groupTags = liveGroupTags;
+                    void this.plugin.saveSettings();
+                }
+                groupTags = liveGroupTags;
+            }
+        }
+
         // Determine if there are any subtags (i.e., tags longer than the main tag)
         const hasSubtags = Array.from(allTags).some(t => t !== tagName && t.startsWith(tagName + '/'));
 
