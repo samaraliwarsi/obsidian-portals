@@ -2,8 +2,8 @@ import { Plugin, TFolder, TFile, Notice } from 'obsidian';
 import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
-import { CachedMetadataWithFrontmatter, metadataCacheWithGetTags } from './types';
 import { getGuideUrl } from './utils/urls';
+import { getFrontmatterTags } from './utils/tagHelpers';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
@@ -384,7 +384,7 @@ export default class PortalsPlugin extends Plugin {
     }
 
     private getTags(): Record<string, number> {
-        return (this.app.metadataCache as unknown as metadataCacheWithGetTags).getTags();
+        return (this.app.metadataCache as unknown as { getTags(): Record<string, number> }).getTags();
     }
 
     async migrateTagNotes(): Promise<{ moved: number; skipped: number; errors: string[] }> {
@@ -414,10 +414,9 @@ export default class PortalsPlugin extends Plugin {
             const base = file.basename;
             // Reverse sanitization: '--' back to '/'
             const possibleTag = base.replace(/--/g, '/');
-            const cache = this.app.metadataCache.getFileCache(file) as CachedMetadataWithFrontmatter | null;
-            const tags = cache?.frontmatter?.tags;
-            const hasTag = Array.isArray(tags) ? tags.includes(possibleTag) : tags === possibleTag;
-            return hasTag;
+            const cache = this.app.metadataCache.getFileCache(file);
+            const tags = getFrontmatterTags(cache);
+            return tags.includes(possibleTag);
         };
 
         const allFiles = oldFolder.children.filter((c): c is TFile => c instanceof TFile && c.extension === 'md');
