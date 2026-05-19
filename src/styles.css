@@ -5681,9 +5681,16 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 
 /* ----- Global container & layout ----- */
 
+/*removing Obsidian's native padding (safety)*/
+.workspace-leaf-content[data-type="portals-view"] .view-content {
+  padding: 0;
+}
+
+
 .portals-container {
 position: relative;
 padding: 10px 10px 0 10px;
+box-sizing: border-box;
 height: 100%;
 overflow-y: hidden;
 display: flex;

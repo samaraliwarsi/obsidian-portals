@@ -1455,10 +1455,10 @@ export class PortalsView extends ItemView {
         this.lastRenderHash = newHash;
 
         try {
-            const container = this.containerEl.children[1] as HTMLElement;
-            if (!container) return;
-            container.empty();
-            container.addClass('portals-container');
+            const viewContent = this.containerEl.children[1] as HTMLElement;
+            if (!viewContent) return;
+            viewContent.empty();
+            const container = viewContent.createDiv('portals-container');
 
             const spaces = this.plugin.settings.spaces;
 
