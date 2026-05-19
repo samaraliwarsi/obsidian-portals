@@ -75,6 +75,7 @@ export class PortalsView extends ItemView {
     private hiddenRenderer: HiddenItemsRenderer | null = null;
     private bookmarksRenderer: BookmarksRenderer | null = null;
     public clinicRenderer: FrontmatterClinicRenderer | null = null;
+    public activeGroupTag: string | null = null;
     public getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
     }
@@ -601,34 +602,35 @@ export class PortalsView extends ItemView {
             ContextMenuFactory.showPortalTabMenu(this, space, e);
         });
 
-            tab.addEventListener('click', () => {
-                this.hideTooltip(0);
-                if (this.contextNotesRenderer) {
-                    const currentPath = this.contextNotesRenderer.getCurrentNotePath();
-                    if (currentPath) {
-                        this.contextNotesRenderer.saveScroll(currentPath)
-                    }                    
-                }
-                this.plugin.settings.selectedSpace = {
-                    path: space.path,
-                    type: space.type
-                };
+        tab.addEventListener('click', () => {
+            this.activeGroupTag = null;
+            this.hideTooltip(0);
+            if (this.contextNotesRenderer) {
+                const currentPath = this.contextNotesRenderer.getCurrentNotePath();
+                if (currentPath) {
+                    this.contextNotesRenderer.saveScroll(currentPath)
+                }                    
+            }
+            this.plugin.settings.selectedSpace = {
+                path: space.path,
+                type: space.type
+            };
 
-                if (space.type === 'folder' && !this.plugin.settings.openFolders.includes(space.path)) {
-                    this.plugin.settings.openFolders.push(space.path);
-                }
+            if (space.type === 'folder' && !this.plugin.settings.openFolders.includes(space.path)) {
+                this.plugin.settings.openFolders.push(space.path);
+            }
 
-                void this.plugin.saveSettings()
-                    .then(() => this.render())
-                    .then(() => {
-                        const newActiveTab = mainContainer.querySelector('.portals-tab.is-active');
-                        if (newActiveTab) {
-                            window.setTimeout(() => {
-                                newActiveTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                            }, 0);
-                        }
-                    });
-            });
+            void this.plugin.saveSettings()
+                .then(() => this.render())
+                .then(() => {
+                    const newActiveTab = mainContainer.querySelector('.portals-tab.is-active');
+                    if (newActiveTab) {
+                        window.setTimeout(() => {
+                            newActiveTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }, 0);
+                    }
+                });
+        });
     }
 
     public updateMultiSelectToolbar() {

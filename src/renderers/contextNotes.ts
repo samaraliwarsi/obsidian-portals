@@ -7,6 +7,7 @@ export interface ContextNotesView {
     addChild(component: Component): void;
     removeChild(component: Component): void;
     addHoverPreview(el: HTMLElement, filePath: string): void;
+    activeGroupTag?: string | null;
 }
 
 // ====================================Helper Functions====================================
@@ -40,7 +41,12 @@ export function isContextNoteFile(app: App, plugin: PortalsPlugin, file: TFile, 
     return isContextNote(app, plugin, file, target);
 }
 
-export function resolveContextNote(app: App, plugin: PortalsPlugin, selectedSpace: { path: string; type: 'folder' | 'tag' } | null): TFile | null {
+export function resolveContextNote(
+    app: App, 
+    plugin: PortalsPlugin, 
+    selectedSpace: { path: string; type: 'folder' | 'tag' } | null,
+    preferredGroup?: string | null
+): TFile | null {
     if (!selectedSpace) return null;
     // Folder file follow logic - heirarchy
     if (selectedSpace.type === 'folder' && plugin.settings.contextNoteFollowActive !== 'off') {
@@ -66,30 +72,27 @@ export function resolveContextNote(app: App, plugin: PortalsPlugin, selectedSpac
             const belongsToPortal = fileTags.some(t => t === selectedSpace.path || t.startsWith(selectedSpace.path + '/'));
             if (belongsToPortal) {
                 const space = plugin.settings.spaces.find(s => s.path === selectedSpace.path && s.type === 'tag');
+                const groupTags = space?.groupTags ?? [];
+                // 1. If we know the group, check it first
+                if (preferredGroup && groupTags.includes(preferredGroup) && fileTags.includes(preferredGroup)) {
+                    const note = getContextNote(app, plugin, preferredGroup);
+                    if (note) return note;
+                }
+                // 3. Subtags walkback …
                 for (const tag of fileTags) {
-                    const isMain = tag === selectedSpace.path;
-                    const isSubtag = tag.startsWith(selectedSpace.path + '/');
-                    const isGroup = space?.groupTags?.includes(tag) ?? false;
-                    if (!isMain && !isSubtag && !isGroup) {
-                        continue;
-                    }
-                    // subtags (walkback)
-                    if (isSubtag) {
+                    if (tag.startsWith(selectedSpace.path + '/')) {
                         const parts = tag.split('/');
                         for (let i = parts.length; i >= 2; i--) {
                             const ancestor = parts.slice(0, i).join('/');
+                            if (ancestor === selectedSpace.path) continue;
                             const note = getContextNote(app, plugin, ancestor);
                             if (note) return note;
                         }
-                        const mainNote = getContextNote(app, plugin, selectedSpace.path);
-                        if (mainNote) return mainNote;
-                    }
-                    // group tags
-                    if (isMain || isGroup) {
-                        const note = getContextNote(app, plugin, tag);
-                        if (note) return note;
                     }
                 }
+                // 4. Then the main tag
+                const mainNote = getContextNote(app, plugin, selectedSpace.path);
+                if (mainNote) return mainNote;
             }         
         }
     }
@@ -279,7 +282,7 @@ export class ContextNotesRenderer {
         const token = {};
         this._currentRenderToken = token;
 
-        const targetFile = resolveContextNote(this.app, this.plugin, this.plugin.settings.selectedSpace);
+        const targetFile = resolveContextNote(this.app, this.plugin, this.plugin.settings.selectedSpace, this.view.activeGroupTag);
         if (!targetFile) {
             this.showMessage('No context note found for the current space.');
             return;

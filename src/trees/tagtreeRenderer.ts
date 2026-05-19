@@ -342,7 +342,10 @@ export class TagTreeRenderer {
                 }
 
                 for (const file of sortFiles(files)) {
-                    this.view.createFileItem(file, groupChildren, openFiles);
+                    const fileEl = this.view.createFileItem(file, groupChildren, openFiles);
+                    fileEl.addEventListener('click', () => {
+                        this.view.activeGroupTag = gTag;
+                    }, true);
                 }
 
                 groupDetails.addEventListener('toggle', () => {
@@ -720,7 +723,10 @@ export class TagTreeRenderer {
                     isContextNoteFile(this.app, this.plugin, file, gTag)) {
                     continue;
                 }
-                this.view.createFileItem(file, groupChildren, openFiles);
+                const fileEl = this.view.createFileItem(file, groupChildren, openFiles);
+                fileEl.addEventListener('click', () => {
+                    this.view.activeGroupTag = gTag;
+                }, true);
             }
 
             groupDetails.addEventListener('toggle', () => {
