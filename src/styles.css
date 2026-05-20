@@ -6061,6 +6061,7 @@ box-sizing: border-box;
 padding-left: 12px;
 padding-right: 12px;
 margin-bottom: 8px;
+position: relative;
 }
 
 .file-item:hover {
@@ -6072,8 +6073,8 @@ background-color: var(--background-modifier-hover);
 }
 
 .portals-file-preview {
-    flex-basis: 100%;          /* force to next line */
-    order: 1;                 /* always at the bottom */
+    flex-basis: 100%;
+    order: 1;
     font-size: 0.75em;
     color: var(--text-faint);
     padding-left: 17.5px;
@@ -6085,10 +6086,66 @@ background-color: var(--background-modifier-hover);
     border-left: 1px dashed color-mix(in srgb, var(--text-faint) 50%, transparent);
     white-space: normal;
     line-height: 1.3em;
+    overflow-wrap: anywhere;
+}
+
+.file-item-preview-hidden {
+  display: none;
+}
+
+.portals-file-action-icons {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  border-radius: 50%;
+  background: transparent;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.1s, background-color 0.2s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.portals-file-action-icons i {
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.file-item:hover .portals-file-action-icons {
+  display: flex;
+}
+
+.file-item:hover .portals-file-action-icons i {
+  color: var(--text-normal);
+}
+
+.file-item:hover .portals-file-action-icons:hover {
+  transform: scale(1.1);
+  opacity: 0.9;
+  background-color: rgba(128, 128, 128, 0.5);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .file-item .portals-file-action-icons {
+        display: flex;
+        opacity: 0.7;
+    }
+}
+
+.portals-compact-tree .portals-file-action-icons {
+    height: 1.1em;
+}
+.portals-compact-tree .portals-file-action-icons i {
+    font-size: 0.85em;
 }
 
 .portals-file-preview.has-file-color {
-  color: color-mix(in srgb, var(--file-color) 30%, var(--text-faint) 70%);
+  color: color-mix(in srgb, var(--file-color) 20%, var(--text-faint) 80%);
 }
 
 /* File and folder names – now using dedicated class */

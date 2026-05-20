@@ -789,13 +789,12 @@ export class PortalsView extends ItemView {
 
         if (this.plugin.settings.showFilePreview && file.extension === 'md') {
             fileEl.addClass('file-item-has-preview');
+            const isExcluded = this.plugin.settings.previewExcludedFiles[file.path];
+            const toggleBtn = fileEl.createSpan({ cls: 'portals-file-action-icons' });
+            const toggleIcon = toggleBtn.createEl('i', { cls: `ph ph-${isExcluded ? 'plus-circle' : 'minus-circle' }` });
             const previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
-            if (savedColor) {
-                previewEl.addClass('has-file-color');
-                previewEl.style.setProperty('--file-color', savedColor);
-            } else {
-                previewEl.removeClass('has-file-color');
-                previewEl.style.removeProperty('--file-color');
+            if (isExcluded) {
+                previewEl.addClass('file-item-preview-hidden');
             }
             this.app.vault.cachedRead(file).then((content: string) => {
                 const noYaml = content.replace(/^---[\s\S]*?---/, '');
@@ -808,6 +807,23 @@ export class PortalsView extends ItemView {
                     .slice(0, 300);
                 previewEl.setText(plainText + (plainText.length >= 300 ? '...' : ''));
             }).catch(() => {});
+
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const tempExcluded = this.plugin.settings.previewExcludedFiles[file.path] ?? false;
+                this.plugin.settings.previewExcludedFiles[file.path] = !tempExcluded;
+                void this.plugin.saveSettings;
+
+                previewEl.classList.toggle('file-item-preview-hidden', !tempExcluded);
+                toggleIcon.className = `ph ph-${!tempExcluded ? 'plus-circle' : 'minus-circle'}`;
+            });
+            if (savedColor) {
+                previewEl.addClass('has-file-color');
+                previewEl.style.setProperty('--file-color', savedColor);
+            } else {
+                previewEl.removeClass('has-file-color');
+                previewEl.style.removeProperty('--file-color');
+            }
         }
 
         if (this.plugin.settings.enableFileExtensionNonMD && file.extension && file.extension !== 'md') {

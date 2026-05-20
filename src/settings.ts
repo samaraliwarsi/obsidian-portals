@@ -64,6 +64,7 @@ export interface SpacesSettings {
     tabIconPosition: 'left' | 'right';
     stackIconPosition: 'left' | 'right';
     showFilePreview: boolean;
+    previewExcludedFiles: Record<string, boolean>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -124,6 +125,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     tabIconPosition: 'right',
     stackIconPosition: 'left',
     showFilePreview: false,
+    previewExcludedFiles: {},
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
