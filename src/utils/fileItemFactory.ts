@@ -4,6 +4,7 @@ import type { PortalsView } from '../view';
 import { PortalsActions } from './portalsActions';
 import { TreeEventHelpers } from './treeEventHelpers';
 import { ContextMenuFactory } from './contextMenuFactory';
+import { getFrontmatterTags } from './tagHelpers';
 
 export class FileItemFactory {
 
@@ -52,12 +53,16 @@ export class FileItemFactory {
             });
 
             let previewEl: HTMLDivElement | null = null;
+            let infoBar: HTMLDivElement | null = null;
 
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const newState = FileItemFactory.toggleFilePreview(plugin, file.path, toggleIcon as HTMLElement);
                 if (previewEl) {
                     previewEl.classList.toggle('file-item-preview-hidden', !newState);
+                }
+                if (infoBar) {
+                    infoBar.classList.toggle('file-item-preview-hidden', !newState);
                 }
             });
             
@@ -66,13 +71,48 @@ export class FileItemFactory {
                 if (snippet.length > 0) {
                     previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
                     previewEl.setText(snippet);
-                    if (isExcluded) previewEl.addClass('file-item-preview-hidden');
+
+                    if (plugin.settings.showFileInfoBar) {
+                        infoBar = fileEl.createDiv({ cls: 'portals-file-info-bar' });
+                        const portalType = plugin.settings.selectedSpace?.type;
+                        if (portalType === 'folder') {
+                            const cache = app.metadataCache.getFileCache(file);
+                            const tags = [
+                                ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                                ...getFrontmatterTags(cache)
+                            ];
+                            const uniqueTags = [...new Set(tags.map(t => t.toLowerCase()))].sort();
+                            uniqueTags.forEach(tag => {
+                                infoBar!.createSpan({ cls: 'portals-file-info-bar-text', text: '#' + tag });
+                            });         
+                        } else if (portalType === 'tag') {
+                            const parentFolder = file.parent;
+                            if (parentFolder && parentFolder.path !== '/') {
+                                const folderName = parentFolder.name;
+                                infoBar.createSpan({ cls: 'portals-file-info-bar-text', text: 'in ' + folderName });
+                            }
+                        }
+                    }
+
+                    if (isExcluded) {
+                        previewEl.addClass('file-item-preview-hidden');
+                        if (infoBar) infoBar.addClass('file-item-preview-hidden');
+                    }
+
                     if (savedColor) {
                         previewEl.addClass('has-file-color');
                         previewEl.style.setProperty('--file-color', savedColor);
+                        if (infoBar) {
+                            infoBar.addClass('has-file-color');
+                            infoBar.style.setProperty('--file-color', savedColor);
+                        }
                     } else {
                         previewEl.removeClass('has-file-color');
                         previewEl.style.removeProperty('--file-color');
+                        if (infoBar) {
+                            infoBar.removeClass('has-file-color');
+                            infoBar.style.removeProperty('--file-color');
+                        }
                     }
                 }
             }).catch(() => {}); 
@@ -149,9 +189,10 @@ export class FileItemFactory {
         const tempExcluded = plugin.settings.previewExcludedFiles[filePath] ?? false;
         plugin.settings.previewExcludedFiles[filePath] = !tempExcluded;
         void plugin.saveSettings();
+        const newState = !tempExcluded;
         if (iconEl) {
-            iconEl.className = `ph ph-${!tempExcluded ? 'plus-circle' : 'minus-circle'}`;
+            iconEl.className = `ph ph-${newState ? 'plus-circle' : 'minus-circle'}`;
         }
-        return !tempExcluded;
+        return newState;
     }
 }

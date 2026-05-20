@@ -65,6 +65,7 @@ export interface SpacesSettings {
     stackIconPosition: 'left' | 'right';
     showFilePreview: boolean;
     previewExcludedFiles: Record<string, boolean>;
+    showFileInfoBar: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -126,6 +127,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     stackIconPosition: 'left',
     showFilePreview: false,
     previewExcludedFiles: {},
+    showFileInfoBar: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -236,15 +238,26 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-                .setName('Show file preview')
-                .setDesc('Show a snippet of file text under the file name in folder or tag tree')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.showFilePreview)
-                    .onChange(async (value) => {
-                        this.plugin.settings.showFilePreview = value;
-                        await this.plugin.saveSettings();
-                        this.display();
-                    }));
+            .setName('Show file preview')
+            .setDesc('Show a snippet of file text under the file name in folder or tag tree')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showFilePreview)
+                .onChange(async (value) => {
+                    this.plugin.settings.showFilePreview = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show file info bar')
+            .setDesc('Show tags (in folder portals) or parent folder (in tag portals) below the file preview.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showFileInfoBar)
+                .setDisabled(!this.plugin.settings.showFilePreview)
+                .onChange(async (value) => {
+                    this.plugin.settings.showFileInfoBar = value;
+                    await this.plugin.saveSettings();
+                }));
 
         containerEl.createEl('hr');
 

@@ -1385,6 +1385,8 @@ export class PortalsView extends ItemView {
             tabIconPosition: s.tabIconPosition,
             stackIconPosition: s.stackIconPosition,
             showFilePreview: s.showFilePreview,
+            previewExcludedFiles: JSON.stringify(s.previewExcludedFiles),
+            showFileInfoBar: s.showFileInfoBar,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
