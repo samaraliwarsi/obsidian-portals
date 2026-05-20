@@ -5,6 +5,7 @@ import { PortalsActions } from '../utils/portalsActions';
 import { TreeEventHelpers } from '../utils/treeEventHelpers';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { isContextNote, hasContextNote } from '../renderers/contextNotes';
+import { FileItemFactory } from '../utils/fileItemFactory';
 
 export class FolderTreeRenderer {
     private app: App;
@@ -163,7 +164,7 @@ export class FolderTreeRenderer {
                     if (isContext && this.plugin.settings.enableContextNotes) {
                         if (!this.plugin.settings.showContextNotesInTree) continue;
                     }
-                    this.view.createFileItem(child, childrenContainer, openFiles);
+                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, child, childrenContainer, openFiles);
                 }
             }
         };

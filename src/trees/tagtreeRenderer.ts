@@ -6,6 +6,7 @@ import { TreeEventHelpers } from '../utils/treeEventHelpers';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { isContextNoteFile, hasContextNote, getContextNote } from '../renderers/contextNotes';
 import { getFrontmatterTags } from '../utils/tagHelpers';
+import { FileItemFactory } from '../utils/fileItemFactory';
 
 interface TagNode {
     fullPath: string;
@@ -215,7 +216,7 @@ export class TagTreeRenderer {
                     if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, tagName)) {
                         continue;
                     }
-                    this.view.createFileItem(file, childrenContainer, openFiles);
+                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                 }
                 return;
             }
@@ -355,13 +356,13 @@ export class TagTreeRenderer {
                         // Avoid duplication if the note is already in the file list
                         const alreadyListed = files.some(f => f.path === contextNote.path);
                         if (!alreadyListed) {
-                            this.view.createFileItem(contextNote, groupChildren, openFiles);
+                            FileItemFactory.createFileItem(this.app, this.plugin, this.view, contextNote, groupChildren, openFiles);
                         }
                     }
                 }
 
                 for (const file of sortFiles(files)) {
-                    const fileEl = this.view.createFileItem(file, groupChildren, openFiles);
+                    const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
                     fileEl.addEventListener('click', () => {
                         this.view.activeGroupTag = gTag;
                     }, true);
@@ -391,7 +392,7 @@ export class TagTreeRenderer {
                     isContextNoteFile(this.app, this.plugin, file, tagName)) {
                     continue;
                 }
-                this.view.createFileItem(file, childrenContainer, openFiles);
+                FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
             }
 
             return;
@@ -479,7 +480,7 @@ export class TagTreeRenderer {
                 if (contextNote && !this.plugin.settings.hiddenItems[contextNote.path]) {
                     const alreadyListed = node.files.some((f: TFile) => f.path === contextNote.path);
                     if (!alreadyListed) {
-                        this.view.createFileItem(contextNote, childrenContainer, openFiles);
+                        FileItemFactory.createFileItem(this.app, this.plugin, this.view, contextNote, childrenContainer, openFiles);
                     }
                 }
             }
@@ -546,7 +547,7 @@ export class TagTreeRenderer {
                         isContextNoteFile(this.app, this.plugin, file, node.fullPath)) {
                         continue;
                     }
-                    this.view.createFileItem(file, childrenContainer, openFiles);
+                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                 }
             }
 
@@ -724,7 +725,7 @@ export class TagTreeRenderer {
                 if (contextNote && !this.plugin.settings.hiddenItems[contextNote.path]) {
                     const alreadyListed = files.some((f: TFile) => f.path === contextNote.path);
                     if (!alreadyListed) {
-                        this.view.createFileItem(contextNote, groupChildren, openFiles);
+                        FileItemFactory.createFileItem(this.app, this.plugin, this.view, contextNote, groupChildren, openFiles);
                     }
                 }
             }
@@ -742,7 +743,7 @@ export class TagTreeRenderer {
                     isContextNoteFile(this.app, this.plugin, file, gTag)) {
                     continue;
                 }
-                const fileEl = this.view.createFileItem(file, groupChildren, openFiles);
+                const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
                 fileEl.addEventListener('click', () => {
                     this.view.activeGroupTag = gTag;
                 }, true);
@@ -797,7 +798,7 @@ export class TagTreeRenderer {
                 isContextNoteFile(this.app, this.plugin, file, tagName)) {
                 continue;
             }
-            this.view.createFileItem(file, mainChildren, openFiles);
+            FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, mainChildren, openFiles);
         }
 
         // Include context note file in tree if setting enabled
@@ -807,7 +808,7 @@ export class TagTreeRenderer {
                 // Avoid duplication if it's already in the list (shouldn't be, but safe)
                 const alreadyListed = ungroupedRootFiles.some(f => f.path === contextNote.path);
                 if (!alreadyListed) {
-                    this.view.createFileItem(contextNote, mainChildren, openFiles);
+                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, contextNote, mainChildren, openFiles);
                 }
             }
         }

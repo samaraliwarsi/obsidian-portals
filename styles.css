@@ -6082,7 +6082,7 @@ background-color: var(--background-modifier-hover);
     display: -webkit-box;
     max-height: 3.9em;
     overflow: hidden;
-    word-break: break-all;
+    word-break: break-word;
     border-left: 1px dashed color-mix(in srgb, var(--text-faint) 50%, transparent);
     white-space: normal;
     line-height: 1.3em;
