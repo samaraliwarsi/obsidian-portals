@@ -19,6 +19,7 @@ import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
 import { ReorderItemsModal } from './utils/modals';
 import { FrontmatterPopup } from './utils/frontmatterPopup';
 import { InternalPluginsWithBookmarks } from './types';
+import { FileItemFactory } from './utils/fileItemFactory';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -698,6 +699,20 @@ export class PortalsView extends ItemView {
         this.attachTooltip(hideBtn, 'Hide items');
         hideBtn.createEl('i', { cls: 'ph ph-eye-slash' });
         hideBtn.addEventListener('click', () => { void this.hideSelectedItems(); });
+
+        // Preview toggle for files only
+        if (this.plugin.settings.showFilePreview) {
+            const previewBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
+            this.attachTooltip(previewBtn, 'Toggle preview');
+            previewBtn.createEl('i', { cls: 'ph ph-plus-minus' });
+            previewBtn.addEventListener('click', () => {
+                for (const path of this.selectedItems) {
+                    FileItemFactory.toggleFilePreview(this.plugin, path);
+                }
+                this.renderContent();
+                this.clearSelection();
+            });
+        }
 
         const clearBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(clearBtn, 'Clear selection');

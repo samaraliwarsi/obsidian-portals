@@ -55,13 +55,10 @@ export class FileItemFactory {
 
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const tempExcluded = plugin.settings.previewExcludedFiles[file.path] ?? false;
-                plugin.settings.previewExcludedFiles[file.path] = !tempExcluded;
-                void plugin.saveSettings();
+                const newState = FileItemFactory.toggleFilePreview(plugin, file.path, toggleIcon as HTMLElement);
                 if (previewEl) {
-                    previewEl.classList.toggle('file-item-preview-hidden', !tempExcluded);
+                    previewEl.classList.toggle('file-item-preview-hidden', !newState);
                 }
-                toggleIcon.className = `ph ph-${!tempExcluded ? 'plus-circle' : 'minus-circle'}`;
             });
             
             app.vault.cachedRead(file).then((content: string) => {
@@ -146,5 +143,15 @@ export class FileItemFactory {
 
         // Slice and add ellipsis if needed
         return text.slice(0, maxLength) + (text.length > maxLength ? '…' : '');
+    }
+
+    public static toggleFilePreview(plugin: PortalsPlugin, filePath: string, iconEl?: HTMLElement): boolean {
+        const tempExcluded = plugin.settings.previewExcludedFiles[filePath] ?? false;
+        plugin.settings.previewExcludedFiles[filePath] = !tempExcluded;
+        void plugin.saveSettings();
+        if (iconEl) {
+            iconEl.className = `ph ph-${!tempExcluded ? 'plus-circle' : 'minus-circle'}`;
+        }
+        return !tempExcluded;
     }
 }
