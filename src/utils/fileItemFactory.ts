@@ -50,37 +50,35 @@ export class FileItemFactory {
             const toggleIcon = toggleBtn.createEl('i', {
                 cls: `ph ph-${isExcluded ? 'plus-circle' : 'minus-circle'}`
             });
-            const previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
-            if (isExcluded) previewEl.addClass('file-item-preview-hidden');
 
-            app.vault.cachedRead(file).then((content: string) => {
-                const noYaml = content.replace(/^---[\s\S]*?---/, '');
-                const snippet = noYaml
-                    .replace(/#+\s*/g, '')
-                    .replace(/\[\[.*?\]\]/g, '')
-                    .replace(/\[.*?\]\(.*?\)/g, '')
-                    .replace(/[*_~`>]/g, '')
-                    .trim()
-                    .slice(0, 300);
-                previewEl.setText(snippet + (snippet.length >= 300 ? '…' : ''));
-            }).catch(() => {});
+            let previewEl: HTMLDivElement | null = null;
 
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const tempExcluded = plugin.settings.previewExcludedFiles[file.path] ?? false;
                 plugin.settings.previewExcludedFiles[file.path] = !tempExcluded;
                 void plugin.saveSettings();
-                previewEl.classList.toggle('file-item-preview-hidden', !tempExcluded);
+                if (previewEl) {
+                    previewEl.classList.toggle('file-item-preview-hidden', !tempExcluded);
+                }
                 toggleIcon.className = `ph ph-${!tempExcluded ? 'plus-circle' : 'minus-circle'}`;
             });
             
-            if (savedColor) {
-                previewEl.addClass('has-file-color');
-                previewEl.style.setProperty('--file-color', savedColor);
-            } else {
-                previewEl.removeClass('has-file-color');
-                previewEl.style.removeProperty('--file-color');
-            }
+            app.vault.cachedRead(file).then((content: string) => {
+                const snippet = FileItemFactory.extractSnippet(content, 300);
+                if (snippet.length > 0) {
+                    previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
+                    previewEl.setText(snippet);
+                    if (isExcluded) previewEl.addClass('file-item-preview-hidden');
+                    if (savedColor) {
+                        previewEl.addClass('has-file-color');
+                        previewEl.style.setProperty('--file-color', savedColor);
+                    } else {
+                        previewEl.removeClass('has-file-color');
+                        previewEl.style.removeProperty('--file-color');
+                    }
+                }
+            }).catch(() => {}); 
         }
 
         TreeEventHelpers.attachFileItemListeners(fileEl, file, view);
@@ -101,5 +99,52 @@ export class FileItemFactory {
     private static getDisplayName(file: TFile, plugin: PortalsPlugin): string {
         if (file.extension === 'md') return file.basename;
         return plugin.settings.enableFileExtensionNonMD ? file.basename : file.name;
+    }
+
+    private static extractSnippet(content: string, maxLength: number): string {
+        // Remove YAML frontmatter
+        let text = content.replace(/^---[\s\S]*?---\n?/, '');
+
+        // Remove fenced code blocks (``` ... ```)
+        //text = text.replace(/```[\s\S]*?```/g, '');
+
+        // Remove callouts ([!note], [!info], [!warning], etc.)
+        text = text.replace(/^> \[!.*?\].*$/gm, '');
+
+        // Remove wiki links [[target]] and [[target|alias]]
+        text = text.replace(/\[\[.*?\]\]/g, '');
+
+        // Remove markdown links [text](url)
+        text = text.replace(/\[.*?\]\(.*?\)/g, '');
+
+        // Remove Obsidian comments %% ... %%
+        text = text.replace(/%%.*?%%/g, '');
+
+        // Remove horizontal rules
+        text = text.replace(/^[-*_]{3,}\s*$/gm, '');
+
+        // Remove blockquotes (lines starting with >)
+        text = text.replace(/^>.*$/gm, '');
+
+        // Remove list markers (-, *, +, 1.)
+        text = text.replace(/^\s*[-*+]\s+/gm, '');
+        text = text.replace(/^\s*\d+\.\s+/gm, '');
+
+        // Remove headings (lines starting with #)
+        text = text.replace(/^#+\s+/gm, '');
+
+        // Remove inline formatting (*, _, ~, `)
+        text = text.replace(/[*_~`]/g, '');
+
+        // Remove inline tags #tag
+        text = text.replace(/#\S+/g, '');
+
+        // Collapse multiple spaces and blank lines
+        text = text.replace(/\n{2,}/g, '\n');
+        text = text.replace(/[ \t]+/g, ' ');
+        text = text.trim();
+
+        // Slice and add ellipsis if needed
+        return text.slice(0, maxLength) + (text.length > maxLength ? '…' : '');
     }
 }
