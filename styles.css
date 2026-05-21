@@ -6077,12 +6077,9 @@ background-color: var(--background-modifier-hover);
     order: 1;
     font-size: 0.75em;
     color: var(--text-faint);
-    padding-left: 17.5px;
-    margin-left: 6.5px;
     max-height: 3.9em;
     overflow: hidden;
     word-break: break-word;
-    border-left: 1px dashed color-mix(in srgb, var(--text-faint) 50%, transparent);
     white-space: normal;
     line-height: 1.3em;
     overflow-wrap: anywhere;
@@ -6148,7 +6145,7 @@ background-color: var(--background-modifier-hover);
 }
 
 .portals-file-preview.has-file-color {
-  color: color-mix(in srgb, var(--file-color) 20%, var(--text-faint) 80%);
+  color: color-mix(in srgb, var(--file-color) 30%, var(--text-faint) 70%);
 }
 
 .portals-file-info-bar {
@@ -6161,18 +6158,21 @@ background-color: var(--background-modifier-hover);
     overflow: hidden;
     text-overflow: ellipsis;
     padding-bottom: 2px;
+    justify-content: right;
 }
 
 .portals-file-info-bar-text {
-  background: rgba(0, 0, 0, 0.3);
+  --file-color-blend: color-mix(in srgb, var(--file-color) 30%, var(--text-faint) 70%);
+  border: 1px solid rgba(128, 128, 128, 0.2);
   padding: 0 4px;
   border-radius: 6px;
-  box-shadow: inset 0 0 1px 1px rgba(128, 128, 128, 0.1);
-  font-size: 0.65em;
-  color: var(--text-faint);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  font-size: 0.7em;
+  color: var(--file-color-blend, var(--text-faint));
 }
-.portals-file-info-bar-text.has-file-color {
-    color: color-mix(in srgb, var(--file-color) 20%, var(--text-faint) 80%);
+
+.portals-file-info-bar-text .file-item:hover {
+  background-color: var(--background-primary);
 }
 
 /* File and folder names – now using dedicated class */
