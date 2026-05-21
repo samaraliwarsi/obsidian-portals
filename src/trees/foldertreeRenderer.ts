@@ -164,18 +164,21 @@ export class FolderTreeRenderer {
             } 
 
             const fileList = sorted.filter((c): c is TFile => c instanceof TFile);
+            const filesContextAware = fileList.filter(file => {
+                const isContex = isContextNote(this.app, this.plugin, file, folder);
+                if (isContex && this.plugin.settings.enableContextNotes) {
+                    if (!this.plugin.settings.showContextNotesInTree) return false; 
+                }
+                return true;
+            });
             const sectioned = SectionRenderer.renderSections(
                 this.app, this.plugin, this.view,
-                fileList, folder.path, childrenContainer, openFiles
+                filesContextAware, folder.path, childrenContainer, openFiles
             );
 
             if (!sectioned) {
-                for (const file of fileList) {
+                for (const file of filesContextAware) {
                     if (this.plugin.settings.hiddenItems[file.path]) continue;
-                    const isContext = isContextNote(this.app, this.plugin, file, folder);
-                    if (isContext && this.plugin.settings.enableContextNotes) {
-                        if (!this.plugin.settings.showContextNotesInTree) continue;
-                    }
                     FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                 }
             }

@@ -8130,7 +8130,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .portals-section-label {
     font-size: 0.7em;
-    color: var(--text-muted);
+    color: var(--text-faint);
     white-space: nowrap;
     order: 1;
 }
@@ -8147,7 +8147,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     cursor: pointer;
     padding: 2px;
     font-size: small;
-    color: var(--text-muted);
+    color: var(--text-faint);
 }
 
 .portals-section-arrows i:hover {

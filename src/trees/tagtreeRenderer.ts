@@ -214,13 +214,18 @@ export class TagTreeRenderer {
             // FLAT LIST: If no groups, list all files under the main tag
             if (!groupTags || groupTags.length === 0) {
                 const flatFiles = sortFiles(taggedFiles);
-                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, flatFiles, `tag:${tagName}`, childrenContainer, openFiles);
-                if (!sectioned) {
-                    for (const file of flatFiles) {
-                        if (this.plugin.settings.hiddenItems[file.path]) continue;
-                        if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, tagName)) {
-                            continue;
+                const flatFilesContextAware = flatFiles.filter(file => {
+                    if (this.plugin.settings.enableContextNotes && 
+                        !this.plugin.settings.showContextNotesInTree 
+                        && isContextNoteFile(this.app, this.plugin, file, tagName)) {
+                            return false;
                         }
+                        return true;
+                });
+                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, flatFilesContextAware, `tag:${tagName}`, childrenContainer, openFiles);
+                if (!sectioned) {
+                    for (const file of flatFilesContextAware) {
+                        if (this.plugin.settings.hiddenItems[file.path]) continue;
                         FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                     }
                 }
@@ -368,9 +373,15 @@ export class TagTreeRenderer {
                 }
 
                 const groupFiles = sortFiles(files);
-                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, groupFiles, `tag:${tagName}/group:${gTag}`, groupChildren, openFiles);
+                const groupFilesContextAware = groupFiles.filter(file => {
+                    if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, gTag)) {
+                        return false;
+                    }
+                    return true;
+                });
+                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, groupFilesContextAware, `tag:${tagName}/group:${gTag}`, groupChildren, openFiles);
                 if (!sectioned) {
-                    for (const file of groupFiles) {
+                    for (const file of groupFilesContextAware) {
                         if (this.plugin.settings.hiddenItems[file.path]) continue;
                         const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
                         fileEl.addEventListener('click', () => {
@@ -397,15 +408,16 @@ export class TagTreeRenderer {
 
             // FLAT LIST: TAG GROUPS - Render ungrouped files directly under main tag
             const ungroupedSorted = sortFiles(ungrouped);
-            const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, ungroupedSorted, `tag:${tagName}`, childrenContainer, openFiles);
+            const ungroupedContextAware = ungroupedSorted.filter(file => {
+                if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, tagName)) {
+                    return false;
+                }
+                return true;
+            })
+            const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, ungroupedContextAware, `tag:${tagName}`, childrenContainer, openFiles);
             if (!sectioned) {
-                for (const file of ungroupedSorted) {
+                for (const file of ungroupedContextAware) {
                     if (this.plugin.settings.hiddenItems[file.path]) continue;
-                    if (this.plugin.settings.enableContextNotes &&
-                        !this.plugin.settings.showContextNotesInTree &&
-                        isContextNoteFile(this.app, this.plugin, file, tagName)) {
-                        continue;
-                    }
                     FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                 }
             }
@@ -555,15 +567,16 @@ export class TagTreeRenderer {
             // HLIST: SUBTAGS - Render files belonging to this node
             if (node.files.length > 0) {
                 const nodeFiles = sortFiles(node.files);
-                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, nodeFiles, `tag:${tagName}/node:${node.fullPath}`, childrenContainer, openFiles);
+                const nodeFilesContextAware = nodeFiles.filter(file => {
+                    if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, node.fullPath)) {
+                        return false;
+                    }
+                    return true;
+                });
+                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, nodeFilesContextAware, `tag:${tagName}/node:${node.fullPath}`, childrenContainer, openFiles);
                 if (!sectioned) {
-                    for (const file of nodeFiles) {
+                    for (const file of nodeFilesContextAware) {
                         if (this.plugin.settings.hiddenItems[file.path]) continue;
-                        if (this.plugin.settings.enableContextNotes &&
-                            !this.plugin.settings.showContextNotesInTree &&
-                            isContextNoteFile(this.app, this.plugin, file, node.fullPath)) {
-                            continue;
-                        }
                         FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                     }
                 }
@@ -755,15 +768,16 @@ export class TagTreeRenderer {
             });
 
             const sGroupFiles = sortFiles(files);
-            const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, sGroupFiles, `tag:${tagName}/group:${gTag}`, groupChildren, openFiles);
+            const sGroupFilesContextAware = sGroupFiles.filter(file => {
+                if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, gTag)) {
+                    return false;
+                }
+                return true;
+            });
+            const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, sGroupFilesContextAware, `tag:${tagName}/group:${gTag}`, groupChildren, openFiles);
             if (!sectioned) {
-                for (const file of sGroupFiles) {
+                for (const file of sGroupFilesContextAware) {
                     if (this.plugin.settings.hiddenItems[file.path]) continue;
-                    if (this.plugin.settings.enableContextNotes &&
-                        !this.plugin.settings.showContextNotesInTree &&
-                        isContextNoteFile(this.app, this.plugin, file, gTag)) {
-                        continue;
-                    }
                     const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
                     fileEl.addEventListener('click', () => {
                         this.view.activeGroupTag = gTag;
@@ -815,15 +829,16 @@ export class TagTreeRenderer {
         }
 
         const noGroupRootFiles = sortFiles(ungroupedRootFiles);
-        const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, noGroupRootFiles, `tag:${tagName}`, mainChildren, openFiles)
+        const noGroupRootFilesContextAware = noGroupRootFiles.filter(file => {
+            if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, tagName)) {
+                return false;
+            }
+            return true;
+        });
+        const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, noGroupRootFilesContextAware, `tag:${tagName}`, mainChildren, openFiles)
         if (!sectioned) {
-            for (const file of noGroupRootFiles) {
+            for (const file of noGroupRootFilesContextAware) {
                 if (this.plugin.settings.hiddenItems[file.path]) continue;
-                if (this.plugin.settings.enableContextNotes &&
-                    !this.plugin.settings.showContextNotesInTree &&
-                    isContextNoteFile(this.app, this.plugin, file, tagName)) {
-                    continue;
-                }
                 FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, mainChildren, openFiles);
             }
         }   
