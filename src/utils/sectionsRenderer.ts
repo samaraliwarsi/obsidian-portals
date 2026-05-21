@@ -158,21 +158,21 @@ export class SectionRenderer {
         sepDiv.createSpan({ cls: 'portals-section-label', text: section.label });
         const arrowsSpan = sepDiv.createSpan({ cls: 'portals-section-arrows' });
         arrowsSpan.createEl('i', {
-            cls: 'ph ph-arrow-up',
+            cls: 'ph ph-caret-up',
             attr: { 'data-index': String(index) },
         });
         arrowsSpan.createEl('i', {
-            cls: 'ph ph-arrow-down',
+            cls: 'ph ph-caret-down',
             attr: { 'data-index': String(index) },
         });
 
         // Click to reorder
         arrowsSpan.addEventListener('click', (e) => {
             const target = e.target as HTMLElement;
-            if (!target.classList.contains('ph-arrow-up') &&
-                !target.classList.contains('ph-arrow-down')) return;
+            if (!target.classList.contains('ph-caret-up') &&
+                !target.classList.contains('ph-caret-down')) return;
 
-            const dir = target.classList.contains('ph-arrow-up') ? -1 : 1;
+            const dir = target.classList.contains('ph-caret-up') ? -1 : 1;
             const newIndex = index + dir;
             if (newIndex < 0 || newIndex >= sections.length) return;
 

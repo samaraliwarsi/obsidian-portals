@@ -1387,6 +1387,10 @@ export class PortalsView extends ItemView {
             showFilePreview: s.showFilePreview,
             previewExcludedFiles: JSON.stringify(s.previewExcludedFiles),
             showFileInfoBar: s.showFileInfoBar,
+            enableSections: s.enableSections,
+            sectionCriterion: s.sectionCriterion,
+            sectionPropertyName: s.sectionPropertyName,
+            sectionOrders: JSON.stringify(s.sectionOrders),
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
