@@ -6,6 +6,7 @@ import { TreeEventHelpers } from '../utils/treeEventHelpers';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { isContextNote, hasContextNote } from '../renderers/contextNotes';
 import { FileItemFactory } from '../utils/fileItemFactory';
+import { SectionRenderer } from '../utils/sectionsRenderer';
 
 export class FolderTreeRenderer {
     private app: App;
@@ -153,18 +154,29 @@ export class FolderTreeRenderer {
         const loadChildren = () => {
             if (childrenContainer.children.length > 0) return;
             const sorted = this.sortFolderChildren(Array.from(folder.children));
+            
+            const folderList = sorted.filter((c): c is TFolder => c instanceof TFolder);
             let childIndex = 0;
-            for (const child of sorted) {
+            for (const child of folderList) {
                 if (this.plugin.settings.hiddenItems[child.path]) continue;
-                if (child instanceof TFolder) {
-                    this.render(child, childrenContainer, openFiles, 'folder', depth + 1, childIndex, totalFirstLevelFolders);
-                    childIndex++;
-                } else if (child instanceof TFile) {
-                    const isContext = isContextNote(this.app, this.plugin, child, folder);
+                this.render(child, childrenContainer, openFiles, 'folder', depth + 1, childIndex, totalFirstLevelFolders);
+                childIndex++;
+            } 
+
+            const fileList = sorted.filter((c): c is TFile => c instanceof TFile);
+            const sectioned = SectionRenderer.renderSections(
+                this.app, this.plugin, this.view,
+                fileList, folder.path, childrenContainer, openFiles
+            );
+
+            if (!sectioned) {
+                for (const file of fileList) {
+                    if (this.plugin.settings.hiddenItems[file.path]) continue;
+                    const isContext = isContextNote(this.app, this.plugin, file, folder);
                     if (isContext && this.plugin.settings.enableContextNotes) {
                         if (!this.plugin.settings.showContextNotesInTree) continue;
                     }
-                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, child, childrenContainer, openFiles);
+                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                 }
             }
         };

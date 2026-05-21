@@ -8115,3 +8115,44 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     transition: all 0.15s;
     font-size: normal;
 }
+
+/*=================SECTION SEPARATORS==========================*/
+
+.portals-section-separator {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+    position: relative;
+    width: 100%;
+}
+.portals-section-separator::after {
+    content: '';
+    flex: 1;
+    margin-left: 8px;
+    border-bottom: 1px dashed var(--background-modifier-border);
+    margin-right: 0; /* line starts after the label */
+}
+.portals-section-label {
+    font-size: 0.7em;
+    color: var(--text-faint);
+    white-space: nowrap;
+    order: -1; /* label on left */
+}
+.portals-section-arrows {
+    display: none;
+    margin-left: 4px;
+    order: 2;
+}
+.portals-section-separator:hover .portals-section-arrows {
+    display: flex;
+    gap: 2px;
+}
+.portals-section-arrows i {
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 3px;
+    background: var(--background-modifier-hover);
+}
+.portals-section-arrows i:hover {
+    background: var(--background-modifier-active-hover);
+}

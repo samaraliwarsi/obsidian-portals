@@ -7,6 +7,8 @@ import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { isContextNoteFile, hasContextNote, getContextNote } from '../renderers/contextNotes';
 import { getFrontmatterTags } from '../utils/tagHelpers';
 import { FileItemFactory } from '../utils/fileItemFactory';
+import { SectionRenderer } from '../utils/sectionsRenderer';
+
 
 interface TagNode {
     fullPath: string;
@@ -211,12 +213,16 @@ export class TagTreeRenderer {
 
             // FLAT LIST: If no groups, list all files under the main tag
             if (!groupTags || groupTags.length === 0) {
-                for (const file of sortFiles(taggedFiles)) {
-                    if (this.plugin.settings.hiddenItems[file.path]) continue;
-                    if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, tagName)) {
-                        continue;
+                const flatFiles = sortFiles(taggedFiles);
+                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, flatFiles, `tag:${tagName}`, childrenContainer, openFiles);
+                if (!sectioned) {
+                    for (const file of flatFiles) {
+                        if (this.plugin.settings.hiddenItems[file.path]) continue;
+                        if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, tagName)) {
+                            continue;
+                        }
+                        FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                     }
-                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                 }
                 return;
             }
@@ -361,11 +367,16 @@ export class TagTreeRenderer {
                     }
                 }
 
-                for (const file of sortFiles(files)) {
-                    const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
-                    fileEl.addEventListener('click', () => {
-                        this.view.activeGroupTag = gTag;
-                    }, true);
+                const groupFiles = sortFiles(files);
+                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, groupFiles, `tag:${tagName}/group:${gTag}`, groupChildren, openFiles);
+                if (!sectioned) {
+                    for (const file of groupFiles) {
+                        if (this.plugin.settings.hiddenItems[file.path]) continue;
+                        const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
+                        fileEl.addEventListener('click', () => {
+                            this.view.activeGroupTag = gTag;
+                        }, true);
+                    }
                 }
 
                 groupDetails.addEventListener('toggle', () => {
@@ -385,16 +396,19 @@ export class TagTreeRenderer {
             }
 
             // FLAT LIST: TAG GROUPS - Render ungrouped files directly under main tag
-            for (const file of sortFiles(ungrouped)) {
-                if (this.plugin.settings.hiddenItems[file.path]) continue;
-                if (this.plugin.settings.enableContextNotes &&
-                    !this.plugin.settings.showContextNotesInTree &&
-                    isContextNoteFile(this.app, this.plugin, file, tagName)) {
-                    continue;
+            const ungroupedSorted = sortFiles(ungrouped);
+            const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, ungroupedSorted, `tag:${tagName}`, childrenContainer, openFiles);
+            if (!sectioned) {
+                for (const file of ungroupedSorted) {
+                    if (this.plugin.settings.hiddenItems[file.path]) continue;
+                    if (this.plugin.settings.enableContextNotes &&
+                        !this.plugin.settings.showContextNotesInTree &&
+                        isContextNoteFile(this.app, this.plugin, file, tagName)) {
+                        continue;
+                    }
+                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                 }
-                FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
             }
-
             return;
         }
 
@@ -540,14 +554,18 @@ export class TagTreeRenderer {
 
             // HLIST: SUBTAGS - Render files belonging to this node
             if (node.files.length > 0) {
-                for (const file of sortFiles(node.files)) {
-                    if (this.plugin.settings.hiddenItems[file.path]) continue;
-                    if (this.plugin.settings.enableContextNotes &&
-                        !this.plugin.settings.showContextNotesInTree &&
-                        isContextNoteFile(this.app, this.plugin, file, node.fullPath)) {
-                        continue;
+                const nodeFiles = sortFiles(node.files);
+                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, nodeFiles, `tag:${tagName}/node:${node.fullPath}`, childrenContainer, openFiles);
+                if (!sectioned) {
+                    for (const file of nodeFiles) {
+                        if (this.plugin.settings.hiddenItems[file.path]) continue;
+                        if (this.plugin.settings.enableContextNotes &&
+                            !this.plugin.settings.showContextNotesInTree &&
+                            isContextNoteFile(this.app, this.plugin, file, node.fullPath)) {
+                            continue;
+                        }
+                        FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                     }
-                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
                 }
             }
 
@@ -736,17 +754,21 @@ export class TagTreeRenderer {
                 ContextMenuFactory.showGroupTagContextMenu(this.view, tagName, groupKey, gTag, groupDetails, summary, e);
             });
 
-            for (const file of sortFiles(files)) {
-                if (this.plugin.settings.hiddenItems[file.path]) continue;
-                if (this.plugin.settings.enableContextNotes &&
-                    !this.plugin.settings.showContextNotesInTree &&
-                    isContextNoteFile(this.app, this.plugin, file, gTag)) {
-                    continue;
+            const sGroupFiles = sortFiles(files);
+            const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, sGroupFiles, `tag:${tagName}/group:${gTag}`, groupChildren, openFiles);
+            if (!sectioned) {
+                for (const file of sGroupFiles) {
+                    if (this.plugin.settings.hiddenItems[file.path]) continue;
+                    if (this.plugin.settings.enableContextNotes &&
+                        !this.plugin.settings.showContextNotesInTree &&
+                        isContextNoteFile(this.app, this.plugin, file, gTag)) {
+                        continue;
+                    }
+                    const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
+                    fileEl.addEventListener('click', () => {
+                        this.view.activeGroupTag = gTag;
+                    }, true);
                 }
-                const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
-                fileEl.addEventListener('click', () => {
-                    this.view.activeGroupTag = gTag;
-                }, true);
             }
 
             groupDetails.addEventListener('toggle', () => {
@@ -791,15 +813,20 @@ export class TagTreeRenderer {
         } else {
             ungroupedRootFiles.push(...root.files);
         }
-        for (const file of sortFiles(ungroupedRootFiles)) {
-            if (this.plugin.settings.hiddenItems[file.path]) continue;
-            if (this.plugin.settings.enableContextNotes &&
-                !this.plugin.settings.showContextNotesInTree &&
-                isContextNoteFile(this.app, this.plugin, file, tagName)) {
-                continue;
+
+        const noGroupRootFiles = sortFiles(ungroupedRootFiles);
+        const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, noGroupRootFiles, `tag:${tagName}`, mainChildren, openFiles)
+        if (!sectioned) {
+            for (const file of noGroupRootFiles) {
+                if (this.plugin.settings.hiddenItems[file.path]) continue;
+                if (this.plugin.settings.enableContextNotes &&
+                    !this.plugin.settings.showContextNotesInTree &&
+                    isContextNoteFile(this.app, this.plugin, file, tagName)) {
+                    continue;
+                }
+                FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, mainChildren, openFiles);
             }
-            FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, mainChildren, openFiles);
-        }
+        }   
 
         // Include context note file in tree if setting enabled
         if (this.plugin.settings.showContextNotesInTree) {

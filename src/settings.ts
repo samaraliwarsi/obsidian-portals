@@ -66,6 +66,10 @@ export interface SpacesSettings {
     showFilePreview: boolean;
     previewExcludedFiles: Record<string, boolean>;
     showFileInfoBar: boolean;
+    enableSections: boolean;
+    sectionCriterion: 'extension' | 'property';
+    sectionPropertyName: string;
+    sectionOrders: Record<string, string[]>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -128,6 +132,10 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showFilePreview: false,
     previewExcludedFiles: {},
     showFileInfoBar: false,
+    enableSections: false,
+    sectionCriterion: 'extension',
+    sectionPropertyName: '',
+    sectionOrders: {},
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -257,6 +265,17 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.showFileInfoBar = value;
                     await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Enable sections')
+            .setDesc('Show sections within each folder or tag to organise sub items into separated sections')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableSections)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableSections = value;
+                    await this.plugin.saveSettings();
+                    this.display();
                 }));
 
         containerEl.createEl('hr');

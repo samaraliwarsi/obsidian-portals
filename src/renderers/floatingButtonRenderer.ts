@@ -4,6 +4,45 @@ import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
 import { GroupTagsModal } from '../utils/modals';
 import { getFrontmatterTags } from '../utils/tagHelpers';
+import { FrontmatterClinicRenderer } from './frontmatterClinic';
+import { SearchPopover } from '../utils/searchPopover';
+
+type ButtonId = 'collapse' | 'sections' | 'sort' | 'newFolder' | 'newNote';
+const BUTTON_ORDER: ButtonId[] = ['collapse', 'sections', 'sort', 'newFolder', 'newNote'];
+
+function getButtonPositions(plugin: PortalsPlugin): Record<ButtonId, number | null> {
+    const visible: ButtonId[] = [];
+    for (const id of BUTTON_ORDER) {
+        switch (id) {
+            case 'collapse':
+                visible.push(id);
+                break;
+            case 'sections':
+                if (plugin.settings.enableSections) visible.push(id);
+                break;
+            case 'sort':
+                visible.push(id);
+                break;
+            case 'newFolder':
+                visible.push(id);
+                break;
+            case 'newNote':
+                visible.push(id);
+                break;
+        }
+    }
+    const positions: Record<ButtonId, number | null> = {
+        collapse: null,
+        sections: null,
+        sort: null,
+        newFolder: null,
+        newNote: null,
+    };
+    visible.forEach((id, index) => {
+        positions[id] = 10 + index * 42;
+    });
+    return positions;
+}
 
 export class FloatingButtonsRenderer {
     private app: App;
@@ -20,15 +59,16 @@ export class FloatingButtonsRenderer {
 
     render(mainPanel: HTMLElement): void {
         this.mainPanel = mainPanel;
+        const pos = getButtonPositions(this.plugin);
 
         if (this.plugin.settings.floatingButtonsCollapsed) {
-            this.createButton('stack-simple', 'Collapse/ Unfold', 10,
+            this.createButton('stack-simple', 'Collapse/ Unfold', pos.collapse!,
                 () => this.view.collapseAllFolders(),
                 (e: MouseEvent) => this.view.toggleFloatingButtonsCollapse(e)
             );
         } else {
             // New note / file button
-            this.createButton('file-plus', 'New note', 136, () => {
+            this.createButton('file-plus', 'New note', pos.newNote!, () => {
                 (async () => {
                     const currentSpace = this.plugin.settings.spaces.find(s =>
                         s.path === this.plugin.settings.selectedSpace?.path &&
@@ -59,7 +99,7 @@ export class FloatingButtonsRenderer {
             );
 
             if (currentSpace && currentSpace.type === 'folder') {
-                this.createButton('folder-simple-plus', 'New folder', 94, () => {
+                this.createButton('folder-simple-plus', 'New folder', pos.newFolder!, () => {
                     (async () => {
                         const folder = this.app.vault.getAbstractFileByPath(currentSpace.path);
                         if (!(folder instanceof TFolder)) {
@@ -88,7 +128,7 @@ export class FloatingButtonsRenderer {
                 tagSet.delete(mainTag);
                 const relevantTags = Array.from(tagSet).sort();
 
-                this.createButton('funnel-simple', 'Tag groups', 94, (_e) => {
+                this.createButton('funnel-simple', 'Tag groups', pos.newFolder!, (_e) => {
                     const oldGroups = currentSpace.groupTags || [];
                     new GroupTagsModal(this.app, this.plugin, currentSpace, (tags) => {
                         const removed = oldGroups.filter(g => !tags.includes(g));
@@ -111,7 +151,7 @@ export class FloatingButtonsRenderer {
             }
 
             // Sort button
-            this.createButton('caret-circle-up-down', 'Sort', 52, (e: MouseEvent) => {
+            this.createButton('caret-circle-up-down', 'Sort', pos.sort!, (e: MouseEvent) => {
                 const menu = new Menu();
                 const setSort = (by: 'name' | 'created' | 'modified', order: 'asc' | 'desc') => {
                     this.plugin.settings.sortBy = by;
@@ -148,8 +188,44 @@ export class FloatingButtonsRenderer {
                 menu.showAtPosition({ x: e.clientX, y: e.clientY });
             });
 
+            if (this.plugin.settings.enableSections) {
+                this.createButton('split-vertical', 'Section type', pos.sections!, (e: MouseEvent) => {
+                    const menu = new Menu();
+                    const setCriterion = (criterion: 'extension' | 'property') => {
+                        this.plugin.settings.sectionCriterion = criterion;
+                        void this.plugin.saveData(this.plugin.settings);
+                        this.view.renderContent();
+                    };
+                    menu.addItem(item => item
+                        .setTitle('By extension')
+                        .setChecked(this.plugin.settings.sectionCriterion === 'extension')
+                        .onClick(() => setCriterion('extension')));
+                    menu.addItem(item => item
+                        .setTitle('By frontmatter')
+                        .setChecked(this.plugin.settings.sectionCriterion === 'property')
+                        .onClick(() => setCriterion('property')));
+                    menu.showAtPosition({ x: e.clientX, y: e.clientY });
+                },
+                (e) => { 
+                    if (this.plugin.settings.sectionCriterion === 'property') {
+                        e.preventDefault();
+                        const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort();
+                        const currenPop = this.plugin.settings.sectionPropertyName || '';
+                        new SearchPopover(e.currentTarget as HTMLElement, {
+                            items: properties,
+                            currentSelected: currenPop,
+                            onSelect: (selected: string) => {
+                                this.plugin.settings.sectionPropertyName = selected;
+                                void this.plugin.saveData(this.plugin.settings).then(() => this.view.render())
+                            },
+                            placeholder: 'Property name...'
+                        });
+                    }
+                });
+            }
+
             // Collapse button with contextmenu toggling
-            this.createButton('stack', 'Collapse/ Fold', 10,
+            this.createButton('stack', 'Collapse/ Fold', pos.collapse!,
                 () => this.view.collapseAllFolders(),
                 (e: MouseEvent) => this.view.toggleFloatingButtonsCollapse(e)
             );

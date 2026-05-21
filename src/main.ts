@@ -137,6 +137,15 @@ export default class PortalsPlugin extends Plugin {
             },
         });
 
+        this.addCommand({
+            id: 'enable-sections',
+            name: 'Enable sections in explorer',
+            callback: () => {
+                this.settings.enableSections = !this.settings.enableSections
+                    this.saveSettings();
+            },
+        })
+
         this.registerView(
             VIEW_TYPE_PORTALS,
             (leaf) => new PortalsView(leaf, this)
