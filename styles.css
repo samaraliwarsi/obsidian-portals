@@ -6073,18 +6073,22 @@ background-color: var(--background-modifier-hover);
 }
 
 .portals-file-preview {
-    flex-basis: 100%;
-    order: 1;
-    font-size: 0.75em;
-    color: var(--text-faint);
-    max-height: 3.9em;
-    overflow: hidden;
-    word-break: break-word;
-    white-space: normal;
-    line-height: 1.3em;
-    overflow-wrap: anywhere;
+  flex-basis: 100%;
+  order: 1;
+  font-size: 0.75em;
+  color: var(--text-faint);
+  max-height: 3.9em;
+  overflow: hidden;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.3em;
+  overflow-wrap: anywhere;
 }
 
+.portals-compact-tree .portals-file-preview {
+  max-height: 2.6em;
+  font-size: 0.7em;
+}
 .portals-file-info-bar.file-item-preview-hidden {
   display: none;
 }
@@ -6171,8 +6175,8 @@ background-color: var(--background-modifier-hover);
   color: var(--file-color-blend, var(--text-faint));
 }
 
-.portals-file-info-bar-text .file-item:hover {
-  background-color: var(--background-primary);
+.portals-compact-tree .portals-file-info-bar-text {
+  font-size: 0.65em;
 }
 
 /* File and folder names – now using dedicated class */
