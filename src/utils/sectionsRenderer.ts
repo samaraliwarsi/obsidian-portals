@@ -3,10 +3,6 @@ import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { FileItemFactory } from './fileItemFactory';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 type SectionKey = string;   // e.g. '.md', 'propValue'
 
 interface Section {
@@ -15,24 +11,15 @@ interface Section {
     files: TFile[];
 }
 
-// ---------------------------------------------------------------------------
-// SectionRenderer
-// ---------------------------------------------------------------------------
 
 export class SectionRenderer {
-
-    /**
-     * Try to render the file list into sections.
-     * Returns `true` if sections were created, `false` if the caller should
-     * fall back to the normal flat list.
-     */
     static renderSections(
         app: App,
         plugin: PortalsPlugin,
         view: PortalsView,
         files: TFile[],
-        parentPath: string,       // folder.path or tag name
-        container: HTMLElement,   // the .folder-children element
+        parentPath: string,
+        container: HTMLElement,
         openFiles: Set<string>
     ): boolean {
         // Respect the global toggle
@@ -66,9 +53,7 @@ export class SectionRenderer {
         return true;
     }
 
-    // -----------------------------------------------------------------------
-    // Group files into sections
-    // -----------------------------------------------------------------------
+    // --------Group files into sections---------------------------------------
 
     private static buildSections(
         app: App,
@@ -100,7 +85,14 @@ export class SectionRenderer {
                 const cache = app.metadataCache.getFileCache(f);
                 const fm = cache?.frontmatter as Record<string, unknown> | undefined;
                 const val = fm?.[propName];
-                const key = (val !== undefined && val !== null) ? String(val) : 'none';
+                let key: string;
+                if (val === undefined || val === null) {
+                    key = 'none';
+                } else if (Array.isArray(val)) {
+                    key = val.join(', ');
+                } else {
+                    key = String(val);
+                }
                 if (!map.has(key)) map.set(key, []);
                 map.get(key)!.push(f);
             }
@@ -110,14 +102,11 @@ export class SectionRenderer {
                 files: this.sortFiles(plugin, fileList),
             }));
         }
-
         // Fallback – no sections
         return [];
     }
 
-    // -----------------------------------------------------------------------
-    // Internal sort (respects plugin’s current sortBy / sortOrder)
-    // -----------------------------------------------------------------------
+    // ---------Internal sort (respects plugin’s current sortBy / sortOrder)-------------------------
 
     private static sortFiles(plugin: PortalsPlugin, files: TFile[]): TFile[] {
         const sorted = [...files];
@@ -137,16 +126,14 @@ export class SectionRenderer {
         return sorted;
     }
 
-    // -----------------------------------------------------------------------
-    // Render a single section
-    // -----------------------------------------------------------------------
+    // --------------Render a single section--------------------------------
 
     private static renderSection(
         app: App,
         plugin: PortalsPlugin,
         view: PortalsView,
         section: Section,
-        sections: Section[],          // full array (for re‑ordering)
+        sections: Section[],
         parentPath: string,
         container: HTMLElement,
         openFiles: Set<string>
@@ -196,9 +183,7 @@ export class SectionRenderer {
         }
     }
 
-    // -----------------------------------------------------------------------
-    // Persist section order
-    // -----------------------------------------------------------------------
+    // ---------Persist section order---------------------------------------
 
     private static saveSectionOrder(
         plugin: PortalsPlugin,

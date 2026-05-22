@@ -189,21 +189,25 @@ export class FloatingButtonsRenderer {
             });
 
             if (this.plugin.settings.enableSections) {
-                this.createButton('split-vertical', 'Section type', pos.sections!, (e: MouseEvent) => {
+                this.createButton('rows', 'Sections', pos.sections!, (e: MouseEvent) => {
                     const menu = new Menu();
                     const setCriterion = (criterion: 'extension' | 'property') => {
                         this.plugin.settings.sectionCriterion = criterion;
                         void this.plugin.saveData(this.plugin.settings);
                         this.view.renderContent();
                     };
+                    const sectionCriterion = this.plugin.settings.sectionCriterion;
+                    const sectionProp = this.plugin.settings.sectionPropertyName || ''
+                    menu.addItem(item => item
+                        .setTitle(sectionCriterion === 'property' && sectionProp
+                            ? `By frontmatter: ${sectionProp}`
+                            : 'By frontmatter')
+                        .setChecked(sectionCriterion === 'property')
+                        .onClick(() => setCriterion('property')));
                     menu.addItem(item => item
                         .setTitle('By extension')
                         .setChecked(this.plugin.settings.sectionCriterion === 'extension')
                         .onClick(() => setCriterion('extension')));
-                    menu.addItem(item => item
-                        .setTitle('By frontmatter')
-                        .setChecked(this.plugin.settings.sectionCriterion === 'property')
-                        .onClick(() => setCriterion('property')));
                     menu.showAtPosition({ x: e.clientX, y: e.clientY });
                 },
                 (e) => { 
@@ -235,7 +239,6 @@ export class FloatingButtonsRenderer {
     // ─── private ─────────────────────────────────────────
 
     private createButton(icon: string, tooltip: string, bottom: number, onClick: (e: MouseEvent) => void, onContextMenu?: (e: MouseEvent) => void): void {
-        // Use Obsidian's createEl so the button has the helper methods
         const btn = this.mainPanel.createEl('button', { cls: 'portals-floating-btn' });
         btn.style.bottom = bottom + 'px';
         btn.createEl('i', { cls: `ph ph-${icon}` });
@@ -243,9 +246,12 @@ export class FloatingButtonsRenderer {
         if (!Platform.isMobile) {
             btn.addEventListener('mouseenter', () => {
                 let actualTooltip = tooltip;
-                if ((icon === 'stack' || icon === 'stack-simple') && !this.view.floatingBtnSpecialTooltipShown) {
+                if ((icon === 'stack' || icon === 'stack-simple') && !this.view.floatingBtnCollapseTooltipShown) {
                     actualTooltip = 'Right-click: fold/unfold';
-                    this.view.floatingBtnSpecialTooltipShown = true;
+                    this.view.floatingBtnCollapseTooltipShown = true;
+                } else if (icon === 'rows' && !this.view.floatingBtnSectionTooltipShown) {
+                    actualTooltip = 'Right-click: find, if using frontmatter';
+                    this.view.floatingBtnSectionTooltipShown = true;
                 }
                 this.view.showTooltip(actualTooltip, btn, 300, 'right');
             });
