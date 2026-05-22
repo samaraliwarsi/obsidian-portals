@@ -2,7 +2,8 @@ import { App, TFile, TFolder, Notice, Modal, TAbstractFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { IconPickerModal } from './iconPicker';
-import { ColorPickerModal, ConfirmModal, SelectFolderModal } from './modals';
+import { ConfirmModal, SelectFolderModal } from './modals';
+import { ColorPickerModal } from './colorModal';
 
 // ====================================================================
 // All vault‑operation helpers, customisation helpers, and rename helpers
@@ -461,7 +462,7 @@ export class PortalsActions {
     static setCustomColor(app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder, summaryEl: HTMLElement): void {
         const currentColor = plugin.settings.customColors[folder.path];
         view.saveTreeScroll();
-        new ColorPickerModal(app, (color) => {
+        new ColorPickerModal(app, plugin, (color) => {
             plugin.settings.customColors[folder.path] = color;
             void plugin.saveSettings().then(() => view.render());
         }, summaryEl, currentColor).open();
@@ -470,7 +471,7 @@ export class PortalsActions {
     static setCustomColorForFile(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, fileEl: HTMLElement): void {
         const currentColor = plugin.settings.customColors[file.path];
         view.saveTreeScroll();
-        new ColorPickerModal(app, (color) => {
+        new ColorPickerModal(app, plugin, (color) => {
             plugin.settings.customColors[file.path] = color;
             void plugin.saveSettings().then(() => view.render());
         }, fileEl, currentColor).open();
@@ -492,7 +493,7 @@ export class PortalsActions {
     static setTagColor(app: App, plugin: PortalsPlugin, view: PortalsView, key: string, targetElement: HTMLElement): void {
         const currentColor = plugin.settings.tagColors[key];
         view.saveTreeScroll();
-        new ColorPickerModal(app, (color) => {
+        new ColorPickerModal(app, plugin, (color) => {
             plugin.settings.tagColors[key] = color;
             void plugin.saveSettings().then(() => view.render());
         }, targetElement, currentColor).open();

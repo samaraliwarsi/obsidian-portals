@@ -5,6 +5,7 @@ import { SelectFolderModal } from './utils/modals';
 import { SpaceConfig, PortalStack } from './types';
 import { ChooseTabsModal, AddPortalModal } from './utils/modals';
 import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';
+import { DEFAULT_PORTALS_PALETTE } from './utils/colorModal';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
@@ -70,6 +71,7 @@ export interface SpacesSettings {
     sectionCriterion: 'extension' | 'property';
     sectionPropertyName: string;
     sectionOrders: Record<string, string[]>;
+    userPalette?: string[]
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -136,6 +138,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     sectionCriterion: 'extension',
     sectionPropertyName: '',
     sectionOrders: {},
+    userPalette: [...DEFAULT_PORTALS_PALETTE],
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

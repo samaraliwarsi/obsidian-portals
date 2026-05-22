@@ -3,9 +3,10 @@ import type { PortalsView } from '../view';
 import type { SpaceConfig, PortalStack } from '../types';
 import { IconPickerModal } from './iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
-import { ColorPickerModal, RenamePortalModal } from './modals';
+import { RenamePortalModal } from './modals';
 import { PortalsActions } from './portalsActions';
 import { FrontmatterPopup } from './frontmatterPopup';
+import { ColorPickerModal } from './colorModal';
 
 interface MenuItemWithSubmenu extends MenuItem {
     setSubmenu(): Menu;
@@ -263,7 +264,7 @@ export class ContextMenuFactory {
                 .setIcon('palette')
                 .onClick(() => {
                     const dummyEl = activeDocument.createElement('div');
-                    new ColorPickerModal(view.app, (color: string) => {
+                    new ColorPickerModal(view.app, view.plugin, (color: string) => {
                         view.saveTreeScroll();
                         space.color = color;
                         void view.plugin.saveSettings().then(() => view.render());
@@ -357,7 +358,7 @@ export class ContextMenuFactory {
             .setIcon('palette')
             .onClick(() => {
                 const dummyEl = activeDocument.createElement('div');
-                new ColorPickerModal(view.app, (color: string) => {
+                new ColorPickerModal(view.app, view.plugin,(color: string) => {
                     stack.color = color;
                     void view.plugin.saveSettings().then(() => view.render());
                 }, dummyEl, stack.color).open();
