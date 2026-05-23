@@ -125,7 +125,12 @@ export class ColorPickerModal {
         // palette section
         const paletteRow = container.createDiv('cm-palette-section'); 
         paletteRow.createSpan({ text: 'Color palette', cls: 'cm-wrapper-header' });
-        this.palettes = paletteRow.createDiv('portals-palette-container');
+        this.palettes = paletteRow.createDiv('cm-palette-container');
+        paletteRow.createSpan({
+            text: 'Click to apply, double-click to edit, right-click to reset.',
+            cls: 'cm-palette-subtext',
+        });
+        
 
         // opacity section
         const opacityRow = container.createDiv({ cls: 'cm-input-wrapper' });
@@ -138,7 +143,7 @@ export class ColorPickerModal {
        
         // preview
         const previewRow = container.createDiv({ cls: 'cm-input-wrapper' });
-        previewRow.createSpan({ text: 'Preview', cls: 'cm-wrapper-header' });
+        previewRow.createSpan({ text: 'Final preview', cls: 'cm-wrapper-header' });
         const preview = previewRow.createDiv('portals-preview-box');
         const initialColor = `rgba(${this.hexToRgb(this.color).join(',')},${this.opacity})`;
         preview.style.backgroundColor = initialColor;
@@ -248,13 +253,13 @@ export class ColorPickerModal {
         this.palettes.empty();
     
         for (let i = 0; i < this.paletteColors.length; i++) {
-            const wrapper = this.palettes.createDiv('palette-swatch-wrapper');
-            const swatch = wrapper.createDiv('portals-palette-swatch');
+            const wrapper = this.palettes.createDiv('cm-palette-swatch-wrapper');
+            const swatch = wrapper.createDiv('cm-palette-swatch');
             swatch.style.backgroundColor = this.paletteColors[i]!;
 
             const palettePicker = wrapper.createEl('input', {
                 type: 'color',
-                cls: 'palette-hidden-picker',
+                cls: 'cm-palette-hidden-picker',
                 value: this.paletteColors[i]!
             }) as HTMLInputElement;
 
@@ -282,30 +287,6 @@ export class ColorPickerModal {
             });
         }
     }
-
-    /*private editPaletteSlot(index: number, hiddenColorInput: HTMLInputElement, customSwatch: HTMLDivElement, hexInput: HTMLInputElement, opacityInput: HTMLInputElement) {
-        const current = this.paletteColors[index] ?? '#000000';
-        const picker = document.createElement('input') as HTMLInputElement;
-        picker.type = 'color';
-        picker.value = current;
-        picker.addClass('portals-hidden-picker');
-        document.body.appendChild(picker);
-
-        picker.addEventListener('change', () => {
-            this.paletteColors[index] = picker.value;
-            this.renderPalette(hiddenColorInput, customSwatch, hexInput, opacityInput);
-            this.savePalette();
-            document.body.removeChild(picker);
-        });
-        picker.addEventListener('blur', () => {
-            setTimeout(() => {
-                if (document.body.contains(picker)) {
-                    document.body.removeChild(picker);
-                }
-            }, 100);
-        });
-        picker.click();
-    }*/
 
     private async savePalette() {
         this.plugin.settings.userPalette = [...this.paletteColors];
