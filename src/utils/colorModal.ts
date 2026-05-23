@@ -99,14 +99,21 @@ export class ColorPickerModal {
         container.createDiv({ text: 'Pick custom color', cls: 'cm-popup-title' });
 
         const inputRow = container.createDiv({ cls: 'cm-color-wrapper' });
-        inputRow.createSpan({ text: 'Select color : ', cls: 'cm-input-wrapper-text' });
+        inputRow.createSpan({ text: 'Select color : ', cls: 'cm-wrapper-header' });
         
-        const colorInput = inputRow.createEl('input', { 
+        // custom visible swatch to trigger hidden picker 
+        const swatchWrapper = inputRow.createDiv('cm-color-swatch-wrapper');
+        const customSwatch = swatchWrapper.createDiv('cm-color-swatch');
+        customSwatch.style.backgroundColor = this.color;
+
+        // hidden input
+        const hiddenColorInput = swatchWrapper.createEl('input', { 
             type: 'color',
-            cls: 'cm-color-input',
+            cls: 'portals-hidden-picker',
             value: this.color 
         }) as HTMLInputElement;
 
+        // hex input
         const hexInput = inputRow.createEl('input', {
             type: 'text',
             cls: 'cm-color-input',
@@ -115,38 +122,32 @@ export class ColorPickerModal {
         hexInput.setAttr('maxlength', '7');
         hexInput.setAttr('placeholder', '#000000');
 
-        colorInput.addEventListener('input', () => {
-            hexInput.value = colorInput.value;
-        });
-        hexInput.addEventListener('input', () => {
-            const hex = hexInput.value.trim();
-            if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
-                colorInput.value = hex;
-                colorInput.dispatchEvent(new Event('input', { bubbles: true}));
-            }
-        })
-
+        // palette section
         const paletteRow = container.createDiv('cm-palette-section'); 
-        paletteRow.createSpan({ text: 'Color palette', cls: 'cm-input-wrapper-text' });
+        paletteRow.createSpan({ text: 'Color palette', cls: 'cm-wrapper-header' });
         this.palettes = paletteRow.createDiv('portals-palette-container');
 
+        // opacity section
         const opacityRow = container.createDiv({ cls: 'cm-input-wrapper' });
-        opacityRow.createSpan({ text: 'Set opacity', cls: 'cm-input-wrapper-text' });
+        opacityRow.createSpan({ text: 'Set opacity', cls: 'cm-wrapper-header' });
         const opacityInput = opacityRow.createEl('input', {
             cls: 'cm-opacity-slider',
             type: 'range',
             attr: { min: '0', max: '1', step: '0.05', value: String(this.opacity) }
         }) as HTMLInputElement;
-        this.renderPalette(colorInput, opacityInput);
-
+       
+        // preview
         const previewRow = container.createDiv({ cls: 'cm-input-wrapper' });
-        previewRow.createSpan({ text: 'Preview', cls: 'cm-input-wrapper-text' });
+        previewRow.createSpan({ text: 'Preview', cls: 'cm-wrapper-header' });
         const preview = previewRow.createDiv('portals-preview-box');
         const initialColor = `rgba(${this.hexToRgb(this.color).join(',')},${this.opacity})`;
         preview.style.backgroundColor = initialColor;
 
+        // ------------------- UPDATE FUNCTION ----------------
+
         const updatePreview = () => {
-            const rgb = this.hexToRgb(colorInput.value);
+            const hex = hiddenColorInput.value;
+            const rgb = this.hexToRgb(hex);
             const newOpacity = parseFloat(opacityInput.value);
             const newColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${newOpacity})`;
             preview.style.backgroundColor = newColor;
@@ -174,14 +175,32 @@ export class ColorPickerModal {
                 void this.targetElement.offsetHeight;
             };
         }
+    
+        // ------------ WIRING ---------------------
+        customSwatch.addEventListener('click', () => hiddenColorInput.click());
 
-        colorInput.addEventListener('input', updatePreview);
+        hiddenColorInput.addEventListener('input', () => {
+            const hex = hiddenColorInput.value;
+            customSwatch.style.background = hex;
+            hexInput.value = hex;
+            updatePreview();
+        });
+        hexInput.addEventListener('input', () => {
+            const hex = hexInput.value.trim();
+            if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+                hiddenColorInput.value = hex;
+                customSwatch.style.backgroundColor = hex;
+                updatePreview();
+            }
+        });
         opacityInput.addEventListener('input', updatePreview);
+        this.renderPalette(hiddenColorInput, customSwatch, hexInput, opacityInput);
 
+        // --------BUTTONS --------------------------------------
         const buttonDiv = container.createDiv({ cls: 'modal-button-container' }); // same in fm-modal
         const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });
         saveBtn.onclick = () => {
-            const rgb = this.hexToRgb(colorInput.value);
+            const rgb = this.hexToRgb(hiddenColorInput.value);
             const newColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacityInput.value})`;
             this.onSave(newColor);
             this.close();
@@ -225,39 +244,56 @@ export class ColorPickerModal {
         return [r, g, b];
     }
 
-    private renderPalette(colorInput: HTMLInputElement, opacityInput: HTMLInputElement) {
+    private renderPalette(hiddenColorInput: HTMLInputElement, customSwatch: HTMLDivElement, hexInput: HTMLInputElement, opacityInput: HTMLInputElement) {
         this.palettes.empty();
     
         for (let i = 0; i < this.paletteColors.length; i++) {
-            const swatch = this.palettes.createDiv('portals-palette-swatch');
+            const wrapper = this.palettes.createDiv('palette-swatch-wrapper');
+            const swatch = wrapper.createDiv('portals-palette-swatch');
             swatch.style.backgroundColor = this.paletteColors[i]!;
+
+            const palettePicker = wrapper.createEl('input', {
+                type: 'color',
+                cls: 'palette-hidden-picker',
+                value: this.paletteColors[i]!
+            }) as HTMLInputElement;
+
             swatch.addEventListener('click', () => {
-                colorInput.value = this.paletteColors[i]!;
-                colorInput.dispatchEvent(new Event('input', { bubbles: true }));
+                const hex = this.paletteColors[i]!;
+                hiddenColorInput.value = hex;
+                customSwatch.style.backgroundColor = hex;
+                hiddenColorInput.dispatchEvent(new Event('input', { bubbles: true }));
             });
             swatch.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 this.paletteColors[i] = DEFAULT_PORTALS_PALETTE[i]!;
-                this.renderPalette(colorInput, opacityInput);
+                this.renderPalette(hiddenColorInput, customSwatch, hexInput, opacityInput);
                 this.savePalette();
             });
             swatch.addEventListener('dblclick', () => {
-                this.editPaletteSlot(i, colorInput, opacityInput);
+                palettePicker.style.pointerEvents = 'auto';
+                palettePicker.click();
+                palettePicker.style.pointerEvents = 'none';
+            });
+            palettePicker.addEventListener('change', () => {
+                this.paletteColors[i] = palettePicker.value;
+                swatch.style.backgroundColor = palettePicker.value;
+                this.savePalette();
             });
         }
     }
 
-    private editPaletteSlot(index: number, colorInput: HTMLInputElement, opacityInput: HTMLInputElement) {
+    /*private editPaletteSlot(index: number, hiddenColorInput: HTMLInputElement, customSwatch: HTMLDivElement, hexInput: HTMLInputElement, opacityInput: HTMLInputElement) {
         const current = this.paletteColors[index] ?? '#000000';
         const picker = document.createElement('input') as HTMLInputElement;
         picker.type = 'color';
         picker.value = current;
-        picker.addClass('portals-hidden-picker')
+        picker.addClass('portals-hidden-picker');
         document.body.appendChild(picker);
 
         picker.addEventListener('change', () => {
             this.paletteColors[index] = picker.value;
-            this.renderPalette(colorInput, opacityInput);
+            this.renderPalette(hiddenColorInput, customSwatch, hexInput, opacityInput);
             this.savePalette();
             document.body.removeChild(picker);
         });
@@ -269,7 +305,7 @@ export class ColorPickerModal {
             }, 100);
         });
         picker.click();
-    }
+    }*/
 
     private async savePalette() {
         this.plugin.settings.userPalette = [...this.paletteColors];
