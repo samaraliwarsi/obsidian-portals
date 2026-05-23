@@ -22,19 +22,29 @@ export class IconPickerModal extends Modal {
             placeholder: 'Search icons...',
             cls: 'icon-picker-search'
         });
-        
 
         const iconGrid = contentEl.createDiv({ cls: 'portals-icon-grid' });
+
+        const BATCH_SIZE = 500;
+        let displayCount = BATCH_SIZE;
+        let currentFilter = '';
+        let allFiltered: string[] = [];
 
         const renderIcons = (filter: string) => {
             if (this.searchTimeout) window.clearTimeout(this.searchTimeout);
             this.searchTimeout = window.setTimeout(() => {
-                iconGrid.empty();
                 const filtered = filter
                     ? iconNames.filter((name: string) => name.toLowerCase().includes(filter.toLowerCase()))
                     : iconNames;
+                allFiltered = filtered;
 
-                const toRender = filter ? filtered : filtered.slice(0, 500);
+                if (filter !== currentFilter) {
+                    displayCount = BATCH_SIZE;
+                    currentFilter = filter;
+                }
+
+                const toRender = filter ? filtered : filtered.slice(0, displayCount);
+                iconGrid.empty();
 
                 if (toRender.length === 0) {
                     iconGrid.createEl('p', { text: 'No icons found.' });
@@ -53,6 +63,16 @@ export class IconPickerModal extends Modal {
                     iconEl.addEventListener('click', () => {
                         this.onSubmit(name);
                         this.close();
+                    });
+                }
+                if (displayCount < allFiltered.length) {
+                    const loadBtn = iconGrid.createDiv({
+                        cls: 'portals-load-more-btn',
+                        text: `Load more (${allFiltered.length-displayCount} remaining)`
+                    });
+                    loadBtn.addEventListener('click', () => {
+                        displayCount = Math.min(displayCount + BATCH_SIZE, allFiltered.length);
+                        renderIcons(currentFilter);
                     });
                 }
             }, 200);
