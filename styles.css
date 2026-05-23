@@ -5390,73 +5390,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
   margin-right: 10px;
 }
 
-/*--------------------- Color Modal ----------------*/
-
-.portals-color-modal .modal {
-  min-width: auto;
-}
-
-.portals-color-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.portals-color-modal .portals-input-container {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    margin: 16px 0;
-    justify-content: center;
-    border-top: 1px solid var(--background-modifier-border);
-    padding-top: 16px;
-}
-
-.portals-color-modal .portals-preview-container div {
-  border-radius: 10px;
-  height: 30px;
-  margin-top: 10px;
-}
-
-.portals-color-modal .portals-opacity-input-full {
-    width: 100%;
-}
-
-/* Palette container – wraps swatches nicely */
-.portals-palette-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 8px 0;
-  justify-content: flex-start;
-}
-
-/* Individual swatch */
-.portals-palette-swatch {
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
-  cursor: pointer;
-  border: 1px solid var(--background-modifier-border);
-  /**background-color: var(--palette-bg);   /* <-- set via setCssProps */
-  transition: transform 0.1s ease;
-}
-
-.portals-palette-swatch:hover {
-  transform: scale(1.2);
-  border-color: var(--text-accent);
-}
-
-/* Hidden colour picker used for editing a swatch */
-.portals-hidden-picker {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
 /*--------------------- Folder picker Modal ----------------*/
 
 .portals-folder-pick-modal .modal {
@@ -7922,16 +7855,82 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
  filter: brightness(1.05);
 }
 
-/*=======================BULK FRONTMATTER MODAL======================================*/
+/*=======================BULK FRONTMATTER MODAL, EXTENDING TO COLOR MODAL======================================*/
 
-.portals-fm-backdrop {
+/*==Color modal Specific*/
+
+.portals-cm-modal .cm-popup-title {
+  border-bottom: 1px dashed var(--background-modifier-hover);
+  padding-bottom: 8px;
+}
+
+.cm-color-wrapper {
+  display: flex;
+  flex-direction: horizontal;
+  width: 100%;
+  gap: 8px;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.portals-cm-modal input[type="color"].cm-color-input {
+  height: 22px;
+  width: 48px;
+  border-radius: 0;
+  border: 1px var(--background-modifier-border);
+}
+
+.portals-cm-modal input[type="text"].cm-color-input {
+  height: 24px;
+  flex: 1;
+  min-width: 0;
+}
+
+
+
+.portals-palette-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+  justify-content: flex-start;
+}
+
+/* Individual swatch */
+.portals-palette-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--background-modifier-border);
+  /**background-color: var(--palette-bg);   /* <-- set via setCssProps */
+  transition: transform 0.1s ease;
+}
+
+.portals-palette-swatch:hover {
+  transform: scale(1.2);
+  border-color: var(--text-accent);
+}
+
+/* Hidden colour picker used for editing a swatch */
+.portals-hidden-picker {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*===Mixed=========*/
+.portals-fm-backdrop,
+.portals-cm-backdrop {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
     z-index: 45;
 }
 
-.portals-fm-modal {
+.portals-fm-modal,
+.portals-cm-modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -7949,7 +7948,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     overflow-y: auto;
 }
 
-.portals-fm-modal .fm-popup-title {
+.portals-fm-modal .fm-popup-title,
+.portals-cm-modal .cm-popup-title {
     font-size: 1.2em;
     font-weight: bold;
     margin: 16px 0;
@@ -7967,7 +7967,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   text-align: right;
 }
 
-.fm-input-wrapper {
+.fm-input-wrapper,
+.cm-input-wrapper {
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -7986,9 +7987,10 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   justify-content: center;
 }
 
-.fm-wrapper-text,
-.fm-yaml-summary {
-  font-size: normal;
+.portals-fm-modal .fm-wrapper-text,
+.fm-yaml-summary,
+.cm-input-wrapper-text {
+  font-size: 1em;
   color: var(--text-muted);
   font-weight: bold;
   margin: 4px 0;
@@ -8000,7 +8002,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   margin: 0 4px;
 }
 
-.fm-input-wrapper .fm-input-group {
+.fm-input-wrapper .fm-input-group,
+.cm-input-wrapper .cm-input-group {
     display: flex;
     flex-direction: column;
     align-items: center;

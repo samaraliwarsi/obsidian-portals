@@ -1,4 +1,4 @@
-import { App, Modal } from "obsidian";
+import { App } from "obsidian";
 import PortalsPlugin from "../main";
 
 export const DEFAULT_PORTALS_PALETTE: string[] = [
@@ -6,12 +6,16 @@ export const DEFAULT_PORTALS_PALETTE: string[] = [
   '#1e88e5', '#039be5', '#00acc1', '#00897b', '#43a047',
 ];
 
-export class ColorPickerModal extends Modal {
+export class ColorPickerModal {
+    private app: App;
     private plugin: PortalsPlugin;
     private color: string;
     private opacity: number;
     private onSave: (color: string) => void;
     private targetElement: HTMLElement;
+    private backdrop!: HTMLElement;
+    private container!: HTMLElement;
+    private keyHandler: (e: KeyboardEvent) => void;
     private summaryElement: HTMLElement | null;
     private childrenContainer: HTMLElement | null;
     private originalDetailsClass: boolean;
@@ -20,17 +24,17 @@ export class ColorPickerModal extends Modal {
     private originalColor: string;
     private originalFileTextColor: string = '';
     private originalFileIconColor: string = '';
-    private paletteContainer!: HTMLDivElement;
+    private palettes!: HTMLDivElement;
     private paletteSlots: HTMLDivElement[] = [];
     private paletteColors: string[] = [];
     private readonly defaultPalette: string[] = [...DEFAULT_PORTALS_PALETTE];
     private readonly paletteSlotCount: number = DEFAULT_PORTALS_PALETTE.length;
     
-
-    constructor(app: App, plugin: PortalsPlugin, onSave: (color: string) => void, targetElement: HTMLElement, currentColor?: string) {
-        super(app);
+    constructor(app: App, plugin: PortalsPlugin, targetElement: HTMLElement, onSave: (color: string) => void, private onClose?: () => void, currentColor?: string) {
+        this.app = app;
         this.plugin = plugin;
         this.onSave = onSave;
+        this.onClose = onClose;
         this.targetElement = targetElement;
         
         if (targetElement.classList.contains('file-item')) {
@@ -63,29 +67,83 @@ export class ColorPickerModal extends Modal {
             this.opacity = 1;
         }
         this.paletteColors = [...plugin.settings.userPalette ?? DEFAULT_PORTALS_PALETTE];
+
+        this.keyHandler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') this.close();
+        }
     }
 
-    onOpen() {
-        const { contentEl } = this;
-        this.contentEl.addClass('portals-modal');
-        this.contentEl.addClass('portals-color-modal');
-        contentEl.createEl('h3', { text: 'Pick folder color' });
+    open(): void {
+        if (this.container) {
+            this.close();
+        }
+        // backdrop
+        this.backdrop = activeDocument.body.createDiv('portals-cm-backdrop');
+        this.backdrop.addEventListener('click', () => this.close());
 
-        const inputContainer = contentEl.createDiv({ cls: 'portals-input-container' });
-        const colorInput = inputContainer.createEl('input', { type: 'color', value: this.color }) as HTMLInputElement;
-        const opacityInput = inputContainer.createEl('input', {
+        // container
+        this.container = activeDocument.body.createDiv('portals-cm-modal');
+        this.container.addClass('bulk-color-modal');
+        this.container.addEventListener('click', (e) => e.stopPropagation);
+
+        try {
+            this.buildUI();
+            activeDocument.addEventListener('keydown', this.keyHandler)
+        } catch (e) {
+            console.error('Error building color picker UI', e);
+        }
+    }
+
+    private buildUI(): void {
+        const { container } = this;
+        container.createDiv({ text: 'Pick custom color', cls: 'cm-popup-title' });
+
+        const inputRow = container.createDiv({ cls: 'cm-color-wrapper' });
+        inputRow.createSpan({ text: 'Select color : ', cls: 'cm-input-wrapper-text' });
+        
+        const colorInput = inputRow.createEl('input', { 
+            type: 'color',
+            cls: 'cm-color-input',
+            value: this.color 
+        }) as HTMLInputElement;
+
+        const hexInput = inputRow.createEl('input', {
+            type: 'text',
+            cls: 'cm-color-input',
+            value: this.color
+        }) as HTMLInputElement;
+        hexInput.setAttr('maxlength', '7');
+        hexInput.setAttr('placeholder', '#000000');
+
+        colorInput.addEventListener('input', () => {
+            hexInput.value = colorInput.value;
+        });
+        hexInput.addEventListener('input', () => {
+            const hex = hexInput.value.trim();
+            if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+                colorInput.value = hex;
+                colorInput.dispatchEvent(new Event('input', { bubbles: true}));
+            }
+        })
+
+        const paletteRow = container.createDiv('cm-palette-section'); 
+        paletteRow.createSpan({ text: 'Color palette', cls: 'cm-input-wrapper-text' });
+        this.palettes = paletteRow.createDiv('portals-palette-container');
+
+        const opacityRow = container.createDiv({ cls: 'cm-input-wrapper' });
+        opacityRow.createSpan({ text: 'Set opacity', cls: 'cm-input-wrapper-text' });
+        const opacityInput = opacityRow.createEl('input', {
+            cls: 'cm-opacity-slider',
             type: 'range',
             attr: { min: '0', max: '1', step: '0.05', value: String(this.opacity) }
         }) as HTMLInputElement;
-        opacityInput.classList.add('portals-opacity-input-full');
-
-        const paletteSection = contentEl.createDiv('portals-palette-section');
-        this.paletteContainer = paletteSection.createDiv('portals-palette-container');
         this.renderPalette(colorInput, opacityInput);
 
-        const previewContainer = contentEl.createDiv({ cls: 'portals-preview-container' });
-        const preview = previewContainer.createDiv();
-        preview.style.backgroundColor = `rgba(255, 0, 0, ${this.opacity})`;
+        const previewRow = container.createDiv({ cls: 'cm-input-wrapper' });
+        previewRow.createSpan({ text: 'Preview', cls: 'cm-input-wrapper-text' });
+        const preview = previewRow.createDiv('portals-preview-box');
+        const initialColor = `rgba(${this.hexToRgb(this.color).join(',')},${this.opacity})`;
+        preview.style.backgroundColor = initialColor;
 
         const updatePreview = () => {
             const rgb = this.hexToRgb(colorInput.value);
@@ -120,7 +178,14 @@ export class ColorPickerModal extends Modal {
         colorInput.addEventListener('input', updatePreview);
         opacityInput.addEventListener('input', updatePreview);
 
-        const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
+        const buttonDiv = container.createDiv({ cls: 'modal-button-container' }); // same in fm-modal
+        const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });
+        saveBtn.onclick = () => {
+            const rgb = this.hexToRgb(colorInput.value);
+            const newColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacityInput.value})`;
+            this.onSave(newColor);
+            this.close();
+        };
         const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
         cancelBtn.onclick = () => {
             if (this.targetElement.classList.contains('file-item')) {
@@ -149,13 +214,6 @@ export class ColorPickerModal extends Modal {
             }
             this.close();
         };
-        const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });
-        saveBtn.onclick = () => {
-            const rgb = this.hexToRgb(colorInput.value);
-            const newColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacityInput.value})`;
-            this.onSave(newColor);
-            this.close();
-        };
         updatePreview();
     }
 
@@ -168,10 +226,10 @@ export class ColorPickerModal extends Modal {
     }
 
     private renderPalette(colorInput: HTMLInputElement, opacityInput: HTMLInputElement) {
-        this.paletteContainer.empty();
+        this.palettes.empty();
     
         for (let i = 0; i < this.paletteColors.length; i++) {
-            const swatch = this.paletteContainer.createDiv('portals-palette-swatch');
+            const swatch = this.palettes.createDiv('portals-palette-swatch');
             swatch.style.backgroundColor = this.paletteColors[i]!;
             swatch.addEventListener('click', () => {
                 colorInput.value = this.paletteColors[i]!;
@@ -195,11 +253,6 @@ export class ColorPickerModal extends Modal {
         picker.type = 'color';
         picker.value = current;
         picker.addClass('portals-hidden-picker')
-        picker.setCssProps({
-            position: 'absolute',
-            opacity: '0',
-            pointerevents: 'none'
-        });
         document.body.appendChild(picker);
 
         picker.addEventListener('change', () => {
@@ -223,7 +276,7 @@ export class ColorPickerModal extends Modal {
         await this.plugin.saveSettings();
     }
 
-    onClose() { 
+    close(): void { 
         this.savePalette();
         if (this.targetElement.classList.contains('file-item')) {
             this.targetElement.style.color = this.originalFileTextColor;
@@ -246,6 +299,9 @@ export class ColorPickerModal extends Modal {
             }
             this.targetElement.style.setProperty('--folder-color', this.originalColor);
         }
-        this.contentEl.empty();
+        this.container?.remove();
+        this.backdrop?.remove();
+        activeDocument.removeEventListener('keydown', this.keyHandler);
+        this.onClose?.();
     }
 }

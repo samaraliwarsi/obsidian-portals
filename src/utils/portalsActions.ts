@@ -462,19 +462,23 @@ export class PortalsActions {
     static setCustomColor(app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder, summaryEl: HTMLElement): void {
         const currentColor = plugin.settings.customColors[folder.path];
         view.saveTreeScroll();
-        new ColorPickerModal(app, plugin, (color) => {
+        new ColorPickerModal(app, plugin, summaryEl, (color) => {
             plugin.settings.customColors[folder.path] = color;
             void plugin.saveSettings().then(() => view.render());
-        }, summaryEl, currentColor).open();
+        }, () => {
+            view.render();
+        }, currentColor).open();
     }
 
     static setCustomColorForFile(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, fileEl: HTMLElement): void {
         const currentColor = plugin.settings.customColors[file.path];
         view.saveTreeScroll();
-        new ColorPickerModal(app, plugin, (color) => {
+        new ColorPickerModal(app, plugin, fileEl, (color) => {
             plugin.settings.customColors[file.path] = color;
             void plugin.saveSettings().then(() => view.render());
-        }, fileEl, currentColor).open();
+        }, () => {
+            view.render();
+        }, currentColor).open();
     }
 
     static resetCustomColorForFile(_app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile): void {
@@ -493,10 +497,12 @@ export class PortalsActions {
     static setTagColor(app: App, plugin: PortalsPlugin, view: PortalsView, key: string, targetElement: HTMLElement): void {
         const currentColor = plugin.settings.tagColors[key];
         view.saveTreeScroll();
-        new ColorPickerModal(app, plugin, (color) => {
+        new ColorPickerModal(app, plugin, targetElement, (color) => {
             plugin.settings.tagColors[key] = color;
             void plugin.saveSettings().then(() => view.render());
-        }, targetElement, currentColor).open();
+        }, () => {
+            view.render();
+        }, currentColor).open();
     }
 
     static resetTagColor(_app: App, plugin: PortalsPlugin, view: PortalsView, key: string, _targetElement: HTMLElement): void {

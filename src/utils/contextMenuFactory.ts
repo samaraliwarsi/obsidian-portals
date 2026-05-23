@@ -264,11 +264,13 @@ export class ContextMenuFactory {
                 .setIcon('palette')
                 .onClick(() => {
                     const dummyEl = activeDocument.createElement('div');
-                    new ColorPickerModal(view.app, view.plugin, (color: string) => {
+                    new ColorPickerModal(view.app, view.plugin, dummyEl, (color: string) => {
                         view.saveTreeScroll();
                         space.color = color;
                         void view.plugin.saveSettings().then(() => view.render());
-                    }, dummyEl, space.color).open();
+                    }, () => {
+                        view.render();
+                    }, space.color).open();
                 }));
             if (space.color && space.color !== 'transparent') {
                 menu.addItem(item => item
@@ -358,10 +360,12 @@ export class ContextMenuFactory {
             .setIcon('palette')
             .onClick(() => {
                 const dummyEl = activeDocument.createElement('div');
-                new ColorPickerModal(view.app, view.plugin,(color: string) => {
+                new ColorPickerModal(view.app, view.plugin,  dummyEl, (color: string) => {
                     stack.color = color;
                     void view.plugin.saveSettings().then(() => view.render());
-                }, dummyEl, stack.color).open();
+                }, () => { 
+                    view.render();
+                }, stack.color).open();
             }));
 
         if (stack.color && stack.color !== 'transparent') {
