@@ -5,8 +5,9 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "dev": "node esbuild.config.mjs",
-    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "build:css": "node build-css.js",
+    "dev": "npm run build:css && node esbuild.config.mjs",
+    "build": "npm run build:css && tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
     "version": "node version-bump.mjs && git add manifest.json versions.json",
     "lint": "eslint ."
   },

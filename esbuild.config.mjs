@@ -39,7 +39,7 @@ const context = await esbuild.context({
     plugins: [
         copy({
             assets: [
-                { from: ["src/styles.css"], to: ["styles.css"] }
+                { from: ["src/build-css/styles.css"], to: ["styles.css"] }
             ]
         }),
     ],
