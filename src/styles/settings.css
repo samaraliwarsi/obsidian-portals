@@ -1,47 +1,59 @@
 
-/* ===== Settings page ===== */
+/* ================================ Settings page ================================ */
 
-.portals-setting-hr {
-    margin: 24px auto;
-    border-top: 1px dashed var(--background-modifier-border);
-}
 
-/* Tab bar container */
+/*============ Tab bar container ===================*/
 .portals-settings-tab-bar {
   display: flex;
   border-bottom: 1px solid var(--background-modifier-border);
   margin-bottom: 1.5rem;
-  padding-bottom: 0;
+  padding: 1rem 0;
   overflow-x: auto;
+  gap: 6px;
 }
 
-/* Individual tab buttons */
-.portals-settings-tab-btn {
+/* ============Individual buttons =================*/
+button.portals-settings-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
+  box-sizing: border-box;
+  box-shadow: var(--input-shadow);
+  height: var(--input-height);
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: 1px solid transparent;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-size: var(--font-ui-medium);
+  font-family: inherit;
+  font-weight: var(--input-font-weight);
+  outline: none;
+  user-select: none;
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-.portals-settings-tab-btn:hover {
+button.portals-settings-tab-btn:hover {
   color: var(--text-normal);
   background-color: var(--background-modifier-hover);
 }
 
 /* Active tab button */
-.portals-settings-tab-btn.active {
+button.portals-settings-tab-btn.active {
   color: var(--text-accent);
   border-bottom-color: var(--text-accent);
-  font-weight: 600;
 }
 
 /* Content area (optional) */
 .portals-setting-content {
   padding: auto;
+}
+
+
+.portals-setting-hr {
+    margin: 24px auto;
+    border-top: 1px dashed var(--background-modifier-border);
 }
 
 /* ----- Desktop / base styles ----- */
