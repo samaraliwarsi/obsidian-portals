@@ -4621,6 +4621,80 @@
 }
 
 /* =========== END OF PHOSPHOR ICONS ============ */
+/* ----- Floating tooltip for inactive tabs ----- */
+
+.portals-tooltip {
+  width: fit-content;
+  max-width: 240px;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+  background-color: var(--background-modifier-message);
+  color: #FAFAFA;
+  border-radius: var(--radius-s);
+  padding: 4px 8px;
+  font-size: var(--font-ui-smaller);
+  font-weight: var(--font-medium);
+  line-height: var(--line-height-tight);
+  pointer-events: none;
+  position: fixed;
+  transform: scale(0.8);
+  z-index: var(--layer-tooltip);
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px var(--backround-modifier-box-shadow);
+  display: block;
+}
+
+.portals-tooltip.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.portals-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent var(--background-modifier-message) transparent;
+}
+
+.portals-tooltip-below::before {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent var(--background-modifier-message) transparent;
+}
+
+.portals-tooltip-above::before {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-color: var(--background-modifier-message) transparent transparent transparent;
+}
+
+.portals-tooltip-right::before {
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 6px 6px 0;
+    border-color: transparent var(--background-modifier-message) transparent transparent;
+}
+
+.portals-tooltip-left::before {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 0 6px 6px;
+    border-color: transparent transparent transparent var(--background-modifier-message);
+}
+
+
 /*=============================== BUTTON RESET CLASS===================================*/
 
 button.portals-reset-btn {
@@ -5455,79 +5529,6 @@ vertical-align: middle;
 [tab-icon-position="left"] .portals-tab-name,
 [tab-icon-position="left"] .tab-label {
     order: 2;
-}
-
-/* ----- Floating tooltip for inactive tabs ----- */
-
-.portals-tooltip {
-  width: fit-content;
-  max-width: 240px;
-  white-space: normal;
-  word-break: break-word;
-  text-align: center;
-  background-color: var(--background-modifier-message);
-  color: #FAFAFA;
-  border-radius: var(--radius-s);
-  padding: 4px 8px;
-  font-size: var(--font-ui-smaller);
-  font-weight: var(--font-medium);
-  line-height: var(--line-height-tight);
-  pointer-events: none;
-  position: fixed;
-  transform: scale(0.8);
-  z-index: var(--layer-tooltip);
-  opacity: 0;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  box-shadow: 0 2px 8px var(--backround-modifier-box-shadow);
-  display: block;
-}
-
-.portals-tooltip.is-visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.portals-tooltip::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: transparent transparent var(--background-modifier-message) transparent;
-}
-
-.portals-tooltip-below::before {
-    top: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 0 6px 6px 6px;
-    border-color: transparent transparent var(--background-modifier-message) transparent;
-}
-
-.portals-tooltip-above::before {
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px 6px 0 6px;
-    border-color: var(--background-modifier-message) transparent transparent transparent;
-}
-
-.portals-tooltip-right::before {
-    left: -6px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-width: 6px 6px 6px 0;
-    border-color: transparent var(--background-modifier-message) transparent transparent;
-}
-
-.portals-tooltip-left::before {
-    left: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-    border-width: 6px 0 6px 6px;
-    border-color: transparent transparent transparent var(--background-modifier-message);
 }
 
 /* ----- Alt Select ----- */
@@ -7399,6 +7400,27 @@ button.portals-portal-list-delete {
   aspect-ratio: 1;
 }
 
+.portals-section-summary {
+    cursor: pointer;
+    font-weight: bold;
+    padding: 4px 0;
+}
+
+.portals-portal-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.portals-percent {
+    margin-left: 2px;
+    font-size: 0.9em;
+}
+
+.portals-section-details {
+    margin-bottom: 16px;
+}
+
 /* ----- Mobile overrides (max-width: 768px) ----- */
 @media (max-width: 768px) {
   .portals-portal-controls {
@@ -7421,7 +7443,6 @@ button.portals-portal-list-delete {
     justify-content: center;
   }
 
-
   .setting-item-control .portals-opacity-input input {
     height: var(--input-height-tight);
     border-radius: 8px;
@@ -7441,31 +7462,6 @@ button.portals-portal-list-delete {
     border-bottom: none;
   }
 }
-
-
-/* ===== Settings Section ===== */
-.portals-section-summary {
-    cursor: pointer;
-    font-weight: bold;
-    padding: 4px 0;
-}
-
-.portals-portal-info {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.portals-percent {
-    margin-left: 2px;
-    font-size: 0.9em;
-}
-
-.portals-section-details {
-    margin-bottom: 16px;
-}
-
-
 /*===========================================================================================
    MODAL STYLES
 ===========================================================================================*/

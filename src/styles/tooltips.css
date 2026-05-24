@@ -1,0 +1,73 @@
+/* ----- Floating tooltip for inactive tabs ----- */
+
+.portals-tooltip {
+  width: fit-content;
+  max-width: 240px;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+  background-color: var(--background-modifier-message);
+  color: #FAFAFA;
+  border-radius: var(--radius-s);
+  padding: 4px 8px;
+  font-size: var(--font-ui-smaller);
+  font-weight: var(--font-medium);
+  line-height: var(--line-height-tight);
+  pointer-events: none;
+  position: fixed;
+  transform: scale(0.8);
+  z-index: var(--layer-tooltip);
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px var(--backround-modifier-box-shadow);
+  display: block;
+}
+
+.portals-tooltip.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.portals-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent var(--background-modifier-message) transparent;
+}
+
+.portals-tooltip-below::before {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent var(--background-modifier-message) transparent;
+}
+
+.portals-tooltip-above::before {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-color: var(--background-modifier-message) transparent transparent transparent;
+}
+
+.portals-tooltip-right::before {
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 6px 6px 0;
+    border-color: transparent var(--background-modifier-message) transparent transparent;
+}
+
+.portals-tooltip-left::before {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 0 6px 6px;
+    border-color: transparent transparent transparent var(--background-modifier-message);
+}
+
