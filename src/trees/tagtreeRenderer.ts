@@ -380,7 +380,17 @@ export class TagTreeRenderer {
                     }
                     return true;
                 });
-                const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, groupFilesContextAware, `tag:${tagName}/group:${gTag}`, groupChildren, openFiles);
+                const sectioned = SectionRenderer.renderSections(
+                    this.app, this.plugin, this.view, 
+                    groupFilesContextAware, 
+                    `tag:${tagName}/group:${gTag}`, 
+                    groupChildren, 
+                    openFiles,
+                    (fileEl) => {
+                        fileEl.addEventListener('click', () => {
+                            this.view.activeGroupTag = gTag;
+                        }, true);
+                    });
                 if (!sectioned) {
                     for (const file of groupFilesContextAware) {
                         if (this.plugin.settings.hiddenItems[file.path]) continue;
@@ -778,7 +788,17 @@ export class TagTreeRenderer {
                 }
                 return true;
             });
-            const sectioned = SectionRenderer.renderSections(this.app, this.plugin, this.view, sGroupFilesContextAware, `tag:${tagName}/group:${gTag}`, groupChildren, openFiles);
+            const sectioned = SectionRenderer.renderSections(
+                this.app, this.plugin, this.view, 
+                sGroupFilesContextAware, 
+                `tag:${tagName}/group:${gTag}`, 
+                groupChildren, openFiles,
+                (fileEl) => {
+                    fileEl.addEventListener('click', () => {
+                        this.view.activeGroupTag = gTag;
+                    }, true);
+                }
+            );
             if (!sectioned) {
                 for (const file of sGroupFilesContextAware) {
                     if (this.plugin.settings.hiddenItems[file.path]) continue;

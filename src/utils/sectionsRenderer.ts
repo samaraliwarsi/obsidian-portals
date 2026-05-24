@@ -20,7 +20,8 @@ export class SectionRenderer {
         files: TFile[],
         parentPath: string,
         container: HTMLElement,
-        openFiles: Set<string>
+        openFiles: Set<string>,
+        afterCreate?: (fileEl: HTMLElement) => void
     ): boolean {
         // Respect the global toggle
         if (!plugin.settings.enableSections) return false;
@@ -46,7 +47,7 @@ export class SectionRenderer {
         for (const section of sections) {
             this.renderSection(
                 app, plugin, view, section, sections,
-                parentPath, container, openFiles
+                parentPath, container, openFiles, afterCreate
             );
         }
 
@@ -136,7 +137,8 @@ export class SectionRenderer {
         sections: Section[],
         parentPath: string,
         container: HTMLElement,
-        openFiles: Set<string>
+        openFiles: Set<string>,
+        afterCreate?: (fileEl: HTMLElement) => void
     ) {
         const index = sections.indexOf(section);
 
@@ -179,7 +181,8 @@ export class SectionRenderer {
         // ------ File items ------
         for (const file of section.files) {
             if (plugin.settings.hiddenItems[file.path]) continue;
-            FileItemFactory.createFileItem(app, plugin, view, file, container, openFiles);
+            const fileEl = FileItemFactory.createFileItem(app, plugin, view, file, container, openFiles);
+            afterCreate?.(fileEl);
         }
     }
 
