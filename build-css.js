@@ -10,6 +10,7 @@ const files = [
   'src/styles/phosphorIcons.css',
   'src/styles/utilities.css',
   'src/styles/legacy.css',
+  'src/styles/modals.css',
   // Future modules:
   // 'src/styles/icons.css',
 ];
