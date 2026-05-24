@@ -468,8 +468,8 @@ export class ReorderItemsModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        contentEl.addClass('portals-modal');
         contentEl.addClass('portals-reorder-modal');
+        contentEl.addClass('portals-modal');
         contentEl.createEl('h3', { text: 'Reorder items' });
 
         const list = contentEl.createDiv({ cls: 'portals-sortable-list' });
