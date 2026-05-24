@@ -13,7 +13,7 @@ export class IconPickerModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        contentEl.addClass('icon-picker-modal');
+        contentEl.addClass('portals-icon-picker-modal');
 
         contentEl.createEl('h2', { text: 'Choose an icon' });
 
@@ -82,7 +82,7 @@ export class IconPickerModal extends Modal {
 
         searchInput.addEventListener('input', () => renderIcons(searchInput.value));
 
-        const buttonContainer = contentEl.createDiv({ cls: 'icon-picker-buttons' });
+        const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
         buttonContainer.createEl('button', { text: 'Cancel' })
             .addEventListener('click', () => this.close());
     }

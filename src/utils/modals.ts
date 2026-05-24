@@ -104,8 +104,8 @@ export class RemovePortalModal extends Modal {
     private renderRemovalList() {
         const { contentEl } = this;
         contentEl.empty();
-        this.contentEl.addClass('portals-modal');
         this.contentEl.addClass('remove-portal-modal');
+        this.contentEl.addClass('portals-modal');
         contentEl.createEl('h3', { text: 'Remove portal tab' });
         const spaces = this.plugin.settings.spaces;
         if (spaces.length === 0) {
@@ -134,7 +134,7 @@ export class RemovePortalModal extends Modal {
     }
 }
 
-// ==================== CHOOSE SIDE TABS MODAL ====================
+// ==================== CHOOSE SIDE PORTAL MODAL ====================
     export class ChooseTabsModal extends Modal {
         private selectedTabs: Set<string>;
 
@@ -150,8 +150,8 @@ export class RemovePortalModal extends Modal {
         onOpen() {
             const { contentEl } = this;
             contentEl.empty();
+            this.contentEl.addClass('portals-side-portal-modal');
             this.containerEl.addClass('portals-modal');
-            this.contentEl.addClass('side-portal-modal');
             new Setting(contentEl).setName('Choose side portals').setHeading();
 
             contentEl.createEl('p', {
@@ -198,7 +198,7 @@ export class RemovePortalModal extends Modal {
                 });
             }
 
-            const buttonDiv = contentEl.createDiv({ cls: 'portals-modal-button-container' });
+            const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
 
             const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
             cancelBtn.addEventListener('click', () => this.close());
@@ -256,8 +256,8 @@ export class AddPortalModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        contentEl.addClass('portals-modal');
         contentEl.addClass('portals-add-portal-modal');
+        contentEl.addClass('portals-modal');
         new Setting(contentEl).setName('Add a new portal').setHeading();
 
         const tabBar = contentEl.createDiv({ cls: 'add-portal-tab-bar' });
@@ -297,7 +297,7 @@ export class AddPortalModal extends Modal {
 
         contentEl.createSpan({ text: 'Alt-click to select multiple', cls: 'portals-modal-subtext' });
 
-        const buttonDiv = contentEl.createDiv({ cls: 'portals-modal-button-container' });
+        const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
         buttonDiv.createEl('button', { text: 'Cancel' }).addEventListener('click', () => this.close());
         const addBtn = buttonDiv.createEl('button', { text: 'Add', cls: 'mod-cta' });
         addBtn.addEventListener('click', () => {

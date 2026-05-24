@@ -1,4 +1,4 @@
-/* -------------- BUTTON RESET CLASS ----------- */
+/*=============================== BUTTON RESET CLASS===================================*/
 
 button.portals-reset-btn {
   background: none;
@@ -16,107 +16,23 @@ button.portals-reset-btn {
   box-shadow: none;
 }
 
-/*-------------------------PORTALS MODAL BUTTON STYLES -----------------------------*/
+/*===================================PORTALS MODAL BUTTON STYLES=====================================*/
 
 /*------Buttons container for all modals-----*/
 .portals-fm-modal .modal-button-container,
-.portals-cm-modal .modal-button-container {
+.portals-cm-modal .modal-button-container,
+.portals-add-portal-modal .modal-button-container,
+.portals-group-tags-modal .modal-button-container,
+.portals-side-portal-modal .modal-button-container,
+.portals-icon-picker-modal .modal-button-container {
   margin-top: 1.2em;
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
+  gap: var(--size-4-2);
 }
 
-/*------mod-cta button (save, confirm etc) and it hover/ active/ focus states-----*/
-.portals-modal .modal-button-container button.mod-cta,
-.portals-fm-modal .modal-button-container button.mod-cta,
-.portals-cm-modal .modal-button-container button.mod-cta {
-    background-color: var(--interactive-accent);
-    color: var(--text-on-accent);
-}
-
-.portals-fm-modal .modal-button-container button:not(.clickable-icon),
-.portals-cm-modal .modal-button-container button:not(.clikable-icon) {
-    padding: 4px 8px;
-    border-radius: var(--button-radius);
-    transition: all 0.15s;
-    font-size: normal;
-}
-
-.portals-modal .modal-button-container button.mod-cta:hover,
-.portals-cm-modal .modal-button-container button.mod-cta:hover {
-  background-color: var(--interactive-accent-hover);
-}
-
-.portals-cm-modal .modal-button-container button.mod-cta:focus-visible{
-  box-shadow: 0 0 0 3px var(--background-modifier-border-focus);
-}
-
-@media (hover: hover) {
-  .portals-cm-modal .modal-button-container button.mod-cta:hover{
-    background-color: var(--interactive-accent-hover);
-  }
-}
-
-
-
-
-.portals-fm-modal .modal-button-container button:not(.mod-cta),
-.portals-cm-modal .modal-button-container button:not(.mod-cta)  {
-    background: var(--background-secondary);
-}
-
-.portals-modal .modal-button-container button:not(.mod-cta):hover {
-    filter: brightness(1.1);
-}
-
-.portals-fm-modal .modal-button-container button.mod-warning {
-  background: var(--background-modifier-error);
-  color: var(--text-on-accent);
-}
-
-.portals-fm-modal .modal-button-container button.mod-warning:hover {
-  filter: brightness(1.15);
-}
-
-.portals-fm-modal .modal-button-container button.mod-cta:hover,
-.portals-cm-modal .modal-button-container button.mod-cta:hover  {
-  background: var(--interactive-accent-hover);
-}
-
-
-
-.portals-group-tags-modal .modal-button-container button.mod-cta {
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
-}
-
-.portals-group-tags-modal .modal-button-container button.mod-cta:hover {
-    filter: brightness(0.95);
-}
-
-.portals-group-tags-modal .modal-button-container button:not(.mod-cta) {
-    background: var(--background-secondary);
-}
-
-.portals-group-tags-modal .modal-button-container button:not(.mod-cta):hover {
-    background: var(--background-modifier-hover);
-}
-
-.portals-reorder-modal .modal-button-container button.mod-cta:hover {
- background-color: var(--interactive-accent-hover);
- filter: brightness(1.05);
-}
-
-
-/* Buttons */
-.portals-modal .portals-modal-button-container {
-    margin-top: 12px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
+/*---Button generic profile (will come to this at the end to unify all modals under this button sizing----*/ 
 .portals-modal button:not(.clickable-icon) {
     padding: 6px 12px;
     border-radius: 10px;
@@ -124,48 +40,118 @@ button.portals-reset-btn {
     transition: all 0.15s;
 }
 
-.portals-modal .modal-button-container {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.portals-group-tags-modal button:not(.clickable-icon) {
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-weight: 500;
+.portals-fm-modal .modal-button-container button,
+.portals-cm-modal .modal-button-container button {
+    padding: 4px 8px;
+    border-radius: var(--button-radius);
     transition: all 0.15s;
+    font-size: normal;
 }
 
-.portals-group-tags-modal .modal-button-container {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+/*------mod-cta button (save, confirm etc) and its hover/ active/ focus states-----*/
+.portals-fm-modal .modal-button-container button.mod-cta,
+.portals-cm-modal .modal-button-container button.mod-cta,
+.portals-add-portal-modal .modal-button-container button.mod-cta,
+.portals-group-tags-modal .modal-button-container button.mod-cta,
+.portals-side-portal-modal .modal-button-container button.mod-cta {
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
 }
 
-
-.icon-picker-buttons {
-  margin-top: 12px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+.portals-cm-modal .modal-button-container button.mod-cta:hover,
+.portals-add-portal-modal .modal-button-container button.mod-cta:hover,
+.portals-group-tags-modal .modal-button-container button.mod-cta:hover,
+.portals-side-portal-modal .modal-button-container button.mod-cta:hover,
+.portals-fm-modal .modal-button-container button.mod-cta:hover {
+  background-color: var(--interactive-accent-hover);
+  color: var(--text-on-accent);
 }
 
-
-.icon-picker-modal button:not(.clickable-icon) {
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-weight: 500;
-    transition: all 0.15s;
-    margin-top: 10px;
+.portals-cm-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-add-portal-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-group-tags-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-side-portal-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-fm-modal .modal-button-container button.mod-cta:focus-visible {
+  box-shadow: 0 0 0 3px var(--background-modifier-border-focus);
+  color: var(--text-on-accent);
 }
 
-.portals-modal-button-container {
-    margin-top: 1em;
+@media (hover: hover) {
+  .portals-cm-modal .modal-button-container button.mod-cta:hover,
+  .portals-add-portal-modal .modal-button-container button.mod-cta:hover,
+  .portals-group-tags-modal .modal-button-container button.mod-cta:hover,
+  .portals-side-portal-modal .modal-button-container button.mod-cta:hover,
+  .portals-fm-modal .modal-button-container button.mod-cta:hover {
+    background-color: var(--interactive-accent-hover);
+    color: var(--text-on-accent);
+  }
 }
 
+/*------mod-warning button (delete, remove etc) and its hover/ active/ focus states-----*/
+
+.portals-fm-modal .modal-button-container button.mod-warning,
+.remove-portal-modal button.mod-warning {
+  background-color: var(--background-modifier-error);
+  color: var(--text-on-accent);
+  box-shadow: inset 0 0 0 1px var(--background-modifier-hover);
+}
+
+.portals-fm-modal .modal-button-container button.mod-warning:hover,
+.remove-portal-modal button.mod-warning:hover {
+  background-color: color-mix(in srgb, var(--background-modifier-error) 90%, #fff 10%);
+  color: var(--text-color);
+}
+
+@media (hover: hover) {
+  .portals-fm-modal .modal-button-container button.mod-warning:hover,
+  .remove-portal-modal button.mod-warning:hover {
+    background-color: color-mix(in srgb, var(--background-modifier-error) 90%, #fff 10%);
+    color: var(--text-color);
+  }
+}
+
+/*------ button normal (cancel, exit etc) and its hover/ active/ focus states-----*/
+
+.portals-add-portal-modal .modal-button-container button,
+.portals-group-tags-modal .modal-button-container button,
+.portals-side-portal-modal .modal-button-container button,
+.portals-icon-picker-modal .modal-button-container button,
+.portals-fm-modal .modal-button-container button {
+  color: var(--text-color);
+  background-color: var(--interactive-normal);
+  box-shadow: var(--input-shadow);
+}
+
+.portals-add-portal-modal .modal-button-container button:hover,
+.portals-group-tags-modal .modal-button-container button:hover,
+.portals-side-portal-modal .modal-button-container button:hover,
+.portals-icon-picker-modal .modal-button-container button:hover, 
+.portals-fm-modal .modal-button-container button:hover {
+  color: var(--text-color);
+  background-color: color-mix(in srgb, var(--interactive-normal) 90%, #fff 10%);
+}
+
+.portals-add-portal-modal .modal-button-container button:focus-visible,
+.portals-group-tags-modal .modal-button-container button:focus-visible,
+.portals-side-portal-modal .modal-button-container button:focus-visible,
+.portals-icon-picker-modal .modal-button-container button:focus-visible,
+.portals-fm-modal .modal-button-container button:focus-visible {
+  color: var(--text-color);
+  background-color: color-mix(in srgb, var(--interactive-normal) 90%, #fff 10%);
+}
+
+@media (hover: hover) {
+  .portals-add-portal-modal .modal-button-container button:hover,
+  .portals-group-tags-modal .modal-button-container button:hover,
+  .portals-side-portal-modal .modal-button-container button:hover,
+  .portals-icon-picker-modal .modal-button-container button:hover,
+  .portals-fm-modal .modal-button-container button:hover {
+    color: var(--text-color);
+    background-color: color-mix(in srgb, var(--interactive-normal) 90%, #fff 10%);
+  }  
+}
+
+/*-----------------OTHERS----------------*/
 
 button.mod-loading {
   color: transparent;
