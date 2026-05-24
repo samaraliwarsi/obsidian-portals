@@ -433,11 +433,11 @@ export class SpacesSettingTab extends PluginSettingTab {
             controlEl.empty();
             controlEl.addClass('portals-portal-controls'); 
 
-            // ---- Icon row (icon button only) ----
-            const iconRow = controlEl.createDiv({ cls: 'portals-icon-row' });
+             // ---- Color row (color picker, number input, %, preview) ----
+            const colorRow = controlEl.createDiv({ cls: 'portals-color-row' });
 
             // Icon button
-            const iconBtn = iconRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
+            const iconBtn = colorRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
             iconBtn.empty();
             iconBtn.createEl('i', { cls: `ph ph-${rootSpace.icon}` });
             iconBtn.addEventListener('click', () => {
@@ -449,11 +449,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }).open();
             });
 
-            // ---- Color row (color picker, number input, %, preview) ----
-            const colorRow = controlEl.createDiv({ cls: 'portals-color-row' });
-
             // Compact color picker container
-            const colorContainer = colorRow.createDiv({ cls: 'portals-color-compact' });
+            const colorWrapper = colorRow.createDiv({ cls: 'portals-color-wrapper' });
 
             // Parse initial values
             let initialHex = '#ff0000';
@@ -469,14 +466,18 @@ export class SpacesSettingTab extends PluginSettingTab {
             }
 
             // Color input
-            const colorInput = colorContainer.createEl('input', {
+            const hiddenColorInput = colorWrapper.createEl('input', {
                 type: 'color',
                 value: initialHex,
-                cls: 'portals-color-input'
-            });
+                cls: 'portals-hidden-color-input'
+            }) as HTMLInputElement;
+
+            const customSwatch = colorWrapper.createDiv('portals-color-swatch');
+            customSwatch.style.backgroundColor = initialHex;
 
             // Opacity number input
-            const opacityInput = colorContainer.createEl('input', {
+            const opacityWrapper = colorRow.createDiv('portals-opacity-wrapper');
+            const opacityInput = opacityWrapper.createEl('input', {
                 type: 'number',
                 value: String(initialOpacity * 100),
                 cls: 'portals-opacity-input',
@@ -484,10 +485,10 @@ export class SpacesSettingTab extends PluginSettingTab {
             });
 
             // Percent sign
-            colorContainer.createSpan({ cls: 'portals-percent', text: '%' });
+            opacityWrapper.createSpan({ cls: 'portals-percent', text: '%' });
 
             const updateColor = () => {
-                const hex = colorInput.value;
+                const hex = hiddenColorInput.value;
                 const opacity = parseInt(opacityInput.value) / 100;
                 if (isNaN(opacity)) return;
                 const r = parseInt(hex.slice(1,3), 16);
@@ -498,7 +499,11 @@ export class SpacesSettingTab extends PluginSettingTab {
                 void this.plugin.saveSettings();
             };
 
-            colorInput.addEventListener('input', updateColor);
+            customSwatch.addEventListener('click', () => {
+                hiddenColorInput.click();
+            });
+
+            hiddenColorInput.addEventListener('input', updateColor);
             opacityInput.addEventListener('input', updateColor);
         }
     }
@@ -531,7 +536,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     }).open();
                 }));
 
-        contentEl.createEl('hr', { cls: 'portals-setting-hr' });
+        contentEl.createEl('hr', { cls: 'portals-setting-hr-dashed' });
 
         // ---- CATEGORIZED PORTALS ----
         const getPortalDisplayName = (portal: SpaceConfig): string => {
@@ -618,12 +623,14 @@ export class SpacesSettingTab extends PluginSettingTab {
                 controlDiv.addClass('portals-portal-controls');
 
                 // Row 1: icon name badge + icon button
-                const iconRow = controlDiv.createDiv({ cls: 'portals-icon-row' });
+                //const iconRow = controlDiv.createDiv({ cls: 'portals-icon-row' });
+                // Row 2: color picker (compact) + trash button
+                const colorRow = controlDiv.createDiv({ cls: 'portals-color-row' });
 
-                const iconBadge = iconRow.createSpan({ cls: 'portals-icon-badge' });
-                iconBadge.textContent = portal.icon;
+                //const iconBadge = iconRow.createSpan({ cls: 'portals-icon-badge' });
+                //iconBadge.textContent = portal.icon;
 
-                const iconBtn = iconRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
+                const iconBtn = colorRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
                 iconBtn.empty();
                 iconBtn.createEl('i', { cls: `ph ph-${portal.icon}` });
                 iconBtn.addEventListener('click', () => {
@@ -635,10 +642,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     }).open();
                 });
 
-                // Row 2: color picker (compact) + trash button
-                const colorRow = controlDiv.createDiv({ cls: 'portals-color-row' });
-
-                const colorContainer = colorRow.createDiv({ cls: 'portals-color-compact' });
+                const colorWrapper = colorRow.createDiv({ cls: 'portals-color-wrapper' });
 
                 let initialHex = '#ff0000';
                 let initialOpacity = 1;
@@ -652,22 +656,26 @@ export class SpacesSettingTab extends PluginSettingTab {
                     }
                 }
 
-                const colorInput = colorContainer.createEl('input', {
+                const hiddenColorInput = colorWrapper.createEl('input', {
                     type: 'color',
                     value: initialHex,
-                    cls: 'portals-color-input'
+                    cls: 'portals-hidden-color-input'
                 });
 
-                const opacityInput = colorContainer.createEl('input', {
+                const customSwatch = colorWrapper.createDiv('portals-color-swatch');
+                customSwatch.style.backgroundColor = initialHex;
+
+                const opacityWrapper = colorRow.createDiv('portals-opacity-wrapper');
+                const opacityInput = opacityWrapper.createEl('input', {
                     type: 'number',
                     value: String(initialOpacity * 100),
                     cls: 'portals-opacity-input',
                     attr: { min: '0', max: '100', step: '1' }
                 });
-                colorContainer.createSpan({ cls: 'portals-percent', text: '%' });
+                opacityWrapper.createSpan({ cls: 'portals-percent', text: '%' });
 
                 const updateColor = () => {
-                    const hex = colorInput.value;
+                    const hex = hiddenColorInput.value;
                     const opacity = parseInt(opacityInput.value) / 100;
                     const r = parseInt(hex.slice(1,3), 16);
                     const g = parseInt(hex.slice(3,5), 16);
@@ -676,8 +684,11 @@ export class SpacesSettingTab extends PluginSettingTab {
                     portal.color = rgba;
                     void this.plugin.saveSettings();
                 };
+                customSwatch.addEventListener('click', () => {
+                    hiddenColorInput.click();
+                });
 
-                colorInput.addEventListener('input', updateColor);
+                hiddenColorInput.addEventListener('input', updateColor);
                 opacityInput.addEventListener('input', updateColor);
 
                 // Trash button
