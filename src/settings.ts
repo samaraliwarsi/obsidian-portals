@@ -144,6 +144,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
 export class SpacesSettingTab extends PluginSettingTab {
     plugin: PortalsPlugin;
     private openSections: Set<string> = new Set();
+    private activeTab: string = 'explorer'
 
     constructor(app: App, plugin: PortalsPlugin) {
         super(app, plugin);
@@ -155,10 +156,52 @@ export class SpacesSettingTab extends PluginSettingTab {
         const scrollTop = containerEl.scrollTop;
         containerEl.empty();
 
-        // -------------------- EXPLORER SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Explorer').setHeading();
+        const settingsTabBar = containerEl.createDiv({ cls: 'portals-settings-tab-bar' });
+        const tabs = [
+            { id : 'explorer', label: 'Explorer' },
+            { id: 'portals', label: 'Portal tabs' },
+            { id: 'sideportal', label: 'Side portal' },
+            { id: 'utilities', label: 'Utilities & help' }
+        ];
 
-        new Setting(containerEl)
+        tabs.forEach(tab => {
+            const tabButton = settingsTabBar.createEl('button', {
+                text: tab.label,
+                cls: `portals-settings-tab-btn ${this.activeTab === tab.id ? 'active': ''}`
+            });
+            tabButton.addEventListener('click', () => {
+                this.activeTab = tab.id;
+                this.display();
+            });
+        });
+        
+        const settingsContent = containerEl.createDiv({ cls: 'portals-setting-content' });
+
+        switch (this.activeTab) {
+            case 'explorer':
+                this.renderExplorerSettings(settingsContent);
+                break;
+            case 'portals':
+                this.renderPortalAndStackSettings(settingsContent);
+                break;
+            case 'sideportal':
+                this.renderSidePortalSettings(settingsContent);
+                break;
+            case 'utilities':
+                this.renderUtilities(settingsContent);
+                break;
+        }
+        window.setTimeout(() => {
+            const maxScroll = containerEl.scrollHeight - containerEl.clientHeight;
+            containerEl.scrollTop = Math.min(scrollTop, maxScroll);
+        }, 0);
+    }
+
+        // -------------------- EXPLORER SETTINGS ----------------------------------
+    private renderExplorerSettings(contentEl: HTMLElement): void {
+        new Setting(contentEl).setName('Explorer').setHeading();
+
+        new Setting(contentEl)
             .setName('Replace file explorer in left sidebar')
             .setDesc('Portals replaces the default file explorer on startup. The file explorer remains accessible via commands or Obsidian tabs.')
             .addToggle(toggle => toggle
@@ -169,7 +212,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     new Notice('Changes will take effect after restarting Obsidian.');
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Compact tree view')
         .setDesc('Reduce vertical spacing, summary heights in the folder or tag tree. Does not apply to side portal.')
         .addToggle(toggle => toggle
@@ -180,7 +223,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.display();
             }));
         
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Styles')
         .setDesc('Choose a visual theme for file tree and list items in side portal.')
         .addDropdown(dropdown => dropdown
@@ -197,7 +240,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.display();
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Background color type')
             .setDesc('Choose how to apply active tab colors to the file area.')
             .addDropdown(dropdown => dropdown
@@ -212,7 +255,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
         
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Bold folder names')
             .setDesc('Make folder names and tag group names bold in the file tree.')
             .addToggle(toggle => toggle
@@ -223,7 +266,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Extension badge for non-markdown files')
             .setDesc('Display extension badge on non-markdown files. When turned on, non-markdown files do not show extension after file name.')
             .addToggle(toggle => toggle
@@ -234,7 +277,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Quick‑add icons')
             .setDesc('Choose how to show quick-add icons on folder & tag rows. Hover reveal on desktop, directly on mobile.')
             .addDropdown(dropdown => dropdown
@@ -248,7 +291,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Show file preview')
             .setDesc('Show a snippet of file text under the file name in folder or tag tree')
             .addToggle(toggle => toggle
@@ -259,7 +302,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Show file info bar')
             .setDesc('Show tags (in folder portals) or parent folder (in tag portals) below the file preview.')
             .addToggle(toggle => toggle
@@ -270,7 +313,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Enable sections')
             .setDesc('Show sections within each folder or tag to organise sub items into separated sections')
             .addToggle(toggle => toggle
@@ -280,13 +323,13 @@ export class SpacesSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.display();
                 }));
-
-        containerEl.createEl('hr');
+    }
 
         // -------------------- TAB SETTINGS ----------------------------------
- 
-        new Setting(containerEl).setName('Portal tabs').setHeading();
-        new Setting(containerEl)
+    
+    private renderPortalAndStackSettings(contentEl: HTMLElement): void {
+        new Setting(contentEl).setName('Portal tabs').setHeading();
+        new Setting(contentEl)
         .setName('Compact tabs')
         .setDesc('Reduce padding and font size for portal, side portal tabs and stack headers.')
         .addToggle(toggle => toggle
@@ -297,7 +340,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.display();
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Tab name display')
             .setDesc('Control how tab names are shown. Tooltips appear on hover only when names are hidden.')
             .addDropdown(dropdown => dropdown
@@ -311,7 +354,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Tab icon position')
         .setDesc('Place the icon to the left or right of the tab name or side portal name. Disabled with tab name display is icon only.')
         .addDropdown(dropdown => dropdown
@@ -323,7 +366,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
         }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Tab colors')
             .setDesc('Show tab color on bottom borders of active tabs. Portals style uses the same color when enabled. The color of the pinned vault root is used in side portals.')
             .addToggle(toggle => toggle
@@ -334,7 +377,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
             
-        const pinSetting = new Setting(containerEl)
+        const pinSetting = new Setting(contentEl)
             .setName('Pin vault')
             .setDesc('Show vault root as a pinned tab (always with a left border). Users can customize its icon and color below.');
 
@@ -372,7 +415,7 @@ export class SpacesSettingTab extends PluginSettingTab {
         if (this.plugin.settings.pinVaultRoot) {
             const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
             if (rootSpace) {
-                const rootCustomSetting = new Setting(containerEl)
+                const rootCustomSetting = new Setting(contentEl)
                 .setName('Pinned vault appearance')
                 .setDesc('Customize icon and color for the vault root tab.');
 
@@ -451,7 +494,7 @@ export class SpacesSettingTab extends PluginSettingTab {
     }
 
         // ---- ADD PORTAL BUTTON ----
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Add new portal')
             .setDesc('Add a folder or tag as a portal tab.')
             .addButton(btn => btn
@@ -478,7 +521,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     }).open();
                 }));
 
-        containerEl.createEl('hr', { cls: 'portals-setting-hr' });
+        contentEl.createEl('hr', { cls: 'portals-setting-hr' });
 
         // ---- CATEGORIZED PORTALS ----
         const getPortalDisplayName = (portal: SpaceConfig): string => {
@@ -526,7 +569,7 @@ export class SpacesSettingTab extends PluginSettingTab {
         const renderSection = (title: string, portals: SpaceConfig[]) => {
             if (portals.length === 0) return;
 
-            const details = containerEl.createEl('details', { cls: 'portals-section-details' });
+            const details = contentEl.createEl('details', { cls: 'portals-section-details' });
 
             // restore previous open state
             if (this.openSections.has(title)) {
@@ -645,18 +688,19 @@ export class SpacesSettingTab extends PluginSettingTab {
             }
         };
 
-        new Setting(containerEl).setName('Active tabs').setHeading();
+        new Setting(contentEl).setName('Active tabs').setHeading();
 
         renderSection('Root Folders', rootFolders);
         renderSection('Sub Folders', subFolders);
         renderSection('Tags', tags);
-
-        containerEl.createEl('hr');
+    
+        contentEl.createEl('hr');
 
         // -------------------- PORTAL STACK SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Stacks').setHeading();
+    
+        new Setting(contentEl).setName('Stacks').setHeading();
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Hide stack names')
         .setDesc('Show only the stack icon; the name will appear in a tooltip on hover.')
         .addToggle(toggle => toggle
@@ -667,7 +711,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.display();
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Stack icon position')
         .setDesc('Place the icon to the left or right of the stack name. Disabled with stack name is hidden.')
         .addDropdown(dropdown => dropdown
@@ -679,7 +723,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
         }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Show stack count')
         .setDesc('When to display the number of portals inside a stack.')
         .addDropdown(dropdown => dropdown
@@ -693,7 +737,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.display();
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Colored stack icon')
         .setDesc('Use colors on stack icon, app accent or user defined. When turned off, stack icons use default color like tab icons.')
         .addToggle(toggle => toggle
@@ -704,7 +748,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.display();
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Auto‑collapse stacks')
         .setDesc('When expanding a stack, automatically collapse other open stacks.')
         .addToggle(toggle => toggle
@@ -715,13 +759,14 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.display();
             }));
 
-        containerEl.createEl('hr');
+        // containerEl.createEl('hr'); LINE BREAK SAVED FOR LATER USE
+    }
 
-
+    private renderSidePortalSettings(contentEl: HTMLElement): void {
         // -------------------- SIDE PORTAL SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Side portal').setHeading();
+        new Setting(contentEl).setName('Side portal').setHeading();
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Side portal')
             .setDesc('Show a collapsible panel at the bottom with additional tabs.')
             .addToggle(toggle => toggle
@@ -735,7 +780,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Choose side portals')
             .setDesc('Select which tabs appear in the side portal.')
             .addButton(button => button
@@ -751,7 +796,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     }).open();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Disable side portal on mobile')
             .setDesc('Hide side portal on mobile devices.')
             .addToggle(toggle => toggle
@@ -763,12 +808,12 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.plugin.refreshAllViews();
                 }));
 
-        containerEl.createEl('hr');
+        contentEl.createEl('hr');
 
         // -------------------- CONTEXT NOTES SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Context Notes').setHeading();
+        new Setting(contentEl).setName('Context Notes').setHeading();
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Enable Context notes')
             .setDesc('When disabled, Context notes are treated as normal files and the side portal shows a notice. Menu items, context note listeners and cache are removed.')
             .addToggle(toggle => toggle
@@ -782,7 +827,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display(); // refresh settings UI if needed
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Tag notes folder')
             .setDesc('Tag notes storage folder. After changing folder path, use the "Migrate" button to move the files.')
             .addText(text => text
@@ -822,7 +867,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }))
         
         //-- Context Notes in Side Portal
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Show context notes in file tree')
             .setDesc('When context notes are enabled, controls if they appear in file/ tag tree. If contexts notes are disabled, this setting has no effect.')
             .addToggle(toggle => toggle
@@ -834,7 +879,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
         
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Context note highlight type')
         .setDesc('How to visually indicate folders and tags that have a context note.')
         .addDropdown(dropdown => dropdown
@@ -848,7 +893,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
             }));
         
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Open context note from icon')
         .setDesc('When enabled, clicking the icon of a folder or tag will open its context note in the current tab.')
         .addToggle(toggle => toggle
@@ -861,7 +906,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.plugin.refreshAllViews();
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Show closest context note')
         .setDesc('Side portal shows context note for the active file\'s nearest ancestor folder (folder spaces only). Falls back to portal\'s context note if none found.')
         .addDropdown(dropdown => dropdown
@@ -876,12 +921,12 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.plugin.refreshAllViews();
                 }));
 
-        containerEl.createEl('hr');
+        contentEl.createEl('hr');
 
         // -------------------- JOURNAL SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Journal').setHeading();
+        new Setting(contentEl).setName('Journal').setHeading();
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Journal date format')
         .setDesc('Choose date format used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.')
         .addDropdown(dropdown => dropdown
@@ -896,7 +941,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.plugin.refreshAllViews();
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Journal folder')
             .setDesc('Folder containing daily notes. Type the path or choose from the list. Leave empty to use the folder from the Daily Notes core plugin.')
             .addText(text => {
@@ -917,7 +962,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     }).open();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Quote delimiter')
             .setDesc('Symbols used to mark quotes in your notes. Changes made to selected quotes or symbols will reflect after obsidian reload.')
             .addDropdown(dropdown => {
@@ -936,7 +981,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 return dropdown;
             });
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Show quote indicator on date cards')
         .setDesc('Adds a small icon to journal date cards that contain at least one quote.')
         .addDropdown(dropdown => dropdown
@@ -954,12 +999,12 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }
             }));
 
-        containerEl.createEl('hr');
+        contentEl.createEl('hr');
 
         // -------------------- PROPERTIES SETTINGS ----------------------------------
-        new Setting(containerEl).setName('Properties').setHeading();
+        new Setting(contentEl).setName('Properties').setHeading();
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Show current value')
         .setDesc('Show current property value on list of files filtered by properties')
         .addToggle(toggle => toggle
@@ -970,7 +1015,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.display();
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Hide filtered count')
         .setDesc('Hide the count display of files filtered in properties. The number is based on dropdown choices.')
         .addToggle(toggle => toggle
@@ -980,29 +1025,29 @@ export class SpacesSettingTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
                 this.display();
             }));
-                    
-        containerEl.createEl('hr');
+    }
     
         // --------------------------- BACKUP / RESTORE  -----------------------------
-        new Setting(containerEl).setName('Backup / restore').setHeading();
+    private renderUtilities(contentEl: HTMLElement): void {
+        new Setting(contentEl).setName('Backup / restore').setHeading();
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Export settings')
             .setDesc('Export your current portals configuration as a JSON file.')
             .addButton(button => button.setButtonText('Export').onClick(() => this.exportSettings()));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Import settings')
             .setDesc('Load settings from a JSON file. This will replace your current configuration.')
             .addButton(button => button.setButtonText('Import').onClick(() => this.importSettings()));
 
-        containerEl.createEl('hr');
+        contentEl.createEl('hr');
 
         // --------------------------- MAINTENANCE & HELP -----------------------------
 
-        new Setting(containerEl).setName('Maintenance & help').setHeading();
+        new Setting(contentEl).setName('Maintenance & help').setHeading();
 
-        new Setting(containerEl)
+        new Setting(contentEl)
             .setName('Clean up dead portals')
             .setDesc('Remove portal tabs for folders or tags that no longer exist. This cannot be undone.')
             .addButton(button => button
@@ -1014,7 +1059,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('User guide')
         .setDesc('Open the full documentation, the guide covers everything about the plugin in a simple markdown format.')
         .addButton(button => button
@@ -1023,7 +1068,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 window.open(getGuideUrl(), '_blank');
             }));
 
-        new Setting(containerEl)
+        new Setting(contentEl)
         .setName('Release notes')
         .setDesc('See the release notes, stay upto date on the latest changes made to the plugin.')
         .addButton(button => button
@@ -1031,11 +1076,6 @@ export class SpacesSettingTab extends PluginSettingTab {
             .onClick(() => {
                 window.open(getReleaseNotesUrl(), '_blank');
             }));
-
-        window.setTimeout(() => {
-            const maxScroll = containerEl.scrollHeight - containerEl.clientHeight;
-            containerEl.scrollTop = Math.min(scrollTop, maxScroll);
-        }, 0);
     }
 
     private async exportSettings() {

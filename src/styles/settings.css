@@ -6,6 +6,43 @@
     border-top: 1px dashed var(--background-modifier-border);
 }
 
+/* Tab bar container */
+.portals-settings-tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--background-modifier-border);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0;
+  overflow-x: auto;
+}
+
+/* Individual tab buttons */
+.portals-settings-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: var(--font-ui-medium);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.portals-settings-tab-btn:hover {
+  color: var(--text-normal);
+  background-color: var(--background-modifier-hover);
+}
+
+/* Active tab button */
+.portals-settings-tab-btn.active {
+  color: var(--text-accent);
+  border-bottom-color: var(--text-accent);
+  font-weight: 600;
+}
+
+/* Content area (optional) */
+.portals-setting-content {
+  padding: auto;
+}
 
 /* ----- Desktop / base styles ----- */
 
