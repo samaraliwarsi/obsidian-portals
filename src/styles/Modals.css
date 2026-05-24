@@ -479,6 +479,15 @@ input.cm-opacity-slider {
     margin-bottom: 1em;
 }
 
+.portals-checkbox-label {
+    margin-left: 4px;
+    cursor: pointer;
+}
+
+.portals-checkbox-item {
+    margin-bottom: 8px;
+}
+
 /*================================ FOLDER PICKER MODAL =============================================*/
 
 .portals-folder-pick-modal .modal {
