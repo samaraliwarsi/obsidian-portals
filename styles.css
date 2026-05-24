@@ -7247,10 +7247,10 @@ button.portals-settings-tab-btn {
   justify-content: center;
   background: transparent;
   box-sizing: border-box;
-  box-shadow: var(--input-shadow);
+  box-shadow: none;
   height: var(--input-height);
   border: none;
-  border-bottom: 1px solid transparent;
+  border-radius: var(--input-radius);
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-size: var(--font-ui-medium);
@@ -7270,7 +7270,24 @@ button.portals-settings-tab-btn:hover {
 /* Active tab button */
 button.portals-settings-tab-btn.active {
   color: var(--text-accent);
-  border-bottom-color: var(--text-accent);
+  border-bottom: 1px solid var(--interactive-accent);
+  background-color: var(--background-modifier-active-hover);
+}
+
+@media (max-width: 768px) {
+  .portals-settings-tab-bar {
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    overflow-x: auto;
+    gap: 2px;
+  }
+
+  button.portals-settings-tab-btn {
+    padding: 4px 8px;
+    font-size: var(--font-ui-smaller);
+    height: var(--line-height-tight);
+  }
+  
 }
 
 /* Content area (optional) */

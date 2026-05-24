@@ -161,7 +161,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             { id : 'explorer', label: 'Explorer' },
             { id: 'portals', label: 'Portal tabs' },
             { id: 'sideportal', label: 'Side portal' },
-            { id: 'utilities', label: 'Utilities & help' }
+            { id: 'utilities', label: 'Utilities' }
         ];
 
         tabs.forEach(tab => {
@@ -191,6 +191,16 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.renderUtilities(settingsContent);
                 break;
         }
+
+        const activeSettingTab = settingsTabBar.querySelector<HTMLElement>('.portals-settings-tab-btn.active');
+        if (activeSettingTab) {
+            activeSettingTab.scrollIntoView({
+                behavior: 'instant',
+                block: 'nearest',
+                inline: 'center',
+            });
+        }
+
         window.setTimeout(() => {
             const maxScroll = containerEl.scrollHeight - containerEl.clientHeight;
             containerEl.scrollTop = Math.min(scrollTop, maxScroll);
