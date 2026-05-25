@@ -73,6 +73,8 @@ export interface SpacesSettings {
     sectionOrders: Record<string, string[]>;
     userPalette?: string[]
     previousSelectedSpace: { path: string; type: 'folder' | 'tag' } | null;
+    showQuickTabNumbersOnTabs: boolean;
+    
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -141,6 +143,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     sectionOrders: {},
     userPalette: [...DEFAULT_PORTALS_PALETTE],
     previousSelectedSpace: null,
+    showQuickTabNumbersOnTabs: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -367,16 +370,26 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(contentEl)
-        .setName('Tab icon position')
-        .setDesc('Place the icon to the left or right of the tab name or side portal name. Disabled with tab name display is icon only.')
-        .addDropdown(dropdown => dropdown
-            .addOption('left', 'Left of name')
-            .addOption('right', 'Right of name')
-            .setValue(this.plugin.settings.tabIconPosition)
-            .onChange(async (value) => {
-                this.plugin.settings.tabIconPosition = value as 'left' | 'right';
-                await this.plugin.saveSettings();
-        }));
+            .setName('Tab icon position')
+            .setDesc('Place the icon to the left or right of the tab name or side portal name. Disabled with tab name display is icon only.')
+            .addDropdown(dropdown => dropdown
+                .addOption('left', 'Left of name')
+                .addOption('right', 'Right of name')
+                .setValue(this.plugin.settings.tabIconPosition)
+                .onChange(async (value) => {
+                    this.plugin.settings.tabIconPosition = value as 'left' | 'right';
+                    await this.plugin.saveSettings();
+            }));
+
+        new Setting(contentEl)
+            .setName('Show quick tab badge')
+            .setDesc('Shows a badge to denote assigned tab number for quick switching using command or hotkeys')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showQuickTabNumbersOnTabs)
+                .onChange(async (value) => {
+                    this.plugin.settings.showQuickTabNumbersOnTabs = value;
+                    await this.plugin.saveSettings();
+                }));
 
         new Setting(contentEl)
             .setName('Tab colors')

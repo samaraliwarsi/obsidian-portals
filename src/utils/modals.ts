@@ -1,4 +1,4 @@
-import { App, Modal, TFolder, Notice, Setting } from 'obsidian';
+import { App, Modal, TFolder, Notice, Setting, DropdownComponent } from 'obsidian';
 import PortalsPlugin from '../main';
 import { SpaceConfig } from '../types';
 import Sortable from 'sortablejs';
@@ -553,5 +553,55 @@ export class ConfirmModal extends Modal {
         const modal = new ConfirmModal(app, message);
         modal.open();
         return modal.promise;
+    }
+}
+
+//======================Set Tab Number Modal=============================================
+
+export class SetTabNumberModal extends Modal {
+    constructor(
+        app: App,
+        private plugin: PortalsPlugin,
+        private space: SpaceConfig,
+        private onSave: () => void
+    ) {
+        super(app);
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+        this.contentEl.addClass('portals-modal');
+        contentEl.createEl('h3', { text: 'Set tab number' });
+
+        const dropdown = new DropdownComponent(contentEl);
+        dropdown.addOption('none', 'None');
+        for (let i = 1; i <= 10; i++) {
+            dropdown.addOption(`${i}`, `${i}`);
+        }
+        dropdown.setValue(this.space.quickTabNumber?.toString() || 'none');
+
+        const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
+        buttonDiv.createEl('button', { text: 'Cancel' }).onclick = () => this.close();
+        buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' }).onclick = () => {
+            const val = dropdown.getValue();
+            const newNumber = val === 'none' ? undefined : parseInt(val, 10);
+
+            // Clear the number from any other portal that might have it
+            if (newNumber !== undefined) {
+                for (const s of this.plugin.settings.spaces) {
+                    if (s !== this.space && s.quickTabNumber === newNumber) {
+                        s.quickTabNumber = undefined;
+                    }
+                }
+            }
+
+            this.space.quickTabNumber = newNumber;
+            this.plugin.saveSettings().then(() => this.onSave());
+            this.close();
+        };
+    }
+
+    onClose() {
+        this.contentEl.empty();
     }
 }

@@ -6,6 +6,7 @@ export interface SpaceConfig {
     groupTags?: string[];
     displayName?: string;
     stackId?: string;
+    quickTabNumber?: number; // 1-10 or undefined
 }
 
 export interface PortalStack {

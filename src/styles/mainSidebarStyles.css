@@ -601,6 +601,26 @@ border-bottom: 2px solid var(--tab-pinned-color, var(--interactive-accent));
 opacity: 0.9;
 }
 
+.portals-tab-has-number {
+    position: relative;
+}
+
+.portals-quick-tab-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.6em;
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
 /* Icons inside tabs */
 
 .portals-tab-icon {

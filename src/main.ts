@@ -214,7 +214,40 @@ export default class PortalsPlugin extends Plugin {
                     new Notice('No previous portal to switch to.');
                 }
             }
-        })
+        });
+
+        for (let i = 1; i <= 10; i++) {
+            this.addCommand({
+                id: `open-portal-${i}`,
+                name: `Open portal ${i}`,
+                callback: () => {
+                    const space = this.settings.spaces.find(s => s.quickTabNumber === i);
+                    if (!space) {
+                        new Notice(`No portal assigned to number ${i}.`);
+                        return;
+                    }
+
+                    // If the portal is in a collapsed stack, expand it
+                    if (space.stackId) {
+                        const stack = this.settings.portalStacks.find(s => s.id === space.stackId);
+                        if (stack && stack.collapsed) {
+                            stack.collapsed = false;
+                        }
+                    }
+
+                    // Save previous selection for the switch‑previous command
+                    this.settings.previousSelectedSpace = this.settings.selectedSpace
+                        ? { path: this.settings.selectedSpace.path, type: this.settings.selectedSpace.type }
+                        : null;
+
+                    this.settings.selectedSpace = { path: space.path, type: space.type };
+                    if (space.type === 'folder' && !this.settings.openFolders.includes(space.path)) {
+                        this.settings.openFolders.push(space.path);
+                    }
+                    this.saveSettings();
+                }
+            });
+        }
 
         this.registerView(
             VIEW_TYPE_PORTALS,

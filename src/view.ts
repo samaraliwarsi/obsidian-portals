@@ -541,6 +541,12 @@ export class PortalsView extends ItemView {
             }
         }
 
+        if (this.plugin.settings.showQuickTabNumbersOnTabs && typeof space.quickTabNumber === 'number') {
+            tab.addClass('portals-tab-has-number');
+            const quickTabBadge = tab.createSpan({ cls: 'portals-quick-tab-badge' });
+            quickTabBadge.setText(`${space.quickTabNumber}`);
+        }
+
         if (space.stackId) {
             tab.dataset.stackId = space.stackId;
             tab.addClass('portals-tab-stacked');
@@ -1402,6 +1408,7 @@ export class PortalsView extends ItemView {
             sectionPropertyName: s.sectionPropertyName,
             sectionOrders: JSON.stringify(s.sectionOrders),
             contextNoteIconClick: s.contextNoteIconClick,
+            showQuickTabNumberOnTabs: s.showQuickTabNumbersOnTabs,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
