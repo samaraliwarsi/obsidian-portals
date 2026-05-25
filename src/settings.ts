@@ -72,6 +72,7 @@ export interface SpacesSettings {
     sectionPropertyName: string;
     sectionOrders: Record<string, string[]>;
     userPalette?: string[]
+    previousSelectedSpace: { path: string; type: 'folder' | 'tag' } | null;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -139,6 +140,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     sectionPropertyName: '',
     sectionOrders: {},
     userPalette: [...DEFAULT_PORTALS_PALETTE],
+    previousSelectedSpace: null,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

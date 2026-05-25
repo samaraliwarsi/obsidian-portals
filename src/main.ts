@@ -138,12 +138,82 @@ export default class PortalsPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: 'enable-sections',
-            name: 'Enable sections in explorer',
+            id: 'toggle-sections',
+            name: 'Enable or disable sections in explorer',
             callback: () => {
                 this.settings.enableSections = !this.settings.enableSections
                     this.saveSettings();
             },
+        });
+
+        this.addCommand({
+            id: 'toggle-file-preview',
+            name: 'Enable or disable file previews in explorer',
+            callback: () => {
+                this.settings.showFilePreview = !this.settings.showFilePreview;
+                this.saveSettings();
+            }
+        });
+
+        this.addCommand({
+            id: 'open-root-portal',
+            name: 'Switch root vault portal tab',
+            callback: () => {
+                const rootSpace = this.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+                if (rootSpace) {
+                    this.settings.selectedSpace = { path: rootSpace.path, type: rootSpace.type };
+                    if (rootSpace.type === 'folder' && !this.settings.openFolders.includes(rootSpace.path)) {
+                        this.settings.openFolders.push(rootSpace.path);
+                    }
+                    this.saveSettings();
+                } else {
+                    new Notice ('Vault root portal is not available. Enable "Pinned vault" in settings.');
+                }
+            }
+        });
+
+        this. addCommand({
+            id: 'stack-all-portals',
+            name: 'Stack all unstacked portals',
+            callback: () => {
+                const unstacked = this.settings.spaces.filter(s => !s.stackId);
+                if (unstacked.length === 0) {
+                    new Notice('All portals are already stacked.');
+                    return;
+                }
+                const newStackID = `stack-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+                this.settings.portalStacks.push({
+                    id: newStackID,
+                    name: 'Stack',
+                    collapsed: false, 
+                    order: this.settings.portalStacks.length,
+                    color: 'transparent',
+                });
+                for (const space of unstacked) {
+                    space.stackId = newStackID;
+                }
+                const view = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0]?.view;
+                if (view instanceof PortalsView) {
+                    view.rebuildTabBarOrder();
+                }
+                this.saveSettings();
+            }
+        });
+
+        this.addCommand({
+            id: 'switch-previous-portal',
+            name: 'Switch to previous portal',
+            callback: () => {
+                const prev = this.settings.previousSelectedSpace;
+                if (prev) {
+                    const current = this.settings.selectedSpace;
+                    this.settings.selectedSpace = prev;
+                    this.settings.previousSelectedSpace = current ? { path: current.path, type: current.type }: null;
+                    this.saveSettings();
+                } else {
+                    new Notice('No previous portal to switch to.');
+                }
+            }
         })
 
         this.registerView(

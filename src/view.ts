@@ -612,11 +612,20 @@ export class PortalsView extends ItemView {
                     this.contextNotesRenderer.saveScroll(currentPath)
                 }                    
             }
+
+            this.plugin.settings.previousSelectedSpace = this.plugin.settings.selectedSpace 
+                ? { 
+                    path: this.plugin.settings.selectedSpace.path, 
+                    type: this.plugin.settings.selectedSpace.type 
+                } : null;
+            
             this.plugin.settings.selectedSpace = {
                 path: space.path,
                 type: space.type
             };
 
+            
+                
             if (space.type === 'folder' && !this.plugin.settings.openFolders.includes(space.path)) {
                 this.plugin.settings.openFolders.push(space.path);
             }
