@@ -4722,7 +4722,8 @@ button.portals-reset-btn {
 .portals-group-tags-modal .modal-button-container,
 .portals-side-portal-modal .modal-button-container,
 .portals-icon-picker-modal .modal-button-container,
-.portals-reorder-modal .modal-button-container {
+.portals-reorder-modal .modal-button-container,
+.portals-qtn-modal .modal-button-container {
   margin-top: 1.2em;
   display: flex;
   justify-content: flex-end;
@@ -4739,7 +4740,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal button,
 .portals-reorder-modal button,
 .portals-side-portal-modal button,
-.remove-portal-modal button {
+.remove-portal-modal button,
+.portals-qtn-modal button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4765,7 +4767,8 @@ button.portals-reset-btn {
 .portals-add-portal-modal .modal-button-container button.mod-cta,
 .portals-group-tags-modal .modal-button-container button.mod-cta,
 .portals-side-portal-modal .modal-button-container button.mod-cta,
-.portals-reorder-modal .modal-button-container button.mod-cta {
+.portals-reorder-modal .modal-button-container button.mod-cta,
+.portals-qtn-modal .modal-button-container button.mod-cta {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
 }
@@ -4775,7 +4778,8 @@ button.portals-reset-btn {
 .portals-group-tags-modal .modal-button-container button.mod-cta:hover,
 .portals-side-portal-modal .modal-button-container button.mod-cta:hover,
 .portals-fm-modal .modal-button-container button.mod-cta:hover,
-.portals-reorder-modal .modal-button-container button.mod-cta:hover {
+.portals-reorder-modal .modal-button-container button.mod-cta:hover,
+.portals-qtn-modal .modal-button-container button.mod-cta:hover {
   background-color: var(--interactive-accent-hover);
   color: var(--text-on-accent);
 }
@@ -4785,7 +4789,8 @@ button.portals-reset-btn {
 .portals-group-tags-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-side-portal-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-fm-modal .modal-button-container button.mod-cta:focus-visible,
-.portals-reorder-modal .modal-button-container button.mod-cta:focus-visible {
+.portals-reorder-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-qtn-modal .modal-button-container button.mod-cta:focus-visible {
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);
   color: var(--text-on-accent);
 }
@@ -4796,7 +4801,8 @@ button.portals-reset-btn {
   .portals-group-tags-modal .modal-button-container button.mod-cta:hover,
   .portals-side-portal-modal .modal-button-container button.mod-cta:hover,
   .portals-fm-modal .modal-button-container button.mod-cta:hover,
-  .portals-reorder-modal .modal-button-container button.mod-cta:hover {
+  .portals-reorder-modal .modal-button-container button.mod-cta:hover,
+  .portals-qtn-modal .modal-button-container button.mod-cta:hover {
     background-color: var(--interactive-accent-hover);
     color: var(--text-on-accent);
   }
@@ -4830,7 +4836,8 @@ button.portals-reset-btn {
 .portals-group-tags-modal .modal-button-container button,
 .portals-side-portal-modal .modal-button-container button,
 .portals-icon-picker-modal .modal-button-container button,
-.portals-fm-modal .modal-button-container button {
+.portals-fm-modal .modal-button-container button,
+.portals-qtn-modal .modal-button-container button {
   color: var(--text-color);
   background-color: var(--interactive-normal);
 }
@@ -4839,7 +4846,8 @@ button.portals-reset-btn {
 .portals-group-tags-modal .modal-button-container button:hover,
 .portals-side-portal-modal .modal-button-container button:hover,
 .portals-icon-picker-modal .modal-button-container button:hover, 
-.portals-fm-modal .modal-button-container button:hover {
+.portals-fm-modal .modal-button-container button:hover,
+.portals-qtn-modal .modal-button-container button:hover {
   color: var(--text-color);
   background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
 }
@@ -4848,7 +4856,8 @@ button.portals-reset-btn {
 .portals-group-tags-modal .modal-button-container button:focus-visible,
 .portals-side-portal-modal .modal-button-container button:focus-visible,
 .portals-icon-picker-modal .modal-button-container button:focus-visible,
-.portals-fm-modal .modal-button-container button:focus-visible {
+.portals-fm-modal .modal-button-container button:focus-visible,
+.portals-qtn-modal .modal-button-container button:focus-visible {
   color: var(--text-color);
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);;
 }
@@ -4858,7 +4867,8 @@ button.portals-reset-btn {
   .portals-group-tags-modal .modal-button-container button:hover,
   .portals-side-portal-modal .modal-button-container button:hover,
   .portals-icon-picker-modal .modal-button-container button:hover,
-  .portals-fm-modal .modal-button-container button:hover {
+  .portals-fm-modal .modal-button-container button:hover,
+  .portals-qtn-modal .modal-button-container button:hover {
     color: var(--text-color);
     background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
   }  
@@ -5499,11 +5509,11 @@ opacity: 0.9;
     position: absolute;
     top: 2px;
     right: 2px;
-    font-size: 0.6em;
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
-    width: 12px;
-    height: 12px;
+    font-size: 0.55em;
+    background: var(--background-modifier-border);
+    color: var(--text-muted);
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -7491,14 +7501,17 @@ mod-warning etc. are in src/styles/utilities.css*/
 
 /*================================ COLOR MODAL =============================================*/
 /*BODY LEVEL*/
-.portals-cm-backdrop {
+.portals-cm-backdrop,
+.portals-fm-backdrop,
+.portals-qtn-backdrop {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
     z-index: 45;
 }
 
-.portals-cm-modal {
+.portals-cm-modal,
+.portals-qtn-modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -7516,7 +7529,8 @@ mod-warning etc. are in src/styles/utilities.css*/
     overflow-y: auto;
 }
 
-.portals-cm-modal .cm-popup-title {
+.portals-cm-modal .cm-popup-title,
+.portals-qtn-modal .qtn-popup-title {
     font-size: 1.2em;
     font-weight: bold;
     margin: 16px 0;

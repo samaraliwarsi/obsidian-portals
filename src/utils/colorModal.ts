@@ -84,13 +84,14 @@ export class ColorPickerModal {
         // container
         this.container = activeDocument.body.createDiv('portals-cm-modal');
         this.container.addClass('bulk-color-modal');
-        this.container.addEventListener('click', (e) => e.stopPropagation);
+        this.container.addEventListener('click', (e) => e.stopPropagation());
 
         try {
             this.buildUI();
             activeDocument.addEventListener('keydown', this.keyHandler)
         } catch (e) {
             console.error('Error building color picker UI', e);
+            this.close();
         }
     }
 
@@ -143,7 +144,7 @@ export class ColorPickerModal {
        
         // preview
         const previewRow = container.createDiv({ cls: 'cm-input-wrapper' });
-        previewRow.createSpan({ text: 'Final preview', cls: 'cm-wrapper-header' });
+        previewRow.createSpan({ text: 'review', cls: 'cm-wrapper-header' });
         const preview = previewRow.createDiv('portals-preview-box');
         const initialColor = `rgba(${this.hexToRgb(this.color).join(',')},${this.opacity})`;
         preview.style.backgroundColor = initialColor;

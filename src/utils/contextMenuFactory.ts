@@ -3,7 +3,7 @@ import type { PortalsView } from '../view';
 import type { SpaceConfig, PortalStack } from '../types';
 import { IconPickerModal } from './iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
-import { RenamePortalModal, SetTabNumberModal } from './modals';
+import { RenamePortalModal, SetQuickTabNumberModal } from './modals';
 import { PortalsActions } from './portalsActions';
 import { FrontmatterPopup } from './frontmatterPopup';
 import { ColorPickerModal } from './colorModal';
@@ -234,9 +234,9 @@ export class ContextMenuFactory {
         const menu = new Menu();
 
         menu.addItem(item => item
-            .setTitle('Set tab number…')
+            .setTitle('Set quick tab number…')
             .setIcon('hashtag')
-            .onClick(() => new SetTabNumberModal(view.app, view.plugin, space, () => view.render()).open()));
+            .onClick(() => new SetQuickTabNumberModal(view.app, view.plugin, space, () => view.render()).open()));
 
         menu.addSeparator();
 

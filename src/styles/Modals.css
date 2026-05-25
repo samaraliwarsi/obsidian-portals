@@ -7,14 +7,17 @@ mod-warning etc. are in src/styles/utilities.css*/
 
 /*================================ COLOR MODAL =============================================*/
 /*BODY LEVEL*/
-.portals-cm-backdrop {
+.portals-cm-backdrop,
+.portals-fm-backdrop,
+.portals-qtn-backdrop {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
     z-index: 45;
 }
 
-.portals-cm-modal {
+.portals-cm-modal,
+.portals-qtn-modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -32,7 +35,8 @@ mod-warning etc. are in src/styles/utilities.css*/
     overflow-y: auto;
 }
 
-.portals-cm-modal .cm-popup-title {
+.portals-cm-modal .cm-popup-title,
+.portals-qtn-modal .qtn-popup-title {
     font-size: 1.2em;
     font-weight: bold;
     margin: 16px 0;

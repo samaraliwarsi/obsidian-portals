@@ -556,31 +556,62 @@ export class ConfirmModal extends Modal {
     }
 }
 
-//======================Set Tab Number Modal=============================================
+//======================Quick Tab Number Modal=============================================
 
-export class SetTabNumberModal extends Modal {
-    constructor(
-        app: App,
-        private plugin: PortalsPlugin,
-        private space: SpaceConfig,
-        private onSave: () => void
-    ) {
-        super(app);
+export class SetQuickTabNumberModal {
+    private app: App;
+    private plugin: PortalsPlugin;
+    private space: SpaceConfig;
+    private keyHandler: (e: KeyboardEvent) => void;
+    private backdrop!: HTMLElement;
+    private container!: HTMLElement;
+    
+    constructor(app: App, plugin: PortalsPlugin, space: SpaceConfig, private onSave: () => void, private onClose?: () => void) {
+        this.app = app;
+        this.plugin = plugin;
+        this.space = space;
+        this.onSave = onSave;
+        this.onClose = onClose;
+        
+        this.keyHandler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') this.close();
+        }
     }
 
-    onOpen() {
-        const { contentEl } = this;
-        this.contentEl.addClass('portals-modal');
-        contentEl.createEl('h3', { text: 'Set tab number' });
+    open(): void {
+        if (this.container) {
+            this.close();
+        }
 
-        const dropdown = new DropdownComponent(contentEl);
+        this.backdrop = activeDocument.body.createDiv('portals-qtn-backdrop');
+        this.backdrop.addEventListener('click', () => this.close());
+
+        this.container = activeDocument.body.createDiv('portals-qtn-modal');
+        this.container.addEventListener('click', (e) => e.stopPropagation());
+        this.container.addClass('portals-modal');
+
+        try {
+            this.buildUI();
+            activeDocument.addEventListener('keydown', this.keyHandler)
+        } catch (e) {
+            console.error('Error building color picker UI', e);
+            this.close();
+        }
+    }
+
+    buildUI(): void {
+        const { container } = this; 
+        
+        container.createDiv({ text: 'Set tab number for quick switching', cls: 'qtn-popup-title' });
+
+        const dropdown = new DropdownComponent(container);
         dropdown.addOption('none', 'None');
         for (let i = 1; i <= 10; i++) {
             dropdown.addOption(`${i}`, `${i}`);
         }
         dropdown.setValue(this.space.quickTabNumber?.toString() || 'none');
 
-        const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
+        const buttonDiv = container.createDiv({ cls: 'modal-button-container' });
         buttonDiv.createEl('button', { text: 'Cancel' }).onclick = () => this.close();
         buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' }).onclick = () => {
             const val = dropdown.getValue();
@@ -601,7 +632,10 @@ export class SetTabNumberModal extends Modal {
         };
     }
 
-    onClose() {
-        this.contentEl.empty();
+    close(): void {
+        this.container.remove();
+        this.backdrop.remove();
+        activeDocument.removeEventListener('keydown', this.keyHandler);
+        this.onClose?.();
     }
 }

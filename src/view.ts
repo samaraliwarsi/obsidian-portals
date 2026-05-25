@@ -1359,7 +1359,7 @@ export class PortalsView extends ItemView {
     private getSettingsHash(): string {
         const s = this.plugin.settings;
         return JSON.stringify({
-            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.displayName || ''}|${sp.groupTags?.join(',') || ''}|${sp.stackId || ''}`).join(','),
+            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.displayName || ''}|${sp.groupTags?.join(',') || ''}|${sp.stackId || ''}|${sp.quickTabNumber ?? ''}`).join(','),
             openFolders: s.openFolders.join(','),
             selectedSpace: s.selectedSpace ? `${s.selectedSpace.type}:${s.selectedSpace.path}` : '',
             filePaneColorStyle: s.filePaneColorStyle,
