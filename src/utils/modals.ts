@@ -602,14 +602,22 @@ export class SetQuickTabNumberModal {
     buildUI(): void {
         const { container } = this; 
         
-        container.createDiv({ text: 'Set tab number for quick switching', cls: 'qtn-popup-title' });
+        container.createDiv({ text: 'Quick switch tabs', cls: 'qtn-popup-title' });
 
-        const dropdown = new DropdownComponent(container);
+        const dropdownRow = container.createDiv('qtn-input-wrapper');
+        dropdownRow.createSpan({ 
+            text: 'Assign a number for tab quick switch commands & hotkey access',
+            cls: 'portals-qtn-modal-subtext'
+        });
+
+        const dropdown = new DropdownComponent(dropdownRow);
         dropdown.addOption('none', 'None');
         for (let i = 1; i <= 10; i++) {
             dropdown.addOption(`${i}`, `${i}`);
         }
         dropdown.setValue(this.space.quickTabNumber?.toString() || 'none');
+        dropdown.selectEl.addClass('portals-reset-dropdown');
+        dropdown.selectEl.addClass('portals-qtn-dropdown');
 
         const buttonDiv = container.createDiv({ cls: 'modal-button-container' });
         buttonDiv.createEl('button', { text: 'Cancel' }).onclick = () => this.close();
