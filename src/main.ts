@@ -250,18 +250,16 @@ export default class PortalsPlugin extends Plugin {
             }
         }
 
-
         // Clean up orphaned stacks on load
         const referencedStackIds = new Set(this.settings.spaces.map(s => s.stackId).filter(id => id !== undefined));
         this.settings.portalStacks = this.settings.portalStacks.filter(stack => referencedStackIds.has(stack.id));
-        
 
-
+        // for tag notes migration (user enabled)
         if (!this.settings.previousTagNotesFolderPath) {
             this.settings.previousTagNotesFolderPath = this.settings.tagNotesFolderPath;
         }
         
-        // Migrate old selectedSpace (string) to new object format
+        // Migrate old selectedSpace (string) to new object format (edge case if a very old user opens portals to newer versions)
         if (typeof this.settings.selectedSpace === 'string') {
             const oldPath = this.settings.selectedSpace;
             const matchingSpace = this.settings.spaces.find(s => s.path === oldPath);
@@ -273,15 +271,6 @@ export default class PortalsPlugin extends Plugin {
             } else {
                 this.settings.selectedSpace = null;
             }
-        }
-        
-        // Migrate old spaces (pre-type) to have type 'folder'
-        if (this.settings.spaces) {
-            this.settings.spaces.forEach(space => {
-                if (!space.type) {
-                    space.type = 'folder';
-                }
-            });
         }
     }
 
