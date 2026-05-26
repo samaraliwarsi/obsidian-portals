@@ -3,7 +3,7 @@ import type { PortalsView } from '../view';
 import type { SpaceConfig, PortalStack } from '../types';
 import { IconPickerModal } from './iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
-import { SetQuickTabNumberModal } from './modals';
+import { SetQuickTabNumberModal } from '../modals/quickTabNumberModal';
 import { PortalsActions } from './portalsActions';
 import { FrontmatterPopup } from './frontmatterPopup';
 import { ColorPickerModal } from '../modals/colorModal';
