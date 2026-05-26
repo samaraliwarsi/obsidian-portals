@@ -249,6 +249,32 @@ export default class PortalsPlugin extends Plugin {
             });
         }
 
+        const sideTabCommands: { id: string; name: string; tabId: string }[] = [
+            { id: 'open-side-recent', name: 'Show recent files', tabId: 'recent' },
+            { id: 'open-side-context-notes', name: 'Show context notes', tabId: 'context-notes' },
+            { id: 'open-side-bookmarks', name: 'Show bookmarks', tabId: 'bookmarks' },
+            { id: 'open-side-hidden', name: 'Show hidden items', tabId: 'hidden' },
+            { id: 'open-side-properties', name: 'Show properties', tabId: 'properties' },
+            { id: 'open-side-trash', name: 'Show trash', tabId: 'trash' },
+            { id: 'open-journal', name: 'Show journal', tabId: 'journal' },
+        ];
+        for (const { id, name, tabId } of sideTabCommands ) {
+            this.addCommand({
+                id,
+                name,
+                callback: () => {
+                    this.settings.sidePanelEnabled = true;
+                    this.settings.secondaryPanelCollapsed = false;
+
+                    if (!this.settings.splitViewTabs.includes(tabId)) {
+                        this.settings.splitViewTabs.push(tabId);
+                    }
+                    this.settings.activeSplitTab = tabId;
+                    this.saveSettings();
+                },
+            });
+        }
+
         this.registerView(
             VIEW_TYPE_PORTALS,
             (leaf) => new PortalsView(leaf, this)

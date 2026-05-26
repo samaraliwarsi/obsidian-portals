@@ -4713,26 +4713,6 @@ button.portals-reset-btn {
   box-shadow: none;
 }
 
-/*select.portals-reset-dropdown {
-  background: none;
-  background-repeat: no-repeat, repeat;
-  background-position: var(--dropdown-background-position);
-  background-size: var(--dropdown-background-size);
-  background-blend-mode: hard-light;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  text-align: inherit;
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-  outline: none;
-  --webkit-app-region: no-drag;
-  box-shadow: none;
-}*/
-
 /*===================================PORTALS MODAL BUTTON STYLES=====================================*/
 
 /*------Buttons container for all modals-----*/
