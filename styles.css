@@ -8322,11 +8322,6 @@ input.cm-opacity-slider {
 }
 /*=======================================REORDER MODAL============================================*/
 
-.modal-content.portals-reorder-modal.portals-modal {
-    width: auto, var(--dialog-width);
-    max-width: var(--dialog-max-width);
-}
-
 .portals-reorder-modal .portals-reorder-title {
     font-size: 1.2em;
     font-weight: bold;
