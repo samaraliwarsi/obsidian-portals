@@ -1,0 +1,59 @@
+/*================================ SIDE PORTAL MODAL =============================================*/
+.portals-sp-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+.portals-sp-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto, var(--dialog-width);
+    min-width: 350px;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
+}
+
+.portals-sp-modal .portals-sp-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+
+.portals-sp-modal .portals-sp-modal-subtext {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  text-align: left;
+}
+
+.portals-sp-modal .portals-sp-checkbox-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.portals-sp-checkbox-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    font-size: small;
+}

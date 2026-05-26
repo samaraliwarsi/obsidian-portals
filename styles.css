@@ -4714,16 +4714,12 @@ button.portals-reset-btn {
 }
 
 /*===================================PORTALS MODAL COMMON STYLES=====================================*/
-
-/*--------------backdrop-------------*/
-
-
 /*------Buttons container for all modals-----*/
 .portals-fm-modal .modal-button-container,
 .portals-cm-modal .modal-button-container,
 .portals-adp-modal .modal-button-container,
 .portals-group-tags-modal .modal-button-container,
-.portals-side-portal-modal .modal-button-container,
+.portals-sp-modal .modal-button-container,
 .portals-icon-picker-modal .modal-button-container,
 .portals-reorder-modal .modal-button-container,
 .portals-qtn-modal .modal-button-container,
@@ -4743,7 +4739,7 @@ button.portals-reset-btn {
 .portals-group-tags-modal button,
 .portals-icon-picker-modal button,
 .portals-reorder-modal button,
-.portals-side-portal-modal button,
+.portals-sp-modal button,
 .remove-portal-modal button,
 .portals-qtn-modal button, 
 .portals-rename-modal button,
@@ -4772,7 +4768,7 @@ button.portals-reset-btn {
 .portals-cm-modal .modal-button-container button.mod-cta,
 .portals-adp-modal .modal-button-container button.mod-cta,
 .portals-group-tags-modal .modal-button-container button.mod-cta,
-.portals-side-portal-modal .modal-button-container button.mod-cta,
+.portals-sp-modal .modal-button-container button.mod-cta,
 .portals-reorder-modal .modal-button-container button.mod-cta,
 .portals-qtn-modal .modal-button-container button.mod-cta,
 .portals-rename-modal .modal-button-container button.mod-cta  {
@@ -4783,7 +4779,7 @@ button.portals-reset-btn {
 .portals-cm-modal .modal-button-container button.mod-cta:hover,
 .portals-adp-modal .modal-button-container button.mod-cta:hover,
 .portals-group-tags-modal .modal-button-container button.mod-cta:hover,
-.portals-side-portal-modal .modal-button-container button.mod-cta:hover,
+.portals-sp-modal .modal-button-container button.mod-cta:hover,
 .portals-fm-modal .modal-button-container button.mod-cta:hover,
 .portals-reorder-modal .modal-button-container button.mod-cta:hover,
 .portals-qtn-modal .modal-button-container button.mod-cta:hover,
@@ -4795,7 +4791,7 @@ button.portals-reset-btn {
 .portals-cm-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-adp-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-group-tags-modal .modal-button-container button.mod-cta:focus-visible,
-.portals-side-portal-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-sp-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-fm-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-reorder-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-qtn-modal .modal-button-container button.mod-cta:focus-visible,
@@ -4808,7 +4804,7 @@ button.portals-reset-btn {
   .portals-cm-modal .modal-button-container button.mod-cta:hover,
   .portals-adp-modal .modal-button-container button.mod-cta:hover,
   .portals-group-tags-modal .modal-button-container button.mod-cta:hover,
-  .portals-side-portal-modal .modal-button-container button.mod-cta:hover,
+  .portals-sp-modal .modal-button-container button.mod-cta:hover,
   .portals-fm-modal .modal-button-container button.mod-cta:hover,
   .portals-reorder-modal .modal-button-container button.mod-cta:hover,
   .portals-qtn-modal .modal-button-container button.mod-cta:hover,
@@ -4844,7 +4840,7 @@ button.portals-reset-btn {
 
 .portals-adp-modal .modal-button-container button,
 .portals-group-tags-modal .modal-button-container button,
-.portals-side-portal-modal .modal-button-container button,
+.portals-sp-modal .modal-button-container button,
 .portals-icon-picker-modal .modal-button-container button,
 .portals-fm-modal .modal-button-container button,
 .portals-qtn-modal .modal-button-container button,
@@ -4855,7 +4851,7 @@ button.portals-reset-btn {
 
 .portals-adp-modal .modal-button-container button:hover,
 .portals-group-tags-modal .modal-button-container button:hover,
-.portals-side-portal-modal .modal-button-container button:hover,
+.portals-sp-modal .modal-button-container button:hover,
 .portals-icon-picker-modal .modal-button-container button:hover, 
 .portals-fm-modal .modal-button-container button:hover,
 .portals-qtn-modal .modal-button-container button:hover,
@@ -4866,7 +4862,7 @@ button.portals-reset-btn {
 
 .portals-adp-modal .modal-button-container button:focus-visible,
 .portals-group-tags-modal .modal-button-container button:focus-visible,
-.portals-side-portal-modal .modal-button-container button:focus-visible,
+.portals-sp-modal .modal-button-container button:focus-visible,
 .portals-icon-picker-modal .modal-button-container button:focus-visible,
 .portals-fm-modal .modal-button-container button:focus-visible,
 .portals-qtn-modal .modal-button-container button:focus-visible,
@@ -4878,7 +4874,7 @@ button.portals-reset-btn {
 @media (hover: hover) {
   .portals-adp-modal .modal-button-container button:hover,
   .portals-group-tags-modal .modal-button-container button:hover,
-  .portals-side-portal-modal .modal-button-container button:hover,
+  .portals-sp-modal .modal-button-container button:hover,
   .portals-icon-picker-modal .modal-button-container button:hover,
   .portals-fm-modal .modal-button-container button:hover,
   .portals-qtn-modal .modal-button-container button:hover,
@@ -7596,42 +7592,6 @@ mod-warning etc. are in src/styles/utilities.css*/
   padding-top: 10px;
 }
 
-
-/*================================ SIDE PORTAL MODAL =============================================*/
-.side-portal-modal .modal {
-  min-width: auto;
-}
-
-.side-portal-modal .setting-item-heading {
-    margin-top: 0;
-    margin-bottom: 10px;
-    padding-left: 10px;
-}
-
-.side-portal-modal .setting-item-name {
-    font-size: 1.3em;
-    color: var(--text-faint);
-}
-
-.side-portal-modal p.portals-modal-description {
-  margin: 10px;
-  font-size: smaller;
-  color: var(--text-muted);
-}
-
-.portals-modal-description {
-    margin-bottom: 1em;
-}
-
-.portals-checkbox-label {
-    margin-left: 4px;
-    cursor: pointer;
-}
-
-.portals-checkbox-item {
-    margin-bottom: 8px;
-}
-
 /*================================ FOLDER PICKER MODAL =============================================*/
 
 .portals-folder-pick-modal .modal {
@@ -8261,6 +8221,66 @@ mod-warning etc. are in src/styles/utilities.css*/
   margin-left: 10px;
   margin-right: 10px;
 }
+/*================================ SIDE PORTAL MODAL =============================================*/
+.portals-sp-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+.portals-sp-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto, var(--dialog-width);
+    min-width: 350px;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
+}
+
+.portals-sp-modal .portals-sp-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+
+.portals-sp-modal .portals-sp-modal-subtext {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  text-align: left;
+}
+
+.portals-sp-modal .portals-sp-checkbox-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.portals-sp-checkbox-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    font-size: small;
+}
+
 /*================================ RENAME MODAL =============================================*/
 
 .portals-rename-backdrop {

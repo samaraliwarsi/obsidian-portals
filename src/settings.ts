@@ -3,7 +3,7 @@ import PortalsPlugin from './main';
 import { IconPickerModal } from './utils/iconPicker';
 import { SelectFolderModal } from './utils/modals';
 import { SpaceConfig, PortalStack } from './types';
-import { ChooseTabsModal } from './utils/modals';
+import { SidePortalModal } from './modals/sidePortalModal'; 
 import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { AddPortalModal } from './modals/addPortalModal';
@@ -823,7 +823,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             .addButton(button => button
                 .setButtonText('Configure')
                 .onClick(() => {
-                    new ChooseTabsModal(this.app, this.plugin, (tabs) => {
+                    new SidePortalModal(this.app, this.plugin, (tabs) => {
                         this.plugin.settings.splitViewTabs = tabs;
                         if (!tabs.includes(this.plugin.settings.activeSplitTab)) { 
                             this.plugin.settings.activeSplitTab = tabs[0] || 'recent';

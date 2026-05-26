@@ -3,7 +3,6 @@ import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './types';
 import { JournalRenderer } from './renderers/journalView';
-import { ChooseTabsModal,  } from './utils/modals';
 import { AddPortalModal } from './modals/addPortalModal';
 import { PortalStack } from './types';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
@@ -23,6 +22,7 @@ import { InternalPluginsWithBookmarks } from './types';
 import { FileItemFactory } from './utils/fileItemFactory';
 import { RenamePortalModal } from './modals/renamePortalModal';
 import { RemovePortalModal } from './modals/removePortalModal';
+import { SidePortalModal } from './modals/sidePortalModal';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -840,7 +840,7 @@ export class PortalsView extends ItemView {
     
 
     public showSidePortalConfig() {
-        new ChooseTabsModal(this.app, this.plugin, (tabs) => {
+        new SidePortalModal(this.app, this.plugin, (tabs) => {
             if (!tabs.includes('context-notes') && this.contextNotesRenderer) {
                 this.contextNotesRenderer.destroy();
                 this.contextNotesRenderer = null;

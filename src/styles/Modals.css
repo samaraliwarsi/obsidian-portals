@@ -88,42 +88,6 @@ mod-warning etc. are in src/styles/utilities.css*/
   padding-top: 10px;
 }
 
-
-/*================================ SIDE PORTAL MODAL =============================================*/
-.side-portal-modal .modal {
-  min-width: auto;
-}
-
-.side-portal-modal .setting-item-heading {
-    margin-top: 0;
-    margin-bottom: 10px;
-    padding-left: 10px;
-}
-
-.side-portal-modal .setting-item-name {
-    font-size: 1.3em;
-    color: var(--text-faint);
-}
-
-.side-portal-modal p.portals-modal-description {
-  margin: 10px;
-  font-size: smaller;
-  color: var(--text-muted);
-}
-
-.portals-modal-description {
-    margin-bottom: 1em;
-}
-
-.portals-checkbox-label {
-    margin-left: 4px;
-    cursor: pointer;
-}
-
-.portals-checkbox-item {
-    margin-bottom: 8px;
-}
-
 /*================================ FOLDER PICKER MODAL =============================================*/
 
 .portals-folder-pick-modal .modal {

@@ -15,6 +15,7 @@ const files = [
   'src/styles/modals.css',
   'src/styles/modal_styles/addPortalModal.css',
   'src/styles/modal_styles/removePortalModal.css',
+  'src/styles/modal_styles/sidePortalModal.css',
   'src/styles/modal_styles/renamePortalModal.css',
   'src/styles/modal_styles/colorModal.css',
   'src/styles/modal_styles/quickTabNumberModal.css',
