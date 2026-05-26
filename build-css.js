@@ -14,6 +14,7 @@ const files = [
   'src/styles/settings.css',
   'src/styles/modals.css',
   'src/styles/modal_styles/renamePortalModal.css',
+  'src/styles/modal_styles/colorModal.css',
   // Future modules:
   // 'src/styles/icons.css',
 ];

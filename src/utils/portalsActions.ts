@@ -3,7 +3,7 @@ import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { IconPickerModal } from './iconPicker';
 import { ConfirmModal, SelectFolderModal } from './modals';
-import { ColorPickerModal } from './colorModal';
+import { ColorPickerModal } from '../modals/colorModal';
 
 // ====================================================================
 // All vault‑operation helpers, customisation helpers, and rename helpers

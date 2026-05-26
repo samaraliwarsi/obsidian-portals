@@ -5,7 +5,7 @@ import { SelectFolderModal } from './utils/modals';
 import { SpaceConfig, PortalStack } from './types';
 import { ChooseTabsModal, AddPortalModal } from './utils/modals';
 import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';
-import { DEFAULT_PORTALS_PALETTE } from './utils/colorModal';
+import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];

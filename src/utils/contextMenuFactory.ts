@@ -6,7 +6,7 @@ import { getContextNote, createContextNote, isContextNote } from '../renderers/c
 import { SetQuickTabNumberModal } from './modals';
 import { PortalsActions } from './portalsActions';
 import { FrontmatterPopup } from './frontmatterPopup';
-import { ColorPickerModal } from './colorModal';
+import { ColorPickerModal } from '../modals/colorModal';
 import { RenamePortalModal } from '../modals/renamePortalModal';
 
 interface MenuItemWithSubmenu extends MenuItem {
