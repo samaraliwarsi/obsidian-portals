@@ -1,0 +1,151 @@
+/*================================ ADD PORTAL MODAL =============================================*/
+
+.portals-adp-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+.portals-adp-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto, var(--dialog-width);
+    min-width: 350px;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
+}
+
+.portals-adp-modal .portals-adp-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+.portals-adp-modal .portals-adp-tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+}
+
+.portals-adp-modal .portals-adp-tab {
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: var(--background-secondary);
+    color: var(--text-muted);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.portals-adp-modal .portals-adp-tab:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+.portals-adp-modal .portals-adp-tab.is-active {
+    background: var(--background-modifier-active-hover);
+    color: var(--text-accent);
+    border-bottom: 1px solid var(--interactive-accent);
+}
+
+.portals-adp-modal .portals-adp-search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-modifier-form-field);
+    margin-bottom: 16px;
+    font-size: 1em;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.portals-adp-modal .portals-adp-backdrop {
+    background: var(--background-modifier-form-field-hover);
+}
+
+.portals-adp-modal .portals-adp-search-input:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 3px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+.portals-adp-modal .portals-adp-results-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.portals-adp-modal .add-portal-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: small;
+}
+
+.portals-adp-modal .add-portal-item:last-child {
+    border-bottom: none;
+}
+
+.portals-adp-modal .add-portal-item:hover {
+    background: var(--background-modifier-hover);
+}
+
+.portals-adp-modal .add-portal-item.is-selected {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.portals-adp-modal .portals-already-used {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.portals-adp-modal .portals-check-icon {
+    color: var(--text-success);
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-accent);
+}
+
+.portals-adp-modal .portals-already-used {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: var(--background-modifier-hover);
+}
+
+.portals-check-icon {
+    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-accent);
+}
+
+.portals-check-icon i {
+    font-size: 1.2em;
+}
+
+.portals-adp-modal-subtext {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  text-align: left;
+}
+

@@ -13,6 +13,7 @@ const files = [
   'src/styles/mainSideBarStyles.css',
   'src/styles/settings.css',
   'src/styles/modals.css',
+  'src/styles/modal_styles/addPortalModal.css',
   'src/styles/modal_styles/renamePortalModal.css',
   'src/styles/modal_styles/colorModal.css',
   'src/styles/modal_styles/quickTabNumberModal.css',

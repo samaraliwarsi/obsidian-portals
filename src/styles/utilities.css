@@ -16,12 +16,15 @@ button.portals-reset-btn {
   box-shadow: none;
 }
 
-/*===================================PORTALS MODAL BUTTON STYLES=====================================*/
+/*===================================PORTALS MODAL COMMON STYLES=====================================*/
+
+/*--------------backdrop-------------*/
+
 
 /*------Buttons container for all modals-----*/
 .portals-fm-modal .modal-button-container,
 .portals-cm-modal .modal-button-container,
-.portals-add-portal-modal .modal-button-container,
+.portals-adp-modal .modal-button-container,
 .portals-group-tags-modal .modal-button-container,
 .portals-side-portal-modal .modal-button-container,
 .portals-icon-picker-modal .modal-button-container,
@@ -37,7 +40,7 @@ button.portals-reset-btn {
 
 /*---Button generic profile (will come to this at the end to unify all modals under this button sizing----*/ 
 .portals-modal button,
-.portals-add-portal-modal button,
+.portals-adp-modal button,
 .portals-cm-modal button,
 .portals-fm-modal button,
 .portals-group-tags-modal button,
@@ -52,7 +55,7 @@ button.portals-reset-btn {
   justify-content: center;
   color: var(--text-color);
   font-size: var(--font-ui-small);
-  border-radius: var(--button-radius);
+  border-radius: 10px;
   corner-shape: var(--button-corner-shape);
   border: 0;
   padding: 2px 12px;
@@ -69,7 +72,7 @@ button.portals-reset-btn {
 /*------mod-cta button (save, confirm etc) and its hover/ active/ focus states-----*/
 .portals-fm-modal .modal-button-container button.mod-cta,
 .portals-cm-modal .modal-button-container button.mod-cta,
-.portals-add-portal-modal .modal-button-container button.mod-cta,
+.portals-adp-modal .modal-button-container button.mod-cta,
 .portals-group-tags-modal .modal-button-container button.mod-cta,
 .portals-side-portal-modal .modal-button-container button.mod-cta,
 .portals-reorder-modal .modal-button-container button.mod-cta,
@@ -80,7 +83,7 @@ button.portals-reset-btn {
 }
 
 .portals-cm-modal .modal-button-container button.mod-cta:hover,
-.portals-add-portal-modal .modal-button-container button.mod-cta:hover,
+.portals-adp-modal .modal-button-container button.mod-cta:hover,
 .portals-group-tags-modal .modal-button-container button.mod-cta:hover,
 .portals-side-portal-modal .modal-button-container button.mod-cta:hover,
 .portals-fm-modal .modal-button-container button.mod-cta:hover,
@@ -92,7 +95,7 @@ button.portals-reset-btn {
 }
 
 .portals-cm-modal .modal-button-container button.mod-cta:focus-visible,
-.portals-add-portal-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-adp-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-group-tags-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-side-portal-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-fm-modal .modal-button-container button.mod-cta:focus-visible,
@@ -105,7 +108,7 @@ button.portals-reset-btn {
 
 @media (hover: hover) {
   .portals-cm-modal .modal-button-container button.mod-cta:hover,
-  .portals-add-portal-modal .modal-button-container button.mod-cta:hover,
+  .portals-adp-modal .modal-button-container button.mod-cta:hover,
   .portals-group-tags-modal .modal-button-container button.mod-cta:hover,
   .portals-side-portal-modal .modal-button-container button.mod-cta:hover,
   .portals-fm-modal .modal-button-container button.mod-cta:hover,
@@ -141,7 +144,7 @@ button.portals-reset-btn {
 
 /*------ button normal (cancel, exit etc) and its hover/ active/ focus states-----*/
 
-.portals-add-portal-modal .modal-button-container button,
+.portals-adp-modal .modal-button-container button,
 .portals-group-tags-modal .modal-button-container button,
 .portals-side-portal-modal .modal-button-container button,
 .portals-icon-picker-modal .modal-button-container button,
@@ -152,7 +155,7 @@ button.portals-reset-btn {
   background-color: var(--interactive-normal);
 }
 
-.portals-add-portal-modal .modal-button-container button:hover,
+.portals-adp-modal .modal-button-container button:hover,
 .portals-group-tags-modal .modal-button-container button:hover,
 .portals-side-portal-modal .modal-button-container button:hover,
 .portals-icon-picker-modal .modal-button-container button:hover, 
@@ -163,7 +166,7 @@ button.portals-reset-btn {
   background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
 }
 
-.portals-add-portal-modal .modal-button-container button:focus-visible,
+.portals-adp-modal .modal-button-container button:focus-visible,
 .portals-group-tags-modal .modal-button-container button:focus-visible,
 .portals-side-portal-modal .modal-button-container button:focus-visible,
 .portals-icon-picker-modal .modal-button-container button:focus-visible,
@@ -175,7 +178,7 @@ button.portals-reset-btn {
 }
 
 @media (hover: hover) {
-  .portals-add-portal-modal .modal-button-container button:hover,
+  .portals-adp-modal .modal-button-container button:hover,
   .portals-group-tags-modal .modal-button-container button:hover,
   .portals-side-portal-modal .modal-button-container button:hover,
   .portals-icon-picker-modal .modal-button-container button:hover,

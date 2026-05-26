@@ -34,11 +34,8 @@
     font-weight: bold;
     margin: 16px 0;
     color: var(--text-faint);
-}
-
-.portals-cm-modal .cm-popup-title {
-  border-bottom: 1px dashed var(--background-modifier-hover);
-  padding-bottom: 8px;
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
 }
 
 /*GENERIC ON ALL LEVELS*/

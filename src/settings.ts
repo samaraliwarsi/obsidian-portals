@@ -3,9 +3,10 @@ import PortalsPlugin from './main';
 import { IconPickerModal } from './utils/iconPicker';
 import { SelectFolderModal } from './utils/modals';
 import { SpaceConfig, PortalStack } from './types';
-import { ChooseTabsModal, AddPortalModal } from './utils/modals';
+import { ChooseTabsModal } from './utils/modals';
 import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
+import { AddPortalModal } from './modals/addPortalModal';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
