@@ -13,6 +13,7 @@ const files = [
   'src/styles/mainSideBarStyles.css',
   'src/styles/settings.css',
   'src/styles/modals.css',
+  'src/styles/modal_styles/renamePortalModal.css',
   // Future modules:
   // 'src/styles/icons.css',
 ];

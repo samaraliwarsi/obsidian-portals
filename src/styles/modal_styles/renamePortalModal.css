@@ -1,0 +1,126 @@
+/*================================ RENAME MODAL =============================================*/
+
+.portals-rename-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+
+.portals-rename-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto, var(--dialog-width);
+    min-width: 320px;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
+}
+
+.portals-rename-modal .rename-popup-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+}
+
+.portals-rename-modal .rename-input-wrapper {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 16px;
+}
+
+
+input.portals-rename-input {
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary);
+  border-radius: var(--input-radius);
+  width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 2px 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  font-weight: var(--input-font-weight);
+  height: var(--input-height);
+  line-height: var(--input-height-tight);
+  cursor: pointer;
+  height: var(--input-height);
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.portals-rename-input:hover {
+  background-color: color-mix(in srgb, var(--background-primary) 80%, var(--background-modifier-form-field) 20%);
+  filter: brightness(1.05);
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.portals-rename-input:focus-visible {
+  background-color: color-mix(in srgb, var(--background-primary) 80%, var(--background-modifier-form-field) 20%);
+  outline: none;
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.portals-rename-input.mobile-tap {
+  background-color: color-mix(in srgb, var(--background-primary) 80%, var(--background-modifier-form-field) 20%);
+  outline: none;
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+@media (hover: hover) {
+  .portals-rename-input:hover {
+    background-color: color-mix(in srgb, var(--background-primary) 80%, var(--background-modifier-form-field) 20%);
+    filter: brightness(1.05);
+    box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.portals-rename-modal .modal {
+  min-width: auto;
+}
+
+.portals-rename-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.portals-rename-modal .portals-rename-container {
+  width: 100%;
+}
+
+.portals-rename-modal .portals-rename-input {
+  width: 100%;
+}
+
+.portals-rename-input {
+    flex: 1;
+    min-width: 0;
+    padding: 2px 4px;
+    font: inherit;
+    color: inherit;
+    background: var(--background-primary);
+    border: 1px solid var(--interactive-accent);
+    border-radius: 4px;
+    box-shadow: none;
+    outline: none;
+    margin: 0;
+    box-sizing: border-box;
+}

@@ -3,10 +3,11 @@ import type { PortalsView } from '../view';
 import type { SpaceConfig, PortalStack } from '../types';
 import { IconPickerModal } from './iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
-import { RenamePortalModal, SetQuickTabNumberModal } from './modals';
+import { SetQuickTabNumberModal } from './modals';
 import { PortalsActions } from './portalsActions';
 import { FrontmatterPopup } from './frontmatterPopup';
 import { ColorPickerModal } from './colorModal';
+import { RenamePortalModal } from '../modals/renamePortalModal';
 
 interface MenuItemWithSubmenu extends MenuItem {
     setSubmenu(): Menu;

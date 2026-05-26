@@ -541,45 +541,6 @@ input.cm-opacity-slider {
   background: var(--background-modifier-hover);
 }
 
-/*================================ RENAME MODAL =============================================*/
-
-.portals-rename-modal .modal {
-  min-width: auto;
-}
-
-.portals-rename-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.portals-rename-modal .portals-rename-container {
-  width: 100%;
-}
-
-.portals-rename-modal .portals-rename-input {
-  width: 100%;
-}
-
-.portals-rename-input {
-    flex: 1;
-    min-width: 0;
-    padding: 2px 4px;
-    font: inherit;
-    color: inherit;
-    background: var(--background-primary);
-    border: 1px solid var(--interactive-accent);
-    border-radius: 4px;
-    box-shadow: none;
-    outline: none;
-    margin: 0;
-    box-sizing: border-box;
-}
-
-
 /*================================ ICON PICKER MODAL =============================================*/
 
 .portals-icon-picker-modal {

@@ -4,51 +4,6 @@ import { SpaceConfig } from '../types';
 import Sortable from 'sortablejs';
 import { PortalsView } from '../view';
 
-//================================= RENAME PORTAL MODAL=======================================
-
-export class RenamePortalModal extends Modal {
-    constructor(
-        app: App,
-        private currentName: string,
-        private onSave: (newName: string) => void
-    ) {
-        super(app);
-    }
-
-    onOpen() {
-        const { contentEl } = this;
-        this.containerEl.addClass('portals-modal');
-        this.contentEl.addClass('portals-rename-modal');
-        contentEl.createEl('h3', { text: 'Rename portal' });
-
-        const renameInput = contentEl.createDiv({ cls: 'portals-rename-container' });
-        const input = renameInput.createEl('input', {
-            type: 'text',
-            value: this.currentName,
-            cls: 'portals-rename-input',
-            placeholder: 'Leave empty to use default name'
-        });
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.onSave(input.value);
-                this.close();
-            }
-        });
-        const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
-        buttonDiv.createEl('button', { text: 'Cancel' }).onclick = () => this.close();
-        buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' }).onclick = () => {
-            this.onSave(input.value);
-            this.close();
-        };
-        input.focus();
-        input.select();
-    }
-
-    onClose() {
-        this.contentEl.empty();
-    }
-}
-
 //================================= SELECT FOLDER MODAL=======================================
 export class SelectFolderModal extends Modal {
     private folders: TFolder[];
@@ -135,90 +90,90 @@ export class RemovePortalModal extends Modal {
 }
 
 // ==================== CHOOSE SIDE PORTAL MODAL ====================
-    export class ChooseTabsModal extends Modal {
-        private selectedTabs: Set<string>;
+export class ChooseTabsModal extends Modal {
+    private selectedTabs: Set<string>;
 
-        constructor(
-            app: App,
-            private plugin: PortalsPlugin,
-            private onSave: (tabs: string[]) => void
-        ) {
-            super(app);
-            this.selectedTabs = new Set(plugin.settings.splitViewTabs);
-        }
-
-        onOpen() {
-            const { contentEl } = this;
-            contentEl.empty();
-            this.contentEl.addClass('portals-side-portal-modal');
-            this.containerEl.addClass('portals-modal');
-            new Setting(contentEl).setName('Choose side portals').setHeading();
-
-            contentEl.createEl('p', {
-                text: 'At least one must be selected to enable side portal.',
-                cls: 'portals-modal-description'
-            });
-
-            // Available tabs with display names and icons
-            const availableTabs = [
-                { id: 'recent', name: 'Recent Files', icon: 'clock-counter-clockwise' },
-                { id: 'context-notes', name: 'Context Notes', icon: 'note' },
-                { id: 'bookmarks', name: 'Bookmarks', icon: 'bookmark' },
-                { id: 'journal', name: 'Journal', icon: 'calendar-heart'},
-                { id: 'hidden', name: 'Hidden', icon: 'eye-slash'},
-                { id: 'properties', name: 'Properties', icon: 'list-checks'},
-                { id: 'trash', name: 'Trash', icon: 'trash'}
-            ];
-
-            const checkboxContainer = contentEl.createDiv({ cls: 'portals-checkbox-container' });
-
-            for (const tab of availableTabs) {
-                const checkboxDiv = checkboxContainer.createDiv({ cls: 'portals-checkbox-item' });
-
-                const checkbox = checkboxDiv.createEl('input', {
-                    type: 'checkbox',
-                    value: tab.id,
-                    attr: { id: `tab-${tab.id}` }
-                });
-                checkbox.checked = this.selectedTabs.has(tab.id);
-
-                checkboxDiv.createEl('label', {
-                    text: ` ${tab.name}`,
-                    cls: 'portals-checkbox-label',
-                    attr: { for: `tab-${tab.id}` }
-                });
-
-                checkbox.addEventListener('change', (e) => {
-                    const target = e.target as HTMLInputElement;
-                    if (target.checked) {
-                        this.selectedTabs.add(tab.id);
-                    } else {
-                        this.selectedTabs.delete(tab.id);
-                    }
-                });
-            }
-
-            const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
-
-            const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
-            cancelBtn.addEventListener('click', () => this.close());
-
-            const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });
-            saveBtn.addEventListener('click', () => {
-                const selected = Array.from(this.selectedTabs);
-                if (selected.length === 0) {
-                    new Notice('Please select at least one tab.');
-                    return;
-                }
-                this.onSave(selected);
-                this.close();
-            });
-        }
-
-        onClose() {
-            this.contentEl.empty();
-        }
+    constructor(
+        app: App,
+        private plugin: PortalsPlugin,
+        private onSave: (tabs: string[]) => void
+    ) {
+        super(app);
+        this.selectedTabs = new Set(plugin.settings.splitViewTabs);
     }
+
+    onOpen() {
+        const { contentEl } = this;
+        contentEl.empty();
+        this.contentEl.addClass('portals-side-portal-modal');
+        this.containerEl.addClass('portals-modal');
+        new Setting(contentEl).setName('Choose side portals').setHeading();
+
+        contentEl.createEl('p', {
+            text: 'At least one must be selected to enable side portal.',
+            cls: 'portals-modal-description'
+        });
+
+        // Available tabs with display names and icons
+        const availableTabs = [
+            { id: 'recent', name: 'Recent Files', icon: 'clock-counter-clockwise' },
+            { id: 'context-notes', name: 'Context Notes', icon: 'note' },
+            { id: 'bookmarks', name: 'Bookmarks', icon: 'bookmark' },
+            { id: 'journal', name: 'Journal', icon: 'calendar-heart'},
+            { id: 'hidden', name: 'Hidden', icon: 'eye-slash'},
+            { id: 'properties', name: 'Properties', icon: 'list-checks'},
+            { id: 'trash', name: 'Trash', icon: 'trash'}
+        ];
+
+        const checkboxContainer = contentEl.createDiv({ cls: 'portals-checkbox-container' });
+
+        for (const tab of availableTabs) {
+            const checkboxDiv = checkboxContainer.createDiv({ cls: 'portals-checkbox-item' });
+
+            const checkbox = checkboxDiv.createEl('input', {
+                type: 'checkbox',
+                value: tab.id,
+                attr: { id: `tab-${tab.id}` }
+            });
+            checkbox.checked = this.selectedTabs.has(tab.id);
+
+            checkboxDiv.createEl('label', {
+                text: ` ${tab.name}`,
+                cls: 'portals-checkbox-label',
+                attr: { for: `tab-${tab.id}` }
+            });
+
+            checkbox.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                if (target.checked) {
+                    this.selectedTabs.add(tab.id);
+                } else {
+                    this.selectedTabs.delete(tab.id);
+                }
+            });
+        }
+
+        const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
+
+        const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
+        cancelBtn.addEventListener('click', () => this.close());
+
+        const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });
+        saveBtn.addEventListener('click', () => {
+            const selected = Array.from(this.selectedTabs);
+            if (selected.length === 0) {
+                new Notice('Please select at least one tab.');
+                return;
+            }
+            this.onSave(selected);
+            this.close();
+        });
+    }
+
+    onClose() {
+        this.contentEl.empty();
+    }
+}
 
     // ==================== ADD PORTAL MODAL ====================
 export class AddPortalModal extends Modal {
