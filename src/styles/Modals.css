@@ -68,35 +68,6 @@ mod-warning etc. are in src/styles/utilities.css*/
   font-style: italic;
 }
 
-/*================================ REMOVE PORTAL MODAL =============================================*/
-.remove-portal-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-}
-.remove-portal-name {
-    flex-grow: 1;
-}
-
-.remove-portal-modal .modal {
-  min-width: auto;
-}
-
-.remove-portal-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.remove-portal-modal .remove-portal-row {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
 /*================================ GROUP TAG MODAL =============================================*/
 .portals-group-tags-modal .modal {
   min-width: auto;

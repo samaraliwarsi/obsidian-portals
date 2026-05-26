@@ -3,7 +3,7 @@ import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './types';
 import { JournalRenderer } from './renderers/journalView';
-import { RemovePortalModal, ChooseTabsModal,  } from './utils/modals';
+import { ChooseTabsModal,  } from './utils/modals';
 import { AddPortalModal } from './modals/addPortalModal';
 import { PortalStack } from './types';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
@@ -22,6 +22,7 @@ import { FrontmatterPopup } from './utils/frontmatterPopup';
 import { InternalPluginsWithBookmarks } from './types';
 import { FileItemFactory } from './utils/fileItemFactory';
 import { RenamePortalModal } from './modals/renamePortalModal';
+import { RemovePortalModal } from './modals/removePortalModal';
 
 const MIN_EXPANDED_HEIGHT = 150;
 const SIDE_TAB_ICONS: Record<string, string> = {

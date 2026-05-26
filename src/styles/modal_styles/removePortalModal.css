@@ -1,0 +1,63 @@
+/*================================ REMOVE PORTAL MODAL =============================================*/
+
+.portals-remP-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+.portals-remP-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto, var(--dialog-width);
+    min-width: 350px;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
+}
+
+.portals-remP-modal .portals-remP-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+.remove-portal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+}
+.remove-portal-name {
+    flex-grow: 1;
+}
+
+.remove-portal-modal .modal {
+  min-width: auto;
+}
+
+.remove-portal-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.remove-portal-modal .remove-portal-row {
+  margin-left: 10px;
+  margin-right: 10px;
+}

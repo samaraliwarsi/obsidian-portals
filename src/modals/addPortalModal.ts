@@ -74,7 +74,7 @@ export class AddPortalModal {
         const { container } = this;
         this.container.empty();
 
-        container.createDiv({ text: 'Add a new portal', cls: 'portals-adp-title'});
+        this.container.createDiv({ text: 'Add a new portal', cls: 'portals-adp-title'});
 
         const tabBar = container.createDiv({ cls: 'portals-adp-tab-bar' });
 

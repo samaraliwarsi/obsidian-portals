@@ -49,7 +49,8 @@ button.portals-reset-btn {
 .portals-side-portal-modal button,
 .remove-portal-modal button,
 .portals-qtn-modal button, 
-.portals-rename-modal button {
+.portals-rename-modal button,
+.portals-remP-modal button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -123,20 +124,20 @@ button.portals-reset-btn {
 /*------mod-warning button (delete, remove etc) and its hover/ active/ focus states-----*/
 
 .portals-fm-modal .modal-button-container button.mod-warning,
-.remove-portal-modal button.mod-warning {
+.portals-remP-modal button.mod-warning {
   background-color: var(--background-modifier-error);
   color: var(--text-on-accent);
 }
 
 .portals-fm-modal .modal-button-container button.mod-warning:hover,
-.remove-portal-modal button.mod-warning:hover {
+.portals-remP-modal button.mod-warning:hover {
   background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
   color: var(--text-color);
 }
 
 @media (hover: hover) {
   .portals-fm-modal .modal-button-container button.mod-warning:hover,
-  .remove-portal-modal button.mod-warning:hover {
+  .portals-remP-modal button.mod-warning:hover {
     background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
     color: var(--text-color);
   }

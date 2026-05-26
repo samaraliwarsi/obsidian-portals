@@ -41,54 +41,6 @@ export class SelectFolderModal extends Modal {
     onClose() { this.contentEl.empty(); }
 }
 
-// -----------------------------REMOVE PORTAL MODAL -----------------------------------
-export class RemovePortalModal extends Modal {
-    private plugin: PortalsPlugin;
-    private onRemove: (space: SpaceConfig) => void;
-
-    constructor(app: App, plugin: PortalsPlugin, onRemove: (space: SpaceConfig) => void) {
-        super(app);
-        this.plugin = plugin;
-        this.onRemove = onRemove;
-    }
-
-    onOpen() {
-        this.renderRemovalList();
-    }
-
-    private renderRemovalList() {
-        const { contentEl } = this;
-        contentEl.empty();
-        this.contentEl.addClass('remove-portal-modal');
-        this.contentEl.addClass('portals-modal');
-        contentEl.createEl('h3', { text: 'Remove portal tab' });
-        const spaces = this.plugin.settings.spaces;
-        if (spaces.length === 0) {
-            contentEl.createEl('p', { text: 'No portals to remove.' });
-            return;
-        }
-        for (const space of spaces) {
-            let displayName: string;
-            if (space.type === 'folder') {
-                if (space.path === '/') displayName = this.app.vault.getName();
-                else displayName = space.path;
-            } else {
-                displayName = '#' + space.path;
-            }
-            const row = contentEl.createDiv({ cls: 'remove-portal-row' });
-            row.createSpan({ text: displayName, cls: 'remove-portal-name' });
-            const removeBtn = row.createEl('button', { text: 'Remove', cls: 'mod-warning' });
-            removeBtn.addEventListener('click', () => {
-                this.onRemove(space);
-                this.renderRemovalList();
-            });
-        }
-    }
-    onClose() {
-        this.contentEl.empty();
-    }
-}
-
 // ==================== CHOOSE SIDE PORTAL MODAL ====================
 export class ChooseTabsModal extends Modal {
     private selectedTabs: Set<string>;

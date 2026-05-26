@@ -4746,7 +4746,8 @@ button.portals-reset-btn {
 .portals-side-portal-modal button,
 .remove-portal-modal button,
 .portals-qtn-modal button, 
-.portals-rename-modal button {
+.portals-rename-modal button,
+.portals-remP-modal button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4820,20 +4821,20 @@ button.portals-reset-btn {
 /*------mod-warning button (delete, remove etc) and its hover/ active/ focus states-----*/
 
 .portals-fm-modal .modal-button-container button.mod-warning,
-.remove-portal-modal button.mod-warning {
+.portals-remP-modal button.mod-warning {
   background-color: var(--background-modifier-error);
   color: var(--text-on-accent);
 }
 
 .portals-fm-modal .modal-button-container button.mod-warning:hover,
-.remove-portal-modal button.mod-warning:hover {
+.portals-remP-modal button.mod-warning:hover {
   background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
   color: var(--text-color);
 }
 
 @media (hover: hover) {
   .portals-fm-modal .modal-button-container button.mod-warning:hover,
-  .remove-portal-modal button.mod-warning:hover {
+  .portals-remP-modal button.mod-warning:hover {
     background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
     color: var(--text-color);
   }
@@ -7575,35 +7576,6 @@ mod-warning etc. are in src/styles/utilities.css*/
   font-style: italic;
 }
 
-/*================================ REMOVE PORTAL MODAL =============================================*/
-.remove-portal-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-}
-.remove-portal-name {
-    flex-grow: 1;
-}
-
-.remove-portal-modal .modal {
-  min-width: auto;
-}
-
-.remove-portal-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.remove-portal-modal .remove-portal-row {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
 /*================================ GROUP TAG MODAL =============================================*/
 .portals-group-tags-modal .modal {
   min-width: auto;
@@ -8226,6 +8198,69 @@ mod-warning etc. are in src/styles/utilities.css*/
 }
 
 
+/*================================ REMOVE PORTAL MODAL =============================================*/
+
+.portals-remP-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+.portals-remP-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto, var(--dialog-width);
+    min-width: 350px;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
+}
+
+.portals-remP-modal .portals-remP-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+.remove-portal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+}
+.remove-portal-name {
+    flex-grow: 1;
+}
+
+.remove-portal-modal .modal {
+  min-width: auto;
+}
+
+.remove-portal-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.remove-portal-modal .remove-portal-row {
+  margin-left: 10px;
+  margin-right: 10px;
+}
 /*================================ RENAME MODAL =============================================*/
 
 .portals-rename-backdrop {
