@@ -19,6 +19,7 @@ const files = [
   'src/styles/modal_styles/renamePortalModal.css',
   'src/styles/modal_styles/colorModal.css',
   'src/styles/modal_styles/quickTabNumberModal.css',
+  'src/styles/modal_styles/selectFolderModal.css',
   // Future modules:
   // 'src/styles/icons.css',
 ];

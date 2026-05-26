@@ -7592,55 +7592,6 @@ mod-warning etc. are in src/styles/utilities.css*/
   padding-top: 10px;
 }
 
-/*================================ FOLDER PICKER MODAL =============================================*/
-
-.portals-folder-pick-modal .modal {
-  min-width: auto;
-}
-
-.portals-folder-pick-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.portals-folder-pick-modal .portals-search-input {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--background-modifier-border);
-    background: var(--background-primary);
-    margin-bottom: 16px;
-    font-size: 1em;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.portals-folder-pick-modal .portals-results-container {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 10px;
-    background: var(--background-secondary);
-}
-
-.portals-folder-pick-modal .add-portal-item {
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--background-modifier-border);
-    cursor: pointer;
-    transition: background 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: small;
-}
-
-.portals-folder-pick-modal .add-portal-item:hover {
-  background: var(--background-modifier-hover);
-}
-
 /*================================ ICON PICKER MODAL =============================================*/
 
 .portals-icon-picker-modal {
@@ -8704,4 +8655,54 @@ input.cm-opacity-slider {
     filter: brightness(1.05);
     box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
   }
+}
+
+
+/*================================ FOLDER PICKER MODAL =============================================*/
+
+.portals-folder-pick-modal .modal {
+  min-width: auto;
+}
+
+.portals-folder-pick-modal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.portals-folder-pick-modal .portals-search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    margin-bottom: 16px;
+    font-size: 1em;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.portals-folder-pick-modal .portals-results-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.portals-folder-pick-modal .add-portal-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: small;
+}
+
+.portals-folder-pick-modal .add-portal-item:hover {
+  background: var(--background-modifier-hover);
 }

@@ -1,12 +1,12 @@
 import { App, PluginSettingTab, Setting, TFolder, Notice, Platform } from 'obsidian';
 import PortalsPlugin from './main';
 import { IconPickerModal } from './utils/iconPicker';
-import { SelectFolderModal } from './utils/modals';
 import { SpaceConfig, PortalStack } from './types';
 import { SidePortalModal } from './modals/sidePortalModal'; 
 import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { AddPortalModal } from './modals/addPortalModal';
+import { SelectFolderModal } from './modals/selectFolderModal';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
