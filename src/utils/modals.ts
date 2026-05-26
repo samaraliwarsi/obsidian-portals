@@ -478,35 +478,3 @@ export class ReorderItemsModal extends Modal {
             this.contentEl.empty();
         }
     }
-
-//======== CONFIRM MODAL =======================
-
-export class ConfirmModal extends Modal {
-    private resolve!: (value: boolean) => void;
-    promise: Promise<boolean>;
-    private message: string;
-
-    constructor(app: App, message: string) {
-        super(app);
-        this.message = message;
-        this.promise = new Promise<boolean>((res) => { this.resolve = res; });
-    }
-
-    onOpen() {
-        this.contentEl.addClass('portals-modal');
-        this.contentEl.createEl('p', { text: this.message, cls: 'portals-confirm-message' });
-        const btnDiv = this.contentEl.createDiv({ cls: 'modal-button-container' });
-        btnDiv.createEl('button', { text: 'Cancel' }).onclick = () => { this.resolve(false); this.close(); };
-        btnDiv.createEl('button', { text: 'OK', cls: 'mod-warning' }).onclick = () => { this.resolve(true); this.close(); };
-    }
-
-    onClose() {
-        this.contentEl.empty();
-    }
-
-    static async confirm(app: App, message: string): Promise<boolean> {
-        const modal = new ConfirmModal(app, message);
-        modal.open();
-        return modal.promise;
-    }
-}

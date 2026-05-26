@@ -1,6 +1,6 @@
 import { App, normalizePath, Notice, Platform } from 'obsidian';
 import { PortalsView } from '../view';
-import { ConfirmModal } from '../utils/modals';
+import { ConfirmModal } from '../modals/confirmModal';
 import PortalsPlugin from '../main';
 
 interface TrashItem {
