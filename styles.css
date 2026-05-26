@@ -7501,6 +7501,10 @@ mod-warning etc. are in src/styles/utilities.css*/
 
 /*================================ COLOR MODAL =============================================*/
 /*BODY LEVEL*/
+.cm-palette-picker-active {
+  pointer-events: auto;
+}
+
 .portals-cm-backdrop {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
