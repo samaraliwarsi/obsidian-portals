@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting, TFolder, Notice, Platform } from 'obsidian';
 import PortalsPlugin from './main';
-import { IconPickerModal } from './utils/iconPicker';
+import { IconPickerModal } from './modals/iconPicker';
 import { SpaceConfig, PortalStack } from './types';
 import { SidePortalModal } from './modals/sidePortalModal'; 
 import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';

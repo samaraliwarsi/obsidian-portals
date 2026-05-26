@@ -4718,7 +4718,7 @@ button.portals-reset-btn {
 .portals-fm-modal .modal-button-container,
 .portals-cm-modal .modal-button-container,
 .portals-adp-modal .modal-button-container,
-.portals-group-tags-modal .modal-button-container,
+.portals-gt-modal .modal-button-container,
 .portals-sp-modal .modal-button-container,
 .portals-icon-picker-modal .modal-button-container,
 .portals-reorder-modal .modal-button-container,
@@ -4736,7 +4736,7 @@ button.portals-reset-btn {
 .portals-adp-modal button,
 .portals-cm-modal button,
 .portals-fm-modal button,
-.portals-group-tags-modal button,
+.portals-gt-modal button,
 .portals-icon-picker-modal button,
 .portals-reorder-modal button,
 .portals-sp-modal button,
@@ -4767,7 +4767,7 @@ button.portals-reset-btn {
 .portals-fm-modal .modal-button-container button.mod-cta,
 .portals-cm-modal .modal-button-container button.mod-cta,
 .portals-adp-modal .modal-button-container button.mod-cta,
-.portals-group-tags-modal .modal-button-container button.mod-cta,
+.portals-gt-modal .modal-button-container button.mod-cta,
 .portals-sp-modal .modal-button-container button.mod-cta,
 .portals-reorder-modal .modal-button-container button.mod-cta,
 .portals-qtn-modal .modal-button-container button.mod-cta,
@@ -4778,7 +4778,7 @@ button.portals-reset-btn {
 
 .portals-cm-modal .modal-button-container button.mod-cta:hover,
 .portals-adp-modal .modal-button-container button.mod-cta:hover,
-.portals-group-tags-modal .modal-button-container button.mod-cta:hover,
+.portals-gt-modal .modal-button-container button.mod-cta:hover,
 .portals-sp-modal .modal-button-container button.mod-cta:hover,
 .portals-fm-modal .modal-button-container button.mod-cta:hover,
 .portals-reorder-modal .modal-button-container button.mod-cta:hover,
@@ -4790,7 +4790,7 @@ button.portals-reset-btn {
 
 .portals-cm-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-adp-modal .modal-button-container button.mod-cta:focus-visible,
-.portals-group-tags-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-gt-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-sp-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-fm-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-reorder-modal .modal-button-container button.mod-cta:focus-visible,
@@ -4803,7 +4803,7 @@ button.portals-reset-btn {
 @media (hover: hover) {
   .portals-cm-modal .modal-button-container button.mod-cta:hover,
   .portals-adp-modal .modal-button-container button.mod-cta:hover,
-  .portals-group-tags-modal .modal-button-container button.mod-cta:hover,
+  .portals-gt-modal .modal-button-container button.mod-cta:hover,
   .portals-sp-modal .modal-button-container button.mod-cta:hover,
   .portals-fm-modal .modal-button-container button.mod-cta:hover,
   .portals-reorder-modal .modal-button-container button.mod-cta:hover,
@@ -4839,7 +4839,7 @@ button.portals-reset-btn {
 /*------ button normal (cancel, exit etc) and its hover/ active/ focus states-----*/
 
 .portals-adp-modal .modal-button-container button,
-.portals-group-tags-modal .modal-button-container button,
+.portals-gt-modal .modal-button-container button,
 .portals-sp-modal .modal-button-container button,
 .portals-icon-picker-modal .modal-button-container button,
 .portals-fm-modal .modal-button-container button,
@@ -4850,7 +4850,7 @@ button.portals-reset-btn {
 }
 
 .portals-adp-modal .modal-button-container button:hover,
-.portals-group-tags-modal .modal-button-container button:hover,
+.portals-gt-modal .modal-button-container button:hover,
 .portals-sp-modal .modal-button-container button:hover,
 .portals-icon-picker-modal .modal-button-container button:hover, 
 .portals-fm-modal .modal-button-container button:hover,
@@ -4861,7 +4861,7 @@ button.portals-reset-btn {
 }
 
 .portals-adp-modal .modal-button-container button:focus-visible,
-.portals-group-tags-modal .modal-button-container button:focus-visible,
+.portals-gt-modal .modal-button-container button:focus-visible,
 .portals-sp-modal .modal-button-container button:focus-visible,
 .portals-icon-picker-modal .modal-button-container button:focus-visible,
 .portals-fm-modal .modal-button-container button:focus-visible,
@@ -4873,7 +4873,7 @@ button.portals-reset-btn {
 
 @media (hover: hover) {
   .portals-adp-modal .modal-button-container button:hover,
-  .portals-group-tags-modal .modal-button-container button:hover,
+  .portals-gt-modal .modal-button-container button:hover,
   .portals-sp-modal .modal-button-container button:hover,
   .portals-icon-picker-modal .modal-button-container button:hover,
   .portals-fm-modal .modal-button-container button:hover,
@@ -7572,25 +7572,6 @@ mod-warning etc. are in src/styles/utilities.css*/
   font-style: italic;
 }
 
-/*================================ GROUP TAG MODAL =============================================*/
-.portals-group-tags-modal .modal {
-  min-width: auto;
-}
-
-.portals-group-tags-modal h2 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.portals-modal .portals-checkbox-container {
-  margin: 10px;
-  border-top: 1px solid var(--background-modifier-border);
-  padding-top: 10px;
-}
 
 /*================================ ICON PICKER MODAL =============================================*/
 
@@ -7887,75 +7868,6 @@ mod-warning etc. are in src/styles/utilities.css*/
     opacity: 1;
 }
 
-/*=======================================REORDER MODAL============================================*/
-
-.portals-reorder-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.portals-reorder-modal .portals-sortable-list {
-    max-height: 50vh;
-    overflow-y: auto;
-    margin: 1em 0;
-    border-radius: 6px;
-    background: var(--background-secondary);
-}
-
-.portals-reorder-modal .portals-sortable-item {
-    display: flex;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5em 1em;
-    border-bottom: 1px solid var(--background-modifier-border);
-    cursor: grab;
-    transition: background 0.15s;
-    font-size: small;
-    pointer-events: auto;
-    user-select: auto;
-}
-
-.portals-reorder-modal .portals-sortable-item:hover {
-    background: var(--background-modifier-hover);
-}
-
-.portals-reorder-modal .portals-sortable-item:active {
-    cursor: grabbing;
-}
-
-.portals-reorder-handle {
-    opacity: 0.5;
-    margin-right: 0.75em;
-    display: flex;
-    align-items: center;
-    font-size: 1.1em;
-}
-
-.portals-reordering-source-active {
-    box-shadow: 0 -2px 0 0 var(--interactive-accent);
-    border-radius: 6px;
-}
-
-.portals-reordering-details-open-active {
-    box-shadow: 
-      1px 0 0 0 var(--text-faint),
-      -1px 0 0 0 var(--text-faint),
-      0 1px 0 0 var(--text-faint);
-    border-radius: 4px;
-}
-
-.portals-reordering-details-closed-active {
-    background-color: var(--background-modifier-hover);
-    border-radius: 4px;
-    filter: brightness(1.1);
-}
 
 /*================================ ADD PORTAL MODAL =============================================*/
 
@@ -8705,4 +8617,105 @@ input.cm-opacity-slider {
 
 .portals-folder-pick-modal .add-portal-item:hover {
   background: var(--background-modifier-hover);
+}
+/*================================ GROUP TAG MODAL =============================================*/
+
+.portals-gt-modal .portals-gt-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+.portals-gt-modal .modal {
+  min-width: auto;
+}
+
+.portals-gt-modal .portals-gt-checkbox-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-secondary);
+}
+
+.portals-gt-modal .portals-gt-checkbox-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    font-size: small;
+}
+/*=======================================REORDER MODAL============================================*/
+
+.portals-reorder-modal .portals-reorder-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+.portals-reorder-modal .portals-sortable-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    margin: 1em 0;
+    border-radius: 6px;
+    background: var(--background-secondary);
+}
+
+.portals-reorder-modal .portals-sortable-item {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 1em;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: grab;
+    transition: background 0.15s;
+    font-size: small;
+    pointer-events: auto;
+    user-select: auto;
+}
+
+.portals-reorder-modal .portals-sortable-item:hover {
+    background: var(--background-modifier-hover);
+}
+
+.portals-reorder-modal .portals-sortable-item:active {
+    cursor: grabbing;
+}
+
+.portals-reorder-handle {
+    opacity: 0.5;
+    margin-right: 0.75em;
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+}
+
+.portals-reordering-source-active {
+    box-shadow: 0 -2px 0 0 var(--interactive-accent);
+    border-radius: 6px;
+}
+
+.portals-reordering-details-open-active {
+    box-shadow: 
+      1px 0 0 0 var(--text-faint),
+      -1px 0 0 0 var(--text-faint),
+      0 1px 0 0 var(--text-faint);
+    border-radius: 4px;
+}
+
+.portals-reordering-details-closed-active {
+    background-color: var(--background-modifier-hover);
+    border-radius: 4px;
+    filter: brightness(1.1);
 }

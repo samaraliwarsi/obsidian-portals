@@ -3,7 +3,7 @@ import PortalsPlugin from '../main';
 import { SearchPopover } from '../utils/searchPopover';
 import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
-import { FrontmatterPopup } from '../utils/frontmatterPopup';
+import { FrontmatterPopup } from '../modals/frontmatterPopup';
 
 interface PropertyValueCounts {
     counts: Map<string, Map<string, number>>;

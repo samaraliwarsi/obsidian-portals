@@ -1,5 +1,5 @@
 import { App, Modal } from 'obsidian';
-import { iconNames } from './iconMap';
+import { iconNames } from '../utils/iconMap';
 
 export class IconPickerModal extends Modal {
     onSubmit: (iconName: string) => void;

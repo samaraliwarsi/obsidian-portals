@@ -1,8 +1,8 @@
 import { App, TFile, Notice, Menu, Platform } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-import { SearchPopover } from './searchPopover';
-import { ConfirmModal } from '../modals/confirmModal'; 
+import { SearchPopover } from '../utils/searchPopover';
+import { ConfirmModal } from './confirmModal'; 
 
 declare module 'obsidian' {
     interface Menu {

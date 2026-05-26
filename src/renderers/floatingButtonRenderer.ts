@@ -2,10 +2,10 @@ import { App, Notice, Menu, Platform, TFolder } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
-import { GroupTagsModal } from '../utils/modals';
 import { getFrontmatterTags } from '../utils/tagHelpers';
 import { FrontmatterClinicRenderer } from './frontmatterClinic';
 import { SearchPopover } from '../utils/searchPopover';
+import { GroupTagsModal } from '../modals/groupTagsModal';
 
 type ButtonId = 'collapse' | 'sections' | 'sort' | 'newFolder' | 'newNote';
 const BUTTON_ORDER: ButtonId[] = ['collapse', 'sections', 'sort', 'newFolder', 'newNote'];

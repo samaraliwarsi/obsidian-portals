@@ -12,7 +12,7 @@ const files = [
   'src/styles/utilities.css',
   'src/styles/mainSideBarStyles.css',
   'src/styles/settings.css',
-  'src/styles/modals.css',
+  'src/styles/modal_styles/searchPopover.css',
   'src/styles/modal_styles/addPortalModal.css',
   'src/styles/modal_styles/removePortalModal.css',
   'src/styles/modal_styles/sidePortalModal.css',
@@ -20,6 +20,10 @@ const files = [
   'src/styles/modal_styles/colorModal.css',
   'src/styles/modal_styles/quickTabNumberModal.css',
   'src/styles/modal_styles/selectFolderModal.css',
+  'src/styles/modal_styles/groupTagsModal.css',
+  'src/styles/modal_styles/reorderModal.css',
+  'src/styles/modal_styles/frontmatterModal.css',
+  'src/styles/modal_styles/iconPicker.css'
   // Future modules:
   // 'src/styles/icons.css',
 ];

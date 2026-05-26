@@ -1,61 +1,7 @@
 import { App, Modal } from 'obsidian';
 import PortalsPlugin from '../main';
-import { SpaceConfig } from '../types';
 import Sortable from 'sortablejs';
 import { PortalsView } from '../view';
-
-
-
-// ==================== GROUP TAGS MODAL ====================
-export class GroupTagsModal extends Modal {
-    private selectedTags: Set<string>;
-
-    constructor(
-        app: App,
-        private plugin: PortalsPlugin,
-        private portal: SpaceConfig,
-        private onSave: (tags: string[]) => void,
-        private availableTags: string[]
-    ) {
-        super(app);
-        this.selectedTags = new Set(portal.groupTags || []);
-    }
-
-    onOpen() {
-        const { contentEl } = this;
-        contentEl.empty();
-        this.contentEl.addClass('portals-modal');
-        this.contentEl.addClass('portals-group-tags-modal');
-        contentEl.createEl('h2', { text: 'Select group tags' });
-
-        const container = contentEl.createDiv({ cls: 'portals-checkbox-container' });
-        const filteredTags = this.availableTags.filter(tag => !tag.includes('/'));
-        filteredTags.forEach(tag => {
-            const div = container.createDiv({ cls: 'portals-checkbox-item' });
-            const checkbox = div.createEl('input', { type: 'checkbox', value: tag });
-            checkbox.checked = this.selectedTags.has(tag);
-            div.createSpan({ text: tag });
-            checkbox.addEventListener('change', (e) => {
-                if ((e.target as HTMLInputElement).checked) {
-                    this.selectedTags.add(tag);
-                } else {
-                    this.selectedTags.delete(tag);
-                }
-            });
-        });
-        const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
-        buttonDiv.createEl('button', { text: 'Cancel' }).onclick = () => this.close();
-        const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });
-        saveBtn.onclick = () => {
-            this.onSave(Array.from(this.selectedTags));
-            this.close();
-        };
-    }
-
-    onClose() {
-        this.contentEl.empty();
-    }
-}
 
 // ==================== REORDER MODAL ====================
 export class ReorderItemsModal extends Modal {
@@ -86,7 +32,7 @@ export class ReorderItemsModal extends Modal {
         contentEl.empty();
         contentEl.addClass('portals-reorder-modal');
         contentEl.addClass('portals-modal');
-        contentEl.createEl('h3', { text: 'Reorder items' });
+        this.contentEl.createDiv({ text: 'Reorder items', cls: 'portals-reorder-title'});
 
         const list = contentEl.createDiv({ cls: 'portals-sortable-list' });
 

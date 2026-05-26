@@ -1,0 +1,69 @@
+/*=======================================REORDER MODAL============================================*/
+
+.portals-reorder-modal .portals-reorder-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+.portals-reorder-modal .portals-sortable-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    margin: 1em 0;
+    border-radius: 6px;
+    background: var(--background-secondary);
+}
+
+.portals-reorder-modal .portals-sortable-item {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 1em;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: grab;
+    transition: background 0.15s;
+    font-size: small;
+    pointer-events: auto;
+    user-select: auto;
+}
+
+.portals-reorder-modal .portals-sortable-item:hover {
+    background: var(--background-modifier-hover);
+}
+
+.portals-reorder-modal .portals-sortable-item:active {
+    cursor: grabbing;
+}
+
+.portals-reorder-handle {
+    opacity: 0.5;
+    margin-right: 0.75em;
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+}
+
+.portals-reordering-source-active {
+    box-shadow: 0 -2px 0 0 var(--interactive-accent);
+    border-radius: 6px;
+}
+
+.portals-reordering-details-open-active {
+    box-shadow: 
+      1px 0 0 0 var(--text-faint),
+      -1px 0 0 0 var(--text-faint),
+      0 1px 0 0 var(--text-faint);
+    border-radius: 4px;
+}
+
+.portals-reordering-details-closed-active {
+    background-color: var(--background-modifier-hover);
+    border-radius: 4px;
+    filter: brightness(1.1);
+}
