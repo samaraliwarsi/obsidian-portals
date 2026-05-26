@@ -8481,13 +8481,12 @@ input.cm-opacity-slider {
 .portals-qtn-modal-subtext {
   font-size: x-small;
   color: var(--text-faint);
-  font-style: italic;
   padding: 5px 0;
   margin-top: 5px;
   margin-bottom: 16px;
   border-top: 1px dashed var(--background-modifier-hover);
   border-bottom: 1px dashed var(--background-modifier-hover);
-  text-align: right;
+  text-align: left;
 }
 
 .portals-qtn-dropdown {
@@ -8516,7 +8515,22 @@ input.cm-opacity-slider {
   box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-.portals-qtn-dropdown:focus-visible{
+.portals-qtn-dropdown:focus-visible {
+  background-color: color-mix(in srgb, var(--background-primary) 80%, var(--background-modifier-form-field) 20%);
   outline: none;
   box-shadow: 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.portals-qtn-dropdown.mobile-tap {
+  background-color: color-mix(in srgb, var(--background-primary) 80%, var(--background-modifier-form-field) 20%);
+  outline: none;
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+@media (hover: hover) {
+  .portals-qtn-dropdown:hover {
+    background-color: color-mix(in srgb, var(--background-primary) 80%, var(--background-modifier-form-field) 20%);
+    filter: brightness(1.05);
+    box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
+  }
 }
