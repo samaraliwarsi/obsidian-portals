@@ -1,5 +1,4 @@
 /*================================ REMOVE PORTAL MODAL =============================================*/
-
 .portals-remP-backdrop {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -21,7 +20,8 @@
     width: auto, var(--dialog-width);
     min-width: 350px;
     max-width: var(--dialog-max-width);
-    max-height: var(--dialog-max-height);
+    min-height: 100px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
@@ -34,30 +34,31 @@
     padding-bottom: 8px;
 }
 
-.remove-portal-row {
+.portals-remP-modal .remove-portal-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 4px 0;
-}
-.remove-portal-name {
-    flex-grow: 1;
+    border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.remove-portal-modal .modal {
-  min-width: auto;
+.portals-remP-modal .remove-portal-name {
+    font-size: var(--font-ui-small);
 }
 
-.remove-portal-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.remove-portal-modal .remove-portal-row {
-  margin-left: 10px;
-  margin-right: 10px;
+.portals-remP-modal button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-ui-smaller);
+  border-radius: 10px;
+  corner-shape: var(--button-corner-shape);
+  border: 0;
+  padding: 0 12px;
+  height: 24px;
+  cursor: var(--cursor);
+  font-family: inherit;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: var(--input-shadow);
 }

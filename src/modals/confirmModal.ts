@@ -22,14 +22,14 @@ export class ConfirmModal {
     open(): void {
         if (this.container) this.close();
 
-        this.backdrop = activeDocument.body.createDiv('portals-rename-backdrop'); // reuse existing backdrop class
+        this.backdrop = activeDocument.body.createDiv('portals-confirm-backdrop');
         this.backdrop.addEventListener('click', () => {
             this.resolve(false);
             this.close();
         });
 
-        this.container = activeDocument.body.createDiv('portals-rename-modal'); // or use a dedicated class
-        this.container.addClass('portals-modal'); // keep the same class as before
+        this.container = activeDocument.body.createDiv('portals-confirm-container');
+        this.container.addClass('portals-cnf-modal');
         this.container.addEventListener('click', (e) => e.stopPropagation());
 
         try {

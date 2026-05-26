@@ -26,7 +26,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal .modal-button-container,
 .portals-reorder-modal .modal-button-container,
 .portals-qtn-modal .modal-button-container,
-.portals-rename-modal .modal-button-container {
+.portals-rename-modal .modal-button-container,
+.portals-cnf-modal .modal-button-container {
   margin-top: 1.2em;
   display: flex;
   justify-content: flex-end;
@@ -46,7 +47,7 @@ button.portals-reset-btn {
 .remove-portal-modal button,
 .portals-qtn-modal button, 
 .portals-rename-modal button,
-.portals-remP-modal button {
+.portals-cnf-modal button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -74,7 +75,7 @@ button.portals-reset-btn {
 .portals-sp-modal .modal-button-container button.mod-cta,
 .portals-reorder-modal .modal-button-container button.mod-cta,
 .portals-qtn-modal .modal-button-container button.mod-cta,
-.portals-rename-modal .modal-button-container button.mod-cta  {
+.portals-rename-modal .modal-button-container button.mod-cta {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
 }
@@ -111,7 +112,7 @@ button.portals-reset-btn {
   .portals-fm-modal .modal-button-container button.mod-cta:hover,
   .portals-reorder-modal .modal-button-container button.mod-cta:hover,
   .portals-qtn-modal .modal-button-container button.mod-cta:hover,
-  .portals-rename-modal .modal-button-container button.mod-cta:hover  {
+  .portals-rename-modal .modal-button-container button.mod-cta:hover {
     background-color: var(--interactive-accent-hover);
     color: var(--text-on-accent);
   }
@@ -120,20 +121,23 @@ button.portals-reset-btn {
 /*------mod-warning button (delete, remove etc) and its hover/ active/ focus states-----*/
 
 .portals-fm-modal .modal-button-container button.mod-warning,
-.portals-remP-modal button.mod-warning {
+.portals-remP-modal button.mod-warning,
+.portals-cnf-modal .modal-button-container button.mod-warning {
   background-color: var(--background-modifier-error);
   color: var(--text-on-accent);
 }
 
 .portals-fm-modal .modal-button-container button.mod-warning:hover,
-.portals-remP-modal button.mod-warning:hover {
+.portals-remP-modal button.mod-warning:hover,
+.portals-cnf-modal .modal-button-container button.mod-warning:hover {
   background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
   color: var(--text-color);
 }
 
 @media (hover: hover) {
   .portals-fm-modal .modal-button-container button.mod-warning:hover,
-  .portals-remP-modal button.mod-warning:hover {
+  .portals-remP-modal button.mod-warning:hover,
+  .portals-cnf-modal .modal-button-container button.mod-warning:hover {
     background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
     color: var(--text-color);
   }
@@ -147,7 +151,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal .modal-button-container button,
 .portals-fm-modal .modal-button-container button,
 .portals-qtn-modal .modal-button-container button,
-.portals-rename-modal .modal-button-container button {
+.portals-rename-modal .modal-button-container button,
+.portals-cnf-modal .modal-button-container button {
   color: var(--text-color);
   background-color: var(--interactive-normal);
 }
@@ -158,7 +163,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal .modal-button-container button:hover, 
 .portals-fm-modal .modal-button-container button:hover,
 .portals-qtn-modal .modal-button-container button:hover,
-.portals-rename-modal .modal-button-container button:hover {
+.portals-rename-modal .modal-button-container button:hover,
+.portals-cnf-modal .modal-button-container button:hover {
   color: var(--text-color);
   background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
 }
@@ -169,7 +175,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal .modal-button-container button:focus-visible,
 .portals-fm-modal .modal-button-container button:focus-visible,
 .portals-qtn-modal .modal-button-container button:focus-visible,
-.portals-rename-modal .modal-button-container button:focus-visible {
+.portals-rename-modal .modal-button-container button:focus-visible,
+.portals-cnf-modal .modal-button-container button:focus-visible {
   color: var(--text-color);
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);;
 }
@@ -181,7 +188,8 @@ button.portals-reset-btn {
   .portals-icon-picker-modal .modal-button-container button:hover,
   .portals-fm-modal .modal-button-container button:hover,
   .portals-qtn-modal .modal-button-container button:hover,
-  .portals-rename-modal .modal-button-container button:hover {
+  .portals-rename-modal .modal-button-container button:hover,
+  .portals-cnf-modal .modal-button-container button:hover {
     color: var(--text-color);
     background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
   }  

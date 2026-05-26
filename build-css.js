@@ -22,8 +22,9 @@ const files = [
   'src/styles/modal_styles/selectFolderModal.css',
   'src/styles/modal_styles/groupTagsModal.css',
   'src/styles/modal_styles/reorderModal.css',
-  'src/styles/modal_styles/frontmatterModal.css',
-  'src/styles/modal_styles/iconPicker.css'
+  'src/styles/modal_styles/frontmatterPopup.css',
+  'src/styles/modal_styles/iconPicker.css',
+  'src/styles/modal_styles/confirmModal.css'
   // Future modules:
   // 'src/styles/icons.css',
 ];

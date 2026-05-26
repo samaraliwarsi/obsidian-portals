@@ -4723,7 +4723,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal .modal-button-container,
 .portals-reorder-modal .modal-button-container,
 .portals-qtn-modal .modal-button-container,
-.portals-rename-modal .modal-button-container {
+.portals-rename-modal .modal-button-container,
+.portals-cnf-modal .modal-button-container {
   margin-top: 1.2em;
   display: flex;
   justify-content: flex-end;
@@ -4743,7 +4744,7 @@ button.portals-reset-btn {
 .remove-portal-modal button,
 .portals-qtn-modal button, 
 .portals-rename-modal button,
-.portals-remP-modal button {
+.portals-cnf-modal button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4771,7 +4772,7 @@ button.portals-reset-btn {
 .portals-sp-modal .modal-button-container button.mod-cta,
 .portals-reorder-modal .modal-button-container button.mod-cta,
 .portals-qtn-modal .modal-button-container button.mod-cta,
-.portals-rename-modal .modal-button-container button.mod-cta  {
+.portals-rename-modal .modal-button-container button.mod-cta {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
 }
@@ -4808,7 +4809,7 @@ button.portals-reset-btn {
   .portals-fm-modal .modal-button-container button.mod-cta:hover,
   .portals-reorder-modal .modal-button-container button.mod-cta:hover,
   .portals-qtn-modal .modal-button-container button.mod-cta:hover,
-  .portals-rename-modal .modal-button-container button.mod-cta:hover  {
+  .portals-rename-modal .modal-button-container button.mod-cta:hover {
     background-color: var(--interactive-accent-hover);
     color: var(--text-on-accent);
   }
@@ -4817,20 +4818,23 @@ button.portals-reset-btn {
 /*------mod-warning button (delete, remove etc) and its hover/ active/ focus states-----*/
 
 .portals-fm-modal .modal-button-container button.mod-warning,
-.portals-remP-modal button.mod-warning {
+.portals-remP-modal button.mod-warning,
+.portals-cnf-modal .modal-button-container button.mod-warning {
   background-color: var(--background-modifier-error);
   color: var(--text-on-accent);
 }
 
 .portals-fm-modal .modal-button-container button.mod-warning:hover,
-.portals-remP-modal button.mod-warning:hover {
+.portals-remP-modal button.mod-warning:hover,
+.portals-cnf-modal .modal-button-container button.mod-warning:hover {
   background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
   color: var(--text-color);
 }
 
 @media (hover: hover) {
   .portals-fm-modal .modal-button-container button.mod-warning:hover,
-  .portals-remP-modal button.mod-warning:hover {
+  .portals-remP-modal button.mod-warning:hover,
+  .portals-cnf-modal .modal-button-container button.mod-warning:hover {
     background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
     color: var(--text-color);
   }
@@ -4844,7 +4848,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal .modal-button-container button,
 .portals-fm-modal .modal-button-container button,
 .portals-qtn-modal .modal-button-container button,
-.portals-rename-modal .modal-button-container button {
+.portals-rename-modal .modal-button-container button,
+.portals-cnf-modal .modal-button-container button {
   color: var(--text-color);
   background-color: var(--interactive-normal);
 }
@@ -4855,7 +4860,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal .modal-button-container button:hover, 
 .portals-fm-modal .modal-button-container button:hover,
 .portals-qtn-modal .modal-button-container button:hover,
-.portals-rename-modal .modal-button-container button:hover {
+.portals-rename-modal .modal-button-container button:hover,
+.portals-cnf-modal .modal-button-container button:hover {
   color: var(--text-color);
   background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
 }
@@ -4866,7 +4872,8 @@ button.portals-reset-btn {
 .portals-icon-picker-modal .modal-button-container button:focus-visible,
 .portals-fm-modal .modal-button-container button:focus-visible,
 .portals-qtn-modal .modal-button-container button:focus-visible,
-.portals-rename-modal .modal-button-container button:focus-visible {
+.portals-rename-modal .modal-button-container button:focus-visible,
+.portals-cnf-modal .modal-button-container button:focus-visible {
   color: var(--text-color);
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);;
 }
@@ -4878,7 +4885,8 @@ button.portals-reset-btn {
   .portals-icon-picker-modal .modal-button-container button:hover,
   .portals-fm-modal .modal-button-container button:hover,
   .portals-qtn-modal .modal-button-container button:hover,
-  .portals-rename-modal .modal-button-container button:hover {
+  .portals-rename-modal .modal-button-container button:hover,
+  .portals-cnf-modal .modal-button-container button:hover {
     color: var(--text-color);
     background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
   }  
@@ -7502,13 +7510,6 @@ button.portals-portal-list-delete {
     border-bottom: none;
   }
 }
-/*===========================================================================================
-   MODAL STYLES
-===========================================================================================*/
-
-/* All modal styles except modal-button-container and buttons inside (mod-cta, .not(mod-cta),
-mod-warning etc. are in src/styles/utilities.css*/
-
 /*==================================SEARCH POPOVER=========================================*/
 
 .portals-search-popover {
@@ -7571,303 +7572,6 @@ mod-warning etc. are in src/styles/utilities.css*/
   color: var(--text-faint);
   font-style: italic;
 }
-
-
-/*================================ ICON PICKER MODAL =============================================*/
-
-.portals-icon-picker-modal {
-  max-width: auto;
-}
-
-.portals-icon-picker-modal h2 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.portals-icon-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-    gap: 8px;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 8px;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 4px;
-    background-color: var(--background-primary);
-}
-
-.icon-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 4px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.icon-item:hover {
-    background-color: var(--background-modifier-hover);
-}
-
-.portals-icon-label {
-    font-size: 9px;
-    margin-top: 4px;
-    word-break: break-word;
-    text-align: center;
-}
-
-.icon-picker-search {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--background-modifier-border);
-    background: var(--background-primary);
-    margin-bottom: 16px;
-    font-size: 1em;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.portals-input-modal-input {
-    width: 100%;
-    margin-bottom: 1em;
-}
-
-.portals-icon-picker-icon {
-    font-size: 24px;
-}
-
-.portals-load-more-btn {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 8px 16px;
-    margin-top: 8px;
-    cursor: pointer;
-    border-radius: 6px;
-    background: var(--background-modifier-hover);
-    color: var(--text-muted);
-    font-size: 0.9em;
-}
-.portals-load-more-btn:hover {
-    background: var(--background-modifier-active-hover);
-    color: var(--text-normal);
-}
-
-/*=============================BULK FRONTMATTER MODAL===========================================*/
-
-.portals-fm-backdrop {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: var(--background-modifier-cover);
-    z-index: 45;
-}
-
-.portals-fm-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: var(--layer-modal);
-    background-color: var(--background-primary);
-    border: var(--modal-border-width) solid var(--modal-border-color);
-    border-radius: var(--modal-radius);
-    box-shadow: var(--shadow-l);
-    padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 320px;
-    max-width: var(--dialog-max-width);
-    max-height: var(--dialog-max-height);
-    overflow-y: auto;
-}
-
-.portals-fm-modal .fm-popup-title {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin: 16px 0;
-    color: var(--text-faint);
-}
-
-.portals-fm-modal-select-status {
-  font-size: x-small;
-  color: var(--text-faint);
-  font-style: italic;
-  padding: 5px 0;
-  margin: 5px 0;
-  border-top: 1px dashed var(--background-modifier-hover);
-  border-bottom: 1px dashed var(--background-modifier-hover);
-  text-align: right;
-}
-
-.fm-input-wrapper {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 8px;
-  margin-bottom: 16px;
-}
-
-.fm-type-wrapper {
-  display: flex;
-  border-top: 1px dashed var(--background-modifier-border);
-  border-bottom: 1px dashed var(--background-modifier-border);
-  padding: 5px 0;
-  margin: 5px 0;
-  align-items: center;
-  justify-content: center;
-}
-
-.portals-fm-modal .fm-wrapper-text,
-.fm-yaml-summary {
-  font-size: 1em;
-  color: var(--text-muted);
-  font-weight: bold;
-  margin: 4px 0;
-}
-
-.fm-type-text {
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-  margin: 0 4px;
-}
-
-.fm-input-wrapper .fm-input-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-}
-
-.fm-input-wrapper .fm-input-group input {
-    flex: 1;
-}
-
-.portals-fm-search-input {
-  display: block;
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0;
-}
-
-.fm-input-group .fm-input-btn {
-  display: block;
-  box-sizing: border-box;
-  border: 1px solid var(--background-modifier-border);
-  background-color: var(--background-primary);
-  border-radius: var(--input-radius);
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 2px 8px;
-  color: var(--text-muted);
-  font-size: var(--font-ui-small);
-  line-height: var(--input-height-tight);
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  height: var(--input-height);
-  box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
-}
-
-.fm-type-wrapper .fm-type-btn,
-.fm-input-wrapper .fm-today-btn,
-.fm-yaml-btn-row .fm-yaml-btn {
-  display: block;
-  box-sizing: border-box;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--input-radius);
-  background-color: var(--background-primary);
-  width: auto;
-  white-space: nowrap;
-  padding: 2px 8px;
-  color: var(--text-muted);
-  font-size: var(--font-ui-smaller);
-  cursor: pointer;
-  box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
-  height: var(--input-height-tight);
-}
-
-.fm-input-group .fm-input-btn:hover,
-.fm-type-wrapper .fm-type-btn:hover,
-.fm-input-group .fm-today-btn:hover,
-.fm-yaml-btn-row .fm-yaml-btn:hover {
-  filter: brightness(1.15);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .bulk-fm-menu .menu-scroll {
-    max-height: min(60vh, 300px);
-    overflow-y: auto;
-  }
-}
-
-.bulk-fm-menu .menu-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-
-.bulk-fm-menu.menu-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.bulk-fm-menu .menu-scroll::-webkit-scrollbar-thumb {
-  background: var(--background-modifier-border);
-  border-radius: 4px;
-}
-
-.bulk-fm-menu .menu-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-
-.fm-yaml-section {
-    margin: 16px 0;
-    border-top: 1px dashed var(--background-modifier-hover);
-    padding-top: 16px;
-}
-
-.fm-yaml-content {
-    margin-top: 0.5em;
-}
-
-.fm-yaml-textarea {
-    width: 100%;
-    min-height: 80px;
-    font-family: var(--font-monospace);
-    font-size: var(--font-ui-smaller);
-    color: var(--text-faint);
-    padding: 6px;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--text-area-radius, var(--input-radius));
-    background: var(--background-modifier-form-field);
-    resize: vertical;
-}
-
-.fm-yaml-textarea:hover {
-  background: var(--background-modifier-form-field-hover);
-  border-color: var(--background-modifier-border-hover);
-}
-
-.fm-yaml-btn-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 0.5em;
-}
-
-.fm-yaml-btn-row .fm-yaml-btn.warning {
-  color: var(--background-modifier-error);
-}
-
-
-.fm-yaml-textarea::placeholder {
-    color: var(--text-faint);
-    opacity: 1;
-}
-
 
 /*================================ ADD PORTAL MODAL =============================================*/
 
@@ -8022,7 +7726,6 @@ mod-warning etc. are in src/styles/utilities.css*/
 
 
 /*================================ REMOVE PORTAL MODAL =============================================*/
-
 .portals-remP-backdrop {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -8044,7 +7747,8 @@ mod-warning etc. are in src/styles/utilities.css*/
     width: auto, var(--dialog-width);
     min-width: 350px;
     max-width: var(--dialog-max-width);
-    max-height: var(--dialog-max-height);
+    min-height: 100px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
@@ -8057,32 +7761,33 @@ mod-warning etc. are in src/styles/utilities.css*/
     padding-bottom: 8px;
 }
 
-.remove-portal-row {
+.portals-remP-modal .remove-portal-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 4px 0;
-}
-.remove-portal-name {
-    flex-grow: 1;
+    border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.remove-portal-modal .modal {
-  min-width: auto;
+.portals-remP-modal .remove-portal-name {
+    font-size: var(--font-ui-small);
 }
 
-.remove-portal-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.remove-portal-modal .remove-portal-row {
-  margin-left: 10px;
-  margin-right: 10px;
+.portals-remP-modal button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-ui-smaller);
+  border-radius: 10px;
+  corner-shape: var(--button-corner-shape);
+  border: 0;
+  padding: 0 12px;
+  height: 24px;
+  cursor: var(--cursor);
+  font-family: inherit;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: var(--input-shadow);
 }
 /*================================ SIDE PORTAL MODAL =============================================*/
 .portals-sp-backdrop {
@@ -8173,10 +7878,12 @@ mod-warning etc. are in src/styles/utilities.css*/
 }
 
 .portals-rename-modal .rename-popup-title {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin: 16px 0;
-    color: var(--text-faint);
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 16px 0;
+  color: var(--text-faint);
+  border-bottom: 1px dashed var(--background-modifier-hover);
+  padding-bottom: 8px;
 }
 
 .portals-rename-modal .rename-input-wrapper {
@@ -8234,43 +7941,6 @@ input.portals-rename-input {
     box-shadow: 1px 1px rgba(0, 0, 0, 0.3);
   }
 }
-
-.portals-rename-modal .modal {
-  min-width: auto;
-}
-
-.portals-rename-modal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--text-faint);
-    margin-left: 10px;
-}
-
-.portals-rename-modal .portals-rename-container {
-  width: 100%;
-}
-
-.portals-rename-modal .portals-rename-input {
-  width: 100%;
-}
-
-.portals-rename-input {
-    flex: 1;
-    min-width: 0;
-    padding: 2px 4px;
-    font: inherit;
-    color: inherit;
-    background: var(--background-primary);
-    border: 1px solid var(--interactive-accent);
-    border-radius: 4px;
-    box-shadow: none;
-    outline: none;
-    margin: 0;
-    box-sizing: border-box;
-}
-
 /*================================ COLOR MODAL =============================================*/
 /*BODY LEVEL*/
 .cm-palette-picker-active {
@@ -8652,6 +8322,11 @@ input.cm-opacity-slider {
 }
 /*=======================================REORDER MODAL============================================*/
 
+.modal-content.portals-reorder-modal.portals-modal {
+    width: auto, var(--dialog-width);
+    max-width: var(--dialog-max-width);
+}
+
 .portals-reorder-modal .portals-reorder-title {
     font-size: 1.2em;
     font-weight: bold;
@@ -8718,4 +8393,326 @@ input.cm-opacity-slider {
     background-color: var(--background-modifier-hover);
     border-radius: 4px;
     filter: brightness(1.1);
+}
+
+/*=============================BULK FRONTMATTER MODAL===========================================*/
+
+.portals-fm-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+.portals-fm-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto, var(--dialog-width);
+    min-width: 320px;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
+}
+
+.portals-fm-modal .fm-popup-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+}
+
+.portals-fm-modal-select-status {
+  font-size: x-small;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: 5px 0;
+  margin: 5px 0;
+  border-top: 1px dashed var(--background-modifier-hover);
+  border-bottom: 1px dashed var(--background-modifier-hover);
+  text-align: right;
+}
+
+.fm-input-wrapper {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.fm-type-wrapper {
+  display: flex;
+  border-top: 1px dashed var(--background-modifier-border);
+  border-bottom: 1px dashed var(--background-modifier-border);
+  padding: 5px 0;
+  margin: 5px 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.portals-fm-modal .fm-wrapper-text,
+.fm-yaml-summary {
+  font-size: 1em;
+  color: var(--text-muted);
+  font-weight: bold;
+  margin: 4px 0;
+}
+
+.fm-type-text {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin: 0 4px;
+}
+
+.fm-input-wrapper .fm-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.fm-input-wrapper .fm-input-group input {
+    flex: 1;
+}
+
+.portals-fm-search-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+}
+
+.fm-input-group .fm-input-btn {
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary);
+  border-radius: 10px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  line-height: var(--input-height-tight);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: var(--input-height);
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.fm-type-wrapper .fm-type-btn,
+.fm-input-wrapper .fm-today-btn,
+.fm-yaml-btn-row .fm-yaml-btn {
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background-color: var(--background-primary);
+  width: auto;
+  white-space: nowrap;
+  padding: 2px 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  cursor: pointer;
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+  height: var(--input-height-tight);
+}
+
+.fm-input-group .fm-input-btn:hover,
+.fm-type-wrapper .fm-type-btn:hover,
+.fm-input-group .fm-today-btn:hover,
+.fm-yaml-btn-row .fm-yaml-btn:hover {
+  filter: brightness(1.15);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bulk-fm-menu .menu-scroll {
+    max-height: min(60vh, 300px);
+    overflow-y: auto;
+  }
+}
+
+.bulk-fm-menu .menu-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bulk-fm-menu.menu-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bulk-fm-menu .menu-scroll::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 10px;
+}
+
+.bulk-fm-menu .menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+
+.fm-yaml-section {
+    margin: 16px 0;
+    border-top: 1px dashed var(--background-modifier-hover);
+    padding-top: 16px;
+}
+
+.fm-yaml-content {
+    margin-top: 0.5em;
+}
+
+.fm-yaml-textarea {
+    width: 100%;
+    min-height: 80px;
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-smaller);
+    color: var(--text-faint);
+    padding: 6px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-modifier-form-field);
+    resize: vertical;
+}
+
+.fm-yaml-textarea:hover {
+  background: var(--background-modifier-form-field-hover);
+  border-color: var(--background-modifier-border-hover);
+}
+
+.fm-yaml-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 0.5em;
+}
+
+.fm-yaml-btn-row .fm-yaml-btn.warning {
+  color: var(--background-modifier-error);
+}
+
+
+.fm-yaml-textarea::placeholder {
+    color: var(--text-faint);
+    opacity: 1;
+}
+
+
+
+/*================================ ICON PICKER MODAL =============================================*/
+
+.portals-icon-picker-modal {
+  max-width: auto;
+}
+
+.portals-icon-picker-modal h2 {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-faint);
+    margin-left: 10px;
+}
+
+.portals-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 8px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    background-color: var(--background-primary);
+}
+
+.icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.icon-item:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.portals-icon-label {
+    font-size: 9px;
+    margin-top: 4px;
+    word-break: break-word;
+    text-align: center;
+}
+
+.icon-picker-search {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    margin-bottom: 16px;
+    font-size: 1em;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.portals-input-modal-input {
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+.portals-icon-picker-icon {
+    font-size: 24px;
+}
+
+.portals-load-more-btn {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 8px 16px;
+    margin-top: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    background: var(--background-modifier-hover);
+    color: var(--text-muted);
+    font-size: 0.9em;
+}
+.portals-load-more-btn:hover {
+    background: var(--background-modifier-active-hover);
+    color: var(--text-normal);
+}
+
+.portals-confirm-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+.portals-confirm-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--background-primary);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto, var(--dialog-width);
+    min-width: 320px;
+    max-width: var(--dialog-max-width);
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
 }
