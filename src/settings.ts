@@ -1085,7 +1085,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             }));
 
         new Setting(contentEl)
-        .setName('Hide filtered count')
+        .setName('Hide filtered badge')
         .setDesc('Hide the count display of files filtered in properties. The number is based on dropdown choices.')
         .addToggle(toggle => toggle
             .setValue(this.plugin.settings.hideFilteredCount)

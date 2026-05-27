@@ -504,7 +504,7 @@ export class FrontmatterClinicRenderer {
             this.sortClinicFiles(countBadge);
             if (!Platform.isMobile) {
                 countBadge.addEventListener('mouseenter', () => {
-                    this.view.showTooltip('Right-click: sort files', countBadge, 300, 'right');
+                    this.view.showTooltip('Sort files', countBadge, 300, 'right');
                 });
                 countBadge.addEventListener('mouseleave', () => this.view.hideTooltip(100));
                 
@@ -635,7 +635,7 @@ export class FrontmatterClinicRenderer {
     }
 
     private sortClinicFiles(target: HTMLElement) {
-        target.addEventListener('contextmenu', (e) => {
+        target.addEventListener('click', (e) => {
             e.stopPropagation();
             const menu = new Menu();
             const state = this.plugin.settings.clinicState;
