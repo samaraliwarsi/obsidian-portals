@@ -6691,12 +6691,18 @@ button.clickable-icon.fm-edit-btn:hover {
 .fm-file-count {
     font-size: 10px;
     color: var(--text-faint);
-    background: transparent;
-    padding: 0;
-    border-radius: 0;
+    background: var(--background-primary);
+    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.1);
     height: auto;
     min-width: 0;
     line-height: 1.2;
+    pointer-events: auto;
+    width: fit-content;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 8px;
+    color: var(--text-faint);
+    white-space: nowrap;
 }
 
 .fm-clinic-toolbar {
@@ -6888,7 +6894,8 @@ button.unhide-btn:not(.clickable-icon):hover {
 
 .portals-reset-btn.side-portal-btn:hover,
 .portals-reset-btn.fm-property-btn:hover,
-.portals-reset-btn.fm-value-btn:hover {
+.portals-reset-btn.fm-value-btn:hover,
+.portals-reset-btn.fm-sort-btn:hover {
     background: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
 }

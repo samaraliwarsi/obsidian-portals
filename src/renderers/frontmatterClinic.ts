@@ -281,7 +281,7 @@ export class FrontmatterClinicRenderer {
     }
     private set selectedProperty(value: string) {
         if (!this.plugin.settings.clinicState) {
-            this.plugin.settings.clinicState = { selectedProperty: '', selectedValue: ''};
+            this.plugin.settings.clinicState = { selectedProperty: '', selectedValue: '', clinicSortBy: 'name', clinicSortorder: 'asc'};
         }
         this.plugin.settings.clinicState.selectedProperty = value;
     }
@@ -291,7 +291,7 @@ export class FrontmatterClinicRenderer {
     }
     private set selectedValue(value: string) {
         if (!this.plugin.settings.clinicState) {
-            this.plugin.settings.clinicState = { selectedProperty: '', selectedValue: ''};
+            this.plugin.settings.clinicState = { selectedProperty: '', selectedValue: '', clinicSortBy: 'name', clinicSortorder: 'asc'};
         }
         this.plugin.settings.clinicState.selectedValue = value;
     }
@@ -500,7 +500,15 @@ export class FrontmatterClinicRenderer {
 
         if (!this.plugin.settings.hideFilteredCount && hasFiles) {
             const countRow = this.container.createDiv({ cls: 'fm-count-row' });
-            countRow.createSpan({ cls: 'fm-file-count', text: `${this.filteredFiles.length} results` });
+            const countBadge = countRow.createSpan({ cls: 'fm-file-count', text: `${this.filteredFiles.length} results` });
+            this.sortClinicFiles(countBadge);
+            if (!Platform.isMobile) {
+                countBadge.addEventListener('mouseenter', () => {
+                    this.view.showTooltip('Right-click: sort files', countBadge, 300, 'right');
+                });
+                countBadge.addEventListener('mouseleave', () => this.view.hideTooltip(100));
+                
+            }
         }
 
         // File list container
@@ -626,6 +634,64 @@ export class FrontmatterClinicRenderer {
         }
     }
 
+    private sortClinicFiles(target: HTMLElement) {
+        target.addEventListener('contextmenu', (e) => {
+            e.stopPropagation();
+            const menu = new Menu();
+            const state = this.plugin.settings.clinicState;
+            const setSort = (by: 'name' | 'created' | 'modified', order: 'asc' | 'desc') => {
+                state.clinicSortBy = by;
+                state.clinicSortorder = order;
+                void this.plugin.saveSettings().then(() => this.render());
+            };
+
+            menu.addItem(item => item
+                .setTitle('Name ascending')
+                .setChecked(state.clinicSortBy === 'name' && state.clinicSortorder === 'asc')
+                .onClick(() => setSort('name', 'asc')));
+            menu.addItem(item => item
+                .setTitle('Name descending')
+                .setChecked(state.clinicSortBy === 'name' && state.clinicSortorder === 'desc')
+                .onClick(() => setSort('name', 'desc')));
+            menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('Created (oldest first)')
+                .setChecked(state.clinicSortBy === 'created' && state.clinicSortorder === 'asc')
+                .onClick(() => setSort('created', 'asc')));
+            menu.addItem(item => item
+                .setTitle('Created (newest first)')
+                .setChecked(state.clinicSortBy === 'created' && state.clinicSortorder === 'desc')
+                .onClick(() => setSort('created', 'desc')));
+            menu.addSeparator();
+            menu.addItem(item => item
+                .setTitle('Modified (oldest first)')
+                .setChecked(state.clinicSortBy === 'modified' && state.clinicSortorder === 'asc')
+                .onClick(() => setSort('modified', 'asc')));
+            menu.addItem(item => item
+                .setTitle('Modified (newest first)')
+                .setChecked(state.clinicSortBy === 'modified' && state.clinicSortorder === 'desc')
+                .onClick(() => setSort('modified', 'desc')));
+            const rect = target.getBoundingClientRect();
+            menu.showAtPosition({ x: rect.left, y: rect.bottom });
+            
+        });
+    }
+
+    private sortForFilter() {
+        const { clinicSortBy, clinicSortorder } = this.plugin.settings.clinicState;
+        this.filteredFiles.sort((a, b) => {
+            let aVal: string | number, bVal: string | number;
+            switch(clinicSortBy) {
+                case 'name': aVal = a.name; bVal = b.name; break;
+                case 'created': aVal = a.stat.ctime; bVal = b.stat.ctime; break;
+                case 'modified': aVal = a.stat.mtime; bVal = b.stat.mtime; break;
+                default: aVal = a.name; bVal = b.name;
+            }
+            if (clinicSortorder === 'asc') return (aVal < bVal ? -1 : aVal > bVal ? 1 : 0);
+            else return (aVal > bVal ? -1 : aVal < bVal ? 1 : 0);
+        });
+    }
+
     private filterFiles() {
         const files = this.app.vault.getMarkdownFiles();
         // special case: no frontmatter 
@@ -633,7 +699,7 @@ export class FrontmatterClinicRenderer {
             this.filteredFiles = files.filter(file => {
             return FrontmatterClinicRenderer.getNoFrontmatterPaths().has(file.path)
             });
-            this.filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
+            this.sortForFilter();
             return;
 
         }
@@ -665,7 +731,7 @@ export class FrontmatterClinicRenderer {
             }
         });
         // Sort by file name
-        this.filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
+        this.sortForFilter();
     }
 
     private attachClinicSwipe(el: HTMLElement, filePath: string) {

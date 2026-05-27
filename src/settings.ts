@@ -59,7 +59,7 @@ export interface SpacesSettings {
     stackAutoCollapse: boolean;
     showCurrentPropertyValue: boolean;
     hideFilteredCount: boolean;
-    clinicState: { selectedProperty: string; selectedValue: string };
+    clinicState: { selectedProperty: string; selectedValue: string; clinicSortBy: 'name' | 'created' | 'modified'; clinicSortorder: 'asc' | 'desc' };
     compactTabs: boolean;
     quickAddIcon: 'off' | 'on' | 'desktop-only';
     customTreeOrder: Record<string, number>;
@@ -130,7 +130,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     stackAutoCollapse: false,
     showCurrentPropertyValue: false,
     hideFilteredCount: false,
-    clinicState: { selectedProperty: '', selectedValue: '' },
+    clinicState: { selectedProperty: '', selectedValue: '', clinicSortBy: 'name' as const, clinicSortorder: 'asc' as const },
     compactTabs: false,
     quickAddIcon: 'desktop-only',
     customTreeOrder: {},

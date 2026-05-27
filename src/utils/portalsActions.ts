@@ -561,6 +561,7 @@ export class PortalsActions {
             view._activeOutsideClickListener = null;
             view.renderContent();
         });
+        input.addEventListener('click',  (e) => e.stopPropagation());
 
         nameSpan.replaceWith(input);
         input.focus();
@@ -607,6 +608,7 @@ export class PortalsActions {
             view._activeOutsideClickListener = null;
             view.renderContent();
         });
+        input.addEventListener('click', (e) => e.stopPropagation());
 
         nameSpan.replaceWith(input);
         input.focus();

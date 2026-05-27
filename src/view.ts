@@ -1412,6 +1412,7 @@ export class PortalsView extends ItemView {
             sectionOrders: JSON.stringify(s.sectionOrders),
             contextNoteIconClick: s.contextNoteIconClick,
             showQuickTabNumberOnTabs: s.showQuickTabNumbersOnTabs,
+            showFileToolTips: s.showFileToolTips,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
