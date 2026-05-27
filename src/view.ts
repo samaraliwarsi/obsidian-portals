@@ -1414,6 +1414,7 @@ export class PortalsView extends ItemView {
             showQuickTabNumberOnTabs: s.showQuickTabNumbersOnTabs,
             showFileToolTips: s.showFileToolTips,
             journalDefaultCurrentMode: s.journalDefaultCurrentMode,
+            iconLibrary: s.iconLibrary,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),

@@ -1,12 +1,14 @@
 import { App, Modal } from 'obsidian';
-import { iconNames } from '../utils/iconMap';
+import { IconProvider } from '../icons/iconProvider';
 
 export class IconPickerModal extends Modal {
     onSubmit: (iconName: string) => void;
     private searchTimeout: number | null = null;
+    private provider: IconProvider;
 
-    constructor(app: App, onSubmit: (iconName: string) => void) {
+    constructor(app: App, provider: IconProvider, onSubmit: (iconName: string) => void) {
         super(app);
+        this.provider = provider;
         this.onSubmit = onSubmit;
     }
 
@@ -30,12 +32,14 @@ export class IconPickerModal extends Modal {
         let currentFilter = '';
         let allFiltered: string[] = [];
 
+        const iconList = this.provider.getIconList();
+
         const renderIcons = (filter: string) => {
             if (this.searchTimeout) window.clearTimeout(this.searchTimeout);
             this.searchTimeout = window.setTimeout(() => {
                 const filtered = filter
-                    ? iconNames.filter((name: string) => name.toLowerCase().includes(filter.toLowerCase()))
-                    : iconNames;
+                    ? iconList.filter((name: string) => name.toLowerCase().includes(filter.toLowerCase()))
+                    : iconList;
                 allFiltered = filtered;
 
                 if (filter !== currentFilter) {
@@ -54,11 +58,12 @@ export class IconPickerModal extends Modal {
                 for (const name of toRender) {
                     const iconEl = iconGrid.createDiv({ cls: 'icon-item' });
 
+                    this.provider.renderIcon(iconEl, name);
+
                     // Create an <i> element with the Phosphor icon class
-                    iconEl.createEl('i', { cls: `ph ph-${name} portals-icon-picker-icon` });
+                    //iconEl.createEl('i', { cls: `ph ph-${name} portals-icon-picker-icon` });
 
                     iconEl.createSpan({ cls: 'portals-icon-label', text: name });
-                    
 
                     iconEl.addEventListener('click', () => {
                         this.onSubmit(name);

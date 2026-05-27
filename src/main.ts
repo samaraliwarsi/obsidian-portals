@@ -4,13 +4,24 @@ import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { getFrontmatterTags } from './utils/tagHelpers';
 import { registerAllCommands } from './utils/commands';
+import { LucideIconProvider } from './icons/LucideIconProvider';
+import { PhosphorIconProvider } from './icons/phosphorIconProvider';
+import { IconProvider } from './icons/iconProvider';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
+    lucideProvider = new LucideIconProvider;
+    phosphorProvider = new PhosphorIconProvider;
 
     async onload() {
         await this.loadSettings();
         registerAllCommands(this);
+
+        const lucide = new LucideIconProvider();
+        console.log('Available Lucide icons:', lucide.getIconList().length);
+
+        const testEl = this.addStatusBarItem();
+        lucide.renderIcon(testEl, 'folder');
 
         // Forward frontmatter cache updates (no startup cost)
         this.registerEvent(this.app.metadataCache.on('changed', (file) => {
@@ -103,6 +114,14 @@ export default class PortalsPlugin extends Plugin {
                 }
             }
         }));
+    }
+
+    getActiveIconProvider(): IconProvider {
+        return this.settings.iconLibrary === 'lucide' ? this.lucideProvider : this.phosphorProvider;
+    }
+
+    renderPluginIcon(element: HTMLElement, iconName: string) {
+        this.getActiveIconProvider().renderIcon(element, iconName);
     }
 
     onunload() { 

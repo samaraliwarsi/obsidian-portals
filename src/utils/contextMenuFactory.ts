@@ -257,7 +257,7 @@ export class ContextMenuFactory {
             .setTitle('Change icon')
             .setIcon('image')
             .onClick(() => {
-                new IconPickerModal(view.app, (iconName: string) => {
+                new IconPickerModal(view.app, view.plugin.getActiveIconProvider(), (iconName: string) => {
                     view.saveTreeScroll();
                     space.icon = iconName;
                     void view.plugin.saveSettings().then(() => view.render());
@@ -357,7 +357,7 @@ export class ContextMenuFactory {
             .setTitle('Change icon')
             .setIcon('image')
             .onClick(() => {
-                new IconPickerModal(view.app, (iconName: string) => {
+                new IconPickerModal(view.app, view.plugin.getActiveIconProvider(), (iconName: string) => {
                     stack.icon = iconName;
                     void view.plugin.saveSettings().then(() => view.render());
                 }).open();

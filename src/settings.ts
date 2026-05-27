@@ -77,6 +77,7 @@ export interface SpacesSettings {
     showQuickTabNumbersOnTabs: boolean;
     showFileToolTips: boolean;
     journalDefaultCurrentMode: 'random' | 'marked' | 'onThisDay';
+    iconLibrary: 'phosphor' | 'lucide';
     
 }
 
@@ -149,6 +150,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showQuickTabNumbersOnTabs: false,
     showFileToolTips: false,
     journalDefaultCurrentMode: 'random',
+    iconLibrary: 'phosphor',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -472,7 +474,8 @@ export class SpacesSettingTab extends PluginSettingTab {
             iconBtn.empty();
             iconBtn.createEl('i', { cls: `ph ph-${rootSpace.icon}` });
             iconBtn.addEventListener('click', () => {
-                new IconPickerModal(this.app, (iconName) => {
+                const provider = this.plugin.getActiveIconProvider();
+                new IconPickerModal(this.app, provider, (iconName) => {
                     rootSpace.icon = iconName;
                     void this.plugin.saveSettings().then(() => {
                         this.display();
@@ -665,7 +668,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 iconBtn.empty();
                 iconBtn.createEl('i', { cls: `ph ph-${portal.icon}` });
                 iconBtn.addEventListener('click', () => {
-                    new IconPickerModal(this.app, (iconName) => {
+                    const provider = this.plugin.getActiveIconProvider();
+                    new IconPickerModal(this.app, provider, (iconName) => {
                         portal.icon = iconName;
                         void this.plugin.saveSettings().then(() => {
                             this.display();
@@ -1115,6 +1119,19 @@ export class SpacesSettingTab extends PluginSettingTab {
         // --------------------------- MAINTENANCE & HELP -----------------------------
 
         new Setting(contentEl).setName('Maintenance & help').setHeading();
+
+        new Setting(contentEl)
+            .setName('Choose Icon Library')
+            .setDesc('Icon library defines the icons for plugin native and user custom icons.')
+            .addDropdown(dropdown => dropdown
+                .addOption('phosphor', 'Phosphor')
+                .addOption('lucide', 'Lucide')
+                .setValue(this.plugin.settings.iconLibrary)
+                .onChange(async (value) => {
+                    this.plugin.settings.iconLibrary = value as 'phosphor' | 'lucide';
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
 
         new Setting(contentEl)
             .setName('Clean up dead portals')
