@@ -6700,15 +6700,13 @@ button.clickable-icon.fm-edit-btn:hover {
     width: fit-content;
     padding: 2px 4px;
     border-radius: 4px;
-    font-size: 8px;
     color: var(--text-faint);
     white-space: nowrap;
 }
 
 .fm-file-count:hover {
-    background: var(--background-modifier-active-hover);
+    background: var(--background-modifier-hover);
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-    color: var(--text-muted);
 }
 
 .fm-clinic-toolbar {
@@ -7711,20 +7709,12 @@ button.portals-portal-list-delete {
     margin-left: auto;
     display: inline-flex;
     align-items: center;
-    color: var(--text-accent);
 }
 
 .portals-adp-modal .portals-already-used {
     opacity: 0.6;
     cursor: not-allowed;
     background-color: var(--background-modifier-hover);
-}
-
-.portals-check-icon {
-    margin-left: 8px;
-    display: inline-flex;
-    align-items: center;
-    color: var(--text-accent);
 }
 
 .portals-check-icon i {
