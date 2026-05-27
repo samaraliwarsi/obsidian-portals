@@ -75,6 +75,7 @@ export interface SpacesSettings {
     userPalette?: string[]
     previousSelectedSpace: { path: string; type: 'folder' | 'tag' } | null;
     showQuickTabNumbersOnTabs: boolean;
+    showFileToolTips: boolean;
     
 }
 
@@ -145,6 +146,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     userPalette: [...DEFAULT_PORTALS_PALETTE],
     previousSelectedSpace: null,
     showQuickTabNumbersOnTabs: false,
+    showFileToolTips: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -289,6 +291,17 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.enableFileExtensionNonMD)
                 .onChange(async (value) => {
                     this.plugin.settings.enableFileExtensionNonMD = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        new Setting(contentEl)
+            .setName('Show file tooltips')
+            .setDesc('Show tooltips on each file item in explorer. Shows word count, last modified and name when truncated.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showFileToolTips)
+                .onChange(async (value) => {
+                    this.plugin.settings.showFileToolTips = value;
                     await this.plugin.saveSettings();
                     this.display();
                 }));

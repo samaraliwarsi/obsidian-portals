@@ -1,4 +1,4 @@
-import { App, TFile } from 'obsidian';
+import { App, Platform, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { PortalsActions } from './portalsActions';
@@ -126,6 +126,20 @@ export class FileItemFactory {
             ContextMenuFactory.showFileMenu(view, file, fileEl, e)
         });
 
+        if (plugin.settings.showFileToolTips && file.extension === 'md' && !Platform.isMobile) {
+        fileEl.addEventListener('mouseenter', () => {
+            FileItemFactory.fetchFileTooltip(file, app, nameSpan, plugin).then(tip => {
+                if (tip) {
+                    view.showTooltip(tip, fileEl, 300, 'right');
+                }
+            });
+        });
+
+        fileEl.addEventListener('mouseleave', () => {
+            view.hideTooltip(100);
+        });
+    }
+
         view.addHoverPreview(fileEl, file.path);
 
         view.fileElementMap.set(file.path, fileEl);
@@ -194,5 +208,23 @@ export class FileItemFactory {
             iconEl.className = `ph ph-${newState ? 'plus-circle' : 'minus-circle'}`;
         }
         return newState;
+    }
+
+    private static async fetchFileTooltip(file: TFile, app: App, nameSpan: HTMLElement, plugin: PortalsPlugin): Promise<string | null> {
+        try {
+            const content = await app.vault.cachedRead(file);
+            const plainText = FileItemFactory.extractSnippet(content, Infinity);
+            const words = plainText.split(/\s+/).filter(w => w.length > 0);
+            const wordCount = words.length;
+            const lastModified = new Date(file.stat.mtime).toLocaleDateString();
+            const infoLine = `${wordCount} words · Modified ${lastModified}`;
+            if (nameSpan.scrollWidth > nameSpan.clientWidth) {
+                const displayName = FileItemFactory.getDisplayName(file, plugin);
+                return `${displayName} · ${infoLine}`;
+            }
+            return infoLine;
+        } catch {
+            return null;
+        }
     }
 }
