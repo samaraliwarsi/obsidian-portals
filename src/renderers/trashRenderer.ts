@@ -150,7 +150,9 @@ export class TrashRenderer {
                 const details = parentEl.createEl('details', { cls: 'folder-details' });
                 details.open = false;                            // collapsed by default
                 const summary = details.createEl('summary', { cls: 'folder-summary' });
-                summary.createSpan({ cls: 'folder-icon' }).createEl('i', { cls: 'ph ph-folder' });
+                //summary.createSpan({ cls: 'folder-icon' }).createEl('i', { cls: 'ph ph-folder' });
+                const folderIconWrapper = summary.createSpan({ cls: 'folder-icon' });
+                this.plugin.renderPluginIcon(folderIconWrapper, 'folder');
                 summary.createSpan({ text: item.basename, cls: 'portals-item-name' });
 
                 const childrenContainer = details.createDiv({ cls: 'folder-children' });
@@ -191,7 +193,9 @@ export class TrashRenderer {
                 this.addItemActions(summary, item);
             } else {
                 const fileEl = parentEl.createDiv({ cls: 'file-item' });
-                fileEl.createSpan({ cls: 'file-icon' }).createEl('i', { cls: 'ph ph-file' });
+                //fileEl.createSpan({ cls: 'file-icon' }).createEl('i', { cls: 'ph ph-file' });
+                const fileIconWrapper = fileEl.createSpan({ cls: 'file-icon' });
+                this.plugin.renderPluginIcon(fileIconWrapper, 'file');
                 fileEl.createSpan({ text: item.basename, cls: 'portals-item-name' });
                 this.addItemActions(fileEl, item);
             }
@@ -206,13 +210,15 @@ export class TrashRenderer {
         if (!Platform.isMobile) {
             this.view.attachTooltip(restoreBtn, 'Restore', 300, 'left')
         }
-        restoreBtn.createEl('i', { cls: 'ph ph-arrow-counter-clockwise' });
+       //restoreBtn.createEl('i', { cls: 'ph ph-arrow-counter-clockwise' });
+        this.plugin.renderPluginIcon(restoreBtn, 'arrow-counter-clockwise');
 
         const deleteBtn = actionBar.createEl('button', { cls: 'trash-delete-btn' });
         if (!Platform.isMobile) {
             this.view.attachTooltip(deleteBtn, 'Delete item', 300, 'right');
         }
-            deleteBtn.createEl('i', { cls: 'ph ph-trash' });
+            //deleteBtn.createEl('i', { cls: 'ph ph-trash' });
+            this.plugin.renderPluginIcon(deleteBtn, 'trash');
 
         restoreBtn.addEventListener('click', (e) => {
             e.stopPropagation();

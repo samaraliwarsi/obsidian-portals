@@ -142,7 +142,8 @@ export class AddPortalModal {
                     item.addClass('portals-already-used');
                     // Add checkmark icon
                     const checkSpan = item.createSpan({ cls: 'portals-check-icon' });
-                    checkSpan.createEl('i', { cls: 'ph ph-check' });
+                    //checkSpan.createEl('i', { cls: 'ph ph-check' });
+                    this.plugin.renderPluginIcon(checkSpan, 'check');
                 }
                 item.addEventListener('click', (e: MouseEvent) => {
                     if (isUsed) {
@@ -175,7 +176,8 @@ export class AddPortalModal {
                     item.addClass('portals-already-used');
                     // Add checkmark icon
                     const checkSpan = item.createSpan({ cls: 'portals-check-icon' });
-                    checkSpan.createEl('i', { cls: 'ph ph-check' });
+                    //checkSpan.createEl('i', { cls: 'ph ph-check' });
+                    this.plugin.renderPluginIcon(checkSpan, 'check');
                 }
                 item.addEventListener('click', (e: MouseEvent) => {
                     if (isUsed) {

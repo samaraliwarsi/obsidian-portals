@@ -45,7 +45,8 @@ export class RecentFilesRenderer {
             const customIcon = PortalsActions.getCustomIcon(this.plugin, file.path);
             const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-            iconSpan.createEl('i', { cls: fileIconClass });
+            //iconSpan.createEl('i', { cls: fileIconClass });
+            this.plugin.renderPluginIcon(iconSpan, fileIconClass);
             // file name
             const nameSpan = fileEl.createSpan({ text: this.view.getDisplayName(file) });
             nameSpan.addClass('portals-item-name');

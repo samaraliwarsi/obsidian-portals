@@ -1,6 +1,7 @@
 // src/icon-providers/LucideIconProvider.ts
 import { getIconIds, setIcon } from 'obsidian';
 import { IconProvider } from './iconProvider';
+import { PHOSPHOR_TO_LUCIDE } from './iconMappings';
 
 export class LucideIconProvider implements IconProvider {
     name = 'lucide';
@@ -26,6 +27,11 @@ export class LucideIconProvider implements IconProvider {
      * @param iconName - The icon name without the 'lucide-' prefix (e.g., 'folder').
      */
     renderIcon(element: HTMLElement, iconName: string): void {
-        setIcon(element, `lucide-${iconName}`);
+        element.addClass('lu');
+        const mapped = PHOSPHOR_TO_LUCIDE[iconName] || iconName;
+        const lucideName = `lucide-${mapped}`;
+        const available = getIconIds();
+        const finalName = available.includes(lucideName) ? lucideName: 'lucide-help-circle';
+        setIcon(element, finalName);
     }
 }

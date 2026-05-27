@@ -270,7 +270,8 @@ export class JournalRenderer {
         if (!Platform.isMobile) {
             this.view.attachTooltip(filterButton, 'Toggle range', 300, 'right');
         }
-        filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
+        //filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
+        this.plugin.renderPluginIcon(filterButton, 'funnel-simple');
         const periodSpan = filterButton.createSpan({ text: 'All files', cls: 'journal-btn-text' });
 
 
@@ -336,23 +337,27 @@ export class JournalRenderer {
             if (indicator === 'quotes' && hasQuotes) {
                 card.addClass('journal-card-has-quotes');
                 const span = card.createSpan({ cls: 'journal-quote-indicator' });
-                span.createEl('i', { cls: 'ph ph-quotes' });
+                //span.createEl('i', { cls: 'ph ph-quotes' });
+                this.plugin.renderPluginIcon(span, 'quotes');
             }
             if (indicator === 'warnings' && hasWrong) {
                 card.addClass('journal-card-has-wrong');
                 const span = card.createSpan({ cls: 'journal-warn-indicator' });
-                span.createEl('i', { cls: 'ph ph-warning-circle' });
+                //span.createEl('i', { cls: 'ph ph-warning-circle' });
+                this.plugin.renderPluginIcon(span, 'warning-circle');
             }
             if (indicator === 'all') {
                 if (hasQuotes) {
                     card.addClass('journal-card-has-quotes');
                     const span = card.createSpan({ cls: 'journal-quote-indicator' });
-                    span.createEl('i', { cls: 'ph ph-quotes' });
+                    //span.createEl('i', { cls: 'ph ph-quotes' });
+                    this.plugin.renderPluginIcon(span, 'quotes');
                 }
                 if (hasWrong) {
                     card.addClass('journal-card-has-wrong');
                     const span = card.createSpan({ cls: 'journal-warn-indicator' });
-                    span.createEl('i', { cls: 'ph ph-warning-circle' });
+                    //span.createEl('i', { cls: 'ph ph-warning-circle' });
+                    this.plugin.renderPluginIcon(span, 'warning-circle');
                 }
             }
             if (!Platform.isMobile) {
@@ -421,13 +426,16 @@ export class JournalRenderer {
         // Buttons row
         const buttonRow = quotesContainer.createDiv({ cls: 'journal-quote-buttons' });
         const randomBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
-        randomBtn.createEl('i', { cls: 'ph ph-dice-three'});
+        //randomBtn.createEl('i', { cls: 'ph ph-dice-three'});
+        this.plugin.renderPluginIcon(randomBtn, 'dice-three');
         randomBtn.createSpan({ text: 'Random', cls: 'journal-btn-text' });
         const markedBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
-        markedBtn.createEl('i', { cls: 'ph ph-marker-circle' });
+        //markedBtn.createEl('i', { cls: 'ph ph-marker-circle' });
+        this.plugin.renderPluginIcon(markedBtn, 'stamp');
         markedBtn.createSpan({ text: 'Marked', cls: 'journal-btn-text' });
         const onThisDayBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
-        onThisDayBtn.createEl('i', { cls: 'ph ph-calendar-star' });
+        //onThisDayBtn.createEl('i', { cls: 'ph ph-calendar-star' });
+        this.plugin.renderPluginIcon(onThisDayBtn, 'calendar-star')
         onThisDayBtn.createSpan({ text: 'On this day', cls: 'journal-btn-text' });
 
         // Progress bar

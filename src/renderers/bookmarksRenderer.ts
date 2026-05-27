@@ -76,7 +76,8 @@ export class BookmarksRenderer {
                 details.setAttr('open', 'true');
                 const summary = details.createEl('summary', { cls: 'folder-summary' });
                 const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-                iconSpan.createEl('i', { cls: 'ph ph-folder' });
+                //iconSpan.createEl('i', { cls: 'ph ph-folder' });
+                this.plugin.renderPluginIcon(iconSpan, 'folder');
                 const nameSpan = summary.createSpan({ text: item.title || 'Group' });
                 nameSpan.addClass('portals-item-name');
 
@@ -110,7 +111,8 @@ export class BookmarksRenderer {
                     else iconClass = 'ph-file';
                 }
 
-                iconSpan.createEl('i', { cls: `ph ${iconClass}` });
+                //iconSpan.createEl('i', { cls: `ph ${iconClass}` });
+                this.plugin.renderPluginIcon(iconSpan, iconClass);
 
                 const displayName = item.title || item.path || item.url || 'Untitled';
                 const nameSpan = fileEl.createSpan({ text: displayName });

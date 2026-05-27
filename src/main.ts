@@ -7,6 +7,7 @@ import { registerAllCommands } from './utils/commands';
 import { LucideIconProvider } from './icons/LucideIconProvider';
 import { PhosphorIconProvider } from './icons/phosphorIconProvider';
 import { IconProvider } from './icons/iconProvider';
+import { setPluginInstance } from './utils/pluginInstance';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
@@ -14,6 +15,7 @@ export default class PortalsPlugin extends Plugin {
     phosphorProvider = new PhosphorIconProvider;
 
     async onload() {
+        setPluginInstance(this);
         await this.loadSettings();
         registerAllCommands(this);
 
@@ -120,15 +122,16 @@ export default class PortalsPlugin extends Plugin {
         return this.settings.iconLibrary === 'lucide' ? this.lucideProvider : this.phosphorProvider;
     }
 
-    renderPluginIcon(element: HTMLElement, iconName: string) {
+    public renderPluginIcon(element: HTMLElement, iconName: string): void {
         this.getActiveIconProvider().renderIcon(element, iconName);
     }
 
     onunload() { 
+        setPluginInstance(null);
         FrontmatterClinicRenderer.resetCache();
     }
 
-        async loadSettings() {
+    async loadSettings() {
         const data = (await this.loadData()) as Record<string, unknown> | null;
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data ?? {});
 

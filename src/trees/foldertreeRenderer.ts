@@ -41,7 +41,8 @@ export class FolderTreeRenderer {
         const customIcon = PortalsActions.getCustomIcon(this.plugin, folder.path);
         const folderIcon = customIcon || iconName;
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-        iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
+        //iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
+        this.plugin.renderPluginIcon(iconSpan, folderIcon);
 
         const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
         const nameSpan = summary.createSpan({ text: displayName });

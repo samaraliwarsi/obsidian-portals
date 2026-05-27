@@ -1,0 +1,12 @@
+export const PHOSPHOR_TO_LUCIDE: Record<string, string> = {
+    'arrow-square-out': 'arrow-up-right-from-square',
+    'eye-slash': 'eye-off',
+    'plus-minus': 'diff',
+    'dots-six-vertical': 'grip-vertical',
+    'funnel-simple': 'list-filter',
+    'warning-circle': 'circle-alert',
+    'quotes': 'quote',
+    'dice-three': 'dice-3',
+    'calendar-star': 'square-star',
+    'arrow-counter-clockwise': 'rotate-ccw',
+}

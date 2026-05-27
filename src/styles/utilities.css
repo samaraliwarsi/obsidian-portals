@@ -1,3 +1,9 @@
+/*=============Lucide common class===================*/
+.lu .svg-icon {
+    width: 1em;
+    height: 1em;
+}
+
 /*=============================== BUTTON RESET CLASS===================================*/
 
 button.portals-reset-btn {

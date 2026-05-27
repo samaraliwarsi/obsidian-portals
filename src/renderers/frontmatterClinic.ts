@@ -226,7 +226,8 @@ export class FrontmatterClinicRenderer {
             if (!Platform.isMobile) {
                 this.view.attachTooltip(editBtn, 'Edit frontmatter');
             }
-            editBtn.createEl('i', { cls: 'ph ph-list-plus' });
+            //editBtn.createEl('i', { cls: 'ph ph-list-plus' });
+            this.plugin.renderPluginIcon(editBtn, 'list-plus');
             editBtn.addEventListener('click', () => {
                 this.openFrontmatterModal(selectedInView);
             });
@@ -236,7 +237,8 @@ export class FrontmatterClinicRenderer {
             if (!Platform.isMobile) {
                 this.view.attachTooltip(resetColorBtn, 'Reset Colors');
             }
-            resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
+            //resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
+            this.plugin.renderPluginIcon(resetColorBtn, 'palette');
             resetColorBtn.addEventListener('click', () => {
                 for (const file of selectedInView) {
                     delete this.plugin.settings.customColors[file.path];
@@ -249,7 +251,8 @@ export class FrontmatterClinicRenderer {
             if (!Platform.isMobile) {
                 this.view.attachTooltip(deselectBtn, 'Deselect all');
             }
-            deselectBtn.createEl('i', { cls: 'ph ph-x' });
+            //deselectBtn.createEl('i', { cls: 'ph ph-x' });
+            this.plugin.renderPluginIcon(deselectBtn, 'x');
             deselectBtn.addEventListener('click', () => {
                 this.view.hideTooltip(0);
                 this.clinicSelectedPaths.clear();
@@ -341,7 +344,8 @@ export class FrontmatterClinicRenderer {
         
         // Property button (funnel icon)
         const propBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-property-btn' });
-        propBtn.createEl('i', { cls: 'ph ph-funnel' });
+        //propBtn.createEl('i', { cls: 'ph ph-funnel' });
+        this.plugin.renderPluginIcon(propBtn, 'funnel');
         propBtn.createSpan({ 
             text: this.selectedProperty || 'Select property', 
             cls: 'fm-btn-text' 
@@ -382,7 +386,8 @@ export class FrontmatterClinicRenderer {
 
         // Value button (funnel-simple icon)
         const valueBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-value-btn' });
-        valueBtn.createEl('i', { cls: 'ph ph-funnel-simple' });
+        //valueBtn.createEl('i', { cls: 'ph ph-funnel-simple' });
+        this.plugin.renderPluginIcon(valueBtn, 'funnel-simple');
         valueBtn.createSpan({ 
             text: this.selectedValue === '' ? 'All values' : 
                 this.selectedValue === '__none__' ? 'None' : this.selectedValue,

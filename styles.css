@@ -4695,6 +4695,12 @@
 }
 
 
+/*=============Lucide common class===================*/
+.lu .svg-icon {
+    width: 1em;
+    height: 1em;
+}
+
 /*=============================== BUTTON RESET CLASS===================================*/
 
 button.portals-reset-btn {
@@ -5641,7 +5647,8 @@ vertical-align: middle;
     color: var(--text-muted);
 }
 
-.portals-multiselect-toolbar .portals-delete-btn-warn i {
+.portals-multiselect-toolbar .portals-delete-btn-warn i,
+.portals-multiselect-toolbar .portals-delete-btn-warn .svg-icon {
     color: var(--text-error);
 }
 
@@ -7192,13 +7199,17 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     width: 100%;
     height: 100%;
 }
+.folder-summary .portals-action-icons .svg-icon {
+    font-size: 0.8em;
+}
 
 .folder-summary:hover .portals-action-icons {
     display: flex;
     background-color: rgba(128, 128, 128, 0.3);
   }
 
-.folder-summary:hover .portals-action-icons i {
+.folder-summary:hover .portals-action-icons i,
+.folder-summary:hover .portals-action-icons .svg-icon {
     color: var(--text-normal);
 }
 

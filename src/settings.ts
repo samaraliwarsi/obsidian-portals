@@ -472,7 +472,8 @@ export class SpacesSettingTab extends PluginSettingTab {
             // Icon button
             const iconBtn = colorRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
             iconBtn.empty();
-            iconBtn.createEl('i', { cls: `ph ph-${rootSpace.icon}` });
+            //iconBtn.createEl('i', { cls: `ph ph-${rootSpace.icon}` });
+            this.plugin.renderPluginIcon(iconBtn, rootSpace.icon || 'help-circle');
             iconBtn.addEventListener('click', () => {
                 const provider = this.plugin.getActiveIconProvider();
                 new IconPickerModal(this.app, provider, (iconName) => {
@@ -666,7 +667,8 @@ export class SpacesSettingTab extends PluginSettingTab {
 
                 const iconBtn = colorRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
                 iconBtn.empty();
-                iconBtn.createEl('i', { cls: `ph ph-${portal.icon}` });
+                //iconBtn.createEl('i', { cls: `ph ph-${portal.icon}` });
+                this.plugin.renderPluginIcon(iconBtn, portal.icon || 'help-circle');
                 iconBtn.addEventListener('click', () => {
                     const provider = this.plugin.getActiveIconProvider();
                     new IconPickerModal(this.app, provider, (iconName) => {
@@ -729,7 +731,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 // Trash button
                 const trashBtn = colorRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Remove portal' } });
                 trashBtn.empty();
-                trashBtn.createEl('i', { cls: 'ph ph-trash' });
+                //trashBtn.createEl('i', { cls: 'ph ph-trash' });
+                this.plugin.renderPluginIcon(trashBtn, 'trash')
                 trashBtn.addEventListener('click', () => {
                     this.plugin.settings.spaces = this.plugin.settings.spaces.filter(s => s !== portal);
                     if (this.plugin.settings.selectedSpace?.path === portal.path && this.plugin.settings.selectedSpace?.type === portal.type) {
