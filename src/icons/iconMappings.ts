@@ -9,4 +9,11 @@ export const PHOSPHOR_TO_LUCIDE: Record<string, string> = {
     'dice-three': 'dice-3',
     'calendar-star': 'square-star',
     'arrow-counter-clockwise': 'rotate-ccw',
+    'stack': 'layers',
+    'stack-simple': 'layers-2',
+    'caret-circle-up-down': 'chevrons-up-down',
+    'folder-simple-plus': 'folder-plus',
+    'note': 'sticky-note',
+    'list-dashes': 'list',
+    'clock-counter-clockwise': 'clock-fading',
 }

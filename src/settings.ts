@@ -1105,6 +1105,21 @@ export class SpacesSettingTab extends PluginSettingTab {
     
         // --------------------------- BACKUP / RESTORE  -----------------------------
     private renderUtilities(contentEl: HTMLElement): void {
+        new Setting(contentEl).setName('Utilities')
+
+        new Setting(contentEl)
+            .setName('Choose Icon Library')
+            .setDesc('Icon library defines the icons for plugin native and user custom icons.')
+            .addDropdown(dropdown => dropdown
+                .addOption('phosphor', 'Phosphor')
+                .addOption('lucide', 'Lucide')
+                .setValue(this.plugin.settings.iconLibrary)
+                .onChange(async (value) => {
+                    this.plugin.settings.iconLibrary = value as 'phosphor' | 'lucide';
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
         new Setting(contentEl).setName('Backup / restore').setHeading();
 
         new Setting(contentEl)
@@ -1122,19 +1137,6 @@ export class SpacesSettingTab extends PluginSettingTab {
         // --------------------------- MAINTENANCE & HELP -----------------------------
 
         new Setting(contentEl).setName('Maintenance & help').setHeading();
-
-        new Setting(contentEl)
-            .setName('Choose Icon Library')
-            .setDesc('Icon library defines the icons for plugin native and user custom icons.')
-            .addDropdown(dropdown => dropdown
-                .addOption('phosphor', 'Phosphor')
-                .addOption('lucide', 'Lucide')
-                .setValue(this.plugin.settings.iconLibrary)
-                .onChange(async (value) => {
-                    this.plugin.settings.iconLibrary = value as 'phosphor' | 'lucide';
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
 
         new Setting(contentEl)
             .setName('Clean up dead portals')
