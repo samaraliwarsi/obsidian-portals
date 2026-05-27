@@ -14,7 +14,8 @@ export class JournalRenderer {
     private notes: TFile[] = [];
     private quotesCache = new Map<string, { text: string; date: Date; file: TFile }[]>(); // cache quotes per file
     private currentQuoteFile: TFile | null = null;
-    private currentMode: 'random' | 'onThisDay' = 'random';
+    // add default journal tab setting
+    private currentMode: 'random' | 'marked' | 'onThisDay' = 'random';
     private progressBar: HTMLElement | null = null;
     private progressInterval: number | null = null;
     private _updateQuoteAndProgress: (() => Promise<void>) | null = null;
@@ -84,6 +85,10 @@ export class JournalRenderer {
         this.plugin = plugin;
         this.container = container;
         this.view = view;
+        const defaultMode = plugin.settings.journalDefaultCurrentMode;
+        if (defaultMode === 'random' || defaultMode === 'marked' || defaultMode === 'onThisDay') {
+            this.currentMode = defaultMode;
+        }
     }
 
     async render() {
@@ -418,6 +423,9 @@ export class JournalRenderer {
         const randomBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
         randomBtn.createEl('i', { cls: 'ph ph-dice-three'});
         randomBtn.createSpan({ text: 'Random', cls: 'journal-btn-text' });
+        const markedBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
+        markedBtn.createEl('i', { cls: 'ph ph-marker-circle' });
+        markedBtn.createSpan({ text: 'Marked', cls: 'journal-btn-text' });
         const onThisDayBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
         onThisDayBtn.createEl('i', { cls: 'ph ph-calendar-star' });
         onThisDayBtn.createSpan({ text: 'On this day', cls: 'journal-btn-text' });
@@ -453,7 +461,18 @@ export class JournalRenderer {
                 if (this.allQuotes.length === 0) return null;
                 const randomIndex = Math.floor(Math.random() * this.allQuotes.length);
                 return this.allQuotes[randomIndex]!;
-            } else {
+            } 
+            
+            if (this.currentMode === 'marked') {
+                const markedPaths = this.plugin.settings.markedJournalNotes;
+                if (!markedPaths || markedPaths.length === 0) return null;
+                const markedQuotes = this.allQuotes.filter(q => markedPaths.includes(q.file.path));
+                if (markedQuotes.length === 0) return null;
+                const randomIndex = Math.floor(Math.random() * markedQuotes.length);
+                return markedQuotes[randomIndex]!;
+            }
+            
+            if (this.currentMode === 'onThisDay') {
                 // onThisDay – preserve original logic
                 const today = new Date();
                 const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
@@ -483,6 +502,7 @@ export class JournalRenderer {
                 const randomIndex = Math.floor(Math.random() * matchingQuotes.length);
                 return matchingQuotes[randomIndex]!;
             }
+            return null;
         };
 
         // Update quote and reset progress bar
@@ -492,6 +512,9 @@ export class JournalRenderer {
             if (!quote) {
                 if (this.currentMode === 'onThisDay' && this.allQuotes.length > 0) {
                     quoteDisplay.setText('No quotes from this day in previous months of this year, or from this date & month in the last 10 years.');
+                    quoteDisplay.addClass('journal-quote-text');
+                } else if (this.currentMode === 'marked') {
+                    quoteDisplay.setText('No quotes found in marked notes, or no marked notes found. Right-click a journal card to mark it, make sure it has quotes with delimiter defined in settings.');
                     quoteDisplay.addClass('journal-quote-text');
                 } else {
                 quoteDisplay.setText('No quotes found. Please link your Daily Notes folder in settings & mark text in daily note files using the delimeter that you selected in settings.');
@@ -510,25 +533,45 @@ export class JournalRenderer {
         };
 
         // Switch mode, reset timer
-        const setMode = async (mode: 'random' | 'onThisDay') => {
+        const setMode = async (mode: 'random' | 'marked' | 'onThisDay') => {
             if (this.currentMode === mode) return;
             this.currentMode = mode;
             randomBtn.classList.toggle('active', mode === 'random');
+            markedBtn.classList.toggle('active', mode === 'marked');
             onThisDayBtn.classList.toggle('active', mode === 'onThisDay');
             await startRotation();
         };
 
         // Set initial active state
-        randomBtn.classList.add('active');
+        if (this.currentMode === 'random') {
+            randomBtn.classList.add('active');
+        } else if (this.currentMode === 'marked') {
+            markedBtn.classList.add('active');
+        } else if (this.currentMode === 'onThisDay') {
+            onThisDayBtn.classList.add('active');
+        }
 
         // Button handlers
         randomBtn.addEventListener('click', () => {
             void setMode('random');
         });
+        markedBtn.addEventListener('click', () => {
+            void setMode('marked');
+        });
         onThisDayBtn.addEventListener('click', () => {
             void setMode('onThisDay');
         });
-
+        if (!Platform.isMobile) {
+            let onThisDayTooltipShown = false;
+            onThisDayBtn.addEventListener('mouseenter', () => {
+                if (onThisDayTooltipShown) return;
+                onThisDayTooltipShown = true;
+                this.view.showTooltip('This day, this year & this day in history.', onThisDayBtn, 300, 'right');
+            });
+            onThisDayBtn.addEventListener('mouseleave', () => {
+                this.view.hideTooltip(100)
+            }, { once: true });
+        }
         // Start with random mode
         window.setTimeout(() => {
             if (this.container.isConnected) {

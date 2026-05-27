@@ -76,6 +76,7 @@ export interface SpacesSettings {
     previousSelectedSpace: { path: string; type: 'folder' | 'tag' } | null;
     showQuickTabNumbersOnTabs: boolean;
     showFileToolTips: boolean;
+    journalDefaultCurrentMode: 'random' | 'marked' | 'onThisDay';
     
 }
 
@@ -147,6 +148,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     previousSelectedSpace: null,
     showQuickTabNumbersOnTabs: false,
     showFileToolTips: false,
+    journalDefaultCurrentMode: 'random',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -1030,24 +1032,41 @@ export class SpacesSettingTab extends PluginSettingTab {
                 });
                 return dropdown;
             });
+        
+        new Setting (contentEl)
+            .setName('Journal default quote tab')
+            .setDesc('Choose a journal quote tab for default display, requires obsidian reload.')
+            .addDropdown(dropdown => dropdown
+                .addOption('random', 'Random')
+                .addOption('marked', 'marked')
+                .addOption('onThisDay', 'On this day')
+                .setValue(this.plugin.settings.journalDefaultCurrentMode)
+                .onChange(async (value) => {
+                    this.plugin.settings.journalDefaultCurrentMode = value as 'random' | 'marked' | 'onThisDay';
+                    await this.plugin.saveSettings();
+                    if (this.plugin.settings.activeSplitTab === 'journal') {
+                        this.plugin.refreshAllViews();
+                    }
+                }));
+        
 
         new Setting(contentEl)
-        .setName('Show quote indicator on date cards')
-        .setDesc('Adds a small icon to journal date cards that contain at least one quote.')
-        .addDropdown(dropdown => dropdown
-            .addOption('quotes', 'Quotes')
-            .addOption('warnings', 'Warnings')
-            .addOption('all', 'All')
-            .addOption('none', 'None')
-            .setValue(this.plugin.settings.journalQuoteIndicator)
-            .onChange(async (value) => {
-                this.plugin.settings.journalQuoteIndicator = value as 'quotes' | 'warnings' | 'all' | 'none';
-                await this.plugin.saveSettings();
-                // Refresh the journal tab if it's active
-                if (this.plugin.settings.activeSplitTab === 'journal') {
-                    this.plugin.refreshAllViews();
-                }
-            }));
+            .setName('Show quote indicator on date cards')
+            .setDesc('Adds a small icon to journal date cards that contain at least one quote.')
+            .addDropdown(dropdown => dropdown
+                .addOption('quotes', 'Quotes')
+                .addOption('warnings', 'Warnings')
+                .addOption('all', 'All')
+                .addOption('none', 'None')
+                .setValue(this.plugin.settings.journalQuoteIndicator)
+                .onChange(async (value) => {
+                    this.plugin.settings.journalQuoteIndicator = value as 'quotes' | 'warnings' | 'all' | 'none';
+                    await this.plugin.saveSettings();
+                    // Refresh the journal tab if it's active
+                    if (this.plugin.settings.activeSplitTab === 'journal') {
+                        this.plugin.refreshAllViews();
+                    }
+                }));
 
         contentEl.createEl('hr');
 
