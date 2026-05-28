@@ -43,7 +43,8 @@ export class RecentFilesRenderer {
             const fileEl = contentEl.createDiv({ cls: 'file-item recent-file-item' });
             // custom icon
             const customIcon = PortalsActions.getCustomIcon(this.plugin, file.path);
-            const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
+            //const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
+            const fileIconClass = customIcon || 'file';
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
             //iconSpan.createEl('i', { cls: fileIconClass });
             this.plugin.renderPluginIcon(iconSpan, fileIconClass);

@@ -1,21 +1,29 @@
-// src/icon-providers/PhosphorIconProvider.ts
-import { iconNames } from '../utils/iconMap'; // your current list
+// src/icons/PhosphorIconProvider.ts
+import { iconNames } from '../utils/iconMap';
+import { LUCIDE_TO_PHOSPHOR } from './iconMappings';
 import { IconProvider } from './iconProvider';
-//import { setIcon } from 'obsidian'; // you might not use this for Phosphor
 
 export class PhosphorIconProvider implements IconProvider {
     name = 'Phosphor';
     
     getIconList(): string[] {
-        return iconNames; // the sorted array you already have
+        return iconNames;
     }
     
     renderIcon(element: HTMLElement, iconName: string): void {
-        // Create an <i> element with the Phosphor classes
+        let resolved = iconName;
+        if (!iconNames.includes(resolved)) {
+            const mapped = LUCIDE_TO_PHOSPHOR[iconName];
+            if (mapped && iconNames.includes(mapped)) {
+                resolved = mapped;
+            } else {
+                resolved = 'question';
+            }
+        }
         const i = document.createElement('i');
-        i.className = `ph ph-${iconName}`;
+        i.className = `ph ph-${resolved}`;
         i.setCssProps({ color: 'inherit' });
-        element.empty();  // optional: clear previous content
+        element.empty();
         element.appendChild(i);
     }
 }

@@ -17,7 +17,9 @@ export class IconPickerModal extends Modal {
         contentEl.empty();
         contentEl.addClass('portals-icon-picker-modal');
 
-        contentEl.createEl('h2', { text: 'Choose an icon' });
+        //contentEl.createEl('h2', { text: 'Choose an icon' });
+        contentEl.createDiv({ text: 'Choose an icon', cls: 'portals-icon-picker-modal-title' });
+
 
         const searchInput = contentEl.createEl('input', {
             type: 'text',
@@ -27,7 +29,7 @@ export class IconPickerModal extends Modal {
 
         const iconGrid = contentEl.createDiv({ cls: 'portals-icon-grid' });
 
-        const BATCH_SIZE = 500;
+        const BATCH_SIZE = 300;
         let displayCount = BATCH_SIZE;
         let currentFilter = '';
         let allFiltered: string[] = [];
@@ -51,7 +53,7 @@ export class IconPickerModal extends Modal {
                 iconGrid.empty();
 
                 if (toRender.length === 0) {
-                    iconGrid.createEl('p', { text: 'No icons found.' });
+                    iconGrid.createSpan({ text: 'No icons found.', cls: 'portals-iconpicker-subtext' });
                     return;
                 }
 

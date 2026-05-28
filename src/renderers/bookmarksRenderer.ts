@@ -101,14 +101,14 @@ export class BookmarksRenderer {
                 const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
 
                 let iconClass = 'ph-file';
-                if (item.type === 'url') iconClass = 'ph-link';
-                else if (item.type === 'folder') iconClass = 'ph-folder';
-                else if (item.type === 'file') iconClass = 'ph-file';
-                else if (item.url) iconClass = 'ph-link';
+                if (item.type === 'url') iconClass = 'link';
+                else if (item.type === 'folder') iconClass = 'folder';
+                else if (item.type === 'file') iconClass = 'file';
+                else if (item.url) iconClass = 'link';
                 else if (item.path) {
                     const abstractFile = this.app.vault.getAbstractFileByPath(item.path);
-                    if (abstractFile instanceof TFolder) iconClass = 'ph-folder';
-                    else iconClass = 'ph-file';
+                    if (abstractFile instanceof TFolder) iconClass = 'folder';
+                    else iconClass = 'file';
                 }
 
                 //iconSpan.createEl('i', { cls: `ph ${iconClass}` });

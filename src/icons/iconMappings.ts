@@ -1,3 +1,14 @@
+// src/icons/icon-mapping.ts
+
+function invertMapping(map: Record<string, string>): Record<string, string> {
+    const reversed: Record<string, string> = {};
+    for (const [key, value] of Object.entries(map)) {
+        reversed[value] = key;
+    }
+    return reversed;
+}
+
+
 export const PHOSPHOR_TO_LUCIDE: Record<string, string> = {
     'arrow-square-out': 'arrow-up-right-from-square',
     'eye-slash': 'eye-off',
@@ -17,3 +28,5 @@ export const PHOSPHOR_TO_LUCIDE: Record<string, string> = {
     'list-dashes': 'list',
     'clock-counter-clockwise': 'clock-fading',
 }
+
+export const LUCIDE_TO_PHOSPHOR: Record<string, string> = invertMapping(PHOSPHOR_TO_LUCIDE);

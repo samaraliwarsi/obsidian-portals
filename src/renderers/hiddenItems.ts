@@ -70,16 +70,18 @@ export class HiddenItemsRenderer {
             const item = this.app.vault.getAbstractFileByPath(key);
             if (item instanceof TFile) {
                 displayName = this.view.getDisplayName(item);
-                iconClass = 'ph-file';
+                //iconClass = 'ph-file';
+                iconClass = 'file';
                 typeLabel = 'File';
                 const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
-                if (customIcon) iconClass = `ph-${customIcon}`;
+                if (customIcon) iconClass = customIcon;
             } else if (item instanceof TFolder) {
                 displayName = item.name;
-                iconClass = 'ph-folder';
+                //iconClass = 'ph-folder';
+                iconClass = 'folder';
                 typeLabel = 'Folder';
                 const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
-                if (customIcon) iconClass = `ph-${customIcon}`;
+                if (customIcon) iconClass = customIcon;
             } else if (key.startsWith('tag:')) {
                 const withoutPrefix = key.slice(4);
                 const groupMatch = withoutPrefix.match(/^([^/]+)\/group:(.+)$/);
@@ -88,19 +90,22 @@ export class HiddenItemsRenderer {
                 if (groupMatch && groupMatch[1] && groupMatch[2]) {
                     displayName = groupMatch[2];
                     typeLabel = 'Tag Group';
-                    iconClass = 'ph-tag-simple';
+                    //iconClass = 'ph-tag-simple';
+                    iconClass = 'tag-simple';
                 } else if (nodeMatch && nodeMatch[1] && nodeMatch[2]) {
                     const nodePath = nodeMatch[2];
                     displayName = nodePath.split('/').pop() || nodePath;
                     typeLabel = 'Subtag';
-                    iconClass = 'ph-tag';
+                    //iconClass = 'ph-tag';
+                    iconClass = 'tag';
                 } else {
                     displayName = withoutPrefix;
                     typeLabel = 'Tag';
-                    iconClass = 'ph-tag';
+                    //iconClass = 'ph-tag';
+                    iconClass = 'tag';
                 }
                 const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
-                if (customIcon) iconClass = `ph-${customIcon}`;
+                if (customIcon) iconClass = customIcon;
             }
 
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });

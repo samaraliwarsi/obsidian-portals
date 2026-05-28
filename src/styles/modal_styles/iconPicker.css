@@ -5,19 +5,31 @@
   max-width: auto;
 }
 
-.portals-icon-picker-modal h2 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 10px;
+.portals-icon-picker-modal-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
     color: var(--text-faint);
-    margin-left: 10px;
+    border-bottom: 1px dashed var(--background-modifier-hover);
+    padding-bottom: 8px;
+}
+
+.icon-picker-search {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    margin-bottom: 16px;
+    font-size: 1em;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .portals-icon-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 8px;
+    grid-template-columns: repeat(6, 1fr);
     max-height: 60vh;
     overflow-y: auto;
     padding: 8px;
@@ -36,7 +48,7 @@
 }
 
 .icon-item:hover {
-    background-color: var(--background-modifier-hover);
+    background-color: var(--background-modifier-active-hover);
 }
 
 .portals-icon-label {
@@ -44,22 +56,6 @@
     margin-top: 4px;
     word-break: break-word;
     text-align: center;
-}
-
-.icon-picker-search {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--background-modifier-border);
-    background: var(--background-primary);
-    margin-bottom: 16px;
-    font-size: 1em;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.portals-input-modal-input {
-    width: 100%;
-    margin-bottom: 1em;
 }
 
 .portals-icon-picker-icon {
@@ -73,7 +69,7 @@
     margin-top: 8px;
     cursor: pointer;
     border-radius: 6px;
-    background: var(--background-modifier-hover);
+    background: var(--background-modifier-actove-hover);
     color: var(--text-muted);
     font-size: 0.9em;
 }
@@ -81,3 +77,10 @@
     background: var(--background-modifier-active-hover);
     color: var(--text-normal);
 }
+
+.portals-iconpicker-subtext {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  text-align: center;
+}
+

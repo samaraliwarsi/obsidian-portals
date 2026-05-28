@@ -873,7 +873,6 @@ background-color: var(--background-modifier-hover);
   opacity: 0.7;
   cursor: pointer;
   transition: opacity 0.1s, background-color 0.2s;
-  line-height: 1;
   flex-shrink: 0;
 }
 
@@ -892,6 +891,12 @@ background-color: var(--background-modifier-hover);
 
 .file-item:hover .portals-file-action-icons i {
   color: var(--text-normal);
+}
+
+.file-item:hover .portals-file-action-icons .svg-icon {
+    font-size: 0.85em;
+    width: 1em;
+    height: 1em;
 }
 
 .file-item:hover .portals-file-action-icons:hover {
@@ -1078,7 +1083,7 @@ opacity: 0.7;
 .portals-split-content .file-item {
   font-size: 0.9em;
   padding: 2px 4px;             
-  min-height: 24px;            
+  min-height: 24px;
 }
 
 
@@ -1088,13 +1093,27 @@ opacity: 0.7;
   height: 12px;
 }
 
+.portals-split-content .file-icon .svg-icon {
+    font-size: 12.5px;
+    width: 1em;
+    height: 1em;
+    align-items: center;
+    padding-top: 2px;
+}
+
 .portals-split-content .folder-summary {
   font-size: 0.85em;
   padding: 2px 4px;
 }
 
-.portals-split-content .folder-summary .folder-icon .ph {
+.portals-split-content .folder-summary .ph {
   font-size: 12px;
+}
+.portals-split-content .folder-summary .svg-icon {
+    font-size: 12.5px;
+    width: 1em;
+    height: 1em;
+    padding-top: 2px;
 }
 
 .portals-split-content::-webkit-scrollbar,
@@ -1374,7 +1393,6 @@ body.portals-dragging {
 }
 
 /*============================JOURNAL=================================*/
-
 .journal-warning {
     color: var(--text-warning);
     padding: 12px;
@@ -1386,9 +1404,6 @@ body.portals-dragging {
     gap: 8px;
     border-left: 2px solid var(--text-warning);
 }
-
-/* Journal Tab Styles */
-
 .journal-card {
     flex: 0 0 auto;
     width: 80px;
@@ -1447,6 +1462,7 @@ body.portals-dragging {
     font-size: 8px;
     opacity: 0.7;
 }
+
 .journal-warn-indicator {
     position: absolute;
     top: 2px;
@@ -1455,8 +1471,12 @@ body.portals-dragging {
     opacity: 0.7;
 }
 
-/* Uncomment this for accent/ tab colors on indicator */
-/*.journal-quote-indicator i { color: var(--journal-accent-color, var(--interactive-accent)); } */
+.journal-quote-indicator .svg-icon,
+.journal-warn-indicator .svg-icon {
+    width: 1em;
+    height: 1em;
+    font-size: 8px;
+}
 
 .journal-quote-text {
     margin: 0 0 8px 0;
@@ -1543,6 +1563,15 @@ body.portals-dragging {
     height: var(--input-height-tight);
 }
 
+.portals-reset-btn.journal-btn i {
+    font-size: 0.9em;
+}
+.portals-reset-btn.journal-btn .svg-icon {
+    font-size: 0.8em;
+    width: 1em;
+    height: 1em;
+}
+
 .portals-reset-btn.journal-btn.active {
     border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
@@ -1559,6 +1588,12 @@ body.portals-dragging {
 
 button.journal-filter-btn i {
     font-size: 0.85em;
+}
+
+button.journal-filter-btn .svg-icon {
+    font-size: 0.75em;
+    width: 1em;
+    height: 1em;
 }
 
 .journal-btn-text {
@@ -1631,13 +1666,27 @@ button.journal-btn.fm-value-btn {
     border-left: 2px solid var(--fm-accent-color, var(--interactive-accent));
 }
 
+button.journal-btn.fm-property-btn .svg-icon i,
+button.journal-btn.fm-value-btn .svg-icon i {
+    font-size: 0.9em;
+}
+
+button.portals-reset-btn.fm-property-btn .svg-icon,
+button.portals-reset-btn.fm-value-btn .svg-icon {
+    font-size: 0.85em;
+    width: 1em;
+    height: 1em;
+}
+
+
+/*
 .fm-dropdown-icon {
     position: absolute;
     left: 8px;
     pointer-events: none;
     color: var(--text-muted);
     font-size: 14px;
-}
+}*/
 
 .fm-clinic-header select {
     flex: 1;
@@ -1811,6 +1860,12 @@ button.unhide-btn:not(.clickable-icon):hover {
     color: var(--text-normal);
 }
 
+button.unhide-btn:not(.clickable-icon) .svg-icon {
+    font-size: 0.85em;
+    width: 1em;
+    height: 1em;
+}
+
 .unhide-items-message {
    padding: 16px;
     text-align: center;
@@ -1851,6 +1906,16 @@ button.unhide-btn:not(.clickable-icon):hover {
 .portals-reset-btn.unhide-btn-all:hover {
     background: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
+}
+
+.portals-reset-btn.unhide-btn-all i {
+    font-size: 0.75em;
+}
+
+.portals-reset-btn.unhide-btn-all .svg-icon {
+    font-size: 0.75em;
+    width: 1em;
+    height: 1em;
 }
 
 .unhide-wrapper {
@@ -1968,10 +2033,21 @@ button.trash-delete-btn:not(.clickable-icon) {
     padding: 2px 4px;
     align-items: center;
     justify-content: center;
-    font-size: 0.75em;
     height: 24px;
     box-shadow: inset 0 0 0 1px rgba(100, 100, 100, 0.1);
     border: 1px solid var(--background-modifier-border);
+}
+
+button.trash-action-btn:not(.clickable-icon) i,
+button.trash-delete-btn:not(.clickable-icon) i {
+    font-size: 0.75em;
+}
+
+button.trash-action-btn:not(.clickable-icon) .svg-icon,
+button.trash-delete-btn:not(.clickable-icon) .svg-icon {
+    font-size: 0.75em;
+    width: 1em;
+    height: 1em;
 }
 
 button.trash-action-btn:not(.clickable-icon):hover {
@@ -2238,6 +2314,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 }
 .folder-summary .portals-action-icons .svg-icon {
     font-size: 0.8em;
+    height: 1em;
+    width: 1em;
 }
 
 .folder-summary:hover .portals-action-icons {
