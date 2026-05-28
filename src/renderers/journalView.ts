@@ -41,7 +41,8 @@ export class JournalRenderer {
             const elapsed = Date.now() - startTime;
             const percent = Math.min(100, (elapsed / 30000) * 100);
             if (this.progressBar) {
-                this.progressBar.style.width = `${percent}%`;
+                //this.progressBar.style.width = `${percent}%`;
+                this.progressBar.setCssProps({ 'width': `${percent}%` });
             }
             if (elapsed >= 30000) {
                 window.clearInterval(this.progressInterval!);
@@ -168,9 +169,11 @@ export class JournalRenderer {
             const tabColorEnabled = this.plugin.settings.tabColorEnabled;
             const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
             if (rootColor) {
-                this.container.style.setProperty('--journal-accent-color', rootColor);
+                //this.container.style.setProperty('--journal-accent-color', rootColor);
+                this.container.setCssProps({ '--journal-accent-color': rootColor });
             } else {
-                this.container.style.removeProperty('--journal-accent-color');
+                //this.container.style.removeProperty('--journal-accent-color');
+                this.container.setCssProps({ '--journal-accent-color': '' });
             }
 
             if (this.notes.length === 0) {
@@ -325,9 +328,11 @@ export class JournalRenderer {
                 card.addClass('journal-card-marked');
             }
             card.createSpan({ cls: 'journal-card-title', text: date.toLocaleDateString() });
-            card.style.background = `rgba(100, 100, 100, ${opacity * 0.4})`;
+            //card.style.background = `rgba(100, 100, 100, ${opacity * 0.4})`;
+            card.setCssProps({ 'background': `rgba(100, 100, 100, ${opacity * 0.4})` });
             // set css for border opacity only used when not marked 
-            card.style.setProperty('--journal-border-opacity', String(opacity * 0.25));
+            //card.style.setProperty('--journal-border-opacity', String(opacity * 0.25));
+            card.setCssProps({ '--journal-border-opacity': String(opacity * 0.25) });
 
             const indicator = this.plugin.settings.journalQuoteIndicator; // 'quote' | 'warn' | 'both' | 'none'
 

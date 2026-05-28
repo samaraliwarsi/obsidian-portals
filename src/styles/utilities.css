@@ -224,3 +224,58 @@ button.mod-loading::after {
   border-radius: 50%;
   animation: spin 1s ease infinite;
 }
+
+/*=========================SIDE PORTAL BUTTONS=======================================*/
+
+/*----Main button------*/
+.portals-reset-btn.journal-btn,
+.portals-reset-btn.journal-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9em;
+    padding: 4px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    height: var(--input-height-tight);
+    color: var(--text-muted);
+}
+
+/*------Phosphor and Lucide (if applicable)-----------*/
+.portals-reset-btn.journal-btn i,
+.portals-reset-btn.journal-filter-btn i {
+    font-size: 0.9em;
+}
+.portals-reset-btn.journal-btn .svg-icon,
+.portals-reset-btn.journal-filter-btn .svg-icon {
+    font-size: 0.8em;
+    width: 1em;
+    height: 1em;
+}
+
+/*------Button states-----------*/
+.portals-reset-btn.journal-btn.active {
+    border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
+}
+
+.portals-reset-btn.journal-btn:hover,
+.portals-reset-btn.journal-filter-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--text-normal);
+}
+
+.portals-reset-btn.journal-btn:focus-visible,
+.portals-reset-btn.journal-filter-btn:focus-visible {
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--text-normal);
+}
+
+@media (hover: hover) {
+  .portals-reset-btn.journal-btn:hover,
+  .portals-reset-btn.journal-filter-btn:hover {
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-normal);
+  }
+}

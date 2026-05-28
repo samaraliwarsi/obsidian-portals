@@ -4921,6 +4921,61 @@ button.mod-loading::after {
   border-radius: 50%;
   animation: spin 1s ease infinite;
 }
+
+/*=========================SIDE PORTAL BUTTONS=======================================*/
+
+/*----Main button------*/
+.portals-reset-btn.journal-btn,
+.portals-reset-btn.journal-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9em;
+    padding: 4px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    height: var(--input-height-tight);
+    color: var(--text-muted);
+}
+
+/*------Phosphor and Lucide (if applicable)-----------*/
+.portals-reset-btn.journal-btn i,
+.portals-reset-btn.journal-filter-btn i {
+    font-size: 0.9em;
+}
+.portals-reset-btn.journal-btn .svg-icon,
+.portals-reset-btn.journal-filter-btn .svg-icon {
+    font-size: 0.8em;
+    width: 1em;
+    height: 1em;
+}
+
+/*------Button states-----------*/
+.portals-reset-btn.journal-btn.active {
+    border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
+}
+
+.portals-reset-btn.journal-btn:hover,
+.portals-reset-btn.journal-filter-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--text-normal);
+}
+
+.portals-reset-btn.journal-btn:focus-visible,
+.portals-reset-btn.journal-filter-btn:focus-visible {
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--text-normal);
+}
+
+@media (hover: hover) {
+  .portals-reset-btn.journal-btn:hover,
+  .portals-reset-btn.journal-filter-btn:hover {
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-normal);
+  }
+}
 /* =========== PORTAL PLUGIN CORE STYLES =========== */
 
 /*----------------------STACKS-----------------------------------------*/
@@ -6324,7 +6379,7 @@ body.portals-dragging {
     padding-left: 10px;
 }
 
-/*============================JOURNAL=================================*/
+/*============================JOURNAL=================================
 .journal-warning {
     color: var(--text-warning);
     padding: 12px;
@@ -6372,7 +6427,7 @@ body.portals-dragging {
     padding-bottom: 12px;
 }
 
-/* Custom scrollbar for date cards – matches the rest of Portals */
+/* Custom scrollbar for date cards – matches the rest of Portals *//*
 .journal-cards-wrapper::-webkit-scrollbar {
     height: 8px;
 }
@@ -6461,7 +6516,7 @@ body.portals-dragging {
   filter: blur(2px)
 }
 
-/*For users prefering reduced motion in OS*/
+/*For users prefering reduced motion in OS*//*
 @media (prefers-reduced-motion: reduce) {
   .journal-quote-display,
   .journal-quote-display.animation {
@@ -6534,7 +6589,7 @@ button.journal-filter-btn .svg-icon {
 
 .journal-card-marked {
   border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent));
-}
+}*/
 
 /*=============================JOURNAL-END============================*/
 /*=============================FRONTMATTER CLINIC=========================*/
@@ -7409,6 +7464,176 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     } 
 }
 
+
+/*============================JOURNAL=================================*/
+.portals-reset-btn.journal-filter-btn {
+    border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
+}
+
+.journal-warning {
+    color: var(--text-warning);
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 2px solid var(--text-warning);
+}
+.journal-card {
+    flex: 0 0 auto;
+    width: 80px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 0 2px;
+    font-size: 0.8em;
+    text-align: center;
+    transition: transform 0.1s;
+    border-bottom: 2px solid rgba(128, 128, 128, var(--journal-border-opacity, 0.25));
+    position: relative;
+}
+
+.journal-card:hover {
+    transform: scale(1.05);
+    background-color: var(--background-modifier-hover);
+}
+
+.journal-card-title {
+    font-size: 0.8em;
+    font-weight: bold;
+    text-align: center;
+}
+
+.journal-cards-wrapper {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding-top: 8px;
+    padding-bottom: 12px;
+}
+
+/* Custom scrollbar for date cards – matches the rest of Portals */
+.journal-cards-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+.journal-cards-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+.journal-cards-wrapper::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+.journal-cards-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+.journal-quote-indicator {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 8px;
+    opacity: 0.7;
+}
+
+.journal-warn-indicator {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 8px;
+    opacity: 0.7;
+}
+
+.journal-quote-indicator .svg-icon,
+.journal-warn-indicator .svg-icon {
+    width: 1em;
+    height: 1em;
+    font-size: 8px;
+}
+
+.journal-quote-text {
+    margin: 0 0 8px 0;
+    font-style: italic;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.journal-quote-date {
+    display: block;
+    text-align: right;
+    color: var(--text-muted);
+    font-size: 0.7em;
+}
+
+.journal-progress-container {
+    width: 100%;
+    height: 2px;
+    background-color: var(--background-modifier-border);
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.journal-progress-bar {
+    height: 100%;
+    background-color: color-mix(in srgb, var(--text-normal) 30%, transparent);
+    width: 0%;
+}
+
+.journal-quote-display {
+    position: relative;
+    padding: 16px 6px 16px 24px;
+    margin-top: 12px;
+    border-radius: 12px;
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+}
+.journal-quote-display::before {
+    content: "“";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 2.5em;
+    font-family: serif;
+    color: var(--text-faint);
+}
+
+.journal-quote-display.animation {
+  opacity: 0;
+  transform: translateY(8px);
+  filter: blur(2px)
+}
+
+/*For users prefering reduced motion in OS*/
+@media (prefers-reduced-motion: reduce) {
+  .journal-quote-display,
+  .journal-quote-display.animation {
+    transition: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.journal-quote-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.journal-btn-text {
+    font-size: 0.8em;
+}
+
+.journal-card-marked {
+  border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent));
+}
 
 /* ================================ Settings page ================================ */
 

@@ -12,6 +12,7 @@ const files = [
   'src/styles/utilities.css',
   'src/styles/mainSideBarStyles.css',
   'src/styles/floatingButtons.css',
+  'src/styles/sideportal_styles/journalStyles.css',
   'src/styles/settings.css',
   'src/styles/modal_styles/searchPopover.css',
   'src/styles/modal_styles/addPortalModal.css',

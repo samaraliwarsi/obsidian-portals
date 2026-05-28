@@ -1401,7 +1401,7 @@ body.portals-dragging {
     padding-left: 10px;
 }
 
-/*============================JOURNAL=================================*/
+/*============================JOURNAL=================================
 .journal-warning {
     color: var(--text-warning);
     padding: 12px;
@@ -1449,7 +1449,7 @@ body.portals-dragging {
     padding-bottom: 12px;
 }
 
-/* Custom scrollbar for date cards – matches the rest of Portals */
+/* Custom scrollbar for date cards – matches the rest of Portals *//*
 .journal-cards-wrapper::-webkit-scrollbar {
     height: 8px;
 }
@@ -1538,7 +1538,7 @@ body.portals-dragging {
   filter: blur(2px)
 }
 
-/*For users prefering reduced motion in OS*/
+/*For users prefering reduced motion in OS*//*
 @media (prefers-reduced-motion: reduce) {
   .journal-quote-display,
   .journal-quote-display.animation {
@@ -1611,7 +1611,7 @@ button.journal-filter-btn .svg-icon {
 
 .journal-card-marked {
   border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent));
-}
+}*/
 
 /*=============================JOURNAL-END============================*/
 /*=============================FRONTMATTER CLINIC=========================*/
