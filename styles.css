@@ -5907,7 +5907,6 @@ line-height: 14px;
 text-align: center;
 color: var(--text-normal);
 align-self: center;
-padding-bottom: 1px;
 }
 
 .folder-icon .svg-icon,
@@ -6726,7 +6725,6 @@ button.clickable-icon.fm-edit-btn:hover {
     width: fit-content;
     padding: 2px 4px;
     border-radius: 4px;
-    color: var(--text-faint);
     white-space: nowrap;
 }
 
@@ -6754,6 +6752,11 @@ button.clickable-icon.fm-edit-btn:hover {
     align-items: center;
     justify-content: center;
     padding: 4px;
+}
+
+.fm-clinic-toolbar .clickable-icon .svg-icon {
+    width: 1em;
+    height: 1em;
 }
 
 .fm-clinic-toolbar .portals-selection-count {
@@ -7725,7 +7728,7 @@ button.portals-portal-list-delete {
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
     width: auto, var(--dialog-width);
-    min-width: 350px;
+    min-width: 400px;
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
@@ -8753,9 +8756,8 @@ input.cm-opacity-slider {
 
 .portals-icon-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 8px;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(60px, 1fr));
     max-height: 60vh;
     overflow-y: auto;
     padding: 8px;

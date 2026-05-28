@@ -27,9 +27,8 @@
 
 .portals-icon-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 8px;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(60px, 1fr));
     max-height: 60vh;
     overflow-y: auto;
     padding: 8px;

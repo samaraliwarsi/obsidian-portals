@@ -1802,7 +1802,6 @@ button.clickable-icon.fm-edit-btn:hover {
     width: fit-content;
     padding: 2px 4px;
     border-radius: 4px;
-    color: var(--text-faint);
     white-space: nowrap;
 }
 
@@ -1830,6 +1829,11 @@ button.clickable-icon.fm-edit-btn:hover {
     align-items: center;
     justify-content: center;
     padding: 4px;
+}
+
+.fm-clinic-toolbar .clickable-icon .svg-icon {
+    width: 1em;
+    height: 1em;
 }
 
 .fm-clinic-toolbar .portals-selection-count {

@@ -40,9 +40,9 @@ export class ReorderItemsModal extends Modal {
             const row = list.createDiv({ cls: 'portals-sortable-item' });
             row.createSpan({ text: item.displayName });
             row.dataset.path = item.path;
-            row.createSpan({ cls: 'portals-reorder-handle'})
+            const reorderHandle = row.createSpan({ cls: 'portals-reorder-handle'})
                 //.createEl('i', { cls: 'ph ph-dots-six-vertical' });
-            this.plugin.renderPluginIcon(row, 'dots-six-vertical');
+            this.plugin.renderPluginIcon(reorderHandle, 'dots-six-vertical');
         }
         if (this.sourceEl) {
             this.sourceEl.addClass('portals-reordering-source-active');

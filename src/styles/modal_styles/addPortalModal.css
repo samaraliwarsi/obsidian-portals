@@ -19,7 +19,7 @@
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
     width: auto, var(--dialog-width);
-    min-width: 350px;
+    min-width: 400px;
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
