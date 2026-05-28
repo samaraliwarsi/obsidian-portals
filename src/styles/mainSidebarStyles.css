@@ -983,6 +983,15 @@ display: block;
 line-height: 14px;
 text-align: center;
 color: var(--text-normal);
+align-self: center;
+}
+
+.folder-icon .svg-icon,
+.file-icon .svg-icon {
+    font-size: 13.5px;
+    width: 1em;
+    height: 1em;
+    align-self: center;
 }
 
 .folder-icon .context-notes-open-icon {
