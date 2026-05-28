@@ -8,10 +8,9 @@
 # npm
 node_modules
 
-# Don't include the compiled main.js & styles.css file in the repo.
+# Don't include the compiled main.js file in the repo.
 # They should be uploaded to GitHub releases instead.
 main.js
-styles.css
 
 # Exclude sourcemaps
 *.map
@@ -24,3 +23,6 @@ data.json
 
 # exclude temp build process file for css
 src/build-css
+
+# exclude pre-refactor css file 
+src/styles/mainSidebarStyles.css

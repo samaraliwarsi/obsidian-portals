@@ -1,6 +1,6 @@
 /* =========== PORTAL PLUGIN CORE STYLES =========== */
 
-/*----------------------STACKS-----------------------------------------*/
+/*----------------------STACKS-----------------------------------------
 
 .portals-tab:last-child {
   margin-right: 0;
@@ -88,7 +88,7 @@
 
 .portals-stack-group .portals-tab-pinned {
     border-left: 2px solid var(--tab-pinned-color, var(--interactive-accent));
-}
+}*/
 
 /* ------------------------------ Tree Styles ------------------------------------ */
 
@@ -500,7 +500,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 
 /* ----- Global container & layout ----- */
 
-/*removing Obsidian's native padding (safety)*/
+/*removing Obsidian's native padding (safety)
 .workspace-leaf-content[data-type="portals-view"] .view-content {
   padding: 0;
 }
@@ -524,7 +524,7 @@ margin: 0;
 padding: 0;
 }
 
-/* ----- Tab bar & tabs ----- */
+/* ----- Tab bar & tabs ----- 
 
 .portals-tab-bar {
 display: flex;
@@ -558,7 +558,7 @@ border-radius: 4px;
 background: var(--text-muted);
 }
 */
-
+/*
 .portals-tab {
 display: flex;
 align-items: center;
@@ -623,7 +623,7 @@ opacity: 0.9;
     z-index: 1;
 }
 
-/* Icons inside tabs */
+/* Icons inside tabs 
 
 .portals-tab-icon {
 width: 16px;
@@ -638,7 +638,7 @@ font-size: 18px;
 vertical-align: middle;
 }
 
-/* tab icon position setting */
+/* tab icon position setting 
 
 [stack-icon-position="right"], 
 [tab-icon-position="left"] {
@@ -663,7 +663,7 @@ vertical-align: middle;
     order: 2;
 }
 
-/* ----- Alt Select ----- */
+/* ----- Alt Select ----- 
 
 .file-item, .folder-summary {
     transition: background-color 0.1s ease, transform 0.05s ease;
@@ -704,7 +704,7 @@ vertical-align: middle;
     border-radius: 4px;
     z-index: 10;
     flex-shrink: 0;
-}
+} */
 /*
 .portals-multiselect-toolbar::-webkit-scrollbar {
     height: 4px;
@@ -723,7 +723,7 @@ vertical-align: middle;
     background: var(--text-muted);
 }
 */
-
+/*
 .portals-selection-count {
     margin-left: auto;
     font-size: 0.8em;
@@ -735,7 +735,7 @@ vertical-align: middle;
     color: var(--text-error);
 }
 
-/*--------------------CUSTOM COLORS -----------------*/
+/*--------------------CUSTOM COLORS -----------------
 
 .portals-tree-container .folder-summary.has-file-color {
     background-color: var(--folder-color);
@@ -746,7 +746,7 @@ vertical-align: middle;
     opacity: 0.6;
 }
 
-/* ----- File tree / space content ----- */
+/* ----- File tree / space content ----- 
 
 .portals-space-content {
 flex: 1;
@@ -800,14 +800,14 @@ display: none;
 
 .folder-summary::before {
 font-family: "Phosphor";
-content: "\e13a"; /* ph-caret-right */
+content: "\e13a"; /* ph-caret-right 
 font-size: 0.9em;
 transition: transform 0.15s;
 transform: rotate(0deg);
 }
 
 details[open] > .folder-summary::before {
-content: "\e136"; /* ph-caret-down */
+content: "\e136"; /* ph-caret-down 
 }
 
 .folder-summary:hover {
@@ -820,7 +820,7 @@ padding-left: 6px;
 border-left: 1px dashed var(--background-modifier-border);
 }
 
-/* File items */
+/* File items 
 
 .file-item {
 display: flex;
@@ -956,8 +956,8 @@ background-color: var(--background-modifier-hover);
 .portals-compact-tree .portals-file-info-bar-text {
   font-size: 0.65em;
 }
-
-/* File and folder names – now using dedicated class */
+*/
+/* File and folder names – now using dedicated class 
 
 .file-item .portals-item-name,
 .folder-summary .portals-item-name {
@@ -973,13 +973,13 @@ min-width: 0;
 font-weight: normal;
 }
 
-/* Folder names – bold */
+/* Folder names – bold 
 
 .portals-tree-container.portals-bold-folders .folder-summary .portals-item-name {
     font-weight: 700;
 }
 
-/* Icons in tree */
+/* Icons in tree 
 
 .folder-icon .ph,
 .file-icon .ph {
@@ -1006,7 +1006,7 @@ align-self: center;
 }
 
 
-/* Open dot indicator */
+/* Open dot indicator 
 
 .open-dot {
 display: inline-block;
@@ -1023,13 +1023,13 @@ vertical-align: middle;
     display: none;
 }
 
-/* Extension text badge for non-markdown files */ 
+/* Extension text badge for non-markdown files 
 
 .file-extension {
     font-size: 0.6em;
     color: color-mix(in srgb, var(--text-muted) 50%, transparent);
     flex-shrink: 0;
-    margin-left: auto; /* fallback */
+    margin-left: auto; /* fallback 
     font-weight: bold;
 }
 
@@ -1037,21 +1037,21 @@ vertical-align: middle;
     color: var(--space-border-color, var(--text-accent));
 }
 
-/* Highlight for newly created items */
+/* Highlight for newly created items 
 
 .portals-item-highlight {
 background-color: 3px solid var(--interactive-accent);
 transition: border-bottom 0.5s;
 }
 
-/* Drag‑over feedback */
+/* Drag‑over feedback 
 
 .drag-over {
 background-color: var(--interactive-accent);
 opacity: 0.7;
 }
 
-/* ----- Mobile adjustments ----- */
+/* ----- Mobile adjustments ----- 
 
 @media (max-width: 768px) {
   .portals-tab {
@@ -1081,7 +1081,7 @@ opacity: 0.7;
 }
 
 /*===CSS for Split Panel===*/
-/* Split container */
+/* Split container 
 .portals-split-container {
     flex: 1;
     display: flex;
@@ -1131,7 +1131,7 @@ opacity: 0.7;
     width: 1em;
     height: 1em;
     padding-top: 2px;
-}
+}*/
 /*
 .portals-split-content::-webkit-scrollbar,
 .portals-context-note-container::-webkit-scrollbar, 
@@ -1158,7 +1158,7 @@ opacity: 0.7;
   background: var(--text-muted);
 }*/
 
-/* Main panel */
+/* Main panel 
 .portals-main-panel {
     flex: 1;
     display: flex;
@@ -1174,7 +1174,7 @@ opacity: 0.7;
     padding-left: 4px;
 }
 
-/* Splitter */
+/* Splitter 
 .portals-splitter {
     height: 6px;
     cursor: ns-resize;
@@ -1195,7 +1195,7 @@ body.portals-dragging {
     user-select: none;
 }
 
-/* Secondary panel */
+/* Secondary panel 
 .portals-secondary-panel {
     flex-shrink: 0;
     overflow: hidden;
@@ -1251,7 +1251,7 @@ body.portals-dragging {
     background: var(--text-muted);
 }
 */
-
+/*
 .portals-split-tab {
   display: flex;
     align-items: center;
@@ -1381,7 +1381,7 @@ body.portals-dragging {
     position: relative;
 }*/
 
-/*==========================COMPACT TREE STYLES============================*/
+/*==========================COMPACT TREE STYLES============================
 
 .portals-tree-container.portals-compact-tree {
     padding-left: 8px;
@@ -1414,11 +1414,11 @@ body.portals-dragging {
     padding-top: 2px;
 }
 
-/* Optional: reduce indentation of nested children */
+/* Optional: reduce indentation of nested children 
 .portals-tree-container.portals-compact-tree .folder-children {
     margin-left: 14px;
     padding-left: 10px;
-}
+}*/
 
 /*============================JOURNAL=================================
 .journal-warning {
@@ -1962,7 +1962,7 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
 /*
 /* ========================== Compact tab CSS ======================== */
 
-/* Compact tab bar (no text removal) */
+/* Compact tab bar (no text removal) 
 .portals-compact-tabs .portals-tab-bar {
     gap: 2px;
     padding-bottom: 6px;
@@ -1976,7 +1976,7 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
 .portals-compact-tabs .portals-tab-icon i {
     font-size: 14px;
 }
-/* Stack headers follow the same compact size */
+/* Stack headers follow the same compact size 
 .portals-compact-tabs .portals-stack-header-tab {
     padding: 2px 6px;
     font-size: 0.8em;
@@ -1992,7 +1992,7 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
     font-size: 0.65em;
 }
 
-/* Side portal split tabs – same compact styling */
+/* Side portal split tabs – same compact styling 
 
 .portals-secondary-header:not(.is-collapsed) .portals-secondary-header.portals-compact-tabs {
   height: 30px;
@@ -2319,7 +2319,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 }
 */
 
-/*========================SUMMARY ACTION ICONS===========================================*/
+/*========================SUMMARY ACTION ICONS===========================================
 
 .folder-summary .portals-action-icons {
     display: none;
@@ -2384,7 +2384,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   font-size: 0.85em;
 }
 
-/*=================SECTION SEPARATORS==========================*/
+/*=================SECTION SEPARATORS==========================
 
 .portals-section-separator {
     display: flex;
