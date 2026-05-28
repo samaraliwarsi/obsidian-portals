@@ -5038,7 +5038,45 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
     font-size: 0.8em;
 }
 
-/*============================SCROLL BAR STYLES====================================*/
+/*===============================SCROLL BARS PLUGIN WIDE=======================*/
+/* ----------Tab bar and Tabs ---------*/
+.portals-tab-bar::-webkit-scrollbar {
+height: 8px;
+}
+
+.portals-tab-bar::-webkit-scrollbar-track {
+background: transparent;
+}
+
+.portals-tab-bar::-webkit-scrollbar-thumb {
+background: var(--background-modifier-border);
+border-radius: 4px;
+}
+
+.portals-tab-bar::-webkit-scrollbar-thumb:hover {
+background: var(--text-muted);
+}
+
+/*-----------Multiselect Tool bar in view.ts---------------*/
+.portals-multiselect-toolbar::-webkit-scrollbar {
+    height: 4px;
+}
+
+.portals-multiselect-toolbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.portals-multiselect-toolbar::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.portals-multiselect-toolbar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+
+/*------------------------SIDE PORTAL SCROLL BAR STYLES------------------------*/
 
 .portals-split-content::-webkit-scrollbar,
 .portals-context-note-container::-webkit-scrollbar, 
@@ -5064,6 +5102,57 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .portals-tree-container::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+.portals-split-tabs::-webkit-scrollbar {
+    height: 8px;
+}
+
+.portals-split-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.portals-split-tabs::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.portals-split-tabs::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ---------JOURNAL DATECARDS----------------- */
+.journal-cards-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+.journal-cards-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+.journal-cards-wrapper::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+.journal-cards-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/*------------FRONTMATTER CLINIC--------------------*/
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
 /* =========== PORTAL PLUGIN CORE STYLES =========== */
 
 /*----------------------STACKS-----------------------------------------*/
@@ -5605,7 +5694,7 @@ scrollbar-width: auto;
 padding-right: 20px;
 padding-left: 4px;
 }
-
+/*
 .portals-tab-bar::-webkit-scrollbar {
 height: 8px;
 }
@@ -5622,6 +5711,7 @@ border-radius: 4px;
 .portals-tab-bar::-webkit-scrollbar-thumb:hover {
 background: var(--text-muted);
 }
+*/
 
 .portals-tab {
 display: flex;
@@ -5769,7 +5859,7 @@ vertical-align: middle;
     z-index: 10;
     flex-shrink: 0;
 }
-
+/*
 .portals-multiselect-toolbar::-webkit-scrollbar {
     height: 4px;
 }
@@ -5786,6 +5876,7 @@ vertical-align: middle;
 .portals-multiselect-toolbar::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
+*/
 
 .portals-selection-count {
     margin-left: auto;
@@ -6295,6 +6386,7 @@ body.portals-dragging {
     min-width: 0;
     scrollbar-width: auto;
 }
+/*
 .portals-split-tabs::-webkit-scrollbar {
     height: 8px;
 }
@@ -6311,7 +6403,7 @@ body.portals-dragging {
 .portals-split-tabs::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
-
+*/
 
 .portals-split-tab {
   display: flex;
@@ -7607,21 +7699,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     padding-bottom: 12px;
 }
 
-/* Custom scrollbar for date cards – matches the rest of Portals */
-.journal-cards-wrapper::-webkit-scrollbar {
-    height: 8px;
-}
-.journal-cards-wrapper::-webkit-scrollbar-track {
-    background: transparent;
-}
-.journal-cards-wrapper::-webkit-scrollbar-thumb {
-    background: var(--background-modifier-border);
-    border-radius: 4px;
-}
-.journal-cards-wrapper::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
-}
-
 .journal-quote-indicator {
     position: absolute;
     top: 2px;
@@ -7849,23 +7926,6 @@ button.trash-delete-btn:not(.clickable-icon):hover {
     overflow-y: auto;
   }
 }
-.portals-fm-dropdown .menu-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-
-.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb {
-  background: var(--background-modifier-border);
-  border-radius: 4px;
-}
-
-.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
 
 .portals-frontmatter-clinic {
     padding: 4px 8px;

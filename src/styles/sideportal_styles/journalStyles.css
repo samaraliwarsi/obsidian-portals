@@ -48,21 +48,6 @@
     padding-bottom: 12px;
 }
 
-/* Custom scrollbar for date cards – matches the rest of Portals */
-.journal-cards-wrapper::-webkit-scrollbar {
-    height: 8px;
-}
-.journal-cards-wrapper::-webkit-scrollbar-track {
-    background: transparent;
-}
-.journal-cards-wrapper::-webkit-scrollbar-thumb {
-    background: var(--background-modifier-border);
-    border-radius: 4px;
-}
-.journal-cards-wrapper::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
-}
-
 .journal-quote-indicator {
     position: absolute;
     top: 2px;

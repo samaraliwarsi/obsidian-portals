@@ -1,0 +1,114 @@
+/*===============================SCROLL BARS PLUGIN WIDE=======================*/
+/* ----------Tab bar and Tabs ---------*/
+.portals-tab-bar::-webkit-scrollbar {
+height: 8px;
+}
+
+.portals-tab-bar::-webkit-scrollbar-track {
+background: transparent;
+}
+
+.portals-tab-bar::-webkit-scrollbar-thumb {
+background: var(--background-modifier-border);
+border-radius: 4px;
+}
+
+.portals-tab-bar::-webkit-scrollbar-thumb:hover {
+background: var(--text-muted);
+}
+
+/*-----------Multiselect Tool bar in view.ts---------------*/
+.portals-multiselect-toolbar::-webkit-scrollbar {
+    height: 4px;
+}
+
+.portals-multiselect-toolbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.portals-multiselect-toolbar::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.portals-multiselect-toolbar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+
+/*------------------------SIDE PORTAL SCROLL BAR STYLES------------------------*/
+
+.portals-split-content::-webkit-scrollbar,
+.portals-context-note-container::-webkit-scrollbar, 
+.portals-tree-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portals-split-content::-webkit-scrollbar-track,
+.portals-context-note-container::-webkit-scrollbar-track,
+.portals-tree-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portals-split-content::-webkit-scrollbar-thumb,
+.portals-context-note-container::-webkit-scrollbar-thumb,
+.portals-tree-container::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.portals-split-content::-webkit-scrollbar-thumb:hover,
+.portals-context-note-container::-webkit-scrollbar-thumb:hover,
+.portals-tree-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+.portals-split-tabs::-webkit-scrollbar {
+    height: 8px;
+}
+
+.portals-split-tabs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.portals-split-tabs::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.portals-split-tabs::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ---------JOURNAL DATECARDS----------------- */
+.journal-cards-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+.journal-cards-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+.journal-cards-wrapper::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+}
+.journal-cards-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/*------------FRONTMATTER CLINIC--------------------*/
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

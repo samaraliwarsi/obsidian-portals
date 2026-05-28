@@ -10,6 +10,7 @@ const files = [
   'src/styles/phosphorIcons.css',
   'src/styles/tooltips.css',
   'src/styles/utilities.css',
+  'src/styles/scrollbars.css',
   'src/styles/mainSideBarStyles.css',
   'src/styles/floatingButtons.css',
   'src/styles/sideportal_styles/journalStyles.css',

@@ -340,30 +340,3 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .unhide-btn-text {
     font-size: 0.8em;
 }
-
-/*============================SCROLL BAR STYLES====================================*/
-
-.portals-split-content::-webkit-scrollbar,
-.portals-context-note-container::-webkit-scrollbar, 
-.portals-tree-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.portals-split-content::-webkit-scrollbar-track,
-.portals-context-note-container::-webkit-scrollbar-track,
-.portals-tree-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.portals-split-content::-webkit-scrollbar-thumb,
-.portals-context-note-container::-webkit-scrollbar-thumb,
-.portals-tree-container::-webkit-scrollbar-thumb {
-  background: var(--background-modifier-border);
-  border-radius: 4px;
-}
-
-.portals-split-content::-webkit-scrollbar-thumb:hover,
-.portals-context-note-container::-webkit-scrollbar-thumb:hover,
-.portals-tree-container::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}

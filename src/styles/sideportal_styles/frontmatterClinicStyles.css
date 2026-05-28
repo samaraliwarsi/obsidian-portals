@@ -5,23 +5,6 @@
     overflow-y: auto;
   }
 }
-.portals-fm-dropdown .menu-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-
-.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb {
-  background: var(--background-modifier-border);
-  border-radius: 4px;
-}
-
-.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
 
 .portals-frontmatter-clinic {
     padding: 4px 8px;
