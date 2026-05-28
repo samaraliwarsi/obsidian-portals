@@ -4925,8 +4925,8 @@ button.mod-loading::after {
 /*=========================SIDE PORTAL BUTTONS=======================================*/
 
 /*----Main button------*/
-.portals-reset-btn.journal-btn,
-.portals-reset-btn.journal-filter-btn {
+button.portals-reset-btn.journal-btn,
+button.portals-reset-btn.journal-filter-btn {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -4941,40 +4941,67 @@ button.mod-loading::after {
 }
 
 /*------Phosphor and Lucide (if applicable)-----------*/
-.portals-reset-btn.journal-btn i,
-.portals-reset-btn.journal-filter-btn i {
+button.portals-reset-btn.journal-btn i,
+button.portals-reset-btn.journal-filter-btn i {
     font-size: 0.9em;
 }
-.portals-reset-btn.journal-btn .svg-icon,
-.portals-reset-btn.journal-filter-btn .svg-icon {
+button.portals-reset-btn.journal-btn .svg-icon,
+button.portals-reset-btn.journal-filter-btn .svg-icon {
     font-size: 0.8em;
     width: 1em;
     height: 1em;
 }
 
 /*------Button states-----------*/
-.portals-reset-btn.journal-btn.active {
+button.portals-reset-btn.journal-btn.active {
     border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
 
-.portals-reset-btn.journal-btn:hover,
-.portals-reset-btn.journal-filter-btn:hover {
+button.portals-reset-btn.journal-btn:hover,
+button.portals-reset-btn.journal-filter-btn:hover {
   background: rgba(128, 128, 128, 0.15);
   color: var(--text-normal);
 }
 
-.portals-reset-btn.journal-btn:focus-visible,
-.portals-reset-btn.journal-filter-btn:focus-visible {
+button.portals-reset-btn.journal-btn:focus-visible,
+button.portals-reset-btn.journal-filter-btn:focus-visible {
   background: rgba(128, 128, 128, 0.15);
   color: var(--text-normal);
 }
 
 @media (hover: hover) {
-  .portals-reset-btn.journal-btn:hover,
-  .portals-reset-btn.journal-filter-btn:hover {
+  button.portals-reset-btn.journal-btn:hover,
+  button.portals-reset-btn.journal-filter-btn:hover {
     background: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
   }
+}
+
+/*============================SCROLL BAR STYLES====================================*/
+
+.portals-split-content::-webkit-scrollbar,
+.portals-context-note-container::-webkit-scrollbar, 
+.portals-tree-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portals-split-content::-webkit-scrollbar-track,
+.portals-context-note-container::-webkit-scrollbar-track,
+.portals-tree-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portals-split-content::-webkit-scrollbar-thumb,
+.portals-context-note-container::-webkit-scrollbar-thumb,
+.portals-tree-container::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.portals-split-content::-webkit-scrollbar-thumb:hover,
+.portals-context-note-container::-webkit-scrollbar-thumb:hover,
+.portals-tree-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 /* =========== PORTAL PLUGIN CORE STYLES =========== */
 
@@ -6102,7 +6129,7 @@ opacity: 0.7;
     height: 1em;
     padding-top: 2px;
 }
-
+/*
 .portals-split-content::-webkit-scrollbar,
 .portals-context-note-container::-webkit-scrollbar, 
 .portals-tree-container::-webkit-scrollbar {
@@ -6126,7 +6153,7 @@ opacity: 0.7;
 .portals-context-note-container::-webkit-scrollbar-thumb:hover,
 .portals-tree-container::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
-}
+}*/
 
 /* Main panel */
 .portals-main-panel {
@@ -6280,7 +6307,7 @@ body.portals-dragging {
 /*===END of CSS for Split Panel===*/
 
 
-/*================CONTEXT NOTE, Bases Styling & User message Display================*/
+/*================CONTEXT NOTE, Bases Styling & User message Display================
 
 .portals-embed-link {
     display: inline-block;
@@ -6348,7 +6375,7 @@ body.portals-dragging {
 
 .portals-context-notes-tab-container {
     position: relative;
-}
+}*/
 
 /*==========================COMPACT TREE STYLES============================*/
 
@@ -7466,7 +7493,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 
 /*============================JOURNAL=================================*/
-.portals-reset-btn.journal-filter-btn {
+button.portals-reset-btn.journal-filter-btn {
     border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
 
@@ -7633,6 +7660,75 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .journal-card-marked {
   border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent));
+}
+/*================CONTEXT NOTE, Bases Styling & User message Display================*/
+
+.portals-embed-link {
+    display: inline-block;
+    margin: 4px 0;
+}
+.portals-embed-link a {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+    border-radius: var(--input-radius);
+    font-size: 0.9em;
+}
+.portals-embed-link a:hover {
+    background: var(--interactive-accent-hover);
+}
+
+.portals-context-note-message {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.portals-context-note-container {
+    height: 100%;
+    overflow-y: auto;
+    cursor: pointer;
+}
+
+.folder-icon.has-context-note-icon i {
+    color: var(--space-border-color, var(--interactive-accent));
+}
+
+.portals-item-name.has-context-note-underline {
+  text-decoration: underline;
+}
+
+.portals-context-note-status-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    justify-content: flex-end;
+    padding: 2px;
+    background: transparent;
+    margin-right: 16px;
+}
+
+.portals-context-note-status-overlay-text {
+    pointer-events: auto;
+    width: fit-content;
+    max-width: 100%;
+    padding: 2px 4px;
+    background: var(--background-primary);
+    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.1);
+    border-radius: 4px;
+    font-size: 8px;
+    color: var(--text-faint);
+    white-space: nowrap;
+}
+
+.portals-context-notes-tab-container {
+    position: relative;
 }
 
 /* ================================ Settings page ================================ */

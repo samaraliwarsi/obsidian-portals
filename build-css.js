@@ -13,6 +13,7 @@ const files = [
   'src/styles/mainSideBarStyles.css',
   'src/styles/floatingButtons.css',
   'src/styles/sideportal_styles/journalStyles.css',
+  'src/styles/sideportal_styles/contextNotesStyles.css',
   'src/styles/settings.css',
   'src/styles/modal_styles/searchPopover.css',
   'src/styles/modal_styles/addPortalModal.css',

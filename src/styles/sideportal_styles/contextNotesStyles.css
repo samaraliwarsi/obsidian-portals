@@ -1,0 +1,69 @@
+/*================CONTEXT NOTE, Bases Styling & User message Display================*/
+
+.portals-embed-link {
+    display: inline-block;
+    margin: 4px 0;
+}
+.portals-embed-link a {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+    border-radius: var(--input-radius);
+    font-size: 0.9em;
+}
+.portals-embed-link a:hover {
+    background: var(--interactive-accent-hover);
+}
+
+.portals-context-note-message {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.portals-context-note-container {
+    height: 100%;
+    overflow-y: auto;
+    cursor: pointer;
+}
+
+.folder-icon.has-context-note-icon i {
+    color: var(--space-border-color, var(--interactive-accent));
+}
+
+.portals-item-name.has-context-note-underline {
+  text-decoration: underline;
+}
+
+.portals-context-note-status-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    justify-content: flex-end;
+    padding: 2px;
+    background: transparent;
+    margin-right: 16px;
+}
+
+.portals-context-note-status-overlay-text {
+    pointer-events: auto;
+    width: fit-content;
+    max-width: 100%;
+    padding: 2px 4px;
+    background: var(--background-primary);
+    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.1);
+    border-radius: 4px;
+    font-size: 8px;
+    color: var(--text-faint);
+    white-space: nowrap;
+}
+
+.portals-context-notes-tab-container {
+    position: relative;
+}

@@ -1,6 +1,6 @@
 
 /*============================JOURNAL=================================*/
-.portals-reset-btn.journal-filter-btn {
+button.portals-reset-btn.journal-filter-btn {
     border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
 }
 
