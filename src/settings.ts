@@ -1105,11 +1105,11 @@ export class SpacesSettingTab extends PluginSettingTab {
     
         // --------------------------- BACKUP / RESTORE  -----------------------------
     private renderUtilities(contentEl: HTMLElement): void {
-        new Setting(contentEl).setName('Utilities')
+        new Setting(contentEl).setName('Utilities').setHeading();
 
         new Setting(contentEl)
             .setName('Choose Icon Library')
-            .setDesc('Icon library defines the icons for plugin native and user custom icons.')
+            .setDesc('Icon library defines the icons for plugin\'s native elements and user defined custom icons.')
             .addDropdown(dropdown => dropdown
                 .addOption('phosphor', 'Phosphor')
                 .addOption('lucide', 'Lucide')
@@ -1119,6 +1119,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.display();
                 }));
+
+        contentEl.createEl('hr');
 
         new Setting(contentEl).setName('Backup / restore').setHeading();
 

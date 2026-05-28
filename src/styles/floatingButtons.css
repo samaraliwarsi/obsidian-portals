@@ -1,0 +1,60 @@
+/* ----- Floating action buttons ----- */
+
+.portals-container button.portals-floating-btn {
+    -webkit-tap-highlight-color: transparent;
+    position: absolute;
+    left: 4px;
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--interactive-normal);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    box-shadow: var(--input-shadow);
+    transition: background-color 0.1s, color 0.1s, box-shadow 0.1s;
+    padding: 2px;
+}
+
+.portals-container .portals-floating-btn .ph {
+    font-size: 18px;
+}
+
+.portals-container .portals-floating-btn .svg-icon {
+    font-size: 18px;
+}
+
+.portals-container .portals-floating-btn.portals-floating-btn-hidden {
+    display: none;
+}
+
+.portals-container button.portals-floating-btn.mobile-tap,
+.portals-container button.portals-floating-btn:focus-visible,
+.portals-container button.portals-floating-btn:hover {
+    background: var(--interactive-hover);  /* same as normal */
+    color: var(--text-color);
+    box-shadow: var(--input-shadow-hover);
+    padding: 2px;
+    font-weight: normal;
+}
+
+.portals-container button.portals-floating-btn:active {
+    background: var(--interactive-hover);  /* same as normal */
+    color: var(--text-color);
+    box-shadow: var(--input-shadow-hover);
+    transform: scale(0.97);
+    padding: 2px;
+    font-weight: normal;
+    transition: background-color 0.1s, color 0.1s, box-shadow 0.1s
+}
+
+@media (hover: hover) {
+    .portals-container button.portals-floating-btn:hover{
+        background-color: var(--interactive-hover);
+        box-shadow: var(--input-shadow-hover);
+    } 
+}

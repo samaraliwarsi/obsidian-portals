@@ -52,10 +52,9 @@ export class FileItemFactory {
             const isExcluded = plugin.settings.previewExcludedFiles[file.path] ?? false;
 
             const toggleBtn = fileEl.createSpan({ cls: 'portals-file-action-icons' });
-            const toggleIcon = toggleBtn.createEl('i', {
-                cls: `ph ph-${isExcluded ? 'plus-circle' : 'minus-circle'}`
-            });
-
+            //const toggleIcon = toggleBtn.createEl('i', { cls: `ph ph-${isExcluded ? 'plus-circle' : 'minus-circle'}` });
+            plugin.renderPluginIcon(toggleBtn, isExcluded ? 'plus-circle' : 'minus-circle');
+            const toggleIcon = toggleBtn.firstElementChild as HTMLElement;
             let previewEl: HTMLDivElement | null = null;
             let infoBar: HTMLDivElement | null = null;
 
