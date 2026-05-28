@@ -7,12 +7,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Order matters – legacy first, then modules
 const files = [
-  'src/styles/phosphorIcons.css',
-  'src/styles/tooltips.css',
-  'src/styles/utilities.css',
-  'src/styles/scrollbars.css',
+  'src/styles/util_styles/phosphorIcons.css',
+  'src/styles/util_styles/tooltips.css',
+  'src/styles/util_styles/utilities.css',
+  'src/styles/util_styles/scrollbars.css',
   'src/styles/mainSideBarStyles.css',
-  'src/styles/floatingButtons.css',
+  'src/styles/util_styles/floatingButtons.css',
   'src/styles/sideportal_styles/journalStyles.css',
   'src/styles/sideportal_styles/contextNotesStyles.css',
   'src/styles/sideportal_styles/trashStyles.css',

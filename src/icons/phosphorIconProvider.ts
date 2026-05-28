@@ -1,5 +1,5 @@
 // src/icons/PhosphorIconProvider.ts
-import { iconNames } from '../utils/iconMap';
+import { iconNames } from './iconMap';
 import { LUCIDE_TO_PHOSPHOR } from './iconMappings';
 import { IconProvider } from './iconProvider';
 
