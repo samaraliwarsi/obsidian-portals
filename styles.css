@@ -5248,6 +5248,7 @@ background: var(--text-muted);
 /* ------------------------------ Tree Styles ------------------------------------ */
 
 /*---Default style custom colors--*/
+/*
 .portals-tree-style-default .folder-summary.has-folder-color {
     background-color: var(--folder-color);
     border-radius: var(--radius-s, 0);
@@ -5267,7 +5268,7 @@ background: var(--text-muted);
   color: var(--file-color);
 }
 
-/*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------*/
+/*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------
 
 .portals-tree-style-minimal .folder-icon,
 .portals-tree-style-minimal .file-icon {
@@ -5321,7 +5322,7 @@ background: var(--text-muted);
   margin-left: 12px;
 }
 
-/*---Minimal style custom colors--*/
+/*---Minimal style custom colors--
 .portals-tree-style-minimal .folder-summary.has-folder-color {
     color: var(--folder-color);
 }
@@ -5343,7 +5344,7 @@ background: var(--text-muted);
 
 /*----*/
 
-/*Minimal: Split Tab*/
+/*Minimal: Split Tab
 .portals-split-content.portals-tree-style-minimal .file-item::before {
   content: "•";
     font-family: monospace;
@@ -5357,7 +5358,7 @@ background: var(--text-muted);
 /*----------------------------------------------------------------------------------*/
 /*------------------------Portals: Styled Left Border------------------------------*/
 
-/*---Portals style custom colors--*/
+/*---Portals style custom colors--
 .portals-tree-style-portals .folder-details.has-folder-color {
     border-left: 1px solid var(--folder-color);
 }
@@ -5369,7 +5370,7 @@ background: var(--text-muted);
   color: var(--file-color);
 }
 
-/*----*/
+/*----
 
 .portals-tree-style-portals .folder-details {
   border-left: 1px solid var(--space-border-color, var(--interactive-accent));
@@ -5396,7 +5397,7 @@ background: var(--text-muted);
 }
 
 
-/*Portals: Split Tab*/
+/*Portals: Split Tab
 .portals-split-content.portals-tree-style-portals .file-item {
   border-left: 1px solid var(--space-border-color, var(--interactive-accent));
   border-radius: 4px;
@@ -5404,7 +5405,7 @@ background: var(--text-muted);
 }
 
 /*------------------------------------------------------------------------------------*/
-/*-----------------------------------Boxed Style--------------------------------------*/
+/*-----------------------------------Boxed Style--------------------------------------
 
 .portals-tree-style-boxed .folder-summary {
     border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
@@ -5424,7 +5425,7 @@ background: var(--text-muted);
   border-left: 1px solid var(--folder-color);
 }
 
-/*Boxed: Split Tab*/
+/*Boxed: Split Tab
 .portals-split-content.portals-tree-style-boxed .file-item {
   border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
   border-radius: 0 0 0 6px;
@@ -5440,7 +5441,7 @@ background: var(--text-muted);
 
 
 /*------------------------------------------------------------------------------*/
-/*---------------------------Shades Style-------------------------------------*/
+/*---------------------------Shades Style-------------------------------------
 
 .portals-tree-style-shades .folder-summary.shaded-folder-summary {
     background-color: rgba(128, 128, 128, var(--folder-shade-opacity, 0.15));
@@ -5504,10 +5505,10 @@ background: var(--text-muted);
     border-left: 1px dashed var(--background-modifier-border);
 }
 
-/* Shades - compact tree */ 
+/* Shades - compact tree 
 
 .portals-tree-container.portals-compact-tree.portals-tree-style-shades .folder-children.shaded-folder-children {
-    margin-left: 0;   /* set to measured bullet offset */
+    margin-left: 0;   /* set to measured bullet offset 
     padding-left: 14px;
 }
 
@@ -5516,7 +5517,7 @@ background: var(--text-muted);
   padding-left: 8px;
 }
 
-/*Shades: Split Tab*/
+/*Shades: Split Tab
 .portals-split-content.portals-tree-style-shades .file-item {
   background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
   border-radius: 4px;
@@ -5534,7 +5535,7 @@ background: var(--text-muted);
   color: var(--file-color);
 }
 /*------------------------------------------------------------------------*/
-/*-----------------------------Hues Style---------------------------------*/
+/*-----------------------------Hues Style---------------------------------
 
 .portals-tree-style-hues .folder-summary.hued-folder-summary {
     background: linear-gradient(135deg,
@@ -5587,7 +5588,7 @@ background: var(--text-muted);
     text-shadow: 0 0 2px var(--background-primary);
 }
 
-/* Hues - compact tree support */
+/* Hues - compact tree support 
 .portals-tree-container.portals-compact-tree.portals-tree-style-hues .folder-children.hued-folder-children {
     margin-left: 0;
     padding-left: 14px;
@@ -5598,7 +5599,7 @@ background: var(--text-muted);
     padding-left: 8px;
 }
 
-/* Hues - split tab file items */
+/* Hues - split tab file items 
 .portals-split-content.portals-tree-style-hues .file-item {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
@@ -5622,7 +5623,7 @@ background: var(--text-muted);
   color: var(--file-color);
 }
 /*-----------------------*/
-/* Light mode overrides */
+/* Light mode overrides 
 body.theme-light .portals-tree-style-hues .hued-folder-summary {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.4)),
@@ -5641,14 +5642,14 @@ body.theme-light .portals-tree-style-hues .hued-folder-summary:hover {
         hsla(var(--hue-end, 260), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9))
     );
 }
-/* Light mode split tab */
+/* Light mode split tab 
 body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.3)),
         hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.3))
     );
 }
-
+*/
 /*---------------------------------------------------------------------------------------*/
 
 
@@ -6159,6 +6160,7 @@ align-self: center;
   cursor: pointer;
 }
 
+
 /* Open dot indicator */
 
 .open-dot {
@@ -6555,6 +6557,16 @@ body.portals-dragging {
 .portals-tree-container.portals-compact-tree .folder-icon i,
 .portals-tree-container.portals-compact-tree .file-icon i {
     font-size: 14px;
+}
+
+
+.portals-tree-container.portals-compact-tree .folder-icon .svg-icon,
+.portals-tree-container.portals-compact-tree .file-icon .svg-icon {
+    font-size: 13px;
+    width: 1em;
+    height: 1em;
+    align-self: center;
+    padding-top: 2px;
 }
 
 /* Optional: reduce indentation of nested children */
@@ -7238,6 +7250,764 @@ button.trash-delete-btn:not(.clickable-icon):hover {
 
 /*folder style specific to trash portal but generic in value */
 
+/*Portals specific
+.portals-split-content.portals-tree-style-portals .folder-details {
+  border-left: 1px solid var(--space-border-color, var(--interactive-accent));
+  border-radius: 4px;
+  box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 10%, transparent);
+}
+
+.portals-split-content.portals-tree-style-portals .folder-children {
+ margin: 8px;
+}
+
+/*Shades specific
+.portals-split-content.portals-tree-style-shades .trash-tree > .folder-details > .folder-summary {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.1));
+  margin: 0;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree > .file-item {
+    margin-bottom: 4px;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree > .folder-details {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.05));
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree > :last-child {
+    margin-bottom: 0px;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree .folder-children .folder-summary {
+    background-color: transparent;
+    border-radius: 0;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree .folder-children .folder-children {
+    background-color: transparent;
+    margin: 0;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree .folder-children .file-item {
+    background-color: transparent;
+    margin: 4px;
+}
+
+.portals-split-content.portals-tree-style-shades .trash-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-shades .trash-tree .file-item:hover {
+  background-color: rgba(128, 128, 128, 0.15);
+  color: var(--text-normal);
+  border-radius: 4px;
+  filter: brightness(1.1);
+}
+
+/* Hues specific 
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .folder-details {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.08)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.08))
+    );
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .folder-details {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
+    );
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-summary {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.1)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.1))
+    );
+    margin: 0;
+    border-radius: 4px;
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-summary {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
+    );
+}
+
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .folder-details[open] > .folder-summary {
+    border-radius: 4px 4px 0 0;
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .folder-details > .folder-children {
+    background: transparent;
+    border-radius: 0 0 4px 4px;
+    margin: 0;
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree > .file-item {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+    );
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-details,
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-summary,
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .file-item,
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-children .folder-children {
+    background: transparent;
+    border-radius: 0;
+    margin: 0;
+}
+
+.portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {
+    background-color: rgba(128, 128, 128, 0.15);
+    color: var(--text-normal);
+    border-radius: 4px;
+    filter: brightness(1.1);
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .folder-summary:hover,
+body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .file-item:hover {
+    background-color: rgba(128, 128, 128, 0.2);
+    filter: brightness(1.1);
+}  
+
+
+.portals-split-content.portals-tree-style-portals .folder-summary::before,
+.portals-split-content.portals-tree-style-boxed .folder-summary::before,
+.portals-split-content.portals-tree-style-default .folder-summary::before,
+.portals-split-content.portals-tree-style-shades .folder-summary::before,
+.portals-split-content.portals-tree-style-hues .folder-summary::before {
+  display: none;
+}
+
+.portals-split-content.portals-tree-style-minimal .folder-children, 
+.portals-split-content.portals-tree-style-boxed .folder-children,
+.portals-split-content.portals-tree-style-default .folder-children,
+.portals-split-content.portals-tree-style-portals .folder-children,
+.portals-split-content.portals-tree-style-shades .folder-children {
+  padding-left: 2px;
+}
+
+/*========================BOOKMARK GROUPS ON SHADES AND HUES===========================================*/
+
+/*Shades
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-summary {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
+}
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-details {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.05));
+  border-radius: 0 0 4px 4px;
+  margin-bottom: 2px;
+}
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-children .file-item:hover {
+  filter: brightness(1.1);
+  color: var(--text-normal);
+}
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-children .file-item {
+  background: none;
+}
+
+.portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-children {
+  padding-bottom: 2px;
+}
+
+/*Hues
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary {
+  background: linear-gradient(135deg,
+    hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.1)),
+    hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.1))
+  );
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary {
+background: linear-gradient(135deg,
+    hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
+    hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
+  );
+}
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-details {
+  background: linear-gradient(135deg,
+    hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.08)),
+    hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.08))
+  );
+  border-radius: 0 0 4px 4px;
+  margin-bottom: 2px;
+}
+
+body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-details {
+  background: linear-gradient(135deg,
+      hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.2)),
+      hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.2))
+    );
+}
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children {
+  padding-bottom: 2px;
+}
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary:hover,
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children .file-item:hover {
+  background-color: rgba(128, 128, 128, 0.15);
+  filter: brightness(1.1);
+  color: var(--text-normal);
+}
+
+.portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children .file-item {
+  background: none;
+}
+*/
+
+/*========================SUMMARY ACTION ICONS===========================================*/
+
+.folder-summary .portals-action-icons {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    height: 1.3em;
+    aspect-ratio: 1 / 1;
+    margin-left: auto;
+    border-radius: 50%;
+    background: transparent;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.1s, background-color 0.1s;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.folder-summary .portals-action-icons i {
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+.folder-summary .portals-action-icons .svg-icon {
+    font-size: 0.8em;
+    height: 1em;
+    width: 1em;
+}
+
+.folder-summary:hover .portals-action-icons {
+    display: flex;
+    background-color: rgba(128, 128, 128, 0.3);
+  }
+
+.folder-summary:hover .portals-action-icons i,
+.folder-summary:hover .portals-action-icons .svg-icon {
+    color: var(--text-normal);
+}
+
+.folder-summary:hover .portals-action-icons:hover {
+    transform: scale(1.1);
+    transition: ease-in-out;
+    opacity: 0.9;
+    background-color: rgba(128, 128, 128, 0.5);
+}
+
+
+@media (hover: none) and (pointer: coarse) {
+    .folder-summary .portals-action-icons {
+        display: flex;
+        opacity: 0.7;
+    }
+}
+
+.folder-summary .portals-action-icons-compact {
+  height: 1.1em;
+}
+
+.folder-summary .portals-action-icons-compact i {
+  font-size: 0.85em;
+}
+
+/*=================SECTION SEPARATORS==========================*/
+
+.portals-section-separator {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+    margin-left: 20%;
+    position: relative;
+    height: 18px;
+    margin-right: 4px;
+}
+
+.portals-section-label {
+    font-size: 0.7em;
+    color: var(--text-faint);
+    white-space: nowrap;
+    order: 1;
+}
+.portals-section-arrows {
+    display: none;
+    order: 2;
+}
+.portals-section-separator:hover .portals-section-arrows {
+    display: flex;
+    gap: 2px;
+    padding-left: 4px;
+}
+.portals-section-arrows i {
+    cursor: pointer;
+    padding: 2px;
+    font-size: small;
+    color: var(--text-faint);
+}
+
+.portals-section-arrows i:hover {
+    transform: scale(1.25);
+    color: var(--text-normal);
+}
+
+.portals-section-separator::after {
+    content: '';
+    flex: 1;
+    margin-right: 4px;
+    margin-left: 0;
+}
+/*
+.portals-tree-style-default .portals-section-separator::after {
+  border-bottom: 1px dashed var(--background-modifier-border);
+}
+.portals-tree-style-minimal .portals-section-separator::after {
+  border-bottom: 1px dotted var(--background-modifier-border);
+}
+.portals-tree-style-boxed .portals-section-separator::after,
+.portals-tree-style-portals .portals-section-separator::after {
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.portals-tree-style-shades .portals-section-separator::after, 
+.portals-tree-style-hues .portals-section-separator::after {
+  border-bottom: 1px dashed rgba(128, 128, 128, 0.2);
+}
+  */
+/*========================================TREE STYLES==============================================*/
+
+/*---Default style custom colors--*/
+.portals-tree-style-default .folder-summary.has-folder-color {
+    background-color: var(--folder-color);
+    border-radius: var(--radius-s, 0);
+}
+.portals-tree-style-default .folder-children.has-folder-color {
+    border-left: 1px dashed var(--folder-color);
+}
+
+.portals-tree-style-default .folder-summary.has-folder-color:hover{
+  background-color: color-mix(in srgb, var(--folder-color) 50%, var(--background-modifier-hover) 50%)
+}
+
+.portals-tree-style-default .file-item.has-file-color {
+  color: var(--file-color);
+}
+.portals-tree-style-default .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
+}
+
+/*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------*/
+
+.portals-tree-style-minimal .folder-icon,
+.portals-tree-style-minimal .file-icon {
+    display: none;
+}
+
+.portals-tree-style-minimal .folder-summary::before {
+    content: "•";
+    font-family: monospace;
+    font-size: 1em;
+    margin-right: 4px;
+    transition: transform 0.15s;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+.portals-tree-style-minimal details[open] > .folder-summary::before {
+    content: "◦";
+    transform: rotate(0deg);
+
+}
+
+.portals-tree-style-minimal .folder-children {
+    border-left: none;
+    margin-left: 16px;
+    padding-left: 10px;
+    background: repeating-linear-gradient(
+        to bottom,
+        var(--text-faint) 0,
+        var(--text-faint) 1px,
+        transparent 1px,
+        transparent 8px
+    ) left center / 1px 100% no-repeat;
+}
+
+.portals-tree-style-minimal .folder-summary,
+.portals-tree-style-minimal .file-item {
+    gap: 4px;
+}
+
+.portals-tree-style-minimal .folder-summary.has-context-note-icon::before {
+    color: var(--interactive-accent);
+}
+
+.portals-tree-style-minimal .portals-item-name {
+    font-family: inherit;
+    font-size: 0.9em;
+}
+
+.portals-tree-container.portals-tree-style-minimal.portals-compact-tree .folder-children {
+  margin-left: 12px;
+}
+
+/*---Minimal style custom colors--*/
+.portals-tree-style-minimal .folder-summary.has-folder-color {
+    color: var(--folder-color);
+}
+
+.portals-tree-style-minimal .folder-children.has-folder-color {
+  border-left: none;
+  background: repeating-linear-gradient(
+        to bottom,
+        var(--folder-color) 0,
+        var(--folder-color) 1px,
+        transparent 1px,
+        transparent 8px
+    ) left center / 1px 100% no-repeat;
+}
+
+.portals-tree-style-minimal .file-item.has-file-color {
+  color: var(--file-color);
+}
+
+/*----*/
+
+/*Minimal: Split Tab*/
+.portals-split-content.portals-tree-style-minimal .file-item::before {
+  content: "•";
+    font-family: monospace;
+    font-size: 1em;
+    margin-right: 4px;
+    transition: transform 0.15s;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+/*----------------------------------------------------------------------------------*/
+/*------------------------Portals: Styled Left Border------------------------------*/
+
+/*---Portals style custom colors--*/
+.portals-tree-style-portals .folder-details.has-folder-color {
+    border-left: 1px solid var(--folder-color);
+}
+
+.portals-tree-style-portals .file-item.has-file-color {
+  color: var(--file-color);
+}
+.portals-tree-style-portals .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
+}
+
+/*----*/
+
+.portals-tree-style-portals .folder-details {
+  border-left: 1px solid var(--space-border-color, var(--interactive-accent));
+  border-radius: 4px;
+  box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 10%, transparent);
+}
+
+.portals-tree-style-portals .folder-summary {
+    margin-left: 0;
+    padding-left: 12px;
+    transition: background-color 0.1s;
+    box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 1%, transparent);
+}
+
+.portals-tree-style-portals .folder-summary:hover,
+.portals-tree-style-portals .file-item:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.portals-tree-style-portals .folder-children {
+    margin-left: 18px;
+    padding-bottom: 2px;
+    border-left: none;
+}
+
+
+/*Portals: Split Tab*/
+.portals-split-content.portals-tree-style-portals .file-item {
+  border-left: 1px solid var(--space-border-color, var(--interactive-accent));
+  border-radius: 4px;
+  box-shadow: 0 1px 0 0 color-mix(in srgb, var(--background-modifier-hover) 10%, transparent);
+}
+
+/*------------------------------------------------------------------------------------*/
+/*-----------------------------------Boxed Style--------------------------------------*/
+
+.portals-tree-style-boxed .folder-summary {
+    border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+    border-radius: 8px 8px 8px 0;
+    margin: 2px 0;
+}
+
+.portals-tree-style-boxed .folder-summary.has-folder-color {
+  border-bottom-color: var(--folder-color);
+}
+
+.portals-tree-style-boxed .folder-children {
+  border-left: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+}
+
+.portals-tree-style-boxed .folder-children.has-folder-color {
+  border-left: 1px solid var(--folder-color);
+}
+
+/*Boxed: Split Tab*/
+.portals-split-content.portals-tree-style-boxed .file-item {
+  border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+  border-radius: 0 0 0 6px;
+  margin: 2px 0; 
+}
+
+.portals-tree-style-boxed .file-item.has-file-color {
+  color: var(--file-color);
+}
+.portals-tree-style-boxed .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
+}
+
+
+/*------------------------------------------------------------------------------*/
+/*---------------------------Shades Style-------------------------------------*/
+
+.portals-tree-style-shades .folder-summary.shaded-folder-summary {
+    background-color: rgba(128, 128, 128, var(--folder-shade-opacity, 0.15));
+    border-radius: 4px;
+    margin: 2px 0;
+    padding: 4px 8px;
+}
+
+.portals-tree-style-shades details[open] > .folder-summary.shaded-folder-summary {
+    border-radius: 4px 4px 0 0;
+    margin-bottom: 0;
+}
+
+.portals-tree-style-shades .folder-children.shaded-folder-children {
+    background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
+    border-radius: 0 0 4px 4px;
+    margin: 0 0 4px 0; 
+    padding: 4px 0 4px 16px;
+    border-left: none;
+}
+
+.portals-tree-style-shades .folder-children {
+  border-left: none;
+  margin-left: 16px;
+  padding-left: 8px;
+}
+
+.portals-tree-style-shades .folder-icon,
+.portals-tree-style-shades .file-icon {
+    display: none;
+}
+
+.portals-tree-style-shades .folder-summary::before {
+    content: "•";
+    font-family: monospace;
+    font-size: 1em;
+    margin-right: 2px;
+    transition: transform 0.15s;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+.portals-tree-style-shades details[open] > .folder-summary::before {
+    content: "◦";
+    transform: rotate(0deg);
+}
+
+.portals-tree-style-shades .folder-summary.has-context-note-icon::before {
+    color: var(--interactive-accent);
+}
+
+.portals-tree-style-shades .folder-summary.shaded-folder-summary:hover {
+    background-color: rgba(128, 128, 128, min(calc(var(--folder-shade-opacity, 0.15) + 0.1), 0.9));
+}
+
+.portals-tree-style-shades details[open] > .folder-children > .folder-details:first-child > .folder-summary {
+    margin-top: 0;
+}
+
+.portals-tree-style-shades .portals-space-content > .folder-details > .folder-children {
+    border-left: 1px dashed var(--background-modifier-border);
+}
+
+/* Shades - compact tree */ 
+
+.portals-tree-container.portals-compact-tree.portals-tree-style-shades .folder-children.shaded-folder-children {
+    margin-left: 0;   /* set to measured bullet offset */
+    padding-left: 14px;
+}
+
+.portals-tree-container.portals-compact-tree.portals-tree-style-shades .folder-children {
+  margin-left: 12px;
+  padding-left: 8px;
+}
+
+/*Shades: Split Tab*/
+.portals-split-content.portals-tree-style-shades .file-item {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
+  border-radius: 4px;
+  margin: 4px 0; 
+}
+
+.portals-split-content.portals-tree-style-shades .file-item:hover {
+  background-color: rgba(128, 128, 128, min(calc(var(--folder-shade-opacity, 0.15) + 0.1), 0.9));;
+}
+
+.portals-tree-style-shades .file-item.has-file-color {
+  color: var(--file-color);
+}
+.portals-tree-style-shades .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
+}
+/*------------------------------------------------------------------------*/
+/*-----------------------------Hues Style---------------------------------*/
+
+.portals-tree-style-hues .folder-summary.hued-folder-summary {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end), 40%, 70%, var(--hue-opacity, 0.15))
+    );
+    border-radius: 4px;
+    margin: 2px 0;
+    padding: 4px 8px;
+}
+
+.portals-tree-style-hues details[open] > .folder-summary.hued-folder-summary {
+    border-radius: 4px 4px 0 0;
+    margin-bottom: 0;
+}
+
+.portals-tree-style-hues .folder-children.hued-folder-children {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start), 40%, 70%, var(--hue-opacity, 0.08)),
+        hsla(var(--hue-end), 40%, 70%, var(--hue-opacity, 0.08))
+    );
+    border-radius: 0 0 4px 4px;
+    margin: 0 0 4px 0;
+    padding: 4px 0 4px 16px;
+    border-left: none;
+}
+
+.portals-tree-style-hues .folder-summary.hued-folder-summary:hover {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start), 40%, 70%, min(calc(var(--hue-opacity, 0.15) + 0.1), 0.9)),
+        hsla(var(--hue-end), 40%, 70%, min(calc(var(--hue-opacity, 0.15) + 0.1), 0.9))
+    );
+}
+
+.portals-tree-style-hues .folder-children {
+    border-left: none;
+    margin-left: 16px;
+    padding-left: 8px;
+}
+
+.portals-tree-style-hues details[open] > .folder-children > .folder-details:first-child > .folder-summary {
+    margin-top: 0;
+}
+
+.portals-tree-style-hues .portals-space-content > .folder-details > .folder-children {
+    border-left: 1px dashed var(--background-modifier-border);
+}
+
+.portals-tree-style-hues .hued-folder-summary .folder-icon i {
+    text-shadow: 0 0 2px var(--background-primary);
+}
+
+/* Hues - compact tree support */
+.portals-tree-container.portals-compact-tree.portals-tree-style-hues .folder-children.hued-folder-children {
+    margin-left: 0;
+    padding-left: 14px;
+}
+
+.portals-tree-container.portals-compact-tree.portals-tree-style-hues .folder-children {
+    margin-left: 12px;
+    padding-left: 8px;
+}
+
+/* Hues - split tab file items */
+.portals-split-content.portals-tree-style-hues .file-item {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+    );
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+.portals-split-content.portals-tree-style-hues .file-item:hover {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 160), 40%, 80%, var(--hue-opacity, 0.25)),
+        hsla(var(--hue-end, 240), 40%, 80%, var(--hue-opacity, 0.25))
+    );
+}
+
+.portals-tree-style-hues .file-item.has-file-color {
+  color: var(--file-color);
+}
+.portals-tree-style-hues .file-item.has-file-color .file-icon i {
+  color: var(--file-color);
+}
+/*-----------------------*/
+/* Light mode overrides */
+body.theme-light .portals-tree-style-hues .hued-folder-summary {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.4)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.4))
+    );
+}
+body.theme-light .portals-tree-style-hues .folder-children.hued-folder-children {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, calc(var(--hue-opacity, 0.3) * 0.8)),
+        hsla(var(--hue-end, 260), 100%, 40%, calc(var(--hue-opacity, 0.3) * 0.8))
+    );
+}
+body.theme-light .portals-tree-style-hues .hued-folder-summary:hover {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9)),
+        hsla(var(--hue-end, 260), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9))
+    );
+}
+/* Light mode split tab */
+body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
+    background: linear-gradient(135deg,
+        hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.3)),
+        hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.3))
+    );
+}
+
+/*======================== SIDE PORTAL SPECIFIC ===============================*/
+/*folder style specific to trash portal but generic in value */
+
 /*Portals specific*/
 .portals-split-content.portals-tree-style-portals .folder-details {
   border-left: 1px solid var(--space-border-color, var(--interactive-accent));
@@ -7461,117 +8231,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
   background: none;
 }
 
+/*=========================== SECTION SEPARATORS======================================*/
 
-/*========================SUMMARY ACTION ICONS===========================================*/
-
-.folder-summary .portals-action-icons {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    height: 1.3em;
-    aspect-ratio: 1 / 1;
-    margin-left: auto;
-    border-radius: 50%;
-    background: transparent;
-    opacity: 0.7;
-    cursor: pointer;
-    transition: opacity 0.1s, background-color 0.1s;
-    line-height: 1;
-    flex-shrink: 0;
-}
-
-.folder-summary .portals-action-icons i {
-    font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-.folder-summary .portals-action-icons .svg-icon {
-    font-size: 0.8em;
-    height: 1em;
-    width: 1em;
-}
-
-.folder-summary:hover .portals-action-icons {
-    display: flex;
-    background-color: rgba(128, 128, 128, 0.3);
-  }
-
-.folder-summary:hover .portals-action-icons i,
-.folder-summary:hover .portals-action-icons .svg-icon {
-    color: var(--text-normal);
-}
-
-.folder-summary:hover .portals-action-icons:hover {
-    transform: scale(1.1);
-    transition: ease-in-out;
-    opacity: 0.9;
-    background-color: rgba(128, 128, 128, 0.5);
-}
-
-
-@media (hover: none) and (pointer: coarse) {
-    .folder-summary .portals-action-icons {
-        display: flex;
-        opacity: 0.7;
-    }
-}
-
-.folder-summary .portals-action-icons-compact {
-  height: 1.1em;
-}
-
-.folder-summary .portals-action-icons-compact i {
-  font-size: 0.85em;
-}
-
-/*=================SECTION SEPARATORS==========================*/
-
-.portals-section-separator {
-    display: flex;
-    align-items: center;
-    margin: 4px 0;
-    margin-left: 20%;
-    position: relative;
-    height: 18px;
-    margin-right: 4px;
-}
-
-.portals-section-label {
-    font-size: 0.7em;
-    color: var(--text-faint);
-    white-space: nowrap;
-    order: 1;
-}
-.portals-section-arrows {
-    display: none;
-    order: 2;
-}
-.portals-section-separator:hover .portals-section-arrows {
-    display: flex;
-    gap: 2px;
-    padding-left: 4px;
-}
-.portals-section-arrows i {
-    cursor: pointer;
-    padding: 2px;
-    font-size: small;
-    color: var(--text-faint);
-}
-
-.portals-section-arrows i:hover {
-    transform: scale(1.25);
-    color: var(--text-normal);
-}
-
-.portals-section-separator::after {
-    content: '';
-    flex: 1;
-    margin-right: 4px;
-    margin-left: 0;
-}
 
 .portals-tree-style-default .portals-section-separator::after {
   border-bottom: 1px dashed var(--background-modifier-border);

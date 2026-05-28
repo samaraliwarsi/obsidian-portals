@@ -93,6 +93,7 @@
 /* ------------------------------ Tree Styles ------------------------------------ */
 
 /*---Default style custom colors--*/
+/*
 .portals-tree-style-default .folder-summary.has-folder-color {
     background-color: var(--folder-color);
     border-radius: var(--radius-s, 0);
@@ -112,7 +113,7 @@
   color: var(--file-color);
 }
 
-/*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------*/
+/*-------------Minimal: no Icons/ lines. bullets, low spacing-----------------------
 
 .portals-tree-style-minimal .folder-icon,
 .portals-tree-style-minimal .file-icon {
@@ -166,7 +167,7 @@
   margin-left: 12px;
 }
 
-/*---Minimal style custom colors--*/
+/*---Minimal style custom colors--
 .portals-tree-style-minimal .folder-summary.has-folder-color {
     color: var(--folder-color);
 }
@@ -188,7 +189,7 @@
 
 /*----*/
 
-/*Minimal: Split Tab*/
+/*Minimal: Split Tab
 .portals-split-content.portals-tree-style-minimal .file-item::before {
   content: "•";
     font-family: monospace;
@@ -202,7 +203,7 @@
 /*----------------------------------------------------------------------------------*/
 /*------------------------Portals: Styled Left Border------------------------------*/
 
-/*---Portals style custom colors--*/
+/*---Portals style custom colors--
 .portals-tree-style-portals .folder-details.has-folder-color {
     border-left: 1px solid var(--folder-color);
 }
@@ -214,7 +215,7 @@
   color: var(--file-color);
 }
 
-/*----*/
+/*----
 
 .portals-tree-style-portals .folder-details {
   border-left: 1px solid var(--space-border-color, var(--interactive-accent));
@@ -241,7 +242,7 @@
 }
 
 
-/*Portals: Split Tab*/
+/*Portals: Split Tab
 .portals-split-content.portals-tree-style-portals .file-item {
   border-left: 1px solid var(--space-border-color, var(--interactive-accent));
   border-radius: 4px;
@@ -249,7 +250,7 @@
 }
 
 /*------------------------------------------------------------------------------------*/
-/*-----------------------------------Boxed Style--------------------------------------*/
+/*-----------------------------------Boxed Style--------------------------------------
 
 .portals-tree-style-boxed .folder-summary {
     border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
@@ -269,7 +270,7 @@
   border-left: 1px solid var(--folder-color);
 }
 
-/*Boxed: Split Tab*/
+/*Boxed: Split Tab
 .portals-split-content.portals-tree-style-boxed .file-item {
   border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
   border-radius: 0 0 0 6px;
@@ -285,7 +286,7 @@
 
 
 /*------------------------------------------------------------------------------*/
-/*---------------------------Shades Style-------------------------------------*/
+/*---------------------------Shades Style-------------------------------------
 
 .portals-tree-style-shades .folder-summary.shaded-folder-summary {
     background-color: rgba(128, 128, 128, var(--folder-shade-opacity, 0.15));
@@ -349,10 +350,10 @@
     border-left: 1px dashed var(--background-modifier-border);
 }
 
-/* Shades - compact tree */ 
+/* Shades - compact tree 
 
 .portals-tree-container.portals-compact-tree.portals-tree-style-shades .folder-children.shaded-folder-children {
-    margin-left: 0;   /* set to measured bullet offset */
+    margin-left: 0;   /* set to measured bullet offset 
     padding-left: 14px;
 }
 
@@ -361,7 +362,7 @@
   padding-left: 8px;
 }
 
-/*Shades: Split Tab*/
+/*Shades: Split Tab
 .portals-split-content.portals-tree-style-shades .file-item {
   background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
   border-radius: 4px;
@@ -379,7 +380,7 @@
   color: var(--file-color);
 }
 /*------------------------------------------------------------------------*/
-/*-----------------------------Hues Style---------------------------------*/
+/*-----------------------------Hues Style---------------------------------
 
 .portals-tree-style-hues .folder-summary.hued-folder-summary {
     background: linear-gradient(135deg,
@@ -432,7 +433,7 @@
     text-shadow: 0 0 2px var(--background-primary);
 }
 
-/* Hues - compact tree support */
+/* Hues - compact tree support 
 .portals-tree-container.portals-compact-tree.portals-tree-style-hues .folder-children.hued-folder-children {
     margin-left: 0;
     padding-left: 14px;
@@ -443,7 +444,7 @@
     padding-left: 8px;
 }
 
-/* Hues - split tab file items */
+/* Hues - split tab file items 
 .portals-split-content.portals-tree-style-hues .file-item {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
@@ -467,7 +468,7 @@
   color: var(--file-color);
 }
 /*-----------------------*/
-/* Light mode overrides */
+/* Light mode overrides 
 body.theme-light .portals-tree-style-hues .hued-folder-summary {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.4)),
@@ -486,14 +487,14 @@ body.theme-light .portals-tree-style-hues .hued-folder-summary:hover {
         hsla(var(--hue-end, 260), 100%, 40%, min(calc(var(--hue-opacity, 0.3) + 0.1), 0.9))
     );
 }
-/* Light mode split tab */
+/* Light mode split tab 
 body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
     background: linear-gradient(135deg,
         hsla(var(--hue-start, 200), 100%, 40%, var(--hue-opacity, 0.3)),
         hsla(var(--hue-end, 260), 100%, 40%, var(--hue-opacity, 0.3))
     );
 }
-
+*/
 /*---------------------------------------------------------------------------------------*/
 
 
@@ -1004,6 +1005,7 @@ align-self: center;
   cursor: pointer;
 }
 
+
 /* Open dot indicator */
 
 .open-dot {
@@ -1400,6 +1402,16 @@ body.portals-dragging {
 .portals-tree-container.portals-compact-tree .folder-icon i,
 .portals-tree-container.portals-compact-tree .file-icon i {
     font-size: 14px;
+}
+
+
+.portals-tree-container.portals-compact-tree .folder-icon .svg-icon,
+.portals-tree-container.portals-compact-tree .file-icon .svg-icon {
+    font-size: 13px;
+    width: 1em;
+    height: 1em;
+    align-self: center;
+    padding-top: 2px;
 }
 
 /* Optional: reduce indentation of nested children */
@@ -2083,7 +2095,7 @@ button.trash-delete-btn:not(.clickable-icon):hover {
 
 /*folder style specific to trash portal but generic in value */
 
-/*Portals specific*/
+/*Portals specific
 .portals-split-content.portals-tree-style-portals .folder-details {
   border-left: 1px solid var(--space-border-color, var(--interactive-accent));
   border-radius: 4px;
@@ -2094,7 +2106,7 @@ button.trash-delete-btn:not(.clickable-icon):hover {
  margin: 8px;
 }
 
-/*Shades specific*/
+/*Shades specific
 .portals-split-content.portals-tree-style-shades .trash-tree > .folder-details > .folder-summary {
   background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.1));
   margin: 0;
@@ -2137,7 +2149,7 @@ button.trash-delete-btn:not(.clickable-icon):hover {
   filter: brightness(1.1);
 }
 
-/* Hues specific */
+/* Hues specific 
 
 .portals-split-content.portals-tree-style-hues .trash-tree > .folder-details {
     background: linear-gradient(135deg,
@@ -2233,7 +2245,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .fil
 
 /*========================BOOKMARK GROUPS ON SHADES AND HUES===========================================*/
 
-/*Shades*/
+/*Shades
 
 .portals-split-content.portals-tree-style-shades.bookmarks-tree .folder-summary {
   background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
@@ -2259,7 +2271,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .trash-tree .fil
   padding-bottom: 2px;
 }
 
-/*Hues*/
+/*Hues
 
 .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-summary {
   background: linear-gradient(135deg,
@@ -2305,7 +2317,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 .portals-split-content.portals-tree-style-hues.bookmarks-tree .folder-children .file-item {
   background: none;
 }
-
+*/
 
 /*========================SUMMARY ACTION ICONS===========================================*/
 
@@ -2417,7 +2429,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     margin-right: 4px;
     margin-left: 0;
 }
-
+/*
 .portals-tree-style-default .portals-section-separator::after {
   border-bottom: 1px dashed var(--background-modifier-border);
 }
@@ -2433,3 +2445,4 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 .portals-tree-style-hues .portals-section-separator::after {
   border-bottom: 1px dashed rgba(128, 128, 128, 0.2);
 }
+  */
