@@ -52,9 +52,9 @@ export class HiddenItemsRenderer {
         });
 
         if (rootColor) {
-            contentEl.style.setProperty('--hidden-accent-color', rootColor);
+            contentEl.style.setProperty('--sideportal-accent-color', rootColor);
         } else {
-            contentEl.style.removeProperty('--hidden-accent-color');
+            contentEl.style.removeProperty('--sideportal-accent-color');
         }
 
         hiddenKeys.sort();

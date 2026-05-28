@@ -1,8 +1,5 @@
 
 /*============================JOURNAL=================================*/
-button.portals-reset-btn.journal-filter-btn {
-    border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
-}
 
 .journal-warning {
     color: var(--text-warning);
@@ -161,10 +158,6 @@ button.portals-reset-btn.journal-filter-btn {
     flex-wrap: wrap;
 }
 
-.journal-btn-text {
-    font-size: 0.8em;
-}
-
 .journal-card-marked {
-  border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent));
+  border-bottom: 2px solid var(--sideportal-accent-color, var(--interactive-accent));
 }

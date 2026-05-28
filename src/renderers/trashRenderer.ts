@@ -58,9 +58,9 @@ export class TrashRenderer {
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
         const tabColorEnabled = this.plugin.settings.tabColorEnabled;
         if (tabColorEnabled && rootSpace?.color && rootSpace.color !== 'transparent') {
-            this.container.style.setProperty('--trash-accent-color', rootSpace.color);
+            this.container.style.setProperty('--sideportal-accent-color', rootSpace.color);
         } else {
-            this.container.style.removeProperty('--trash-accent-color');
+            this.container.style.removeProperty('--sideportal-accent-color');
         }
 
         //––––– Load data first–––––
@@ -87,14 +87,15 @@ export class TrashRenderer {
             // First render: also create the buttons row, then append the tree
             this.container.empty();
             const btnRow = this.container.createDiv({ cls: 'trash-btn-row' });
-            const restoreAllBtn = btnRow.createEl('button', {
-                cls: 'portals-reset-btn side-portal-btn',
-                text: 'Restore All'
-            });
-            const deleteAllBtn = btnRow.createEl('button', {
-                cls: 'portals-reset-btn side-portal-btn-warn',
-                text: 'Empty all'
-            });
+
+            const restoreAllBtn = btnRow.createEl('button', { cls: 'portals-reset-btn trash-btn' });
+            this.plugin.renderPluginIcon(restoreAllBtn, 'arrow-counter-clockwise');
+            restoreAllBtn.createSpan({ text: 'Restore All', cls: 'trash-btn-text' });
+
+            const deleteAllBtn = btnRow.createEl('button', { cls: 'portals-reset-btn trash-btn-warn' });
+            this.plugin.renderPluginIcon(deleteAllBtn, 'trash');
+            deleteAllBtn.createSpan({ text: 'Empty all', cls: 'trash-btn-warn-text' });
+
             restoreAllBtn.addEventListener('click', () => { void this.restoreAll(); });
             deleteAllBtn.addEventListener('click', () => {
                 void (async () => {

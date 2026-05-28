@@ -332,9 +332,9 @@ export class FrontmatterClinicRenderer {
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
         const tabColorEnabled = this.plugin.settings.tabColorEnabled;
         if (tabColorEnabled && rootSpace?.color && rootSpace.color !== 'transparent') {
-            this.container.style.setProperty('--fm-accent-color', rootSpace.color);
+            this.container.style.setProperty('--sideportal-accent-color', rootSpace.color);
         } else {
-            this.container.style.removeProperty('--fm-accent-color');
+            this.container.style.removeProperty('--sideportal-accent-color');
         }
 
         this.filterFiles();

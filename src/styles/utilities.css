@@ -229,7 +229,12 @@ button.mod-loading::after {
 
 /*----Main button------*/
 button.portals-reset-btn.journal-btn,
-button.portals-reset-btn.journal-filter-btn {
+button.portals-reset-btn.journal-filter-btn,
+button.portals-reset-btn.trash-btn,
+button.portals-reset-btn.trash-btn-warn,
+button.portals-reset-btn.fm-property-btn,
+button.portals-reset-btn.fm-value-btn,
+button.portals-reset-btn.unhide-btn-all {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -245,39 +250,95 @@ button.portals-reset-btn.journal-filter-btn {
 
 /*------Phosphor and Lucide (if applicable)-----------*/
 button.portals-reset-btn.journal-btn i,
-button.portals-reset-btn.journal-filter-btn i {
+button.portals-reset-btn.journal-filter-btn i,
+button.portals-reset-btn.trash-btn i,
+button.portals-reset-btn.trash-btn-warn i,
+button.portals-reset-btn.fm-property-btn i,
+button.portals-reset-btn.fm-value-btn i,
+button.portals-reset-btn.unhide-btn-all i {
     font-size: 0.9em;
 }
 button.portals-reset-btn.journal-btn .svg-icon,
-button.portals-reset-btn.journal-filter-btn .svg-icon {
+button.portals-reset-btn.journal-filter-btn .svg-icon,
+button.portals-reset-btn.trash-btn .svg-icon,
+button.portals-reset-btn.trash-btn-warn .svg-icon,
+button.portals-reset-btn.fm-property-btn .svg-icon,
+button.portals-reset-btn.fm-value-btn .svg-icon,
+button.portals-reset-btn.unhide-btn-all .svg-icon {
     font-size: 0.8em;
     width: 1em;
     height: 1em;
 }
 
-/*------Button states-----------*/
-button.portals-reset-btn.journal-btn.active {
-    border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
+/*------Left Borders---------------*/
+
+button.portals-reset-btn.journal-btn.active,
+button.portals-reset-btn.journal-filter-btn,
+button.portals-reset-btn.trash-btn,
+button.portals-reset-btn.trash-btn-warn,
+button.portals-reset-btn.fm-property-btn,
+button.portals-reset-btn.fm-value-btn,
+button.portals-reset-btn.unhide-btn-all  {
+    border-left: 2px solid var(--sideportal-accent-color, var(--interactive-accent));
 }
 
+
+/*------Button states-----------*/
+
 button.portals-reset-btn.journal-btn:hover,
-button.portals-reset-btn.journal-filter-btn:hover {
+button.portals-reset-btn.journal-filter-btn:hover,
+button.portals-reset-btn.trash-btn:hover,
+button.portals-reset-btn.fm-property-btn:hover,
+button.portals-reset-btn.fm-value-btn:hover,
+button.portals-reset-btn.unhide-btn-all:hover {
   background: rgba(128, 128, 128, 0.15);
   color: var(--text-normal);
 }
 
 button.portals-reset-btn.journal-btn:focus-visible,
-button.portals-reset-btn.journal-filter-btn:focus-visible {
+button.portals-reset-btn.journal-filter-btn:focus-visible,
+button.portals-reset-btn.trash-btn:focus-visible,
+button.portals-reset-btn.fm-property-btn:focus-visible,
+button.portals-reset-btn.fm-value-btn:focus-visible,
+button.portals-reset-btn.unhide-btn-all:focus-visible {
   background: rgba(128, 128, 128, 0.15);
   color: var(--text-normal);
 }
 
 @media (hover: hover) {
   button.portals-reset-btn.journal-btn:hover,
-  button.portals-reset-btn.journal-filter-btn:hover {
+  button.portals-reset-btn.journal-filter-btn:hover,
+  button.portals-reset-btn.trash-btn:hover,
+  button.portals-reset-btn.fm-property-btn:hover,
+  button.portals-reset-btn.fm-value-btn:hover,
+  button.portals-reset-btn.unhide-btn-all:hover {
     background: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
   }
+}
+
+/*-------Warning states------------*/
+
+button.portals-reset-btn.trash-btn-warn:hover,
+button.portals-reset-btn.trash-btn-warn:focus-visible {
+  background: var(--background-modifier-error);
+  color: var(--text-on-accent);
+}
+
+@media (hover: hover) {
+  button.portals-reset-btn.trash-btn-warn:hover {
+    background: var(--background-modifier-error);
+    color: var(--text-on-accent);
+  }
+}
+
+/*---------Button text---------*/
+.journal-btn-text,
+.trash-btn-text,
+.trash-btn-warn-text,
+.fm-btn-text,
+.unhide-btn-text {
+    font-size: 0.8em;
 }
 
 /*============================SCROLL BAR STYLES====================================*/

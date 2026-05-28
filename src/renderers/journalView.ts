@@ -170,10 +170,10 @@ export class JournalRenderer {
             const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
             if (rootColor) {
                 //this.container.style.setProperty('--journal-accent-color', rootColor);
-                this.container.setCssProps({ '--journal-accent-color': rootColor });
+                this.container.setCssProps({ '--sideportal-accent-color': rootColor });
             } else {
                 //this.container.style.removeProperty('--journal-accent-color');
-                this.container.setCssProps({ '--journal-accent-color': '' });
+                this.container.setCssProps({ '--sideportal-accent-color': '' });
             }
 
             if (this.notes.length === 0) {

@@ -4926,7 +4926,12 @@ button.mod-loading::after {
 
 /*----Main button------*/
 button.portals-reset-btn.journal-btn,
-button.portals-reset-btn.journal-filter-btn {
+button.portals-reset-btn.journal-filter-btn,
+button.portals-reset-btn.trash-btn,
+button.portals-reset-btn.trash-btn-warn,
+button.portals-reset-btn.fm-property-btn,
+button.portals-reset-btn.fm-value-btn,
+button.portals-reset-btn.unhide-btn-all {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -4942,39 +4947,95 @@ button.portals-reset-btn.journal-filter-btn {
 
 /*------Phosphor and Lucide (if applicable)-----------*/
 button.portals-reset-btn.journal-btn i,
-button.portals-reset-btn.journal-filter-btn i {
+button.portals-reset-btn.journal-filter-btn i,
+button.portals-reset-btn.trash-btn i,
+button.portals-reset-btn.trash-btn-warn i,
+button.portals-reset-btn.fm-property-btn i,
+button.portals-reset-btn.fm-value-btn i,
+button.portals-reset-btn.unhide-btn-all i {
     font-size: 0.9em;
 }
 button.portals-reset-btn.journal-btn .svg-icon,
-button.portals-reset-btn.journal-filter-btn .svg-icon {
+button.portals-reset-btn.journal-filter-btn .svg-icon,
+button.portals-reset-btn.trash-btn .svg-icon,
+button.portals-reset-btn.trash-btn-warn .svg-icon,
+button.portals-reset-btn.fm-property-btn .svg-icon,
+button.portals-reset-btn.fm-value-btn .svg-icon,
+button.portals-reset-btn.unhide-btn-all .svg-icon {
     font-size: 0.8em;
     width: 1em;
     height: 1em;
 }
 
-/*------Button states-----------*/
-button.portals-reset-btn.journal-btn.active {
-    border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
+/*------Left Borders---------------*/
+
+button.portals-reset-btn.journal-btn.active,
+button.portals-reset-btn.journal-filter-btn,
+button.portals-reset-btn.trash-btn,
+button.portals-reset-btn.trash-btn-warn,
+button.portals-reset-btn.fm-property-btn,
+button.portals-reset-btn.fm-value-btn,
+button.portals-reset-btn.unhide-btn-all  {
+    border-left: 2px solid var(--sideportal-accent-color, var(--interactive-accent));
 }
 
+
+/*------Button states-----------*/
+
 button.portals-reset-btn.journal-btn:hover,
-button.portals-reset-btn.journal-filter-btn:hover {
+button.portals-reset-btn.journal-filter-btn:hover,
+button.portals-reset-btn.trash-btn:hover,
+button.portals-reset-btn.fm-property-btn:hover,
+button.portals-reset-btn.fm-value-btn:hover,
+button.portals-reset-btn.unhide-btn-all:hover {
   background: rgba(128, 128, 128, 0.15);
   color: var(--text-normal);
 }
 
 button.portals-reset-btn.journal-btn:focus-visible,
-button.portals-reset-btn.journal-filter-btn:focus-visible {
+button.portals-reset-btn.journal-filter-btn:focus-visible,
+button.portals-reset-btn.trash-btn:focus-visible,
+button.portals-reset-btn.fm-property-btn:focus-visible,
+button.portals-reset-btn.fm-value-btn:focus-visible,
+button.portals-reset-btn.unhide-btn-all:focus-visible {
   background: rgba(128, 128, 128, 0.15);
   color: var(--text-normal);
 }
 
 @media (hover: hover) {
   button.portals-reset-btn.journal-btn:hover,
-  button.portals-reset-btn.journal-filter-btn:hover {
+  button.portals-reset-btn.journal-filter-btn:hover,
+  button.portals-reset-btn.trash-btn:hover,
+  button.portals-reset-btn.fm-property-btn:hover,
+  button.portals-reset-btn.fm-value-btn:hover,
+  button.portals-reset-btn.unhide-btn-all:hover {
     background: rgba(128, 128, 128, 0.15);
     color: var(--text-normal);
   }
+}
+
+/*-------Warning states------------*/
+
+button.portals-reset-btn.trash-btn-warn:hover,
+button.portals-reset-btn.trash-btn-warn:focus-visible {
+  background: var(--background-modifier-error);
+  color: var(--text-on-accent);
+}
+
+@media (hover: hover) {
+  button.portals-reset-btn.trash-btn-warn:hover {
+    background: var(--background-modifier-error);
+    color: var(--text-on-accent);
+  }
+}
+
+/*---------Button text---------*/
+.journal-btn-text,
+.trash-btn-text,
+.trash-btn-warn-text,
+.fm-btn-text,
+.unhide-btn-text {
+    font-size: 0.8em;
 }
 
 /*============================SCROLL BAR STYLES====================================*/
@@ -5690,7 +5751,7 @@ vertical-align: middle;
 }
 
 .portals-multiselect-toolbar {
-    max-width: 100%;
+    position: sticky;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
@@ -5699,9 +5760,13 @@ vertical-align: middle;
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 8px 12px;
-    border-top: 1px solid var(--background-modifier-border);
-    z-index: 5;
+    padding: 6px 12px;
+    margin-bottom: 4px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    box-shadow: var(--shadow-l);
+    border-radius: 4px;
+    z-index: 10;
     flex-shrink: 0;
 }
 
@@ -6620,7 +6685,7 @@ button.journal-filter-btn .svg-icon {
 
 /*=============================JOURNAL-END============================*/
 /*=============================FRONTMATTER CLINIC=========================*/
-
+/*
 @media (hover: hover) and (pointer: fine) {
   .portals-fm-dropdown .menu-scroll {
     max-height: min(60vh, 300px);
@@ -6701,7 +6766,7 @@ button.portals-reset-btn.fm-value-btn .svg-icon {
     color: var(--text-muted);
     font-size: 14px;
 }*/
-
+/*
 .fm-clinic-header select {
     flex: 1;
     padding: 4px;
@@ -6848,9 +6913,10 @@ button.clickable-icon.fm-edit-btn:hover {
 
 .fm-file-item.is-selected {
   border: 1px dashed var(--interactive-accent);
-}
+}*/
 
 /*=======================HIDDEN ITEMS SIDE PORTAL=========================*/
+/*
 .hidden-type-label {
     display: block;
     font-size: 0.6em;
@@ -6944,7 +7010,7 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
   padding-bottom: 12px;
   margin-bottom: 12px;
 }
-
+/*
 /* ========================== Compact tab CSS ======================== */
 
 /* Compact tab bar (no text removal) */
@@ -6994,7 +7060,7 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
 }
 
 /* ======================== Trash Side Portal ====================== */
-
+/*
 .trash-btn-row {
   display: flex;
   gap: 8px;
@@ -7076,7 +7142,7 @@ button.trash-action-btn:not(.clickable-icon):hover {
 button.trash-delete-btn:not(.clickable-icon):hover {
     background: var(--text-error);
     color: var(--text-normal);
-}
+}*/
 
 /*folder style specific to trash portal but generic in value */
 
@@ -7493,9 +7559,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 
 /*============================JOURNAL=================================*/
-button.portals-reset-btn.journal-filter-btn {
-    border-left: 2px solid var(--journal-accent-color, var(--interactive-accent));
-}
 
 .journal-warning {
     color: var(--text-warning);
@@ -7654,12 +7717,8 @@ button.portals-reset-btn.journal-filter-btn {
     flex-wrap: wrap;
 }
 
-.journal-btn-text {
-    font-size: 0.8em;
-}
-
 .journal-card-marked {
-  border-bottom: 2px solid var(--journal-accent-color, var(--interactive-accent));
+  border-bottom: 2px solid var(--sideportal-accent-color, var(--interactive-accent));
 }
 /*================CONTEXT NOTE, Bases Styling & User message Display================*/
 
@@ -7730,6 +7789,303 @@ button.portals-reset-btn.journal-filter-btn {
 .portals-context-notes-tab-container {
     position: relative;
 }
+.trash-btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trash-item-actions {
+  display: flex;
+  margin-left: auto;
+  gap: 4px;
+}
+
+button.trash-action-btn:not(.clickable-icon),
+button.trash-delete-btn:not(.clickable-icon) {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 2px 4px;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    box-shadow: inset 0 0 0 1px rgba(100, 100, 100, 0.1);
+    border: 1px solid var(--background-modifier-border);
+}
+
+button.trash-action-btn:not(.clickable-icon) i,
+button.trash-delete-btn:not(.clickable-icon) i {
+    font-size: 0.75em;
+}
+
+button.trash-action-btn:not(.clickable-icon) .svg-icon,
+button.trash-delete-btn:not(.clickable-icon) .svg-icon {
+    font-size: 0.75em;
+    width: 1em;
+    height: 1em;
+}
+
+button.trash-action-btn:not(.clickable-icon):hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+button.trash-delete-btn:not(.clickable-icon):hover {
+    background: var(--background-modifier-errpr);
+    color: var(--text-on-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .portals-fm-dropdown .menu-scroll {
+    max-height: min(60vh, 300px);
+    overflow-y: auto;
+  }
+}
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+
+.portals-frontmatter-clinic {
+    padding: 4px 8px;
+}
+
+.fm-clinic-header {
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    width: 100%;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+p.fm-noFound-txt {
+   padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/*
+.fm-dropdown-icon {
+    position: absolute;
+    left: 8px;
+    pointer-events: none;
+    color: var(--text-muted);
+    font-size: 14px;
+}*/
+
+.fm-clinic-header select {
+    flex: 1;
+    padding: 4px;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.fm-clinic-file-list {
+    max-height: 300px;
+    overflow-y: hidden;
+}
+
+.fm-file-name {
+    flex: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fm-current-value {
+    display: block;
+    margin-right: 4px;
+    font-size: 0.55em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fm-multiselect-container {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.fm-checkbox-row {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+}
+
+.fm-checkbox-row input {
+    margin-right: 8px;
+}
+
+.fm-new-tag-row {
+    display: flex;
+    margin-top: 8px;
+    gap: 4px;
+}
+
+.fm-new-tag-row input {
+    flex: 1;
+}
+
+.fm-count-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+    padding: 0 2px;
+}
+
+.fm-file-count {
+    font-size: 10px;
+    color: var(--text-faint);
+    background: var(--background-primary);
+    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.1);
+    height: auto;
+    min-width: 0;
+    line-height: 1.2;
+    pointer-events: auto;
+    width: fit-content;
+    padding: 2px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.fm-file-count:hover {
+    background: var(--background-modifier-hover);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.fm-clinic-toolbar {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+    box-shadow: var(--shadow-l);
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.fm-clinic-toolbar .clickable-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.fm-clinic-toolbar .clickable-icon .svg-icon {
+    width: 1em;
+    height: 1em;
+}
+
+.fm-clinic-toolbar .portals-selection-count {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.fm-file-item.is-selected {
+  border: 1px dashed var(--interactive-accent);
+}
+/*=======================HIDDEN ITEMS SIDE PORTAL=========================*/
+.hidden-type-label {
+    display: block;
+    font-size: 0.6em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+button.unhide-btn:not(.clickable-icon) {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 2px 4px;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    height: 24px;
+}
+
+button.unhide-btn:not(.clickable-icon):hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+button.unhide-btn:not(.clickable-icon) .svg-icon {
+    font-size: 0.85em;
+    width: 1em;
+    height: 1em;
+}
+
+.unhide-items-message {
+   padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.portals-hidden-tab .file-item:hover {
+  background: none;
+}
+
+.portals-hidden-tab.portals-tree-style-shades .file-item {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
+}
+
+.portals-hidden-tab.portals-tree-style-hues .file-item {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+    );
+}
+
+.unhide-wrapper {
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: flex;
+  padding-top: 4px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
 
 /* ================================ Settings page ================================ */
 

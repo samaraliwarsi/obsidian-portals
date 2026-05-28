@@ -1,0 +1,63 @@
+/*=======================HIDDEN ITEMS SIDE PORTAL=========================*/
+.hidden-type-label {
+    display: block;
+    font-size: 0.6em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+button.unhide-btn:not(.clickable-icon) {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 2px 4px;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    height: 24px;
+}
+
+button.unhide-btn:not(.clickable-icon):hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+button.unhide-btn:not(.clickable-icon) .svg-icon {
+    font-size: 0.85em;
+    width: 1em;
+    height: 1em;
+}
+
+.unhide-items-message {
+   padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.portals-hidden-tab .file-item:hover {
+  background: none;
+}
+
+.portals-hidden-tab.portals-tree-style-shades .file-item {
+  background-color: rgba(100, 100, 100, var(--folder-shade-opacity, 0.15));
+}
+
+.portals-hidden-tab.portals-tree-style-hues .file-item {
+  background: linear-gradient(135deg,
+        hsla(var(--hue-start, 180), 40%, 70%, var(--hue-opacity, 0.15)),
+        hsla(var(--hue-end, 240), 40%, 70%, var(--hue-opacity, 0.15))
+    );
+}
+
+.unhide-wrapper {
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: flex;
+  padding-top: 4px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}

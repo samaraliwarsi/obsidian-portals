@@ -685,7 +685,7 @@ vertical-align: middle;
 }
 
 .portals-multiselect-toolbar {
-    max-width: 100%;
+    position: sticky;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
@@ -694,9 +694,13 @@ vertical-align: middle;
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 8px 12px;
-    border-top: 1px solid var(--background-modifier-border);
-    z-index: 5;
+    padding: 6px 12px;
+    margin-bottom: 4px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    box-shadow: var(--shadow-l);
+    border-radius: 4px;
+    z-index: 10;
     flex-shrink: 0;
 }
 
@@ -1615,7 +1619,7 @@ button.journal-filter-btn .svg-icon {
 
 /*=============================JOURNAL-END============================*/
 /*=============================FRONTMATTER CLINIC=========================*/
-
+/*
 @media (hover: hover) and (pointer: fine) {
   .portals-fm-dropdown .menu-scroll {
     max-height: min(60vh, 300px);
@@ -1696,7 +1700,7 @@ button.portals-reset-btn.fm-value-btn .svg-icon {
     color: var(--text-muted);
     font-size: 14px;
 }*/
-
+/*
 .fm-clinic-header select {
     flex: 1;
     padding: 4px;
@@ -1843,9 +1847,10 @@ button.clickable-icon.fm-edit-btn:hover {
 
 .fm-file-item.is-selected {
   border: 1px dashed var(--interactive-accent);
-}
+}*/
 
 /*=======================HIDDEN ITEMS SIDE PORTAL=========================*/
+/*
 .hidden-type-label {
     display: block;
     font-size: 0.6em;
@@ -1939,7 +1944,7 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
   padding-bottom: 12px;
   margin-bottom: 12px;
 }
-
+/*
 /* ========================== Compact tab CSS ======================== */
 
 /* Compact tab bar (no text removal) */
@@ -1989,7 +1994,7 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
 }
 
 /* ======================== Trash Side Portal ====================== */
-
+/*
 .trash-btn-row {
   display: flex;
   gap: 8px;
@@ -2071,7 +2076,7 @@ button.trash-action-btn:not(.clickable-icon):hover {
 button.trash-delete-btn:not(.clickable-icon):hover {
     background: var(--text-error);
     color: var(--text-normal);
-}
+}*/
 
 /*folder style specific to trash portal but generic in value */
 

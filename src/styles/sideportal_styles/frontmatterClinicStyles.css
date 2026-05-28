@@ -1,0 +1,180 @@
+
+@media (hover: hover) and (pointer: fine) {
+  .portals-fm-dropdown .menu-scroll {
+    max-height: min(60vh, 300px);
+    overflow-y: auto;
+  }
+}
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.portals-fm-dropdown .menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+
+.portals-frontmatter-clinic {
+    padding: 4px 8px;
+}
+
+.fm-clinic-header {
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    width: 100%;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+p.fm-noFound-txt {
+   padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/*
+.fm-dropdown-icon {
+    position: absolute;
+    left: 8px;
+    pointer-events: none;
+    color: var(--text-muted);
+    font-size: 14px;
+}*/
+
+.fm-clinic-header select {
+    flex: 1;
+    padding: 4px;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+}
+
+.fm-clinic-file-list {
+    max-height: 300px;
+    overflow-y: hidden;
+}
+
+.fm-file-name {
+    flex: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fm-current-value {
+    display: block;
+    margin-right: 4px;
+    font-size: 0.55em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fm-multiselect-container {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.fm-checkbox-row {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+}
+
+.fm-checkbox-row input {
+    margin-right: 8px;
+}
+
+.fm-new-tag-row {
+    display: flex;
+    margin-top: 8px;
+    gap: 4px;
+}
+
+.fm-new-tag-row input {
+    flex: 1;
+}
+
+.fm-count-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+    padding: 0 2px;
+}
+
+.fm-file-count {
+    font-size: 10px;
+    color: var(--text-faint);
+    background: var(--background-primary);
+    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.1);
+    height: auto;
+    min-width: 0;
+    line-height: 1.2;
+    pointer-events: auto;
+    width: fit-content;
+    padding: 2px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.fm-file-count:hover {
+    background: var(--background-modifier-hover);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.fm-clinic-toolbar {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+    box-shadow: var(--shadow-l);
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.fm-clinic-toolbar .clickable-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.fm-clinic-toolbar .clickable-icon .svg-icon {
+    width: 1em;
+    height: 1em;
+}
+
+.fm-clinic-toolbar .portals-selection-count {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.fm-file-item.is-selected {
+  border: 1px dashed var(--interactive-accent);
+}
