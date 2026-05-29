@@ -78,7 +78,7 @@ export interface SpacesSettings {
     showFileToolTips: boolean;
     journalDefaultCurrentMode: 'random' | 'marked' | 'onThisDay';
     iconLibrary: 'phosphor' | 'lucide';
-    customIconMigrationDone: boolean;
+    customIconPhosphorMigrationDone: boolean;
     
 }
 
@@ -152,7 +152,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showFileToolTips: false,
     journalDefaultCurrentMode: 'random',
     iconLibrary: 'phosphor',
-    customIconMigrationDone: false,
+    customIconPhosphorMigrationDone: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -472,13 +472,14 @@ export class SpacesSettingTab extends PluginSettingTab {
             const colorRow = controlEl.createDiv({ cls: 'portals-color-row' });
 
             // Icon button
+            const rootCompositeKey = 'folder:/';
+            const rootFallback = rootSpace.icon || 'folder-simple';
             const iconBtn = colorRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
             iconBtn.empty();
-            //iconBtn.createEl('i', { cls: `ph ph-${rootSpace.icon}` });
-            this.plugin.renderPluginIcon(iconBtn, rootSpace.icon || 'help-circle');
+            this.plugin.renderCustomIcon(iconBtn, rootCompositeKey, rootFallback);
             iconBtn.addEventListener('click', () => {
                 new IconPickerModal(this.app, this.plugin.phosphorProvider, this.plugin.lucideProvider, (iconKey: string) => {
-                    rootSpace.icon = iconKey;
+                    this.plugin.settings.customIcons[rootCompositeKey] = iconKey;
                     void this.plugin.saveSettings().then(() => {
                         this.display();
                     });
@@ -666,13 +667,14 @@ export class SpacesSettingTab extends PluginSettingTab {
                 //const iconBadge = iconRow.createSpan({ cls: 'portals-icon-badge' });
                 //iconBadge.textContent = portal.icon;
 
+                const compositeKey = `${portal.type}:${portal.path}`;
+                const fallbackDefault = portal.icon || (portal.type === 'folder' ? 'folder-simple' : 'tag');
                 const iconBtn = colorRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Choose icon' } });
                 iconBtn.empty();
-                //iconBtn.createEl('i', { cls: `ph ph-${portal.icon}` });
-                this.plugin.renderPluginIcon(iconBtn, portal.icon || 'help-circle');
+                this.plugin.renderCustomIcon(iconBtn, compositeKey, fallbackDefault);
                 iconBtn.addEventListener('click', () => {
                     new IconPickerModal(this.app, this.plugin.phosphorProvider, this.plugin.lucideProvider, (iconKey: string) => {
-                        portal.icon = iconKey;
+                        this.plugin.settings.customIcons[compositeKey] = iconKey;
                         void this.plugin.saveSettings().then(() => {
                             this.display();
                         });

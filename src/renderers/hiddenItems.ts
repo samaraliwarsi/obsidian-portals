@@ -1,7 +1,6 @@
 import { App, TFile, TFolder, Platform } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-import { PortalsActions } from '../utils/portalsActions';
 
 export class HiddenItemsRenderer {
     private app: App;
@@ -62,26 +61,18 @@ export class HiddenItemsRenderer {
         for (const key of hiddenKeys) {
             const fileEl = contentEl.createDiv({ cls: 'file-item' });
             fileEl.dataset.path = key;
-
-            let displayName = key;
-            let iconClass = 'ph-file';
-            let typeLabel = '';
-
             const item = this.app.vault.getAbstractFileByPath(key);
+            let fallbackIcon = 'file';
+            let displayName = key;
+            let typeLabel = '';
             if (item instanceof TFile) {
                 displayName = this.view.getDisplayName(item);
-                //iconClass = 'ph-file';
-                iconClass = 'file';
+                fallbackIcon = 'file';
                 typeLabel = 'File';
-                const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
-                if (customIcon) iconClass = customIcon;
             } else if (item instanceof TFolder) {
                 displayName = item.name;
-                //iconClass = 'ph-folder';
-                iconClass = 'folder';
+                fallbackIcon = 'folder';
                 typeLabel = 'Folder';
-                const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
-                if (customIcon) iconClass = customIcon;
             } else if (key.startsWith('tag:')) {
                 const withoutPrefix = key.slice(4);
                 const groupMatch = withoutPrefix.match(/^([^/]+)\/group:(.+)$/);
@@ -89,28 +80,21 @@ export class HiddenItemsRenderer {
 
                 if (groupMatch && groupMatch[1] && groupMatch[2]) {
                     displayName = groupMatch[2];
+                    fallbackIcon = 'tag-simple';
                     typeLabel = 'Tag Group';
-                    //iconClass = 'ph-tag-simple';
-                    iconClass = 'tag-simple';
                 } else if (nodeMatch && nodeMatch[1] && nodeMatch[2]) {
                     const nodePath = nodeMatch[2];
                     displayName = nodePath.split('/').pop() || nodePath;
+                    fallbackIcon = 'tag';
                     typeLabel = 'Subtag';
-                    //iconClass = 'ph-tag';
-                    iconClass = 'tag';
                 } else {
                     displayName = withoutPrefix;
+                    fallbackIcon = 'tag';
                     typeLabel = 'Tag';
-                    //iconClass = 'ph-tag';
-                    iconClass = 'tag';
                 }
-                const customIcon = PortalsActions.getCustomIcon(this.plugin, key);
-                if (customIcon) iconClass = customIcon;
             }
-
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-            //iconSpan.createEl('i', { cls: `ph ${iconClass}` });
-            this.plugin.renderPluginIcon(iconSpan, iconClass);
+            this.plugin.renderCustomIcon(iconSpan, key, fallbackIcon);
             fileEl.createSpan({ text: displayName, cls: 'portals-item-name' });
 
             if (typeLabel) {

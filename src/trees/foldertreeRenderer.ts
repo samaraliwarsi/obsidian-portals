@@ -43,7 +43,8 @@ export class FolderTreeRenderer {
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
         //iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
         //this.plugin.renderPluginIcon(iconSpan, folderIcon);
-        this.plugin.renderCustomIcon(iconSpan, folder.path, 'folder')
+        this.plugin.renderCustomIcon(iconSpan, folder.path, iconName)
+        //console.log('Rendering folder icon for:', folder.path, 'key:', folder.path);
 
         const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
         const nameSpan = summary.createSpan({ text: displayName });

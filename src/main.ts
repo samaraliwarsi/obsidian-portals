@@ -126,6 +126,7 @@ export default class PortalsPlugin extends Plugin {
     }
     public renderCustomIcon(element: HTMLElement, key: string, fallback: string): void {
         const stored = this.settings.customIcons[key];
+        console.log('renderCustomIcon key:', key, 'stored:', stored);
         if (!stored) {
             this.renderPluginIcon(element, fallback);
             return;
@@ -185,64 +186,82 @@ export default class PortalsPlugin extends Plugin {
                     }
                     // If no space found, skip (portal was deleted)
                 } else {
-                    convertedOrder.push(entry); // already composite
+                    convertedOrder.push(entry);
                 }
             }
             if (needsConversion) {
                 this.settings.tabBarOrder = convertedOrder;
-                await this.saveSettings(); // save the upgraded order
+                await this.saveSettings();
             }
         }
 
         // Migrate icons to new managemenet using compositeKey for spaces and clean up of old 
-        if (!this.settings.customIconMigrationDone) {
-            const FOLDER_DEFAULT = 'folder-simple';
-            const TAG_DEFAULT = 'tag';
-            const STACK_DEFAULT = 'stack';
+        const FOLDER_DEFAULT = 'folder-simple';
+        const TAG_DEFAULT = 'tag';
+        const STACK_DEFAULT = 'stack';
+        let needsSave = false;
 
-            this.settings.customIconMigrationDone = false;
-
-            // migrate space icons
-            for (const space of this.settings.spaces) {
-                const compositeKey = `${space.type}:${space.path}`;
-                const defaulIcon = space.type === 'folder' ? FOLDER_DEFAULT : TAG_DEFAULT;
-                if (space.icon && space.icon !== defaulIcon) {
-                    if (!this.settings.customIcons[compositeKey]) {
-                        this.settings.customIcons[compositeKey] = space.icon;
-                    }
-                    space.icon = defaulIcon;
+        // migrate space icons
+        for (const space of this.settings.spaces) {
+            const compositeKey = `${space.type}:${space.path}`;
+            const defaulIcon = space.type === 'folder' ? FOLDER_DEFAULT : TAG_DEFAULT;
+            if (space.icon && space.icon !== defaulIcon) {
+                if (!this.settings.customIcons[compositeKey]) {
+                    this.settings.customIcons[compositeKey] = space.icon;
                 }
-                // clean olf plain-paths like ('/') 
-                const oldKey = space.path;
-                if (this.settings.customIcons[oldKey]) {
-                    if (!this.settings.customIcons[compositeKey]) {
-                        this.settings.customIcons[compositeKey] = this.settings.customIcons[oldKey];
-                    }
-                    delete this.settings.customIcons[oldKey];
+                space.icon = defaulIcon;
+                needsSave = true;
+            }
+            // clean olf plain-paths like ('/') 
+            const oldKey = space.path;
+            if (this.settings.customIcons[oldKey]) {
+                if (!this.settings.customIcons[compositeKey]) {
+                    this.settings.customIcons[compositeKey] = this.settings.customIcons[oldKey];
+                }
+                delete this.settings.customIcons[oldKey];
+                needsSave = true;
+            }
+        }
+        // migrate stack icons
+        for (const stack of this.settings.portalStacks) {
+            const stackKey = `stack:${stack.id}`;
+            if (stack.icon && stack.icon !== STACK_DEFAULT) {
+                if (!this.settings.customIcons[stackKey]) {
+                    this.settings.customIcons[stackKey] = stack.icon;
+                }
+                stack.icon = STACK_DEFAULT;
+                needsSave = true;
+            }
+        }
+        // remove any other bare-path customicons
+        for (const key of Object.keys(this.settings.customIcons)) {
+            if (!key.includes(':')) {
+                const matchingSpace = this.settings.spaces.find(s => s.path === key);
+                if (matchingSpace) {
+                    delete this.settings.customIcons[key];
                 }
             }
-            // migrate stack icons
-            for (const stack of this.settings.portalStacks) {
-                const stackKey = `stack:${stack.id}`;
-                if (stack.icon && stack.icon !== STACK_DEFAULT) {
-                    if (!this.settings.customIcons[stackKey]) {
-                        this.settings.customIcons[stackKey] = stack.icon;
-                    }
-                    stack.icon = STACK_DEFAULT;
-                }
-            }
-            // remove any other bare-path customicons
-            for (const key of Object.keys(this.settings.customIcons)) {
-                if (!key.includes(':')) {
-                    const matchingSpace = this.settings.spaces.find(s => s.path === key);
-                    if (matchingSpace) {
-                        delete this.settings.customIcons[key];
-                    }
-                }
-            }
-            this.settings.customIconMigrationDone = true;
+        }
+        if (needsSave) {
             await this.saveSettings();
         }
+
+        // for custom user icons
+        if (!this.settings.customIconPhosphorMigrationDone) {
+            console.log('Portals: Adding phosphor: prefex to old custom icons...');
+            const fixed: Record<string, string> = {};
+            for (const [key, value] of Object.entries(this.settings.customIcons)) {
+                if (!value.includes(':')) {
+                    fixed[key] = `phosphor:${value}`;
+                } else {
+                    fixed[key] = value;
+                }
+            }
+            this.settings.customIcons = fixed;
+            this.settings.customIconPhosphorMigrationDone = true;
+            await this.saveSettings();
+        }
+        
 
         // Clean up orphaned stacks on load
         const referencedStackIds = new Set(this.settings.spaces.map(s => s.stackId).filter(id => id !== undefined));
