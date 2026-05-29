@@ -340,3 +340,12 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .unhide-btn-text {
     font-size: 0.8em;
 }
+
+/*==================PHOSPHOR ICON COLOR OVERRIDE==========================*/
+.portals-container i.ph,
+.portals-tab-bar i.ph,
+.portals-tree-container i.ph,
+.portals-secondary-panel i.ph,
+.portals-icon-picker-modal i.ph {
+    color: inherit;
+}

@@ -184,7 +184,7 @@ export class TagTreeRenderer {
             mainDetails.setAttr('open', 'true');
             const mainSummary = mainDetails.createEl('summary', { cls: 'folder-summary' });
             const mainIconSpan = mainSummary.createSpan({ cls: 'folder-icon' });
-            this.plugin.renderCustomIcon(mainIconSpan, tagName, iconName || 'tag-simple');
+            this.plugin.renderCustomIcon(mainIconSpan, `tag:${tagName}`, iconName || 'tag-simple');
             mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
             const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
             mainSummary.dataset.tagPath = tagName;

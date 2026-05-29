@@ -5038,6 +5038,14 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
     font-size: 0.8em;
 }
 
+/*==================PHOSPHOR ICON COLOR OVERRIDE==========================*/
+.portals-container i.ph,
+.portals-tab-bar i.ph,
+.portals-tree-container i.ph,
+.portals-secondary-panel i.ph,
+.portals-icon-picker-modal i.ph {
+    color: inherit;
+}
 /*===============================SCROLL BARS PLUGIN WIDE=======================*/
 /* ----------Tab bar and Tabs ---------*/
 .portals-tab-bar::-webkit-scrollbar {
@@ -6838,7 +6846,6 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--text-muted);
     box-shadow: var(--input-shadow);
     transition: background-color 0.1s, color 0.1s, box-shadow 0.1s;
     padding: 2px;
@@ -7063,7 +7070,8 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     cursor: pointer;
 }
 
-.folder-icon.has-context-note-icon i {
+.folder-icon.has-context-note-icon i,
+.folder-icon.has-context-note-icon .svg-icon {
     color: var(--space-border-color, var(--interactive-accent));
 }
 

@@ -22,7 +22,6 @@ export class PhosphorIconProvider implements IconProvider {
         }
         const i = document.createElement('i');
         i.className = `ph ph-${resolved}`;
-        i.setCssProps({ color: 'inherit' });
         element.empty();
         element.appendChild(i);
     }
