@@ -43,8 +43,6 @@ export class RemovePortalModal {
     private renderList(): void {
         if (!this.container) return;
         this.container.empty();
-        //this.container.addClass("remove-portal-modal"); // optional extra class
-
         this.container.createDiv({ text: 'Remove portal tab', cls: 'portals-remP-title'});
 
         const spaces = this.plugin.settings.spaces;

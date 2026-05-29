@@ -2,7 +2,7 @@ import { App, Modal, TFolder } from "obsidian";
 
 export class SelectFolderModal extends Modal {
     private folders: TFolder[];
-    private onSelect: (folder: TFolder) => void;  // ← must be TFolder
+    private onSelect: (folder: TFolder) => void;
 
     constructor(app: App, onSelect: (folder: TFolder) => void) {
         super(app);
@@ -24,7 +24,7 @@ export class SelectFolderModal extends Modal {
             for (const folder of filtered) {
                 const item = results.createDiv({ cls: 'add-portal-item', text: folder.path });
                 item.addEventListener('click', () => {
-                    this.onSelect(folder);  // folder is TFolder
+                    this.onSelect(folder);
                     this.close();
                 });
             }

@@ -43,7 +43,6 @@ export class HiddenItemsRenderer {
 
         const buttonWrapper = contentEl.createDiv({ cls: 'unhide-wrapper' });
         const unhideAllBtn = buttonWrapper.createEl('button', { cls: 'portals-reset-btn unhide-btn-all' });
-        //unhideAllBtn.createEl('i', { cls: 'ph ph-eye' });
         this.plugin.renderPluginIcon(unhideAllBtn, 'eye');
         unhideAllBtn.createSpan({ text: 'Unhide all', cls: 'unhide-btn-text' });
         unhideAllBtn.addEventListener('click', () => {
@@ -103,7 +102,6 @@ export class HiddenItemsRenderer {
             }
 
             const unhideBtn = fileEl.createEl('button', { cls: 'unhide-btn' });
-            //unhideBtn.createEl('i', { cls: 'ph ph-eye' });
             this.plugin.renderPluginIcon(unhideBtn, 'eye');
             unhideBtn.addEventListener('click', (e: MouseEvent) => {
                 e.stopPropagation();

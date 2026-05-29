@@ -326,13 +326,11 @@ export default class PortalsPlugin extends Plugin {
         const existingLeaf = workspace.getLeavesOfType(VIEW_TYPE_PORTALS).find(leaf =>
             leaf.getRoot() === leftSidebar
         );
-
         if (existingLeaf) {
             // If one exists, just reveal it
             void workspace.revealLeaf(existingLeaf);
             return;
         }
-
         // Otherwise, create a new leaf in the left sidebar
         const newLeaf = workspace.getLeftLeaf(false);
         if (!newLeaf) return;
@@ -469,13 +467,10 @@ export default class PortalsPlugin extends Plugin {
 
     // ========== MANUAL CLEANUP ==========
     async cleanupDeadSpaces(): Promise<number> {
-        // Get all existing folder paths
         const allFiles = this.app.vault.getAllLoadedFiles();
         const existingFolders = allFiles.filter(f => f instanceof TFolder).map(f => f.path);
 
-        // Get all existing tags (as strings with '#')
         const tags = Object.keys(this.getTags());
-        // Filter spaces
         const beforeCount = this.settings.spaces.length;
         this.settings.spaces = this.settings.spaces.filter(space => {
             if (space.type === 'folder') {
@@ -486,10 +481,8 @@ export default class PortalsPlugin extends Plugin {
             return false;
         });
 
-        // Clean up openFolders
         this.settings.openFolders = this.settings.openFolders.filter(path => existingFolders.includes(path));
 
-        // Adjust selected space if it's gone
         if (this.settings.selectedSpace) {
             const stillExists = this.settings.spaces.some(s => 
                 s.path === this.settings.selectedSpace!.path && 
@@ -502,7 +495,6 @@ export default class PortalsPlugin extends Plugin {
             }
         }
 
-        // Clean up expandedGroups for deleted tag portals
         const existingTagPaths = new Set(this.settings.spaces.filter(s => s.type === 'tag').map(s => s.path));
         for (const tagPath in this.settings.expandedGroups) {
             if (!existingTagPaths.has(tagPath)) {
@@ -510,7 +502,6 @@ export default class PortalsPlugin extends Plugin {
             }
         }
 
-        // cleanup customicons for remove tag groups in tag portals
         for (const key of Object.keys(this.settings.customIcons)) {
             if (key.startsWith('tag:') && key.includes('/groups:')) {
                 const parts = key.split('/')
@@ -524,10 +515,9 @@ export default class PortalsPlugin extends Plugin {
             }
         }
 
-        // Save if anything changed
         if (beforeCount !== this.settings.spaces.length) {
             await this.saveSettings();
         }
-        return beforeCount - this.settings.spaces.length; // number removed
+        return beforeCount - this.settings.spaces.length;
     }
 }

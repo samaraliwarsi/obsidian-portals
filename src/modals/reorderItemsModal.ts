@@ -41,7 +41,6 @@ export class ReorderItemsModal extends Modal {
             row.createSpan({ text: item.displayName });
             row.dataset.path = item.path;
             const reorderHandle = row.createSpan({ cls: 'portals-reorder-handle'})
-                //.createEl('i', { cls: 'ph ph-dots-six-vertical' });
             this.plugin.renderPluginIcon(reorderHandle, 'dots-six-vertical');
         }
         if (this.sourceEl) {

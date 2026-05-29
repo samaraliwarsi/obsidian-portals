@@ -12,7 +12,7 @@ export class JournalRenderer {
     private container: HTMLElement;
     private journalFolder: TFolder | null = null;
     private notes: TFile[] = [];
-    private quotesCache = new Map<string, { text: string; date: Date; file: TFile }[]>(); // cache quotes per file
+    private quotesCache = new Map<string, { text: string; date: Date; file: TFile }[]>();
     private currentQuoteFile: TFile | null = null;
     // add default journal tab setting
     private currentMode: 'random' | 'marked' | 'onThisDay' = 'random';
@@ -41,7 +41,6 @@ export class JournalRenderer {
             const elapsed = Date.now() - startTime;
             const percent = Math.min(100, (elapsed / 30000) * 100);
             if (this.progressBar) {
-                //this.progressBar.style.width = `${percent}%`;
                 this.progressBar.setCssProps({ 'width': `${percent}%` });
             }
             if (elapsed >= 30000) {
@@ -94,16 +93,14 @@ export class JournalRenderer {
 
     async render() {
         this.stopRotation();
-        //this.filesWithWrongDelimiters.clear();
-        //this.wrongDelimiterChecked = new Set();
         this.container.empty();
-        // Get journal folder
+
         const folderPath = this.plugin.settings.journalFolderPath;
         if (folderPath) {
             const folder = this.app.vault.getAbstractFileByPath(folderPath);
             if (folder instanceof TFolder) {
                 this.journalFolder = folder;
-                // Load all markdown files in this folder (only top-level for now)
+
                 this.notes = this.journalFolder.children.filter(
                     (child): child is TFile => child instanceof TFile && child.extension === 'md'
                     );
@@ -135,7 +132,7 @@ export class JournalRenderer {
                     /^\d{4}-\d{2}-\d{2}/.test(name) || /^\d{2}-\d{2}-\d{4}/.test(name);
                 
                 for (const note of this.notes) {
-                    const name = note.basename;  // use basename (without extension) for comparison
+                    const name = note.basename;
                     if (!isDateLike(name)) continue;
 
                     if (format === 'YYYY-MM-DD') {
@@ -160,7 +157,7 @@ export class JournalRenderer {
                     warningEl.createSpan({ text: `⚠️ Some filenames do not match the settings selected date format "${format}". Please change the format in Portals settings.` });
                 }
             }
-            // Pre‑extract all quotes once
+
             this.allQuotes = await this.extractAllQuotes();
             if (this.destroyed) return;
             this.filesWithQuotes = new Set(this.allQuotes.map(q => q.file.path));
@@ -169,10 +166,8 @@ export class JournalRenderer {
             const tabColorEnabled = this.plugin.settings.tabColorEnabled;
             const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
             if (rootColor) {
-                //this.container.style.setProperty('--journal-accent-color', rootColor);
                 this.container.setCssProps({ '--sideportal-accent-color': rootColor });
             } else {
-                //this.container.style.removeProperty('--journal-accent-color');
                 this.container.setCssProps({ '--sideportal-accent-color': '' });
             }
 
@@ -273,13 +268,12 @@ export class JournalRenderer {
         if (!Platform.isMobile) {
             this.view.attachTooltip(filterButton, 'Toggle range', 300, 'right');
         }
-        //filterButton.createEl('i', { cls: 'ph ph-funnel-simple' });
         this.plugin.renderPluginIcon(filterButton, 'funnel-simple');
         const periodSpan = filterButton.createSpan({ text: 'All files', cls: 'journal-btn-text' });
 
 
         const periods = ['This month', 'This year', 'All files'] as const;
-        let currentPeriodIndex = 2; // start with "All files"
+        let currentPeriodIndex = 2;
 
         filterButton.addEventListener('click', () => {
             currentPeriodIndex = (currentPeriodIndex + 1) % periods.length;
@@ -328,10 +322,7 @@ export class JournalRenderer {
                 card.addClass('journal-card-marked');
             }
             card.createSpan({ cls: 'journal-card-title', text: date.toLocaleDateString() });
-            //card.style.background = `rgba(100, 100, 100, ${opacity * 0.4})`;
             card.setCssProps({ 'background': `rgba(100, 100, 100, ${opacity * 0.4})` });
-            // set css for border opacity only used when not marked 
-            //card.style.setProperty('--journal-border-opacity', String(opacity * 0.25));
             card.setCssProps({ '--journal-border-opacity': String(opacity * 0.25) });
 
             const indicator = this.plugin.settings.journalQuoteIndicator; // 'quote' | 'warn' | 'both' | 'none'
@@ -342,26 +333,22 @@ export class JournalRenderer {
             if (indicator === 'quotes' && hasQuotes) {
                 card.addClass('journal-card-has-quotes');
                 const span = card.createSpan({ cls: 'journal-quote-indicator' });
-                //span.createEl('i', { cls: 'ph ph-quotes' });
                 this.plugin.renderPluginIcon(span, 'quotes');
             }
             if (indicator === 'warnings' && hasWrong) {
                 card.addClass('journal-card-has-wrong');
                 const span = card.createSpan({ cls: 'journal-warn-indicator' });
-                //span.createEl('i', { cls: 'ph ph-warning-circle' });
                 this.plugin.renderPluginIcon(span, 'warning-circle');
             }
             if (indicator === 'all') {
                 if (hasQuotes) {
                     card.addClass('journal-card-has-quotes');
                     const span = card.createSpan({ cls: 'journal-quote-indicator' });
-                    //span.createEl('i', { cls: 'ph ph-quotes' });
                     this.plugin.renderPluginIcon(span, 'quotes');
                 }
                 if (hasWrong) {
                     card.addClass('journal-card-has-wrong');
                     const span = card.createSpan({ cls: 'journal-warn-indicator' });
-                    //span.createEl('i', { cls: 'ph ph-warning-circle' });
                     this.plugin.renderPluginIcon(span, 'warning-circle');
                 }
             }
@@ -431,15 +418,12 @@ export class JournalRenderer {
         // Buttons row
         const buttonRow = quotesContainer.createDiv({ cls: 'journal-quote-buttons' });
         const randomBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
-        //randomBtn.createEl('i', { cls: 'ph ph-dice-three'});
         this.plugin.renderPluginIcon(randomBtn, 'dice-three');
         randomBtn.createSpan({ text: 'Random', cls: 'journal-btn-text' });
         const markedBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
-        //markedBtn.createEl('i', { cls: 'ph ph-marker-circle' });
         this.plugin.renderPluginIcon(markedBtn, 'stamp');
         markedBtn.createSpan({ text: 'Marked', cls: 'journal-btn-text' });
         const onThisDayBtn = buttonRow.createEl('button', { cls: 'portals-reset-btn journal-btn' });
-        //onThisDayBtn.createEl('i', { cls: 'ph ph-calendar-star' });
         this.plugin.renderPluginIcon(onThisDayBtn, 'calendar-star')
         onThisDayBtn.createSpan({ text: 'On this day', cls: 'journal-btn-text' });
 

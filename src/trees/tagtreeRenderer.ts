@@ -44,7 +44,7 @@ export class TagTreeRenderer {
             ...getFrontmatterTags(cache)
         ];
         if (isGroup) {
-            return fileTags.includes(tagPath);   // exact match for group tags
+            return fileTags.includes(tagPath);
         }
         // Main tag or subtag: direct match or hierarchical prefix
         return fileTags.some(t => t === tagPath || t.startsWith(tagPath + '/'));
@@ -184,8 +184,6 @@ export class TagTreeRenderer {
             mainDetails.setAttr('open', 'true');
             const mainSummary = mainDetails.createEl('summary', { cls: 'folder-summary' });
             const mainIconSpan = mainSummary.createSpan({ cls: 'folder-icon' });
-            //mainIconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
-            //this.plugin.renderPluginIcon(mainIconSpan, iconName || 'tag');
             this.plugin.renderCustomIcon(mainIconSpan, tagName, iconName || 'tag-simple');
             mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
             const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
@@ -197,7 +195,7 @@ export class TagTreeRenderer {
             }
 
             // FLAT LIST: Apply context note highlight to main tag
-            const mainTagPath = tagName; // e.g., "project"
+            const mainTagPath = tagName;
             this.applyContextNoteHighlight(mainSummary, mainIconSpan, mainTagPath);
 
             // FLAT LIST: Quick‑create note for tag lists (tagName)
@@ -331,12 +329,7 @@ export class TagTreeRenderer {
                 }
 
                 // FLAT LIST: TAG GROUPS - icon with custom support
-                //const customIcon = PortalsActions.getCustomIcon(this.plugin, groupKey);
-                //const iconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-tag-simple';
-                //const iconClass = customIcon || 'tag-simple';
                 const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-                //iconSpan.createEl('i', { cls: iconClass });
-                //this.plugin.renderPluginIcon(iconSpan, iconClass);
                 this.plugin.renderCustomIcon(iconSpan, groupKey, 'tag-simple');
                 summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
                 summary.dataset.tagPath = gTag;
@@ -494,12 +487,7 @@ export class TagTreeRenderer {
 
             const summary = details.createEl('summary', { cls: 'folder-summary' });
 
-            //const customIcon = PortalsActions.getCustomIcon(this.plugin, nodeKey);
-            //const iconClass = customIcon ? `ph ph-${customIcon}` : `ph ph-${iconName || 'tag'}`;
-            //const iconClass = customIcon || 'tag';
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-            //iconSpan.createEl('i', { cls: iconClass });
-            //this.plugin.renderPluginIcon(iconSpan, iconClass);
             this.plugin.renderCustomIcon(iconSpan, nodeKey, 'tag');
             const nameSpan = summary.createSpan({ text: node.name });
             nameSpan.addClass('portals-item-name');
@@ -632,9 +620,7 @@ export class TagTreeRenderer {
         mainDetails.open = true;
         const mainSummary = mainDetails.createEl('summary', { cls: 'folder-summary' });
         const mainIconSpan = mainSummary.createSpan({ cls: 'folder-icon' });
-        //mainIconSpan.createEl('i', { cls: `ph ph-${iconName || 'tag'}` });
-        this.plugin.renderPluginIcon(mainIconSpan, iconName || 'tag');
-        this.plugin.renderCustomIcon(mainIconSpan, tagName, 'tag');
+        this.plugin.renderCustomIcon(mainIconSpan, `tag:${tagName}`, iconName || 'tag');
         mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
         const mainChildren = mainDetails.createDiv({ cls: 'folder-children' });
         mainSummary.dataset.tagPath = tagName;
@@ -754,11 +740,7 @@ export class TagTreeRenderer {
             }
 
             // HLIST: GROUPS - Elements
-            //const customIconGroup = PortalsActions.getCustomIcon(this.plugin, groupKey);
-            //const iconClass = customIconGroup ? `ph ph-${customIconGroup}` : 'ph ph-tag-simple';
             const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-            //iconSpan.createEl('i', { cls: iconClass });
-            //this.plugin.renderPluginIcon(iconSpan, iconClass);
             this.plugin.renderCustomIcon(iconSpan, groupKey, 'tag-simple');
             summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
             summary.dataset.tagPath = gTag;
@@ -773,7 +755,7 @@ export class TagTreeRenderer {
             this.view.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName, [gTag]));
 
             // HLIST: GROUPS - Apply context note highlight to group
-            const groupTagPath = gTag; // e.g., "urgent"
+            const groupTagPath = gTag;
             this.applyContextNoteHighlight(summary, iconSpan, groupTagPath);
 
             summary.addEventListener('contextmenu', (e) => {

@@ -241,7 +241,6 @@ export class FloatingButtonsRenderer {
     private createButton(icon: string, tooltip: string, bottom: number, onClick: (e: MouseEvent) => void, onContextMenu?: (e: MouseEvent) => void): void {
         const btn = this.mainPanel.createEl('button', { cls: 'portals-reset-btn portals-floating-btn' });
         btn.style.bottom = bottom + 'px';
-        //btn.createEl('i', { cls: `ph ph-${icon}` });
         this.plugin.renderPluginIcon(btn, icon);
 
         if (!Platform.isMobile) {

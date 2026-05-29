@@ -151,7 +151,6 @@ export class TrashRenderer {
                 const details = parentEl.createEl('details', { cls: 'folder-details' });
                 details.open = false;                            // collapsed by default
                 const summary = details.createEl('summary', { cls: 'folder-summary' });
-                //summary.createSpan({ cls: 'folder-icon' }).createEl('i', { cls: 'ph ph-folder' });
                 const folderIconWrapper = summary.createSpan({ cls: 'folder-icon' });
                 this.plugin.renderPluginIcon(folderIconWrapper, 'folder');
                 summary.createSpan({ text: item.basename, cls: 'portals-item-name' });
@@ -211,15 +210,13 @@ export class TrashRenderer {
         if (!Platform.isMobile) {
             this.view.attachTooltip(restoreBtn, 'Restore', 300, 'left')
         }
-       //restoreBtn.createEl('i', { cls: 'ph ph-arrow-counter-clockwise' });
         this.plugin.renderPluginIcon(restoreBtn, 'arrow-counter-clockwise');
 
         const deleteBtn = actionBar.createEl('button', { cls: 'trash-delete-btn' });
         if (!Platform.isMobile) {
             this.view.attachTooltip(deleteBtn, 'Delete item', 300, 'right');
         }
-            //deleteBtn.createEl('i', { cls: 'ph ph-trash' });
-            this.plugin.renderPluginIcon(deleteBtn, 'trash');
+        this.plugin.renderPluginIcon(deleteBtn, 'trash');
 
         restoreBtn.addEventListener('click', (e) => {
             e.stopPropagation();

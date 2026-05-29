@@ -38,13 +38,9 @@ export class FolderTreeRenderer {
         const summary = details.createEl('summary');
         summary.addClass('folder-summary');
 
-        //const customIcon = PortalsActions.getCustomIcon(this.plugin, folder.path);
-        //const folderIcon = customIcon || iconName;
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-        //iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
-        //this.plugin.renderPluginIcon(iconSpan, folderIcon);
+
         this.plugin.renderCustomIcon(iconSpan, folder.path, iconName)
-        //console.log('Rendering folder icon for:', folder.path, 'key:', folder.path);
 
         const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
         const nameSpan = summary.createSpan({ text: displayName });
@@ -65,7 +61,7 @@ export class FolderTreeRenderer {
             }
         }
 
-        const activePath = this.view.getActiveFilePath();  // need to keep getActiveFilePath public or add a getter
+        const activePath = this.view.getActiveFilePath();
         if (activePath) {
             const isAncestor = folder.path === '/' ? true : activePath.startsWith(folder.path + '/');
             if (isAncestor) {

@@ -140,9 +140,7 @@ export class AddPortalModal {
                 if (this.selectedPaths.has(tag)) item.addClass('is-selected');
                 if (isUsed) {
                     item.addClass('portals-already-used');
-                    // Add checkmark icon
                     const checkSpan = item.createSpan({ cls: 'portals-check-icon' });
-                    //checkSpan.createEl('i', { cls: 'ph ph-check' });
                     this.plugin.renderPluginIcon(checkSpan, 'check');
                 }
                 item.addEventListener('click', (e: MouseEvent) => {
@@ -174,9 +172,7 @@ export class AddPortalModal {
                 if (this.selectedPaths.has(folder.path)) item.addClass('is-selected');
                 if (isUsed) {
                     item.addClass('portals-already-used');
-                    // Add checkmark icon
                     const checkSpan = item.createSpan({ cls: 'portals-check-icon' });
-                    //checkSpan.createEl('i', { cls: 'ph ph-check' });
                     this.plugin.renderPluginIcon(checkSpan, 'check');
                 }
                 item.addEventListener('click', (e: MouseEvent) => {

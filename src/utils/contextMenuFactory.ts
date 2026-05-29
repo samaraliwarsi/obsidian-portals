@@ -78,7 +78,7 @@ export class ContextMenuFactory {
                 .setTitle('Set custom icon')
                 .setIcon('image')
                 .onClick(() => PortalsActions.setCustomIcon(view.app, view.plugin, view, file.path, file.name)));
-            if (PortalsActions.getCustomIcon(view.plugin, file.path)) { //check
+            if (PortalsActions.getCustomIcon(view.plugin, file.path)) {
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')
                     .setIcon('trash')
@@ -505,7 +505,7 @@ export class ContextMenuFactory {
                 .setTitle('Set custom icon')
                 .setIcon('image')
                 .onClick(() => PortalsActions.setCustomIconForTagGroup(view.app, view.plugin, view, groupTag, groupKey)));
-            if (PortalsActions.getCustomIcon(view.plugin, groupKey)) { // check
+            if (PortalsActions.getCustomIcon(view.plugin, groupKey)) {
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')
                     .setIcon('trash')
@@ -601,7 +601,7 @@ export class ContextMenuFactory {
                 .setTitle('Set custom icon')
                 .setIcon('image')
                 .onClick(() => PortalsActions.setCustomIconForTagGroup(view.app, view.plugin, view, nodeFullPath, nodeKey)));
-            if (PortalsActions.getCustomIcon(view.plugin, nodeKey)) { // check
+            if (PortalsActions.getCustomIcon(view.plugin, nodeKey)) {
                 menu.addItem(item => item
                     .setTitle('Remove custom icon')
                     .setIcon('trash')

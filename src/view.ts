@@ -231,7 +231,6 @@ export class PortalsView extends ItemView {
         if (mode === 'desktop-only' && Platform.isMobile) return;
 
         const filePlus = summary.createSpan({ cls: 'portals-action-icons' });
-        //filePlus.createEl('i', { cls: 'ph ph-file-plus' });
         this.plugin.renderPluginIcon(filePlus, 'file-plus' );
         if (this.plugin.settings.compactTree) {
             filePlus.addClass('portals-action-icons-compact');
@@ -250,7 +249,6 @@ export class PortalsView extends ItemView {
         if (mode === 'desktop-only' && Platform.isMobile) return;
 
         const folderPlus = summary.createSpan({ cls: 'portals-action-icons' });
-        //folderPlus.createEl('i', { cls: 'ph ph-folder-plus' });
         this.plugin.renderPluginIcon(folderPlus, 'folder-plus');
         if (this.plugin.settings.compactTree) {
             folderPlus.addClass('portals-action-icons-compact');
@@ -364,8 +362,8 @@ export class PortalsView extends ItemView {
 
         for (const el of elements) {
             const raw = el.dataset.path ?? el.dataset.tagPath;
-            if (!raw) continue;            // safety – should never happen
-            const itemKey: string = raw;   // explicitly a string
+            if (!raw) continue;
+            const itemKey: string = raw;
 
             orderedKeys.push(itemKey);
             elementMap.set(itemKey, el);
@@ -384,7 +382,7 @@ export class PortalsView extends ItemView {
 
         // Apply the range selection
         for (let i = from; i <= to; i++) {
-            const rangeKey = orderedKeys[i]!;   // rangeKey is string (from a string array)
+            const rangeKey = orderedKeys[i]!;
             this.selectedItems.add(rangeKey);
             const el = elementMap.get(rangeKey);
             el?.classList.add('is-selected');
@@ -408,7 +406,6 @@ export class PortalsView extends ItemView {
     }
 
     public createNewStackWithPortal(space: SpaceConfig) {
-        // Generate a unique ID (simple timestamp + random string)
         const stackId = `stack-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
         const stackName = space.displayName || (space.type === 'folder' 
             ? space.path.split('/').pop() || space.path 
@@ -440,9 +437,7 @@ export class PortalsView extends ItemView {
         header.dataset.stackId = stack.id;
 
         const iconSpan = header.createSpan({ cls: 'portals-tab-icon' });
-        //iconSpan.createEl('i', { cls: `ph ph-${stack.icon || 'stack'}` });
         const stackKey = `stack:${stack.id}`;
-        //this.plugin.renderPluginIcon(iconSpan, stack.icon || 'stack');
         this.plugin.renderCustomIcon(iconSpan, stackKey, 'stack');
         if (this.plugin.settings.stackIconAccent) {
             iconSpan.classList.add('has-accent');
@@ -518,7 +513,7 @@ export class PortalsView extends ItemView {
         if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.tabBarOrder)) {
             this.plugin.settings.tabBarOrder = newOrder;
             await this.plugin.saveSettings();
-            this.lastRenderHash = this.getSettingsHash(); // prevent immediate re-render
+            this.lastRenderHash = this.getSettingsHash();
         }
     }
 
@@ -599,8 +594,6 @@ export class PortalsView extends ItemView {
         const compositeKey = `${space.type}:${space.path}`;
         if (space.icon) {
             const iconSpan = tab.createSpan({ cls: 'portals-tab-icon' });
-            //iconSpan.createEl('i', { cls: `ph ph-${space.icon}` });
-            //this.plugin.renderPluginIcon(iconSpan, space.icon);
             const defaultIcon = space.icon || (space.type === 'folder' ? 'folder-simple' : 'tag');
             this.plugin.renderCustomIcon(iconSpan, compositeKey, defaultIcon);
         }
@@ -685,20 +678,17 @@ export class PortalsView extends ItemView {
             // Add buttons (same as before)
             const deleteBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
             this.attachTooltip(deleteBtn, 'Delete selected');
-            //deleteBtn.createEl('i', { cls: 'ph ph-trash' });
             this.plugin.renderPluginIcon(deleteBtn, 'trash');
             deleteBtn.addClass('portals-delete-btn-warn');
             deleteBtn.addEventListener('click', () => { void PortalsActions.deleteSelectedItems(this.app, this.plugin, this); });
 
             const moveBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
             this.attachTooltip(moveBtn, 'Move selected');
-            //moveBtn.createEl('i', { cls: 'ph ph-arrow-square-out' });
             this.plugin.renderPluginIcon(moveBtn, 'arrow-square-out');
             moveBtn.addEventListener('click', () => { void PortalsActions.moveSelectedItemsToFolder(this.app, this.plugin, this); });
 
             const folderBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
             this.attachTooltip(folderBtn, 'Create folder from selected');
-            //folderBtn.createEl('i', { cls: 'ph ph-folder-plus' });
             this.plugin.renderPluginIcon(folderBtn, 'folder-plus');
             folderBtn.addEventListener('click', () => { void PortalsActions.createFolderFromSelected(this.app, this.plugin, this); });
         }
@@ -706,14 +696,12 @@ export class PortalsView extends ItemView {
         // Reset colors button
         const resetColorBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(resetColorBtn, 'Reset colors');
-        //resetColorBtn.createEl('i', { cls: 'ph ph-palette' });
         this.plugin.renderPluginIcon(resetColorBtn, 'palette');
         resetColorBtn.addEventListener('click', () => { void this.resetColorsForSelected(); });
 
         // Reset icons button
         const resetIconBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(resetIconBtn, 'Reset icons');
-        //resetIconBtn.createEl('i', { cls: 'ph ph-image' });
         this.plugin.renderPluginIcon(resetIconBtn, 'image');
         resetIconBtn.addEventListener('click', () => { void this.resetIconsForSelected(); });
 
@@ -725,7 +713,6 @@ export class PortalsView extends ItemView {
         if (hasMarkdown) {
             const fmBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
             this.attachTooltip(fmBtn, 'Edit frontmatter');
-            //fmBtn.createEl('i', { cls: 'ph ph-list-plus' });
             this.plugin.renderPluginIcon(fmBtn, 'list-plus');
             fmBtn.addEventListener('click', () => this.showBulkFrontmatterModal());
         }
@@ -733,7 +720,6 @@ export class PortalsView extends ItemView {
         // Hide button
         const hideBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(hideBtn, 'Hide items');
-        //hideBtn.createEl('i', { cls: 'ph ph-eye-slash' });
         this.plugin.renderPluginIcon(hideBtn, 'eye-slash');
         hideBtn.addEventListener('click', () => { void this.hideSelectedItems(); });
 
@@ -741,7 +727,6 @@ export class PortalsView extends ItemView {
         if (this.plugin.settings.showFilePreview) {
             const previewBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
             this.attachTooltip(previewBtn, 'Toggle preview');
-            //previewBtn.createEl('i', { cls: 'ph ph-plus-minus' });
             this.plugin.renderPluginIcon(previewBtn, 'plus-minus')
             previewBtn.addEventListener('click', () => {
                 for (const path of this.selectedItems) {
@@ -754,7 +739,6 @@ export class PortalsView extends ItemView {
 
         const clearBtn = toolbar.createEl('button', { cls: 'clickable-icon' });
         this.attachTooltip(clearBtn, 'Clear selection');
-        //clearBtn.createEl('i', { cls: 'ph ph-x' });
         this.plugin.renderPluginIcon(clearBtn, 'x');
         clearBtn.addEventListener('click', () => this.clearSelection());
 
@@ -889,7 +873,7 @@ export class PortalsView extends ItemView {
     public async unhideItem(key: string) {
         delete this.plugin.settings.hiddenItems[key];
         await this.plugin.saveSettings();
-        this.render(); // refresh the view and the hidden tab
+        this.render();
         new Notice(`Unhidden: ${key}`);
     }
 
@@ -1737,7 +1721,6 @@ export class PortalsView extends ItemView {
 
                 // Add icon
                 const iconSpan = tabBtn.createSpan({ cls: 'portals-tab-icon' });
-                //iconSpan.createEl('i', { cls: `ph ph-${icons[tabId] || 'file'}` });
                 this.plugin.renderPluginIcon(iconSpan, icons[tabId] || 'file');
 
                 // handle active state and label visibility
@@ -1846,7 +1829,7 @@ export class PortalsView extends ItemView {
             // Collapse icon
             const collapseIcon = secondaryHeader.createSpan({ cls: 'portals-collapse-icon' });
             collapseIcon.textContent = this.plugin.settings.secondaryPanelCollapsed ? '▲' : '▼';
-            //this.attachTooltip(collapseIcon, 'Right-click to edit', 300, 'right');
+            this.attachTooltip(collapseIcon, 'Right-click to edit', 300, 'right');
 
             if (!Platform.isMobile) {
                 collapseIcon.addEventListener('mouseenter', () => {

@@ -490,7 +490,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             const colorWrapper = colorRow.createDiv({ cls: 'portals-color-wrapper' });
 
             // Parse initial values
-            let initialHex = '#ff0000';
+            let initialHex = '#ff0880';
             let initialOpacity = 1;
             if (rootSpace.color && rootSpace.color !== 'transparent') {
                 const rgba = rootSpace.color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
@@ -623,7 +623,6 @@ export class SpacesSettingTab extends PluginSettingTab {
 
             const details = contentEl.createEl('details', { cls: 'portals-section-details' });
 
-            // restore previous open state
             if (this.openSections.has(title)) {
                 details.open = true;
             }
@@ -659,13 +658,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 controlDiv.empty();
                 controlDiv.addClass('portals-portal-controls');
 
-                // Row 1: icon name badge + icon button
-                //const iconRow = controlDiv.createDiv({ cls: 'portals-icon-row' });
-                // Row 2: color picker (compact) + trash button
                 const colorRow = controlDiv.createDiv({ cls: 'portals-color-row' });
-
-                //const iconBadge = iconRow.createSpan({ cls: 'portals-icon-badge' });
-                //iconBadge.textContent = portal.icon;
 
                 const compositeKey = `${portal.type}:${portal.path}`;
                 const fallbackDefault = portal.icon || (portal.type === 'folder' ? 'folder-simple' : 'tag');
@@ -733,7 +726,6 @@ export class SpacesSettingTab extends PluginSettingTab {
                 // Trash button
                 const trashBtn = colorRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Remove portal' } });
                 trashBtn.empty();
-                //trashBtn.createEl('i', { cls: 'ph ph-trash' });
                 this.plugin.renderPluginIcon(trashBtn, 'trash')
                 trashBtn.addEventListener('click', () => {
                     this.plugin.settings.spaces = this.plugin.settings.spaces.filter(s => s !== portal);
@@ -819,8 +811,6 @@ export class SpacesSettingTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
                 this.display();
             }));
-
-        // containerEl.createEl('hr'); LINE BREAK SAVED FOR LATER USE
     }
 
     private renderSidePortalSettings(contentEl: HTMLElement): void {
@@ -865,7 +855,6 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.disableSidePanelOnMobile = value;
                     await this.plugin.saveSettings();
-                    // Force all portals views to re-render
                     this.plugin.refreshAllViews();
                 }));
 
@@ -885,7 +874,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                         this.plugin.settings.contextNoteFollowActive = 'off';
                     }
                     await this.plugin.saveSettings();
-                    this.display(); // refresh settings UI if needed
+                    this.display();
                 }));
 
         new Setting(contentEl)
@@ -963,7 +952,6 @@ export class SpacesSettingTab extends PluginSettingTab {
             .onChange(async (value) => {
                 this.plugin.settings.contextNoteIconClick = value;
                 await this.plugin.saveSettings();
-                // Refresh the view to apply cursor style
                 this.plugin.refreshAllViews();
             }));
 
@@ -998,7 +986,6 @@ export class SpacesSettingTab extends PluginSettingTab {
             .onChange(async (value) => {
                 this.plugin.settings.journalDateFormat = value as 'DD-MM-YYYY' | 'MM-DD-YYYY';
                 await this.plugin.saveSettings();
-                // Refresh journal tab if open
                 this.plugin.refreshAllViews();
             }));
 
@@ -1071,7 +1058,6 @@ export class SpacesSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.journalQuoteIndicator = value as 'quotes' | 'warnings' | 'all' | 'none';
                     await this.plugin.saveSettings();
-                    // Refresh the journal tab if it's active
                     if (this.plugin.settings.activeSplitTab === 'journal') {
                         this.plugin.refreshAllViews();
                     }
