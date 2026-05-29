@@ -253,16 +253,27 @@ export class ContextMenuFactory {
                 .onClick(() => view.resetPortalName(space)));
         }
 
+        const compositeKey = `${space.type}:${space.path}`;
         menu.addItem(item => item
             .setTitle('Change icon')
             .setIcon('image')
             .onClick(() => {
-                new IconPickerModal(view.app, view.plugin.getActiveIconProvider(), (iconName: string) => {
+                new IconPickerModal(view.app, view.plugin.phosphorProvider, view.plugin.lucideProvider, (iconKey) => {
                     view.saveTreeScroll();
-                    space.icon = iconName;
+                    view.plugin.settings.customIcons[compositeKey] = iconKey
                     void view.plugin.saveSettings().then(() => view.render());
                 }).open();
             }));
+        if (view.plugin.settings.customIcons[compositeKey]) {
+            menu.addItem(item => item
+                .setTitle('Reset icon')
+                .setIcon('trash')
+                .onClick(() => {
+                    delete view.plugin.settings.customIcons[compositeKey];
+                    void view.plugin.saveSettings().then(() => view.render());
+                })
+            );
+        }
 
         const tabColor = view.plugin.settings.tabColorEnabled;
         const panelStyle = view.plugin.settings.filePaneColorStyle;
@@ -352,17 +363,26 @@ export class ContextMenuFactory {
                     void view.plugin.saveSettings().then(() => view.render());
                 }).open();
             }));
-
+        const stackKey = `stack:${stack.id}`;
         menu.addItem(item => item
             .setTitle('Change icon')
             .setIcon('image')
             .onClick(() => {
-                new IconPickerModal(view.app, view.plugin.getActiveIconProvider(), (iconName: string) => {
-                    stack.icon = iconName;
+                new IconPickerModal(view.app, view.plugin.phosphorProvider, view.plugin.lucideProvider, (iconKey) => {
+                    view.plugin.settings.customIcons[stackKey] = iconKey;
                     void view.plugin.saveSettings().then(() => view.render());
                 }).open();
             }));
-
+        if (view.plugin.settings.customIcons[stackKey]) {
+            menu.addItem(item => item
+                .setTitle('Reset icon')
+                .setIcon('trash')
+                .onClick(() => {
+                    delete view.plugin.settings.customIcons[stackKey];
+                    void view.plugin.saveSettings().then(() => view.render());
+                }));
+        }
+        
         menu.addItem(item => item
             .setTitle('Set color')
             .setIcon('palette')

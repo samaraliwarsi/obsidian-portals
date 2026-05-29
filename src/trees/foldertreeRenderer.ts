@@ -38,11 +38,12 @@ export class FolderTreeRenderer {
         const summary = details.createEl('summary');
         summary.addClass('folder-summary');
 
-        const customIcon = PortalsActions.getCustomIcon(this.plugin, folder.path);
-        const folderIcon = customIcon || iconName;
+        //const customIcon = PortalsActions.getCustomIcon(this.plugin, folder.path);
+        //const folderIcon = customIcon || iconName;
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });
         //iconSpan.createEl('i', { cls: `ph ph-${folderIcon}` });
-        this.plugin.renderPluginIcon(iconSpan, folderIcon);
+        //this.plugin.renderPluginIcon(iconSpan, folderIcon);
+        this.plugin.renderCustomIcon(iconSpan, folder.path, 'folder')
 
         const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
         const nameSpan = summary.createSpan({ text: displayName });

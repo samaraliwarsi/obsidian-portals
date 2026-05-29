@@ -27,6 +27,8 @@ export const PHOSPHOR_TO_LUCIDE: Record<string, string> = {
     'note': 'sticky-note',
     'list-dashes': 'list',
     'clock-counter-clockwise': 'clock-fading',
+    'tag-simple': 'tags',
+    'folder-simple' : 'folder-closed',
 }
 
 export const LUCIDE_TO_PHOSPHOR: Record<string, string> = invertMapping(PHOSPHOR_TO_LUCIDE);

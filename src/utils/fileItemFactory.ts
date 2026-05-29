@@ -1,7 +1,7 @@
 import { App, Platform, TFile } from 'obsidian';
 import PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-import { PortalsActions } from './portalsActions';
+//import { PortalsActions } from './portalsActions';
 import { TreeEventHelpers } from './treeEventHelpers';
 import { ContextMenuFactory } from './contextMenuFactory';
 import { getFrontmatterTags } from './tagHelpers';
@@ -13,12 +13,12 @@ export class FileItemFactory {
     static createFileItem(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, container: HTMLElement, openFiles: Set<string>): HTMLElement {
         const fileEl = container.createDiv({ cls: 'file-item' });
 
-        const customIcon = PortalsActions.getCustomIcon(plugin, file.path);
+        //const customIcon = PortalsActions.getCustomIcon(plugin, file.path);
         //const fileIconClass = customIcon ? `ph ph-${customIcon}` : 'ph ph-file';
-        const fileIconClass = customIcon || 'file';
+        //const fileIconClass = customIcon || 'file';
         const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
         //iconSpan.createEl('i', { cls: fileIconClass });
-        getPluginInstance()?.renderPluginIcon(iconSpan, fileIconClass);
+        getPluginInstance()?.renderCustomIcon(iconSpan, file.path, 'file');
 
         const nameSpan = fileEl.createSpan({ text: FileItemFactory.getDisplayName(file, plugin) });
         nameSpan.addClass('portals-item-name');

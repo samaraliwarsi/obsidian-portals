@@ -8714,6 +8714,37 @@ input.cm-opacity-slider {
     padding-bottom: 8px;
 }
 
+.portals-icon-picker-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.portals-icon-picker-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    box-sizing: border-box;
+    box-shadow: none;
+    height: var(--input-height);
+    border: none;
+    border-radius: var(--input-radius);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: var(--font-ui-medium);
+    font-family: inherit;
+    font-weight: var(--input-font-weight);
+    outline: none;
+    user-select: none;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.portals-icon-picker-tab-btn.active {
+    background: var(--background-modifier-active-hover);
+    color: var(--text-accent);
+    border-bottom: 1px solid var(--interactive-accent);
+}
+
 .icon-picker-search {
     width: 100%;
     padding: 10px 12px;
@@ -8729,7 +8760,7 @@ input.cm-opacity-slider {
     display: grid;
     gap: 8px;
     grid-template-columns: repeat(6, minmax(60px, 1fr));
-    max-height: 60vh;
+    max-height: 50vh;
     overflow-y: auto;
     padding: 8px;
     border: 1px solid var(--background-modifier-border);

@@ -78,6 +78,7 @@ export interface SpacesSettings {
     showFileToolTips: boolean;
     journalDefaultCurrentMode: 'random' | 'marked' | 'onThisDay';
     iconLibrary: 'phosphor' | 'lucide';
+    customIconMigrationDone: boolean;
     
 }
 
@@ -151,6 +152,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showFileToolTips: false,
     journalDefaultCurrentMode: 'random',
     iconLibrary: 'phosphor',
+    customIconMigrationDone: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -475,9 +477,8 @@ export class SpacesSettingTab extends PluginSettingTab {
             //iconBtn.createEl('i', { cls: `ph ph-${rootSpace.icon}` });
             this.plugin.renderPluginIcon(iconBtn, rootSpace.icon || 'help-circle');
             iconBtn.addEventListener('click', () => {
-                const provider = this.plugin.getActiveIconProvider();
-                new IconPickerModal(this.app, provider, (iconName) => {
-                    rootSpace.icon = iconName;
+                new IconPickerModal(this.app, this.plugin.phosphorProvider, this.plugin.lucideProvider, (iconKey: string) => {
+                    rootSpace.icon = iconKey;
                     void this.plugin.saveSettings().then(() => {
                         this.display();
                     });
@@ -670,9 +671,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 //iconBtn.createEl('i', { cls: `ph ph-${portal.icon}` });
                 this.plugin.renderPluginIcon(iconBtn, portal.icon || 'help-circle');
                 iconBtn.addEventListener('click', () => {
-                    const provider = this.plugin.getActiveIconProvider();
-                    new IconPickerModal(this.app, provider, (iconName) => {
-                        portal.icon = iconName;
+                    new IconPickerModal(this.app, this.plugin.phosphorProvider, this.plugin.lucideProvider, (iconKey: string) => {
+                        portal.icon = iconKey;
                         void this.plugin.saveSettings().then(() => {
                             this.display();
                         });
@@ -1108,8 +1108,8 @@ export class SpacesSettingTab extends PluginSettingTab {
         new Setting(contentEl).setName('Utilities').setHeading();
 
         new Setting(contentEl)
-            .setName('Choose Icon Library')
-            .setDesc('Icon library defines the icons for plugin\'s native elements and user defined custom icons.')
+            .setName('Plugin Icon Library')
+            .setDesc('Icon library only defines the icons for plugin\'s native elements.')
             .addDropdown(dropdown => dropdown
                 .addOption('phosphor', 'Phosphor')
                 .addOption('lucide', 'Lucide')

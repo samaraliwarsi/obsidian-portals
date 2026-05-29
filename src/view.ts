@@ -441,7 +441,9 @@ export class PortalsView extends ItemView {
 
         const iconSpan = header.createSpan({ cls: 'portals-tab-icon' });
         //iconSpan.createEl('i', { cls: `ph ph-${stack.icon || 'stack'}` });
-        this.plugin.renderPluginIcon(iconSpan, stack.icon || 'stack');
+        const stackKey = `stack:${stack.id}`;
+        //this.plugin.renderPluginIcon(iconSpan, stack.icon || 'stack');
+        this.plugin.renderCustomIcon(iconSpan, stackKey, 'stack');
         if (this.plugin.settings.stackIconAccent) {
             iconSpan.classList.add('has-accent');
         } else {
@@ -594,11 +596,16 @@ export class PortalsView extends ItemView {
         tab.dataset.path = space.path;
         tab.dataset.type = space.type;
 
+        const compositeKey = `${space.type}:${space.path}`;
         if (space.icon) {
             const iconSpan = tab.createSpan({ cls: 'portals-tab-icon' });
             //iconSpan.createEl('i', { cls: `ph ph-${space.icon}` });
-            this.plugin.renderPluginIcon(iconSpan, space.icon);
+            //this.plugin.renderPluginIcon(iconSpan, space.icon);
+            const defaultIcon = space.icon || (space.type === 'folder' ? 'folder-simple' : 'tag');
+            this.plugin.renderCustomIcon(iconSpan, compositeKey, defaultIcon);
         }
+
+
 
         if (this.plugin.settings.tabNameDisplay !== 'none') {
             const tabIconPos = this.plugin.settings.tabIconPosition;

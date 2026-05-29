@@ -422,9 +422,9 @@ export class PortalsActions {
     }
 
     static async setCustomIcon(app: App, plugin: PortalsPlugin, view: PortalsView, path: string, displayName: string): Promise<void> {
-        new IconPickerModal(app, plugin.getActiveIconProvider(), (iconName) => {
+        new IconPickerModal(app, plugin.phosphorProvider, plugin.lucideProvider, (iconKey: string) => {
             view.saveTreeScroll();
-            plugin.settings.customIcons[path] = iconName;
+            plugin.settings.customIcons[path] = iconKey;
             void plugin.saveSettings().then(() => {
                 view.render();
                 new Notice(`Icon set for ${displayName}`);
@@ -442,9 +442,9 @@ export class PortalsActions {
 
     static async setCustomIconForTagGroup(app: App, plugin: PortalsPlugin, view: PortalsView, groupTag: string, groupKey: string): Promise<void> {
         const displayName = `#${groupTag}`;
-        new IconPickerModal(app, plugin.getActiveIconProvider(), (iconName) => {
+        new IconPickerModal(app, plugin.phosphorProvider, plugin.lucideProvider, (iconKey: string) => {
             view.saveTreeScroll();
-            plugin.settings.customIcons[groupKey] = iconName;
+            plugin.settings.customIcons[groupKey] = iconKey;
             void plugin.saveSettings().then(() => {
                 view.render();
                 new Notice(`Icon set for group ${displayName}`);

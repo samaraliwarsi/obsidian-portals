@@ -19,12 +19,6 @@ export default class PortalsPlugin extends Plugin {
         await this.loadSettings();
         registerAllCommands(this);
 
-        const lucide = new LucideIconProvider();
-        console.log('Available Lucide icons:', lucide.getIconList().length);
-
-        const testEl = this.addStatusBarItem();
-        lucide.renderIcon(testEl, 'folder');
-
         // Forward frontmatter cache updates (no startup cost)
         this.registerEvent(this.app.metadataCache.on('changed', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
@@ -118,12 +112,35 @@ export default class PortalsPlugin extends Plugin {
         }));
     }
 
+    // for system icons
     getActiveIconProvider(): IconProvider {
         return this.settings.iconLibrary === 'lucide' ? this.lucideProvider : this.phosphorProvider;
     }
-
     public renderPluginIcon(element: HTMLElement, iconName: string): void {
         this.getActiveIconProvider().renderIcon(element, iconName);
+    }
+
+    // for user icons 
+    public getProviderForLibrary(library: 'phosphor' | 'lucide'): IconProvider {
+        return library === 'lucide' ? this.lucideProvider : this.phosphorProvider;
+    }
+    public renderCustomIcon(element: HTMLElement, key: string, fallback: string): void {
+        const stored = this.settings.customIcons[key];
+        if (!stored) {
+            this.renderPluginIcon(element, fallback);
+            return;
+        }
+        const colonIndex = stored.indexOf(':');
+        if (colonIndex > 0) {
+            const library = stored.substring(0, colonIndex);
+            const iconName = stored.substring(colonIndex + 1);
+            if (library === 'phosphor' || library === 'lucide') {
+                const provider = this.getProviderForLibrary(library);           
+                provider.renderIcon(element, iconName);
+                return;
+            }
+        } 
+        this.renderPluginIcon(element, stored);   
     }
 
     onunload() { 
@@ -175,6 +192,56 @@ export default class PortalsPlugin extends Plugin {
                 this.settings.tabBarOrder = convertedOrder;
                 await this.saveSettings(); // save the upgraded order
             }
+        }
+
+        // Migrate icons to new managemenet using compositeKey for spaces and clean up of old 
+        if (!this.settings.customIconMigrationDone) {
+            const FOLDER_DEFAULT = 'folder-simple';
+            const TAG_DEFAULT = 'tag';
+            const STACK_DEFAULT = 'stack';
+
+            this.settings.customIconMigrationDone = false;
+
+            // migrate space icons
+            for (const space of this.settings.spaces) {
+                const compositeKey = `${space.type}:${space.path}`;
+                const defaulIcon = space.type === 'folder' ? FOLDER_DEFAULT : TAG_DEFAULT;
+                if (space.icon && space.icon !== defaulIcon) {
+                    if (!this.settings.customIcons[compositeKey]) {
+                        this.settings.customIcons[compositeKey] = space.icon;
+                    }
+                    space.icon = defaulIcon;
+                }
+                // clean olf plain-paths like ('/') 
+                const oldKey = space.path;
+                if (this.settings.customIcons[oldKey]) {
+                    if (!this.settings.customIcons[compositeKey]) {
+                        this.settings.customIcons[compositeKey] = this.settings.customIcons[oldKey];
+                    }
+                    delete this.settings.customIcons[oldKey];
+                }
+            }
+            // migrate stack icons
+            for (const stack of this.settings.portalStacks) {
+                const stackKey = `stack:${stack.id}`;
+                if (stack.icon && stack.icon !== STACK_DEFAULT) {
+                    if (!this.settings.customIcons[stackKey]) {
+                        this.settings.customIcons[stackKey] = stack.icon;
+                    }
+                    stack.icon = STACK_DEFAULT;
+                }
+            }
+            // remove any other bare-path customicons
+            for (const key of Object.keys(this.settings.customIcons)) {
+                if (!key.includes(':')) {
+                    const matchingSpace = this.settings.spaces.find(s => s.path === key);
+                    if (matchingSpace) {
+                        delete this.settings.customIcons[key];
+                    }
+                }
+            }
+            this.settings.customIconMigrationDone = true;
+            await this.saveSettings();
         }
 
         // Clean up orphaned stacks on load
