@@ -3,7 +3,6 @@ import { IconProvider } from '../icons/iconProvider';
 
 export class IconPickerModal extends Modal {
     onSubmit: (iconKey: string) => void;
-    private searchTimeout: number | null = null;
     private phosphorProvider: IconProvider;
     private lucideProvider: IconProvider;
     private currentLibrary: 'phosphor' | 'lucide' = 'phosphor';
@@ -12,6 +11,9 @@ export class IconPickerModal extends Modal {
     private currentFilter = '';
     private searchInput!: HTMLInputElement;
     private iconGrid!: HTMLElement;
+    private cachedIconList: { name: string; lower: string } [] = [];
+    private _debounceTimer: number | null = null;
+    private _rafId: number | null = null;
 
     constructor(app: App, phosphorProvider: IconProvider, lucideProvider: IconProvider, onSubmit: (iconKey: string) => void) {
         super(app);
@@ -54,11 +56,11 @@ export class IconPickerModal extends Modal {
         buttonContainer.createEl('button', { text: 'Cancel' })
             .addEventListener('click', () => this.close());
         this.switchTab('phosphor');
-        this.renderIcons();
     }
 
     onClose() {
-        if (this.searchTimeout) window.clearTimeout(this.searchTimeout);
+        if (this._debounceTimer) clearTimeout(this._debounceTimer);
+        if (this._rafId) cancelAnimationFrame(this._rafId);
         this.contentEl.empty();
     }
 
@@ -66,71 +68,81 @@ export class IconPickerModal extends Modal {
         return this.currentLibrary === 'phosphor' ? this.phosphorProvider : this.lucideProvider;
     }
 
+    private updateCachedList() {
+        const provider = this.getProvider();
+        const list = provider.getIconList();
+        this.cachedIconList = list.map(name => ({ name, lower: name.toLowerCase() }));
+    }
+
     private switchTab(library: 'phosphor' | 'lucide') {
         this.currentLibrary = library;
+        this.updateCachedList();
         const tabs = this.contentEl.querySelectorAll('.portals-icon-picker-tab-btn');
         tabs.forEach(tab => {
             const isActive = (tab.textContent?.toLowerCase() === library);
             tab.classList.toggle('active', isActive);
         });
-        this.displayCount = 500;
+        this.displayCount = this.batchSize;
         this.currentFilter = this.searchInput.value;
         this.renderIcons();
     }
 
     private renderIcons() {
-        if (this.searchTimeout) window.clearTimeout(this.searchTimeout);
+        if (this._debounceTimer) window.clearTimeout(this._debounceTimer);
 
-        this.searchTimeout = window.setTimeout(() => {
-            const provider = this.getProvider();
-            const allIcons = provider.getIconList();
+        this._debounceTimer = window.setTimeout(() => {
+            if (this._rafId) cancelAnimationFrame(this._rafId);
+            this._rafId = requestAnimationFrame(() => {
+                const provider = this.getProvider();
+                //const allIcons = provider.getIconList();
 
-            // Filter based on search input
-            const filtered = this.currentFilter
-                ? allIcons.filter(name => name.toLowerCase().includes(this.currentFilter.toLowerCase()))
-                : allIcons;
+                // Filter based on search input
+                const filtered = this.currentFilter
+                    ? this.cachedIconList
+                        .filter(item => item.lower.includes(this.currentFilter.toLowerCase()))
+                        .map(item => item.name)
+                    : this.cachedIconList.map(item => item.name);
 
-            // Apply batch limit only when not searching
-            const toRender = this.currentFilter
-                ? filtered
-                : filtered.slice(0, this.displayCount);
+                // Apply batch limit only when not searching
+                const toRender = this.currentFilter
+                    ? filtered
+                    : filtered.slice(0, this.displayCount);
 
-            this.iconGrid.empty();
+                this.iconGrid.empty();
 
-            if (toRender.length === 0) {
-                this.iconGrid.createSpan({ text: 'No icons found.', cls: 'portals-iconpicker-subtext' });
-                return;
-            }
+                if (toRender.length === 0) {
+                    this.iconGrid.createSpan({ text: 'No icons found.', cls: 'portals-iconpicker-subtext' });
+                    return;
+                }
 
-            // Render each icon
-            for (const name of toRender) {
-                const iconEl = this.iconGrid.createDiv({ cls: 'icon-item' });
+                // Render each icon
+                const fragment = document.createDocumentFragment();
+                for (const name of toRender) {
+                    const iconEl = document.createElement('div');
+                    iconEl.className = 'icon-item';
+                    provider.renderIcon(iconEl, name);
+                    iconEl.createSpan({ cls: 'portals-icon-label', text: name });
+                    iconEl.addEventListener('click', () => {
+                        this.onSubmit(`${this.currentLibrary}:${name}`);
+                        this.close();
+                    });
+                    fragment.appendChild(iconEl);
+                }
+                this.iconGrid.appendChild(fragment);
 
-                // Provider draws the icon (Phosphor: <i>, Lucide: SVG)
-                provider.renderIcon(iconEl, name);
-
-                // Label under the icon
-                iconEl.createSpan({ cls: 'portals-icon-label', text: name });
-
-                // Click → return encoded string
-                iconEl.addEventListener('click', () => {
-                    this.onSubmit(`${this.currentLibrary}:${name}`);
-                    this.close();
-                });
-            }
-
-            // "Load more" button (only when not searching)
-            if (!this.currentFilter && this.displayCount < filtered.length) {
-                const remaining = filtered.length - this.displayCount;
-                const loadBtn = this.iconGrid.createDiv({
-                    cls: 'portals-load-more-btn',
-                    text: `Load more (${remaining} remaining)`
-                });
-                loadBtn.addEventListener('click', () => {
-                    this.displayCount = Math.min(this.displayCount + this.batchSize, filtered.length);
-                    this.renderIcons();
-                });
-            }
+                // "Load more" button (only when not searching)
+                if (!this.currentFilter && this.displayCount < filtered.length) {
+                    const remaining = filtered.length - this.displayCount;
+                    const loadBtn = this.iconGrid.createDiv({
+                        cls: 'portals-load-more-btn',
+                        text: `Load more (${remaining} remaining)`
+                    });
+                    loadBtn.addEventListener('click', () => {
+                        this.displayCount = Math.min(this.displayCount + this.batchSize, filtered.length);
+                        this.renderIcons();
+                    });
+                }
+            });
         }, 200);
-    }
+    }    
 }

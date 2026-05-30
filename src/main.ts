@@ -126,7 +126,6 @@ export default class PortalsPlugin extends Plugin {
     }
     public renderCustomIcon(element: HTMLElement, key: string, fallback: string): void {
         const stored = this.settings.customIcons[key];
-        console.log('renderCustomIcon key:', key, 'stored:', stored);
         if (!stored) {
             this.renderPluginIcon(element, fallback);
             return;
@@ -248,7 +247,6 @@ export default class PortalsPlugin extends Plugin {
 
         // for custom user icons
         if (!this.settings.customIconPhosphorMigrationDone) {
-            console.log('Portals: Adding phosphor: prefex to old custom icons...');
             const fixed: Record<string, string> = {};
             for (const [key, value] of Object.entries(this.settings.customIcons)) {
                 if (!value.includes(':')) {

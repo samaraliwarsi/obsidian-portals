@@ -420,7 +420,7 @@ export class FrontmatterClinicRenderer {
             
             const values = FrontmatterClinicRenderer.getProperties().get(this.selectedProperty) || new Set();
             const sorted = Array.from(values).sort();
-            console.debug(`[Value Menu] Values for "${this.selectedProperty}":`, sorted);
+            //console.debug(`[Value Menu] Values for "${this.selectedProperty}":`, sorted);
             
             for (const val of sorted) {
                 menu.addItem(item => item
