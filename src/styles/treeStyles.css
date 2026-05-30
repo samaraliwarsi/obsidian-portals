@@ -433,7 +433,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 }
 
 .portals-split-content.portals-tree-style-shades .trash-tree > :last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .portals-split-content.portals-tree-style-shades .trash-tree .folder-children .folder-summary {

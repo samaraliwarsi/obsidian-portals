@@ -411,10 +411,9 @@ background-color: var(--background-modifier-hover);
   color: var(--text-faint);
   max-height: 3.9em;
   overflow: hidden;
-  word-break: break-word;
+  overflow-wrap: break-word;
   white-space: normal;
   line-height: 1.3em;
-  overflow-wrap: anywhere;
 }
 
 .portals-compact-tree .portals-file-preview {
@@ -718,7 +717,7 @@ opacity: 0.7;
     position: relative;
     margin: 0;
     border-top: 1.5px solid var(--background-modifier-border);
-    transition: border-color 0.1;
+    transition: border-color 0.1s;
     box-shadow: 0 -2px 4px 0 rgba(0, 0, 0, 0.1);
 }
 

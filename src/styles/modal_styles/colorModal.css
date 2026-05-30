@@ -49,7 +49,7 @@
 /*COLOR PICKER LEVEL*/
 .cm-color-wrapper {
   display: flex;
-  flex-direction: horizontal;
+  flex-direction: row;
   width: 100%;
   gap: 8px;
   margin-bottom: 8px;

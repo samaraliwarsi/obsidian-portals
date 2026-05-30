@@ -2,7 +2,6 @@
 /*================================ ICON PICKER MODAL =============================================*/
 
 .portals-icon-picker-modal {
-  max-width: auto;
   --portals-icon-size: 24px;
 }
 
@@ -69,7 +68,7 @@
     background-color: var(--background-primary);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .portals-icon-grid {
         grid-template-columns: repeat(4, minmax(60px, 1fr));
         padding: 4px;
@@ -123,7 +122,7 @@
 .portals-icon-label {
     font-size: 9px;
     margin-top: 4px;
-    word-break: break-word;
+    overflow-wrap: break-word;
     text-align: center;
 }
 

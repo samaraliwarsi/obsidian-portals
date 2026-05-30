@@ -1,0 +1,8 @@
+styles.css
+node_modules/
+*.js
+*.ts
+*.json
+*.md
+src/styles/mainSidebarStyles.css
+src/build-css/styles.css

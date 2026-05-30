@@ -4,7 +4,7 @@
   width: fit-content;
   max-width: 240px;
   white-space: normal;
-  word-break: break-word;
+  overflow-wrap: break-word;
   text-align: center;
   background-color: var(--background-modifier-message);
   color: #FAFAFA;

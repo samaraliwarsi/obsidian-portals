@@ -112,11 +112,7 @@
     background: var(--interactive-accent);
     color: var(--text-on-accent);
 }
-
-.portals-adp-modal .portals-already-used {
-    opacity: 0.7;
-    font-style: italic;
-}
+ 
 
 .portals-adp-modal .portals-check-icon {
     color: var(--text-success);
@@ -129,6 +125,7 @@
     opacity: 0.6;
     cursor: not-allowed;
     background-color: var(--background-modifier-hover);
+    font-style: italic;
 }
 
 .portals-check-icon i.ph {

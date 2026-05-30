@@ -4627,7 +4627,7 @@
   width: fit-content;
   max-width: 240px;
   white-space: normal;
-  word-break: break-word;
+  overflow-wrap: break-word;
   text-align: center;
   background-color: var(--background-modifier-message);
   color: #FAFAFA;
@@ -5605,10 +5605,9 @@ background-color: var(--background-modifier-hover);
   color: var(--text-faint);
   max-height: 3.9em;
   overflow: hidden;
-  word-break: break-word;
+  overflow-wrap: break-word;
   white-space: normal;
   line-height: 1.3em;
-  overflow-wrap: anywhere;
 }
 
 .portals-compact-tree .portals-file-preview {
@@ -5875,7 +5874,7 @@ opacity: 0.7;
 .portals-split-content .folder-summary {
   font-size: 0.85em;
   padding: 2px 4px;
-}*/
+}
 
 .portals-split-content .folder-summary i.ph {
   font-size: 12px;
@@ -5912,7 +5911,7 @@ opacity: 0.7;
     position: relative;
     margin: 0;
     border-top: 1.5px solid var(--background-modifier-border);
-    transition: border-color 0.1;
+    transition: border-color 0.1s;
     box-shadow: 0 -2px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -6651,7 +6650,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues .file-item {
 }
 
 .portals-split-content.portals-tree-style-shades .trash-tree > :last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .portals-split-content.portals-tree-style-shades .trash-tree .folder-children .folder-summary {
@@ -7846,11 +7845,7 @@ button.portals-portal-list-delete {
     background: var(--interactive-accent);
     color: var(--text-on-accent);
 }
-
-.portals-adp-modal .portals-already-used {
-    opacity: 0.7;
-    font-style: italic;
-}
+ 
 
 .portals-adp-modal .portals-check-icon {
     color: var(--text-success);
@@ -7863,6 +7858,7 @@ button.portals-portal-list-delete {
     opacity: 0.6;
     cursor: not-allowed;
     background-color: var(--background-modifier-hover);
+    font-style: italic;
 }
 
 .portals-check-icon i.ph {
@@ -8142,7 +8138,7 @@ input.portals-rename-input {
 /*COLOR PICKER LEVEL*/
 .cm-color-wrapper {
   display: flex;
-  flex-direction: horizontal;
+  flex-direction: row;
   width: 100%;
   gap: 8px;
   margin-bottom: 8px;
@@ -8756,7 +8752,6 @@ input.cm-opacity-slider {
 /*================================ ICON PICKER MODAL =============================================*/
 
 .portals-icon-picker-modal {
-  max-width: auto;
   --portals-icon-size: 24px;
 }
 
@@ -8823,7 +8818,7 @@ input.cm-opacity-slider {
     background-color: var(--background-primary);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .portals-icon-grid {
         grid-template-columns: repeat(4, minmax(60px, 1fr));
         padding: 4px;
@@ -8877,7 +8872,7 @@ input.cm-opacity-slider {
 .portals-icon-label {
     font-size: 9px;
     margin-top: 4px;
-    word-break: break-word;
+    overflow-wrap: break-word;
     text-align: center;
 }
 

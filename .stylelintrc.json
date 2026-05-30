@@ -1,0 +1,37 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "declaration-block-no-duplicate-properties": true,
+    "property-no-unknown": true,
+    "no-duplicate-selectors": true,
+    "comment-no-empty": true,  
+    "comment-empty-line-before": null,
+    "rule-empty-line-before": null,
+    "at-rule-empty-line-before": null,
+    "declaration-empty-line-before": null,
+    "no-descending-specificity": null,
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "keyframes-name-pattern": null,
+    "alpha-value-notation": null,
+    "color-function-notation": null,
+    "selector-not-notation": null,
+    "import-notation": null,
+    "font-family-name-quotes": null,
+    "number-max-precision": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "shorthand-property-no-redundant-values": null,
+    "value-no-vendor-prefix": null,
+    "property-no-vendor-prefix": null,
+    "selector-no-vendor-prefix": null,
+    "media-feature-name-no-vendor-prefix": null,
+    "at-rule-no-vendor-prefix": null,
+
+    "selector-pseudo-element-colon-notation": null,
+    "comment-whitespace-inside": null,
+    "color-function-alias-notation": null,
+    "media-feature-range-notation": null,
+     "custom-property-empty-line-before": null,
+    "font-family-no-missing-generic-family-keyword": null
+  }
+}
