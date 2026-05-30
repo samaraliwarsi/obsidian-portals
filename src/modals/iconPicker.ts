@@ -1,11 +1,13 @@
 import { App, Modal } from 'obsidian';
 import { IconProvider } from '../icons/iconProvider';
+import PortalsPlugin from '../main';
 
 export class IconPickerModal extends Modal {
     onSubmit: (iconKey: string) => void;
     private phosphorProvider: IconProvider;
+    private plugin: PortalsPlugin;
     private lucideProvider: IconProvider;
-    private currentLibrary: 'phosphor' | 'lucide' = 'phosphor';
+    private currentLibrary: 'phosphor' | 'lucide' | 'favorites' = 'phosphor';
     private displayCount = 300;
     private batchSize = 300;
     private currentFilter = '';
@@ -15,8 +17,9 @@ export class IconPickerModal extends Modal {
     private _debounceTimer: number | null = null;
     private _rafId: number | null = null;
 
-    constructor(app: App, phosphorProvider: IconProvider, lucideProvider: IconProvider, onSubmit: (iconKey: string) => void) {
+    constructor(app: App, phosphorProvider: IconProvider, lucideProvider: IconProvider, plugin: PortalsPlugin, onSubmit: (iconKey: string) => void) {
         super(app);
+        this.plugin = plugin;
         this.phosphorProvider = phosphorProvider;
         this.lucideProvider = lucideProvider;
         this.onSubmit = onSubmit;
@@ -29,6 +32,12 @@ export class IconPickerModal extends Modal {
 
         contentEl.createDiv({ text: 'Choose an icon', cls: 'portals-icon-picker-modal-title' });
         const tabContainer = contentEl.createDiv({ cls: 'portals-icon-picker-tabs' });
+        
+        const favTab = tabContainer.createDiv({
+            text: '★',
+            cls: 'portals-icon-picker-tab-btn portals-icon-picker-fav-tab-btn',
+            attr: { 'aria-label': 'Favorites' }
+        });        
         const phosphorTab = tabContainer.createDiv({
             text: 'Phosphor',
             cls: 'portals-icon-picker-tab-btn'
@@ -39,6 +48,8 @@ export class IconPickerModal extends Modal {
         });
         phosphorTab.addEventListener('click', () => this.switchTab('phosphor'));
         lucideTab.addEventListener('click', () => this.switchTab('lucide'));
+        favTab.addEventListener('click', () => this.switchTab('favorites'));
+        
 
         this.searchInput = contentEl.createEl('input', {
             type: 'text',
@@ -55,7 +66,12 @@ export class IconPickerModal extends Modal {
         const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
         buttonContainer.createEl('button', { text: 'Cancel' })
             .addEventListener('click', () => this.close());
-        this.switchTab('phosphor');
+        
+        if (this.plugin.settings.iconFavorites.length > 0) {
+            this.switchTab('favorites');
+        } else {
+            this.switchTab('phosphor');
+        }
     }
 
     onClose() {
@@ -74,21 +90,48 @@ export class IconPickerModal extends Modal {
         this.cachedIconList = list.map(name => ({ name, lower: name.toLowerCase() }));
     }
 
-    private switchTab(library: 'phosphor' | 'lucide') {
+    private switchTab(library: 'phosphor' | 'lucide' | 'favorites') {
         this.currentLibrary = library;
-        this.updateCachedList();
+        
         const tabs = this.contentEl.querySelectorAll('.portals-icon-picker-tab-btn');
         tabs.forEach(tab => {
-            const isActive = (tab.textContent?.toLowerCase() === library);
+            const tabText = tab.textContent?.trim();
+            let isActive = false;
+            if (library === 'favorites') {
+                isActive = tabText === '★';
+            } else {
+                isActive = (tabText?.toLowerCase() === library);
+            }
             tab.classList.toggle('active', isActive);
         });
         this.displayCount = this.batchSize;
         this.currentFilter = this.searchInput.value;
+        if (library !== 'favorites') {
+            this.updateCachedList();
+        }
         this.renderIcons();
+    }
+
+    private toggleFavorite(name: string, library: 'phosphor' | 'lucide') {
+        const favs = this.plugin.settings.iconFavorites;
+        const existingIndex = favs?.findIndex(f => f.name === name && f.library === library);
+        if (existingIndex === -1) {
+            favs?.push({ name, library });
+        } else {
+            favs?.splice(existingIndex, 1);
+        }
+        this.plugin.saveSettings().then(() => {
+            this.renderIcons()
+        });
     }
 
     private renderIcons() {
         if (this._debounceTimer) window.clearTimeout(this._debounceTimer);
+
+        if (this.currentLibrary === 'favorites') {
+            this.renderFavoritesTab();
+            return;
+        }
 
         this._debounceTimer = window.setTimeout(() => {
             if (this._rafId) cancelAnimationFrame(this._rafId);
@@ -126,6 +169,31 @@ export class IconPickerModal extends Modal {
                         this.onSubmit(`${this.currentLibrary}:${name}`);
                         this.close();
                     });
+
+                    const iconLibrary = this.currentLibrary as 'phosphor' | 'lucide';                    
+            
+                    const starBtn = document.createElement('span');
+                    starBtn.className = 'portals-icon-picker-fav-star';
+                    const updateStar = () => {
+                        const fav = this.plugin.settings.iconFavorites.some(f => f.name === name && f.library === iconLibrary);
+                        starBtn.textContent = fav ? '★' : '☆';
+                        const favorited = this.isFavorite(name, iconLibrary);
+                        starBtn.setAttribute('aria-label', favorited ? 'Remove from favorites' : 'Add to favorites');
+                    };
+                    updateStar();
+                    
+                    starBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const currentlyFav = this.plugin.settings.iconFavorites.some(f => f.name === name && f.library === iconLibrary);
+                        if (currentlyFav) {
+                            this.plugin.settings.iconFavorites = this.plugin.settings.iconFavorites.filter(f => !(f.name === name && f.library === iconLibrary));
+                        } else {
+                            this.plugin.settings.iconFavorites.push({ name, library: iconLibrary });
+                        }
+                        updateStar();
+                        this.plugin.saveSettings().catch(console.error);
+                    });
+                    iconEl.appendChild(starBtn);
                     fragment.appendChild(iconEl);
                 }
                 this.iconGrid.appendChild(fragment);
@@ -144,5 +212,57 @@ export class IconPickerModal extends Modal {
                 }
             });
         }, 200);
-    }    
+    }
+
+    private isFavorite(name: string, library: 'phosphor' | 'lucide'): boolean {
+        return this.plugin.settings.iconFavorites.some(
+            f => f.name === name && f.library === library
+        );
+    }
+
+    private renderFavoritesTab() {
+        const favs = this.plugin.settings.iconFavorites;
+        if (favs.length === 0) {
+            this.iconGrid.empty();
+            this.iconGrid.createDiv({
+                text: 'No Favorites marked yet. Click the star next to any icon to add it here.',
+                cls: 'portals-icon-picker-subtext'
+            });
+            return;
+        }
+
+        let filteredFavs = favs;
+        if (this.currentFilter) {
+            const q = this.currentFilter.toLowerCase();
+            filteredFavs = favs.filter(f => f.name.toLowerCase().includes(q));
+        }
+
+        const fragment = document.createDocumentFragment();
+        for (const fav of filteredFavs) {
+            const iconEl = document.createElement('div');
+            iconEl.className = 'icon-item';
+
+            const provider = fav.library === 'lucide' ? this.lucideProvider : this.phosphorProvider;
+            provider.renderIcon(iconEl, fav.name);
+
+            iconEl.createSpan({ cls: 'portals-icon-label', text: fav.name });
+            iconEl.addEventListener('click', () => {
+                this.onSubmit(`${fav.library}:${fav.name}`);
+                this.close();
+            });
+
+            const starBtn = document.createElement('span');
+            starBtn.className = 'portals-favorite-star';
+            starBtn.textContent = '★';
+            starBtn.setAttribute('aria-label', 'Remove from favorites');
+            starBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleFavorite(fav.name, fav.library);
+            });
+            iconEl.appendChild(starBtn);
+            fragment.appendChild(iconEl);
+        }
+        this.iconGrid.empty();
+        this.iconGrid.appendChild(fragment);
+    }
 }

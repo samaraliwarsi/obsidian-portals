@@ -258,7 +258,7 @@ export class ContextMenuFactory {
             .setTitle('Change icon')
             .setIcon('image')
             .onClick(() => {
-                new IconPickerModal(view.app, view.plugin.phosphorProvider, view.plugin.lucideProvider, (iconKey) => {
+                new IconPickerModal(view.app, view.plugin.phosphorProvider, view.plugin.lucideProvider, view.plugin, (iconKey) => {
                     view.saveTreeScroll();
                     view.plugin.settings.customIcons[compositeKey] = iconKey
                     void view.plugin.saveSettings().then(() => view.render());
@@ -368,7 +368,7 @@ export class ContextMenuFactory {
             .setTitle('Change icon')
             .setIcon('image')
             .onClick(() => {
-                new IconPickerModal(view.app, view.plugin.phosphorProvider, view.plugin.lucideProvider, (iconKey) => {
+                new IconPickerModal(view.app, view.plugin.phosphorProvider, view.plugin.lucideProvider, view.plugin, (iconKey) => {
                     view.plugin.settings.customIcons[stackKey] = iconKey;
                     void view.plugin.saveSettings().then(() => view.render());
                 }).open();

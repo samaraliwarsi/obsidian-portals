@@ -79,7 +79,7 @@ export interface SpacesSettings {
     journalDefaultCurrentMode: 'random' | 'marked' | 'onThisDay';
     iconLibrary: 'phosphor' | 'lucide';
     customIconPhosphorMigrationDone: boolean;
-    
+    iconFavorites: { name: string; library: 'phosphor' | 'lucide' }[];
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -153,6 +153,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     journalDefaultCurrentMode: 'random',
     iconLibrary: 'phosphor',
     customIconPhosphorMigrationDone: false,
+    iconFavorites: [] as {name: string; library: 'phosphor' | 'lucide' }[],
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -238,32 +239,32 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(contentEl)
-        .setName('Compact tree view')
-        .setDesc('Reduce vertical spacing, summary heights in the folder or tag tree. Does not apply to side portal.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.compactTree)
-            .onChange(async (value) => {
-                this.plugin.settings.compactTree = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-        
+            .setName('Compact tree view')
+            .setDesc('Reduce vertical spacing, summary heights in the folder or tag tree. Does not apply to side portal.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.compactTree)
+                .onChange(async (value) => {
+                    this.plugin.settings.compactTree = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+            
         new Setting(contentEl)
-        .setName('Styles')
-        .setDesc('Choose a visual theme for file tree and list items in side portal.')
-        .addDropdown(dropdown => dropdown
-            .addOption('default', 'Default')
-            .addOption('minimal', 'Minimal')
-            .addOption('boxed', 'Boxed')
-            .addOption('portals', 'Portals')
-            .addOption('shades', 'Shades')
-            .addOption('hues', 'Hues')
-            .setValue(this.plugin.settings.treeStyle)
-            .onChange(async (value) => {
-                this.plugin.settings.treeStyle = value as 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
-                await this.plugin.saveSettings();
-                this.display();
-            }));
+            .setName('Styles')
+            .setDesc('Choose a visual theme for file tree and list items in side portal.')
+            .addDropdown(dropdown => dropdown
+                .addOption('default', 'Default')
+                .addOption('minimal', 'Minimal')
+                .addOption('boxed', 'Boxed')
+                .addOption('portals', 'Portals')
+                .addOption('shades', 'Shades')
+                .addOption('hues', 'Hues')
+                .setValue(this.plugin.settings.treeStyle)
+                .onChange(async (value) => {
+                    this.plugin.settings.treeStyle = value as 'default' | 'minimal' | 'boxed' | 'portals' | 'shades' | 'hues';
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
 
         new Setting(contentEl)
             .setName('Background color type')
@@ -366,15 +367,15 @@ export class SpacesSettingTab extends PluginSettingTab {
     private renderPortalAndStackSettings(contentEl: HTMLElement): void {
         new Setting(contentEl).setName('Portal tabs').setHeading();
         new Setting(contentEl)
-        .setName('Compact tabs')
-        .setDesc('Reduce padding and font size for portal, side portal tabs and stack headers.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.compactTabs)
-            .onChange(async (value) => {
-                this.plugin.settings.compactTabs = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
+            .setName('Compact tabs')
+            .setDesc('Reduce padding and font size for portal, side portal tabs and stack headers.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.compactTabs)
+                .onChange(async (value) => {
+                    this.plugin.settings.compactTabs = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
 
         new Setting(contentEl)
             .setName('Tab name display')
@@ -479,7 +480,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             iconBtn.empty();
             this.plugin.renderCustomIcon(iconBtn, rootCompositeKey, rootFallback);
             iconBtn.addEventListener('click', () => {
-                new IconPickerModal(this.app, this.plugin.phosphorProvider, this.plugin.lucideProvider, (iconKey: string) => {
+                new IconPickerModal(this.app, this.plugin.phosphorProvider, this.plugin.lucideProvider, this.plugin, (iconKey: string) => {
                     this.plugin.settings.customIcons[rootCompositeKey] = iconKey;
                     void this.plugin.saveSettings().then(() => {
                         this.display();
@@ -667,7 +668,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 iconBtn.empty();
                 this.plugin.renderCustomIcon(iconBtn, compositeKey, fallbackDefault);
                 iconBtn.addEventListener('click', () => {
-                    new IconPickerModal(this.app, this.plugin.phosphorProvider, this.plugin.lucideProvider, (iconKey: string) => {
+                    new IconPickerModal(this.app, this.plugin.phosphorProvider, this.plugin.lucideProvider, this.plugin, (iconKey: string) => {
                         this.plugin.settings.customIcons[compositeKey] = iconKey;
                         void this.plugin.saveSettings().then(() => {
                             this.display();
@@ -756,63 +757,63 @@ export class SpacesSettingTab extends PluginSettingTab {
         new Setting(contentEl).setName('Stacks').setHeading();
 
         new Setting(contentEl)
-        .setName('Hide stack names')
-        .setDesc('Show only the stack icon; the name will appear in a tooltip on hover.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.hideStackNames)
-            .onChange(async (value) => {
-                this.plugin.settings.hideStackNames = value;
-                await this.plugin.saveSettings();
-                this.display();
+            .setName('Hide stack names')
+            .setDesc('Show only the stack icon; the name will appear in a tooltip on hover.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.hideStackNames)
+                .onChange(async (value) => {
+                    this.plugin.settings.hideStackNames = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        new Setting(contentEl)
+            .setName('Stack icon position')
+            .setDesc('Place the icon to the left or right of the stack name. Disabled with stack name is hidden.')
+            .addDropdown(dropdown => dropdown
+                .addOption('left', 'Left of name')
+                .addOption('right', 'Right of name')
+                .setValue(this.plugin.settings.stackIconPosition)
+                .onChange(async (value) => {
+                    this.plugin.settings.stackIconPosition = value as 'left' | 'right';
+                    await this.plugin.saveSettings();
             }));
 
         new Setting(contentEl)
-        .setName('Stack icon position')
-        .setDesc('Place the icon to the left or right of the stack name. Disabled with stack name is hidden.')
-        .addDropdown(dropdown => dropdown
-            .addOption('left', 'Left of name')
-            .addOption('right', 'Right of name')
-            .setValue(this.plugin.settings.stackIconPosition)
-            .onChange(async (value) => {
-                this.plugin.settings.stackIconPosition = value as 'left' | 'right';
-                await this.plugin.saveSettings();
-        }));
+            .setName('Show stack count')
+            .setDesc('When to display the number of portals inside a stack.')
+            .addDropdown(dropdown => dropdown
+                .addOption('always', 'Always')
+                .addOption('collapsed', 'Collapsed only')
+                .addOption('never', 'Never')
+                .setValue(this.plugin.settings.showStackCount)
+                .onChange(async (value) => {
+                    this.plugin.settings.showStackCount = value as 'always' | 'collapsed' | 'never';
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
 
         new Setting(contentEl)
-        .setName('Show stack count')
-        .setDesc('When to display the number of portals inside a stack.')
-        .addDropdown(dropdown => dropdown
-            .addOption('always', 'Always')
-            .addOption('collapsed', 'Collapsed only')
-            .addOption('never', 'Never')
-            .setValue(this.plugin.settings.showStackCount)
-            .onChange(async (value) => {
-                this.plugin.settings.showStackCount = value as 'always' | 'collapsed' | 'never';
-                await this.plugin.saveSettings();
-                this.display();
-            }));
+            .setName('Colored stack icon')
+            .setDesc('Use colors on stack icon, app accent or user defined. When turned off, stack icons use default color like tab icons.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.stackIconAccent)
+                .onChange(async (value) => {
+                    this.plugin.settings.stackIconAccent = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
 
         new Setting(contentEl)
-        .setName('Colored stack icon')
-        .setDesc('Use colors on stack icon, app accent or user defined. When turned off, stack icons use default color like tab icons.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.stackIconAccent)
-            .onChange(async (value) => {
-                this.plugin.settings.stackIconAccent = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
-
-        new Setting(contentEl)
-        .setName('Auto‑collapse stacks')
-        .setDesc('When expanding a stack, automatically collapse other open stacks.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.stackAutoCollapse)
-            .onChange(async (value) => {
-                this.plugin.settings.stackAutoCollapse = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
+            .setName('Auto‑collapse stacks')
+            .setDesc('When expanding a stack, automatically collapse other open stacks.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.stackAutoCollapse)
+                .onChange(async (value) => {
+                    this.plugin.settings.stackAutoCollapse = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
     }
 
     private renderSidePortalSettings(contentEl: HTMLElement): void {
@@ -932,45 +933,45 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
         
         new Setting(contentEl)
-        .setName('Context note highlight type')
-        .setDesc('How to visually indicate folders and tags that have a context note.')
-        .addDropdown(dropdown => dropdown
-            .addOption('icon', 'Icon highlight')
-            .addOption('underline', 'Text underline')
-            .addOption('none', 'Off')
-            .setValue(this.plugin.settings.contextNoteHighlightStyle)
-            .onChange(async (value) => {
-                    this.plugin.settings.contextNoteHighlightStyle = value as 'icon' | 'underline' | 'none';
-                    await this.plugin.saveSettings();
-                    this.display();
-            }));
+            .setName('Context note highlight type')
+            .setDesc('How to visually indicate folders and tags that have a context note.')
+            .addDropdown(dropdown => dropdown
+                .addOption('icon', 'Icon highlight')
+                .addOption('underline', 'Text underline')
+                .addOption('none', 'Off')
+                .setValue(this.plugin.settings.contextNoteHighlightStyle)
+                .onChange(async (value) => {
+                        this.plugin.settings.contextNoteHighlightStyle = value as 'icon' | 'underline' | 'none';
+                        await this.plugin.saveSettings();
+                        this.display();
+                }));
         
         new Setting(contentEl)
-        .setName('Open context note from icon')
-        .setDesc('When enabled, clicking the icon of a folder or tag will open its context note in the current tab.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.contextNoteIconClick)
-            .setDisabled(!this.plugin.settings.enableContextNotes)
-            .onChange(async (value) => {
-                this.plugin.settings.contextNoteIconClick = value;
-                await this.plugin.saveSettings();
-                this.plugin.refreshAllViews();
-            }));
-
-        new Setting(contentEl)
-        .setName('Show closest context note')
-        .setDesc('Side portal shows context note for the active file\'s nearest ancestor folder (folder spaces only). Falls back to portal\'s context note if none found.')
-        .addDropdown(dropdown => dropdown
-            .addOption('off', 'Off')
-            .addOption('on-status', 'On, show status')
-            .addOption('on-noStatus', 'On, no status')
-            .setValue(this.plugin.settings.contextNoteFollowActive)
-            .setDisabled(!this.plugin.settings.enableContextNotes)
-            .onChange(async (value) => {
-                    this.plugin.settings.contextNoteFollowActive = value as 'off' | 'on-status' | 'on-noStatus';                  
+            .setName('Open context note from icon')
+            .setDesc('When enabled, clicking the icon of a folder or tag will open its context note in the current tab.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.contextNoteIconClick)
+                .setDisabled(!this.plugin.settings.enableContextNotes)
+                .onChange(async (value) => {
+                    this.plugin.settings.contextNoteIconClick = value;
                     await this.plugin.saveSettings();
                     this.plugin.refreshAllViews();
                 }));
+
+        new Setting(contentEl)
+            .setName('Show closest context note')
+            .setDesc('Side portal shows context note for the active file\'s nearest ancestor folder (folder spaces only). Falls back to portal\'s context note if none found.')
+            .addDropdown(dropdown => dropdown
+                .addOption('off', 'Off')
+                .addOption('on-status', 'On, show status')
+                .addOption('on-noStatus', 'On, no status')
+                .setValue(this.plugin.settings.contextNoteFollowActive)
+                .setDisabled(!this.plugin.settings.enableContextNotes)
+                .onChange(async (value) => {
+                        this.plugin.settings.contextNoteFollowActive = value as 'off' | 'on-status' | 'on-noStatus';                  
+                        await this.plugin.saveSettings();
+                        this.plugin.refreshAllViews();
+                    }));
 
         contentEl.createEl('hr');
 
@@ -978,18 +979,18 @@ export class SpacesSettingTab extends PluginSettingTab {
         new Setting(contentEl).setName('Journal').setHeading();
 
         new Setting(contentEl)
-        .setName('Journal date format')
-        .setDesc('Choose date format used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.')
-        .addDropdown(dropdown => dropdown
-            .addOption('DD-MM-YYYY', 'DD-MM-YYYY')
-            .addOption('MM-DD-YYYY', 'MM-DD-YYYY')
-            .addOption('YYYY-MM-DD', 'YYYY-MM-DD')
-            .setValue(this.plugin.settings.journalDateFormat)
-            .onChange(async (value) => {
-                this.plugin.settings.journalDateFormat = value as 'DD-MM-YYYY' | 'MM-DD-YYYY';
-                await this.plugin.saveSettings();
-                this.plugin.refreshAllViews();
-            }));
+            .setName('Journal date format')
+            .setDesc('Choose date format used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.')
+            .addDropdown(dropdown => dropdown
+                .addOption('DD-MM-YYYY', 'DD-MM-YYYY')
+                .addOption('MM-DD-YYYY', 'MM-DD-YYYY')
+                .addOption('YYYY-MM-DD', 'YYYY-MM-DD')
+                .setValue(this.plugin.settings.journalDateFormat)
+                .onChange(async (value) => {
+                    this.plugin.settings.journalDateFormat = value as 'DD-MM-YYYY' | 'MM-DD-YYYY';
+                    await this.plugin.saveSettings();
+                    this.plugin.refreshAllViews();
+                }));
 
         new Setting(contentEl)
             .setName('Journal folder')
@@ -1071,29 +1072,29 @@ export class SpacesSettingTab extends PluginSettingTab {
         new Setting(contentEl).setName('Properties').setHeading();
 
         new Setting(contentEl)
-        .setName('Show current value')
-        .setDesc('Show current property value on list of files filtered by properties')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.showCurrentPropertyValue)
-            .onChange(async (value) => {
-                this.plugin.settings.showCurrentPropertyValue = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
+            .setName('Show current value')
+            .setDesc('Show current property value on list of files filtered by properties.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showCurrentPropertyValue)
+                .onChange(async (value) => {
+                    this.plugin.settings.showCurrentPropertyValue = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
 
         new Setting(contentEl)
-        .setName('Hide filtered badge')
-        .setDesc('Hide the count display of files filtered in properties. The number is based on dropdown choices.')
-        .addToggle(toggle => toggle
-            .setValue(this.plugin.settings.hideFilteredCount)
-            .onChange(async (value) => {
-                this.plugin.settings.hideFilteredCount = value;
-                await this.plugin.saveSettings();
-                this.display();
-            }));
+            .setName('Hide filtered badge')
+            .setDesc('Hide the count display of files filtered in properties. The number is based on dropdown choices.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.hideFilteredCount)
+                .onChange(async (value) => {
+                    this.plugin.settings.hideFilteredCount = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
     }
     
-        // --------------------------- BACKUP / RESTORE  -----------------------------
+        // --------------------------- UTILS -----------------------------
     private renderUtilities(contentEl: HTMLElement): void {
         new Setting(contentEl).setName('Utilities').setHeading();
 
@@ -1143,22 +1144,22 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(contentEl)
-        .setName('User guide')
-        .setDesc('Open the full documentation, the guide covers everything about the plugin in a simple markdown format.')
-        .addButton(button => button
-            .setButtonText('Open guide')
-            .onClick(() => {
-                window.open(getGuideUrl(), '_blank');
-            }));
+            .setName('User guide')
+            .setDesc('Open the full documentation, the guide covers everything about the plugin in a simple markdown format.')
+            .addButton(button => button
+                .setButtonText('Open guide')
+                .onClick(() => {
+                    window.open(getGuideUrl(), '_blank');
+                }));
 
         new Setting(contentEl)
-        .setName('Release notes')
-        .setDesc('See the release notes, stay upto date on the latest changes made to the plugin.')
-        .addButton(button => button
-            .setButtonText('Release notes')
-            .onClick(() => {
-                window.open(getReleaseNotesUrl(), '_blank');
-            }));
+            .setName('Release notes')
+            .setDesc('See the release notes, stay upto date on the latest changes made to the plugin.')
+            .addButton(button => button
+                .setButtonText('Release notes')
+                .onClick(() => {
+                    window.open(getReleaseNotesUrl(), '_blank');
+                }));
     }
 
     private async exportSettings() {
