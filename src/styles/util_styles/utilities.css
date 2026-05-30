@@ -265,7 +265,7 @@ button.portals-reset-btn.trash-btn-warn .svg-icon,
 button.portals-reset-btn.fm-property-btn .svg-icon,
 button.portals-reset-btn.fm-value-btn .svg-icon,
 button.portals-reset-btn.unhide-btn-all .svg-icon {
-    font-size: 0.8em;
+    font-size: 0.9em;
     width: 1em;
     height: 1em;
 }
@@ -348,4 +348,34 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .portals-secondary-panel i.ph,
 .portals-icon-picker-modal i.ph {
     color: inherit;
+}
+
+/*====================ICON SIZING AND POSITIONING=========================*/
+
+:root {
+  --portals-icon-size: 14px;
+  --portals-lucide-scale: 0.88;
+}
+
+.portals-container i.ph,
+.portals-tab-bar i.ph,
+.portals-tree-container i.ph,
+.portals-secondary-panel i.ph,
+.portals-icon-picker-modal i.ph,
+.portals-split-content i.ph {
+  font-size: var(--portals-icon-size);
+  vertical-align: middle;
+}
+
+.portals-container .svg-icon,
+.portals-tab-bar .svg-icon,
+.portals-tree-container .svg-icon,
+.portals-secondary-panel .svg-icon,
+.portals-icon-picker-modal .svg-icon,
+.portals-split-content .svg-icon {
+    width: var(--portals-icon-size);
+    height: var(--portals-icon-size);
+    display: block;
+    transform: scale(var(--portals-lucide-scale));
+    transform-origin: center center;
 }

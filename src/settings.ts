@@ -169,6 +169,7 @@ export class SpacesSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         const scrollTop = containerEl.scrollTop;
         containerEl.empty();
+        containerEl.addClass('portals-settings');
 
         const settingsTabBar = containerEl.createDiv({ cls: 'portals-settings-tab-bar' });
         const tabs = [
@@ -510,7 +511,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             }) as HTMLInputElement;
 
             const customSwatch = colorWrapper.createDiv('portals-color-swatch');
-            customSwatch.style.backgroundColor = initialHex;
+            customSwatch.setCssProps({ 'background-color': initialHex });
 
             // Opacity number input
             const opacityWrapper = colorRow.createDiv('portals-opacity-wrapper');
@@ -695,7 +696,8 @@ export class SpacesSettingTab extends PluginSettingTab {
                 });
 
                 const customSwatch = colorWrapper.createDiv('portals-color-swatch');
-                customSwatch.style.backgroundColor = initialHex;
+                customSwatch.setCssProps({ 'background-color': initialHex});
+                
 
                 const opacityWrapper = colorRow.createDiv('portals-opacity-wrapper');
                 const opacityInput = opacityWrapper.createEl('input', {

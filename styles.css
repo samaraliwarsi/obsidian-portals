@@ -4962,7 +4962,7 @@ button.portals-reset-btn.trash-btn-warn .svg-icon,
 button.portals-reset-btn.fm-property-btn .svg-icon,
 button.portals-reset-btn.fm-value-btn .svg-icon,
 button.portals-reset-btn.unhide-btn-all .svg-icon {
-    font-size: 0.8em;
+    font-size: 0.9em;
     width: 1em;
     height: 1em;
 }
@@ -5046,6 +5046,37 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .portals-icon-picker-modal i.ph {
     color: inherit;
 }
+
+/*====================ICON SIZING AND POSITIONING=========================*/
+
+:root {
+  --portals-icon-size: 14px;
+  --portals-lucide-scale: 0.88;
+}
+
+.portals-container i.ph,
+.portals-tab-bar i.ph,
+.portals-tree-container i.ph,
+.portals-secondary-panel i.ph,
+.portals-icon-picker-modal i.ph,
+.portals-split-content i.ph {
+  font-size: var(--portals-icon-size);
+  vertical-align: middle;
+}
+
+.portals-container .svg-icon,
+.portals-tab-bar .svg-icon,
+.portals-tree-container .svg-icon,
+.portals-secondary-panel .svg-icon,
+.portals-icon-picker-modal .svg-icon,
+.portals-split-content .svg-icon {
+    width: var(--portals-icon-size);
+    height: var(--portals-icon-size);
+    display: block;
+    transform: scale(var(--portals-lucide-scale));
+    transform-origin: center center;
+}
+
 /*===============================SCROLL BARS PLUGIN WIDE=======================*/
 /* ----------Tab bar and Tabs ---------*/
 .portals-tab-bar::-webkit-scrollbar {
@@ -5226,7 +5257,11 @@ background: var(--text-muted);
   background-color: var(--text-faint);
 }
 
-.portals-stack-group .portals-stack-header-tab .portals-tab-icon.has-accent i {
+.portals-stack-group .portals-stack-header-tab .portals-tab-icon.has-accent i.ph {
+  color: var(--stack-accent-color, var(--interactive-accent));
+}
+
+.portals-stack-group .portals-stack-header-tab .portals-tab-icon.has-accent .svg-icon {
   color: var(--stack-accent-color, var(--interactive-accent));
 }
 
@@ -5540,18 +5575,18 @@ border-left: 1px dashed var(--background-modifier-border);
 /* File items */
 
 .file-item {
-display: flex;
+display: inline-flex;
 align-items: center;
 gap: 6px;
-padding: 2px 0;
+padding: 2px 12px;
 cursor: pointer;
 border-radius: 4px;
 width: 100%;
 box-sizing: border-box;
-padding-left: 12px;
-padding-right: 12px;
 margin-bottom: 8px;
 position: relative;
+line-height: 1.3;
+vertical-align: middle;
 }
 
 .file-item:hover {
@@ -5624,9 +5659,8 @@ background-color: var(--background-modifier-hover);
 }
 
 .file-item:hover .portals-file-action-icons:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   opacity: 0.9;
-  background-color: rgba(128, 128, 128, 0.5);
 }
 
 @media (hover: none) and (pointer: coarse) {
@@ -5639,7 +5673,7 @@ background-color: var(--background-modifier-hover);
 .portals-compact-tree .portals-file-action-icons {
     height: 1.1em;
 }
-.portals-compact-tree .portals-file-action-icons i {
+.portals-compact-tree .portals-file-action-icons i.ph {
     font-size: 0.85em;
 }
 
@@ -5684,6 +5718,7 @@ overflow: hidden;
 text-overflow: ellipsis;
 flex: 1;
 min-width: 0;
+justify-self: center;
 }
 
 .folder-summary .portals-item-name {
@@ -5698,30 +5733,32 @@ font-weight: normal;
 
 /* Icons in tree */
 
-.folder-icon .ph,
-.file-icon .ph {
-font-size: 14px;
-width: 14px;
-height: 14px;
-display: block;
-line-height: 14px;
-text-align: center;
-color: var(--text-normal);
-align-self: center;
+.file-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
 }
 
-.folder-icon .svg-icon,
-.file-icon .svg-icon {
-    font-size: 13.5px;
-    width: 1em;
-    height: 1em;
-    align-self: center;
+.portals-tree-container .folder-icon i.ph,
+.portals-tree-container .file-icon i.ph,
+.portals-tree-container .file-icon .svg-icon,
+.portals-tree-container .folder-icon .svg-icon {
+display: block;
+line-height: 0;
 }
+
+.portals-split-content .folder-icon i.ph,
+.portals-split-content .file-icon i.ph,
+.portals-split-content .file-icon .svg-icon,
+.portals-split-content .folder-icon .svg-icon {
+display: block;
+}
+
 
 .folder-icon .context-notes-open-icon {
   cursor: pointer;
 }
-
 
 /* Open dot indicator */
 
@@ -5743,6 +5780,7 @@ vertical-align: middle;
 /* Extension text badge for non-markdown files */ 
 
 .file-extension {
+    display: block;
     font-size: 0.6em;
     color: color-mix(in srgb, var(--text-muted) 50%, transparent);
     flex-shrink: 0;
@@ -5821,7 +5859,7 @@ opacity: 0.7;
 }
 
 
-.portals-split-content .file-icon .ph {
+.portals-split-content .file-icon i.ph {
   font-size: 12px;
   width: 12px;
   height: 12px;
@@ -5831,23 +5869,20 @@ opacity: 0.7;
     font-size: 12.5px;
     width: 1em;
     height: 1em;
-    align-items: center;
-    padding-top: 2px;
 }
 
 .portals-split-content .folder-summary {
   font-size: 0.85em;
   padding: 2px 4px;
-}
+}*/
 
-.portals-split-content .folder-summary .ph {
+.portals-split-content .folder-summary i.ph {
   font-size: 12px;
 }
 .portals-split-content .folder-summary .svg-icon {
     font-size: 12.5px;
     width: 1em;
     height: 1em;
-    padding-top: 2px;
 }
 
 
@@ -5997,25 +6032,23 @@ body.portals-dragging {
     gap: 4px;
 }
 
-.portals-tree-container.portals-compact-tree .folder-summary .portals-item-name,
-.portals-tree-container.portals-compact-tree .file-item .portals-item-name {
+.portals-tree-container.portals-compact-tree .folder-summary span.portals-item-name,
+.portals-tree-container.portals-compact-tree .file-item span.portals-item-name {
     font-size: 0.85em;
     line-height: 1.2;
 }
 
-.portals-tree-container.portals-compact-tree .folder-icon i,
-.portals-tree-container.portals-compact-tree .file-icon i {
-    font-size: 14px;
+.portals-tree-container.portals-compact-tree .folder-icon i.ph,
+.portals-tree-container.portals-compact-tree .file-icon i.ph {
+    font-size: 13px;
 }
-
 
 .portals-tree-container.portals-compact-tree .folder-icon .svg-icon,
 .portals-tree-container.portals-compact-tree .file-icon .svg-icon {
-    font-size: 13px;
+    font-size: 13.5px;
     width: 1em;
     height: 1em;
     align-self: center;
-    padding-top: 2px;
 }
 
 /* Optional: reduce indentation of nested children */
@@ -6833,6 +6866,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 /* ----- Floating action buttons ----- */
 
 .portals-container button.portals-floating-btn {
+    --portals-icon-size: 16px;
     -webkit-tap-highlight-color: transparent;
     position: absolute;
     left: 4px;
@@ -6846,17 +6880,10 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    color: var(--text-muted);
     box-shadow: var(--input-shadow);
     transition: background-color 0.1s, color 0.1s, box-shadow 0.1s;
     padding: 2px;
-}
-
-.portals-container .portals-floating-btn .ph {
-    font-size: 18px;
-}
-
-.portals-container .portals-floating-btn .svg-icon {
-    font-size: 18px;
 }
 
 .portals-container .portals-floating-btn.portals-floating-btn-hidden {
@@ -6962,6 +6989,12 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     height: 1em;
     font-size: 8px;
 }
+
+.journal-quote-indicator i.ph,
+.journal-warn-indicator i.ph {
+    font-size: 8px;
+}
+
 
 .journal-quote-text {
     margin: 0 0 8px 0;
@@ -7391,6 +7424,17 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
 
 /* ================================ Settings page ================================ */
 
+.portals-settings .clickable-icon .svg-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
+.portals-settings .clickable-icon i.ph {
+    font-size: var(--icon-size);
+    vertical-align: middle;
+    color: inherit;
+}
+
 /*============ Tab bar container ===================*/
 .portals-settings-tab-bar {
   display: flex;
@@ -7564,6 +7608,7 @@ button.portals-portal-list-delete {
 .portals-section-summary {
     cursor: pointer;
     font-weight: bold;
+    color: var(--text-faint);
     padding: 4px 0;
 }
 

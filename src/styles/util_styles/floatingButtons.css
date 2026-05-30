@@ -1,6 +1,7 @@
 /* ----- Floating action buttons ----- */
 
 .portals-container button.portals-floating-btn {
+    --portals-icon-size: 16px;
     -webkit-tap-highlight-color: transparent;
     position: absolute;
     left: 4px;
@@ -18,14 +19,6 @@
     box-shadow: var(--input-shadow);
     transition: background-color 0.1s, color 0.1s, box-shadow 0.1s;
     padding: 2px;
-}
-
-.portals-container .portals-floating-btn .ph {
-    font-size: 18px;
-}
-
-.portals-container .portals-floating-btn .svg-icon {
-    font-size: 18px;
 }
 
 .portals-container .portals-floating-btn.portals-floating-btn-hidden {

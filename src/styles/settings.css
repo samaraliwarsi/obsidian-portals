@@ -1,6 +1,17 @@
 
 /* ================================ Settings page ================================ */
 
+.portals-settings .clickable-icon .svg-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
+.portals-settings .clickable-icon i.ph {
+    font-size: var(--icon-size);
+    vertical-align: middle;
+    color: inherit;
+}
+
 /*============ Tab bar container ===================*/
 .portals-settings-tab-bar {
   display: flex;
@@ -174,6 +185,7 @@ button.portals-portal-list-delete {
 .portals-section-summary {
     cursor: pointer;
     font-weight: bold;
+    color: var(--text-faint);
     padding: 4px 0;
 }
 

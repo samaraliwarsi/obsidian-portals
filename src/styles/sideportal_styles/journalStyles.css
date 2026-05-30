@@ -71,6 +71,12 @@
     font-size: 8px;
 }
 
+.journal-quote-indicator i.ph,
+.journal-warn-indicator i.ph {
+    font-size: 8px;
+}
+
+
 .journal-quote-text {
     margin: 0 0 8px 0;
     font-style: italic;

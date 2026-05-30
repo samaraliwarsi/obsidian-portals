@@ -431,9 +431,6 @@ export class PortalsView extends ItemView {
         } else {
             header.classList.remove('is-expanded');
         }
-        if (stack.color && stack.color !== 'transparent') {
-            header.style.setProperty('--stack-accent-color', stack.color);
-        }
         header.dataset.stackId = stack.id;
 
         const iconSpan = header.createSpan({ cls: 'portals-tab-icon' });
@@ -538,9 +535,9 @@ export class PortalsView extends ItemView {
         if (space.path === '/') {
             tab.addClass('portals-tab-pinned');
             if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
-                tab.style.setProperty('--tab-pinned-color', space.color);
+                tab.setCssProps({ '--tab-pinned-color': space.color });
             } else {
-                tab.style.removeProperty('--tab-pinned-color');
+                tab.setCssProps({ '--tab-pinned-color': '' });
             }
         }
 
@@ -581,12 +578,12 @@ export class PortalsView extends ItemView {
 
         if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
             if (isActive) {
-                tab.style.setProperty('--tab-active-color', space.color);
+                tab.setCssProps({ '--tab-active-color': space.color });
             } else {
-                tab.style.removeProperty('--tab-active-color');
+                tab.setCssProps({ '--tab-active-color': '' });
             }
         } else {
-            tab.style.removeProperty('--tab-active-color');
+            tab.setCssProps({ '--tab-active-color': '' });
         }
         tab.dataset.path = space.path;
         tab.dataset.type = space.type;
