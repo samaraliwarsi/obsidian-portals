@@ -135,22 +135,23 @@ padding-left: 4px;
 
 
 .portals-tab {
-display: flex;
-align-items: center;
-gap: 4px;
-padding: 4px 8px;
-border-radius: 4px;
-cursor: pointer;
-font-size: 0.9em;
-white-space: nowrap;
-border: none;
-border-bottom: 2px solid transparent;
-background: transparent;
-color: var(--text-muted);
-transition: background-color 0.1s, border-color 0.1s, color 0.1s;
-user-select: none;
-flex-shrink: 0;
-position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    white-space: nowrap;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    transition: background-color 0.1s, border-color 0.1s, color 0.1s;
+    user-select: none;
+    flex-shrink: 0;
+    position: relative;
+    --portals-icon-size: 16px;
 }
 
 .portals-tab:hover {
@@ -288,7 +289,7 @@ vertical-align: middle;
     color: var(--text-muted);
 }
 
-.portals-multiselect-toolbar .portals-delete-btn-warn i,
+.portals-multiselect-toolbar .portals-delete-btn-warn i.ph,
 .portals-multiselect-toolbar .portals-delete-btn-warn .svg-icon {
     color: var(--text-error);
 }
@@ -441,7 +442,7 @@ background-color: var(--background-modifier-hover);
   flex-shrink: 0;
 }
 
-.portals-file-action-icons i {
+.portals-file-action-icons i.ph {
   font-size: 0.9em;
   display: flex;
   align-items: center;
@@ -454,7 +455,7 @@ background-color: var(--background-modifier-hover);
   display: flex;
 }
 
-.file-item:hover .portals-file-action-icons i {
+.file-item:hover .portals-file-action-icons i.ph {
   color: var(--text-normal);
 }
 
@@ -465,7 +466,7 @@ background-color: var(--background-modifier-hover);
 }
 
 .file-item:hover .portals-file-action-icons:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
   opacity: 0.9;
 }
 
@@ -718,6 +719,7 @@ opacity: 0.7;
     margin: 0;
     border-top: 1.5px solid var(--background-modifier-border);
     transition: border-color 0.1;
+    box-shadow: 0 -2px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
 .portals-splitter.is-hidden {
@@ -786,7 +788,8 @@ body.portals-dragging {
     transition: background-color 0.1s, border-color 0.1s, color 0.1s;
     user-select: none;
     flex-shrink: 0;
-    box-shadow: none;    
+    box-shadow: none;  
+    --portals-icon-size: 16px;  
 }
 .portals-split-tab:hover {
     background: rgba(128, 128, 128, 0.15);
@@ -799,9 +802,7 @@ body.portals-dragging {
   border-bottom-color: var(--split-tab-active-color ,var(--interactive-accent));
 }
 
-.portals-split-tab i {
-  font-size: 16px;
-}
+
 
 .portals-collapse-icon {
     flex-shrink: 0;
@@ -876,7 +877,7 @@ body.portals-dragging {
     gap: 3px;
     border-bottom-width: 2px;
 }
-.portals-compact-tabs .portals-tab-icon i {
+.portals-compact-tabs .portals-tab-icon i.ph {
     font-size: 14px;
 }
 /* Stack headers follow the same compact size */
@@ -929,7 +930,7 @@ body.portals-dragging {
     flex-shrink: 0;
 }
 
-.folder-summary .portals-action-icons i {
+.folder-summary .portals-action-icons i.ph {
     font-size: 0.9em;
     display: flex;
     align-items: center;
@@ -948,7 +949,7 @@ body.portals-dragging {
     background-color: rgba(128, 128, 128, 0.3);
   }
 
-.folder-summary:hover .portals-action-icons i,
+.folder-summary:hover .portals-action-icons i.ph,
 .folder-summary:hover .portals-action-icons .svg-icon {
     color: var(--text-normal);
 }
@@ -972,7 +973,7 @@ body.portals-dragging {
   height: 1.1em;
 }
 
-.folder-summary .portals-action-icons-compact i {
+.folder-summary .portals-action-icons-compact i.ph {
   font-size: 0.85em;
 }
 
@@ -1003,14 +1004,14 @@ body.portals-dragging {
     gap: 2px;
     padding-left: 4px;
 }
-.portals-section-arrows i {
+.portals-section-arrows i.ph {
     cursor: pointer;
     padding: 2px;
     font-size: small;
     color: var(--text-faint);
 }
 
-.portals-section-arrows i:hover {
+.portals-section-arrows i.ph:hover {
     transform: scale(1.25);
     color: var(--text-normal);
 }

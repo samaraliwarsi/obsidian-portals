@@ -30,7 +30,7 @@
     cursor: pointer;
 }
 
-.folder-icon.has-context-note-icon i,
+.folder-icon.has-context-note-icon i.ph,
 .folder-icon.has-context-note-icon .svg-icon {
     color: var(--space-border-color, var(--interactive-accent));
 }

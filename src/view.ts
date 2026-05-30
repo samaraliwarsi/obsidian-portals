@@ -1207,23 +1207,31 @@ export class PortalsView extends ItemView {
         const targetRect = target.getBoundingClientRect();
         const gap = 6;
         const centerX = targetRect.left + targetRect.width / 2;
-        
+
         switch (preferred) {
             case 'below':
-                tooltip.style.top = (targetRect.bottom + gap) + 'px';
-                tooltip.style.left = (centerX - tooltipWidth / 2) + 'px';
+                tooltip.setCssProps({
+                    top: `${targetRect.bottom + gap}px`,
+                    left: `${centerX - tooltipWidth / 2}px`,
+                });
                 break;
             case 'above':
-                tooltip.style.top = (targetRect.top - tooltipHeight - gap) + 'px';
-                tooltip.style.left = (centerX - tooltipWidth / 2) + 'px';
+                tooltip.setCssProps({
+                    top: `${targetRect.top - tooltipHeight - gap}px`,
+                    left: `${centerX - tooltipWidth / 2}px`,
+                });
                 break;
             case 'right':
-                tooltip.style.top = (targetRect.top + targetRect.height / 2 - tooltipHeight / 2) + 'px';
-                tooltip.style.left = (targetRect.right + gap) + 'px';
+                tooltip.setCssProps({
+                    top: `${targetRect.top + targetRect.height / 2 - tooltipHeight / 2}px`,
+                    left: `${targetRect.right + gap}px`,
+                });
                 break;
             case 'left':
-                tooltip.style.top = (targetRect.top + targetRect.height / 2 - tooltipHeight / 2) + 'px';
-                tooltip.style.left = (targetRect.left - tooltipWidth - gap) + 'px';
+                tooltip.setCssProps({
+                    top: `${targetRect.top + targetRect.height / 2 - tooltipHeight / 2}px`,
+                    left: `${targetRect.left - tooltipWidth - gap}px`,
+                });
                 break;
         }
         
@@ -1288,7 +1296,8 @@ export class PortalsView extends ItemView {
         const minHeight = 50;
         const maxHeight = rect.height - 50;
         const newHeight = Math.min(maxHeight, Math.max(minHeight, rect.height - relativeY));
-        secondaryPanel.style.height = newHeight + 'px';
+        //secondaryPanel.style.height = newHeight + 'px';
+        secondaryPanel.setCssProps({ height: newHeight + 'px '});
         splitter.classList.remove('is-hidden');
 
         // --- Throttle the rest (settings updates) ---
@@ -1301,7 +1310,7 @@ export class PortalsView extends ItemView {
 
             // Use stored data to update non‑critical settings
             const COLLAPSE_THRESHOLD = 80;
-            const currentHeight = parseFloat(secondaryPanel.style.height); // read actual height
+            const currentHeight = parseFloat(secondaryPanel.style.height);
             if (!this.plugin.settings.secondaryPanelCollapsed && currentHeight > COLLAPSE_THRESHOLD) {
                 this.plugin.settings.lastExpandedHeight = currentHeight;
             }
@@ -1347,7 +1356,10 @@ export class PortalsView extends ItemView {
             this.plugin.settings.secondaryPanelCollapsed = false;
             const secondaryPanel = this.currentSecondaryPanel;
             if (secondaryPanel) {
-                secondaryPanel.style.height = Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px';
+                //secondaryPanel.style.height = Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px';
+                secondaryPanel.setCssProps({
+                    height: Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px',
+                });
                 secondaryPanel.classList.remove('is-collapsed');
                 if (this.currentSplitter) {
                     this.currentSplitter.classList.remove('is-hidden');
@@ -1527,7 +1539,8 @@ export class PortalsView extends ItemView {
                     const groupDiv = tabBar.createDiv({ cls: 'portals-stack-group' });
                     groupDiv.dataset.stackId = item.stack.id;
                     if (item.stack.color && item.stack.color !== 'transparent') {
-                        groupDiv.style.setProperty('--stack-accent-color', item.stack.color)
+                        //groupDiv.style.setProperty('--stack-accent-color', item.stack.color)
+                        groupDiv.setCssProps({ '--stack-accent-color': item.stack.color });
                     }
                     if (!item.stack.collapsed) {
                         groupDiv.classList.add('is-expanded');
@@ -1743,7 +1756,8 @@ export class PortalsView extends ItemView {
                 if (isActive) {
                     tabBtn.addClass('is-active');
                     if (rootColor) {
-                        tabBtn.style.setProperty('--split-tab-active-color', rootColor);
+                        //tabBtn.style.setProperty('--split-tab-active-color', rootColor);
+                        tabBtn.setCssProps({ '--split-tab-active-color': rootColor });
                     }
                 }
 
@@ -1785,7 +1799,8 @@ export class PortalsView extends ItemView {
                         
                         // Remove active class from all tabs
                         currentTab.removeClass('is-active');
-                        currentTab.style.removeProperty('--split-tab-active-color');
+                        //currentTab.style.removeProperty('--split-tab-active-color');
+                        currentTab.setCssProps({ '--split-tab-active-color': '' });
 
                         // get span label
                         const labelSpan = currentTab.querySelector('span.tab-label');
@@ -1805,7 +1820,8 @@ export class PortalsView extends ItemView {
                     // Add active class to clicked tab
                     tabBtn.addClass('is-active');
                     if (rootColor) {
-                        tabBtn.style.setProperty('--split-tab-active-color', rootColor);
+                        //tabBtn.style.setProperty('--split-tab-active-color', rootColor);
+                        tabBtn.setCssProps({ '--split-tab-active-color': rootColor });
                     }
                     // Render new content
                     if (this.contextNotesRenderer) {
@@ -1844,12 +1860,15 @@ export class PortalsView extends ItemView {
 
             if (this.plugin.settings.treeStyle === 'portals') {
                 if (rootColor) {
-                    splitContent.style.setProperty('--space-border-color', rootColor);
+                    //splitContent.style.setProperty('--space-border-color', rootColor);
+                    splitContent.setCssProps({ '--space-border-color': rootColor });
                 } else {
-                    splitContent.style.removeProperty('--space-border-color');
+                    //splitContent.style.removeProperty('--space-border-color');
+                    splitContent.setCssProps({ '--space-border-color': '' });
                 }
             } else {
-                splitContent.style.removeProperty('--space-border-color');
+                //splitContent.style.removeProperty('--space-border-color');
+                splitContent.setCssProps({ '--space-border-color': '' });
             }
 
             // Set initial state
@@ -1867,7 +1886,10 @@ export class PortalsView extends ItemView {
                 secondaryPanel.classList.add('is-collapsed');
                 splitter.classList.add('is-hidden');
             } else {
-                secondaryPanel.style.height = Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px';
+                //secondaryPanel.style.height = Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px';
+                secondaryPanel.setCssProps({
+                    height: Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px',
+                });
                 secondaryPanel.classList.remove('is-collapsed');
                 splitter.classList.remove('is-hidden');
             }
@@ -1885,7 +1907,10 @@ export class PortalsView extends ItemView {
                     splitter.classList.add('is-hidden');
                     collapseIcon.textContent = '▲';
                 } else {
-                    secondaryPanel.style.height = Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px';
+                    //secondaryPanel.style.height = Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px';
+                    secondaryPanel.setCssProps({
+                        height: Math.max(this.plugin.settings.lastExpandedHeight, MIN_EXPANDED_HEIGHT) + 'px',
+                    });
                     secondaryPanel.classList.remove('is-collapsed');
                     splitter.classList.remove('is-hidden');   
                     collapseIcon.textContent = '▼';   
@@ -1923,9 +1948,11 @@ export class PortalsView extends ItemView {
                         const totalFirstLevelFolders = folder.children.filter(c => c instanceof TFolder).length;
                         const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
                         if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
-                            spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
+                            //spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
+                            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
                         } else {
-                            spaceContent.style.removeProperty('--space-border-color');
+                            //spaceContent.style.removeProperty('--space-border-color');
+                            spaceContent.setCssProps({ '--space-border-color': '' });
                         }
                         this.applySpaceBackground(spaceContent, selectedSpace.color);
                         this.makeDropTarget(spaceContent, folder, true);
@@ -1938,9 +1965,11 @@ export class PortalsView extends ItemView {
                     const groupCount = selectedSpace.groupTags?.length ?? 0;
                     const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
                     if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
-                            spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
+                            //spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
+                            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
                         } else {
-                            spaceContent.style.removeProperty('--space-border-color');
+                            //spaceContent.style.removeProperty('--space-border-color');
+                            spaceContent.setCssProps({ '--space-border-color': '' });
                         }
                     this.applySpaceBackground(spaceContent, selectedSpace.color);
                     new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
@@ -2080,9 +2109,11 @@ export class PortalsView extends ItemView {
                 const totalFirstLevelFolders = folder.children.filter(c => c instanceof TFolder).length;
                 const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
                 if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
-                            spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
+                            //spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
+                            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
                         } else {
-                            spaceContent.style.removeProperty('--space-border-color');
+                            //spaceContent.style.removeProperty('--space-border-color');
+                            spaceContent.setCssProps({ '--space-border-color': '' });
                         }
                 this.applySpaceBackground(spaceContent, selectedSpace.color);
                 this.makeDropTarget(spaceContent, folder, true);
@@ -2094,9 +2125,11 @@ export class PortalsView extends ItemView {
             const groupCount = selectedSpace.groupTags?.length ?? 0;
             const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
             if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
-                            spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
+                            //spaceContent.style.setProperty('--space-border-color', selectedSpace.color);
+                            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
                         } else {
-                            spaceContent.style.removeProperty('--space-border-color');
+                            //spaceContent.style.removeProperty('--space-border-color');
+                            spaceContent.setCssProps({ '--space-border-color': '' });
                         }
             this.applySpaceBackground(spaceContent, selectedSpace.color);
             new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
@@ -2120,11 +2153,13 @@ export class PortalsView extends ItemView {
         el.removeClass('solid-bg', 'gradient-bg');
 
         if (style === 'none' || bgColor === 'transparent') {
-            el.style.removeProperty('--space-bg-color');
+            //el.style.removeProperty('--space-bg-color');
+            el.setCssProps({ '--space-bg-color': '' })
             return;
         }
 
-        el.style.setProperty('--space-bg-color', bgColor);
+        //el.style.setProperty('--space-bg-color', bgColor);
+        el.setCssProps({ '--space-bg-color': bgColor})
         if (style === 'solid') {
             el.addClass('solid-bg');
         } else if (style === 'gradient') {

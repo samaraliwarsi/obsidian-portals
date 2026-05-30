@@ -30,8 +30,8 @@ button.trash-delete-btn:not(.clickable-icon) {
     border: 1px solid var(--background-modifier-border);
 }
 
-button.trash-action-btn:not(.clickable-icon) i,
-button.trash-delete-btn:not(.clickable-icon) i {
+button.trash-action-btn:not(.clickable-icon) i.ph,
+button.trash-delete-btn:not(.clickable-icon) i.ph {
     font-size: 0.75em;
 }
 

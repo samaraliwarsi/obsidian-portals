@@ -16,7 +16,7 @@
 .portals-tree-style-default .file-item.has-file-color {
   color: var(--file-color);
 }
-.portals-tree-style-default .file-item.has-file-color .file-icon i {
+.portals-tree-style-default .file-item.has-file-color .file-icon i.ph {
   color: var(--file-color);
 }
 
@@ -118,7 +118,7 @@
 .portals-tree-style-portals .file-item.has-file-color {
   color: var(--file-color);
 }
-.portals-tree-style-portals .file-item.has-file-color .file-icon i {
+.portals-tree-style-portals .file-item.has-file-color .file-icon i.ph {
   color: var(--file-color);
 }
 
@@ -187,7 +187,7 @@
 .portals-tree-style-boxed .file-item.has-file-color {
   color: var(--file-color);
 }
-.portals-tree-style-boxed .file-item.has-file-color .file-icon i {
+.portals-tree-style-boxed .file-item.has-file-color .file-icon i.ph {
   color: var(--file-color);
 }
 
@@ -283,7 +283,7 @@
 .portals-tree-style-shades .file-item.has-file-color {
   color: var(--file-color);
 }
-.portals-tree-style-shades .file-item.has-file-color .file-icon i {
+.portals-tree-style-shades .file-item.has-file-color .file-icon i.ph {
   color: var(--file-color);
 }
 /*------------------------------------------------------------------------*/
@@ -336,7 +336,7 @@
     border-left: 1px dashed var(--background-modifier-border);
 }
 
-.portals-tree-style-hues .hued-folder-summary .folder-icon i {
+.portals-tree-style-hues .hued-folder-summary .folder-icon i.ph {
     text-shadow: 0 0 2px var(--background-primary);
 }
 
@@ -371,7 +371,7 @@
 .portals-tree-style-hues .file-item.has-file-color {
   color: var(--file-color);
 }
-.portals-tree-style-hues .file-item.has-file-color .file-icon i {
+.portals-tree-style-hues .file-item.has-file-color .file-icon i.ph {
   color: var(--file-color);
 }
 /*-----------------------*/

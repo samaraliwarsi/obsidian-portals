@@ -249,13 +249,13 @@ button.portals-reset-btn.unhide-btn-all {
 }
 
 /*------Phosphor and Lucide (if applicable)-----------*/
-button.portals-reset-btn.journal-btn i,
-button.portals-reset-btn.journal-filter-btn i,
-button.portals-reset-btn.trash-btn i,
-button.portals-reset-btn.trash-btn-warn i,
-button.portals-reset-btn.fm-property-btn i,
-button.portals-reset-btn.fm-value-btn i,
-button.portals-reset-btn.unhide-btn-all i {
+button.portals-reset-btn.journal-btn i.ph,
+button.portals-reset-btn.journal-filter-btn i.ph,
+button.portals-reset-btn.trash-btn i.ph,
+button.portals-reset-btn.trash-btn-warn i.ph,
+button.portals-reset-btn.fm-property-btn i.ph,
+button.portals-reset-btn.fm-value-btn i.ph,
+button.portals-reset-btn.unhide-btn-all i.ph {
     font-size: 0.9em;
 }
 button.portals-reset-btn.journal-btn .svg-icon,
@@ -265,7 +265,7 @@ button.portals-reset-btn.trash-btn-warn .svg-icon,
 button.portals-reset-btn.fm-property-btn .svg-icon,
 button.portals-reset-btn.fm-value-btn .svg-icon,
 button.portals-reset-btn.unhide-btn-all .svg-icon {
-    font-size: 0.9em;
+    font-size: 0.95em;
     width: 1em;
     height: 1em;
 }

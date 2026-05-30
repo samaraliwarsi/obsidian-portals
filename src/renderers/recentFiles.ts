@@ -68,13 +68,13 @@ export class RecentFilesRenderer {
             const iconEl = fileEl.querySelector('.file-icon i') as HTMLElement;
             if (savedColor) {
                 fileEl.classList.add('has-file-color');
-                fileEl.style.setProperty('--file-color', savedColor);
+                fileEl.setCssProps({ '--file-color': savedColor });
                 if (iconEl) {
                     iconEl.classList.remove('has-file-color');
                 }
             } else {
                 fileEl.classList.remove('has-file-color');
-                fileEl.style.removeProperty('--file-color');
+                fileEl.setCssProps({ '--file-color': '' });
                 if (iconEl) {
                     iconEl.classList.remove('has-file-color');
                 }

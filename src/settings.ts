@@ -1036,7 +1036,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             .setDesc('Choose a journal quote tab for default display, requires obsidian reload.')
             .addDropdown(dropdown => dropdown
                 .addOption('random', 'Random')
-                .addOption('marked', 'marked')
+                .addOption('marked', 'Marked')
                 .addOption('onThisDay', 'On this day')
                 .setValue(this.plugin.settings.journalDefaultCurrentMode)
                 .onChange(async (value) => {

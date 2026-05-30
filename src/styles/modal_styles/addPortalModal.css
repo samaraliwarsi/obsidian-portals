@@ -131,7 +131,7 @@
     background-color: var(--background-modifier-hover);
 }
 
-.portals-check-icon i {
+.portals-check-icon i.ph {
     font-size: 1.2em;
 }
 
