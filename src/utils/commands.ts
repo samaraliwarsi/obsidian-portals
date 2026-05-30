@@ -6,7 +6,7 @@ import { getGuideUrl } from "./urls";
 export function registerAllCommands (plugin: PortalsPlugin) {
     plugin.addCommand({
         id: 'open-portal-view',
-        name: 'Open Explorer',
+        name: 'Open explorer',
         callback: () => {
             void plugin.activateView();
         }
@@ -20,7 +20,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             if (leaf && leaf.view instanceof PortalsView) {
                 leaf.view.showAddPortalModal();
             } else {
-                new Notice('Please open the Portals view first.');
+                new Notice('Portals view must be open first for all other commands to work.');
             }
         }
     });
@@ -32,7 +32,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             if (leaf && leaf.view instanceof PortalsView) {
                 leaf.view.showRemovePortalModal();
             } else {
-                new Notice('Please open the Portal view first.');
+                new Notice('Portals view must be open first for all other commands to work.');
             }
         }
     });
@@ -45,7 +45,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             if (leaf && leaf.view instanceof PortalsView) {
                 leaf.view.showSidePortalConfig();
             } else {
-                new Notice('Please open the Portals view first.');
+                new Notice('Portals view must be open first for all other commands to work.');
             }
         }
     });
@@ -56,7 +56,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         callback: () => {
             const leaf = plugin.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
             if (!leaf || !(leaf.view instanceof PortalsView)) {
-                new Notice('Please open the Portals view first.');
+                new Notice('Portals view must be open first for all other commands to work.');
                 return;
             }
             const space = leaf.view.plugin.settings.selectedSpace;
@@ -78,7 +78,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             if (leaf?.view instanceof PortalsView) {
                 leaf.view.showBulkFrontmatterModal();
             } else {
-                new Notice('Please open the Portals view first.');
+                new Notice('Portals view must be open first for all other commands to work.');
             }
         }
     });
@@ -121,14 +121,14 @@ export function registerAllCommands (plugin: PortalsPlugin) {
                 }
                 plugin.saveSettings();
             } else {
-                new Notice ('Vault root portal is not available. Enable "Pinned vault" in settings.');
+                new Notice ('Vault root portal is not available. Enable "pinned vault" in settings.');
             }
         }
     });
 
     plugin. addCommand({
-        id: 'stack-all-portals',
-        name: 'Stack all unstacked portals',
+        id: 'stack-all-portal-tabs',
+        name: 'Stack all unstacked portal tabs',
         callback: () => {
             const unstacked = plugin.settings.spaces.filter(s => !s.stackId);
             if (unstacked.length === 0) {

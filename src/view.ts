@@ -126,7 +126,7 @@ export class PortalsView extends ItemView {
             .map(p => this.app.vault.getAbstractFileByPath(p))
             .filter((f): f is TFile => f instanceof TFile && f.extension === 'md');
         if (files.length === 0) {
-            new Notice('Select at least one markdown file.');
+            new Notice('Select at least one Markdown file.');
             return;
         }
         if (this.plugin.settings.activeSplitTab === 'properties' && this.clinicRenderer) {

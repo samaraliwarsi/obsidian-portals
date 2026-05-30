@@ -226,14 +226,14 @@ export class FrontmatterPopup {
 
         this.yamlTextarea = yamlContent.createEl('textarea', {
             attr: {
-                placeholder: 'Paste YAML here, e.g.\nstatus: active\npriority: 2',
+                placeholder: 'Paste YAML here, e.g.\nStatus: active\nPriority: 2',
             },
             cls: 'fm-yaml-textarea',
         });
         this.yamlTextarea.rows = 4;
 
         yamlContent.createEl('p', {
-            text: 'Use "Paste to files" to apply YAML input, not "Save".',
+            text: 'Use "paste to files" to apply YAML input, not "save".',
             cls: 'portals-fm-modal-select-status',
         });
         if (!Platform.isMobile) {

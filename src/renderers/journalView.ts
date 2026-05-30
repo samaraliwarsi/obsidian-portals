@@ -514,7 +514,7 @@ export class JournalRenderer {
                     quoteDisplay.setText('No quotes found in marked notes, or no marked notes found. Right-click a journal card to mark it, make sure it has quotes with delimiter defined in settings.');
                     quoteDisplay.addClass('journal-quote-text');
                 } else {
-                quoteDisplay.setText('No quotes found. Please link your Daily Notes folder in settings & mark text in daily note files using the delimeter that you selected in settings.');
+                quoteDisplay.setText('No quotes found. Please link your daily notes folder in settings & mark text in daily note files using the delimeter that you selected in settings.');
                 quoteDisplay.addClass('journal-quote-text');
                 }
                 return;

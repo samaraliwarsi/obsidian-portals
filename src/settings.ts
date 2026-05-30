@@ -864,11 +864,11 @@ export class SpacesSettingTab extends PluginSettingTab {
         contentEl.createEl('hr');
 
         // -------------------- CONTEXT NOTES SETTINGS ----------------------------------
-        new Setting(contentEl).setName('Context Notes').setHeading();
+        new Setting(contentEl).setName('Context notes').setHeading();
 
         new Setting(contentEl)
-            .setName('Enable Context notes')
-            .setDesc('When disabled, Context notes are treated as normal files and the side portal shows a notice. Menu items, context note listeners and cache are removed.')
+            .setName('Enable context notes')
+            .setDesc('When disabled, context notes are treated as normal files and the side portal shows a notice. Menu items, context note listeners and cache are removed.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.enableContextNotes)
                 .onChange(async (value) => {
@@ -1015,7 +1015,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(contentEl)
             .setName('Quote delimiter')
-            .setDesc('Symbols used to mark quotes in your notes. Changes made to selected quotes or symbols will reflect after obsidian reload.')
+            .setDesc('Symbols used to mark quotes in your notes. Changes made to selected quotes or symbols will reflect after Obsidian reload.')
             .addDropdown(dropdown => {
                 dropdown
                     .addOption('==', '== (double equals)')
@@ -1034,7 +1034,7 @@ export class SpacesSettingTab extends PluginSettingTab {
         
         new Setting (contentEl)
             .setName('Journal default quote tab')
-            .setDesc('Choose a journal quote tab for default display, requires obsidian reload.')
+            .setDesc('Choose a journal tab for default display, requires Obsidian reload.')
             .addDropdown(dropdown => dropdown
                 .addOption('random', 'Random')
                 .addOption('marked', 'Marked')
@@ -1099,7 +1099,7 @@ export class SpacesSettingTab extends PluginSettingTab {
         new Setting(contentEl).setName('Utilities').setHeading();
 
         new Setting(contentEl)
-            .setName('Plugin Icon Library')
+            .setName('Plugin icon library')
             .setDesc('Icon library only defines the icons for plugin\'s native elements.')
             .addDropdown(dropdown => dropdown
                 .addOption('phosphor', 'Phosphor')
@@ -1145,7 +1145,7 @@ export class SpacesSettingTab extends PluginSettingTab {
 
         new Setting(contentEl)
             .setName('User guide')
-            .setDesc('Open the full documentation, the guide covers everything about the plugin in a simple markdown format.')
+            .setDesc('Open the full documentation, the guide covers everything about the plugin.')
             .addButton(button => button
                 .setButtonText('Open guide')
                 .onClick(() => {

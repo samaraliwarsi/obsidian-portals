@@ -1,15 +1,25 @@
-// @ts-check
 import eslint from '@eslint/js';
-import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
+import obsidianmd from 'eslint-plugin-obsidianmd';
 
-export default defineConfig(
+// The plugin’s recommended config – used only for TypeScript files
+const obsidianRules = obsidianmd.configs.recommended?.rules ?? obsidianmd.configs.recommended;
+
+export default [
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  // Config for source files (type‑aware)
+
+  // TypeScript source files (type‑aware) – include Obsidian rules here
   {
     files: ['src/**/*.ts'],
+    plugins: { obsidianmd },
+    rules: {
+      ...obsidianRules,
+      'obsidianmd/ui/sentence-case': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
     languageOptions: {
       globals: {
         ...globals.node,
@@ -19,12 +29,9 @@ export default defineConfig(
         project: './tsconfig.json',
       },
     },
-    rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
-    },
   },
-  // Config for all other files (no type‑checking)
+
+  // Plain JavaScript / MJS files (no type information) – no Obsidian type‑aware rules
   {
     files: ['**/*.js', '**/*.mjs'],
     languageOptions: {
@@ -34,7 +41,9 @@ export default defineConfig(
       },
     },
   },
+
+  // Ignored files
   {
     ignores: ['main.js', '*.config.js', '*.mjs', 'node_modules/', '.git/'],
-  }
-);
+  },
+];
