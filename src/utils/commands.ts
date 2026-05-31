@@ -93,7 +93,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
 
     plugin.addCommand({
         id: 'toggle-sections',
-        name: 'Enable or disable sections in explorer',
+        name: 'Toggle sections in explorer',
         callback: () => {
             plugin.settings.enableSections = !plugin.settings.enableSections
                 plugin.saveSettings();
@@ -102,7 +102,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
 
     plugin.addCommand({
         id: 'toggle-file-preview',
-        name: 'Enable or disable file previews in explorer',
+        name: 'Toggle file previews in explorer',
         callback: () => {
             plugin.settings.showFilePreview = !plugin.settings.showFilePreview;
             plugin.saveSettings();

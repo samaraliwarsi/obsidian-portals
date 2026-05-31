@@ -345,17 +345,20 @@ export class SpacesSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.display();
                 }));
-
-        new Setting(contentEl)
-            .setName('Show file info bar')
-            .setDesc('Show tags (in folder portals) or parent folder (in tag portals) below the file preview.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFileInfoBar)
-                .setDisabled(!this.plugin.settings.showFilePreview)
-                .onChange(async (value) => {
-                    this.plugin.settings.showFileInfoBar = value;
-                    await this.plugin.saveSettings();
-                }));
+        
+        if (this.plugin.settings.showFilePreview) {
+            new Setting(contentEl)
+                .setName('Show file info bar')
+                .setDesc('Show tags (in folder portals) or parent folder (in tag portals) below the file preview.')
+                .addToggle(toggle => toggle
+                    .setValue(this.plugin.settings.showFileInfoBar)
+                    .setDisabled(!this.plugin.settings.showFilePreview)
+                    .onChange(async (value) => {
+                        this.plugin.settings.showFileInfoBar = value;
+                        await this.plugin.saveSettings();
+                        this.display();
+                    }));
+        }
 
         new Setting(contentEl)
             .setName('Enable sections')

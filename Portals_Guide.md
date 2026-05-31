@@ -1,6 +1,6 @@
 # PORTALS PLUGIN USER GUIDE
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.3.4**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.3.5**
 
 ---
 ## INSTALLATION
@@ -29,9 +29,10 @@ Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. T
 
 >After setting up plugin preferences, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways:
 > 	- Copy the `data.json` file at `.obsidian/plugins/portals/` and save it at a secure location. 
-> 	- Open `Settings → Portals`, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
+> 	- Open `Settings → Portals`, switch to the **Utilities tab** and click on the `Export` button, save the file at a secure location. 
+> 	- Or turn on auto backups, new feature, refer to auto-backup section of this guide to understand how it works. 
 
->To enable full context menus with icons, turn off `Native menus` setting in Obsidian, found inside `Settings - Apperance`.
+>To enable full context menus with icons, turn off `Native menus` setting in Obsidian, found inside `Settings - Appearance`.
 
 ---
 ## ADD PORTAL TABS
@@ -39,7 +40,7 @@ Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. T
 Folders, tags can be added as portals in two ways,
 1. **Add Portals using command palette.** - Press `Cmd/Ctrl+P` and type **Portals: Add portal tab**, this will trigger a modal to add folders or tags as Portals. Users can select multiple items using `Alt+click` and add them all in one go. 
 2. **Add portals using settings**
-	-  Open `Settings → Portals`. Scroll down to the **Portal tabs** section. 
+	-  Open `Settings → Portals`. Switch over to the **Portal tabs** page. 
 	- Under **Add new portal**, click `Add`.
 	- Choose **Root Folders**, **Sub Folders**, or **Tags**. 
 	- Select the folders or tags from the list and click `Add`. Once selected, the folder or tag will be greyed out. 
@@ -59,7 +60,7 @@ Folders, tags can be added as portals in two ways,
 > Portal tab context menu will not show option to change color if `Tab colors` setting is off. Without that setting, the custom colors don't apply to tab bottom borders.
 ### Tab settings 
 
-These settings are available in **Portal tabs** section of  `Settings → Portals`. 
+These settings are available in **Portal tabs** page of  `Settings → Portals`. 
 #### Compact tabs
 Compact tabs settings will reduce the spacing between tabs and the size of icons and names on tabs, stacks and side portals. 
 #### Tab name display
@@ -74,6 +75,11 @@ Choose if you want to display icons on left or right. This is relevant when `Tab
 Tab colors define whether the bottom border of an active tab, or the left border of the pinned tab will carry the user defined color respective to each active portal defined in **Active Tabs** section. When turned on, this setting extends into other sections as well, specifically the defined color of `Pinned vault`,
 - It applies to side portal tabs of Journal, Properties, Hidden etc. 
 - It applies to `Styles`, specifically to the file tree, recents, hidden, properties and bookmarks with **Portals** style. 
+#### Quick Tab Switcher
+Assign a numeric shortcut (1–10) to any portal tab for rapid keyboard switching.
+- `Right-click` a portal tab → **Quick switch tabs** → assign a number using the Quick switch tabs modal.
+- Use command palette `Portals: Open portal <number>` or assign a hotkey (e.g., `Alt+1`) in Obsidian’s Hotkeys settings.
+- Display the numeric badge on tabs: enable `Show quick tab badge` in `Settings → Portals` → **Portal tabs** page.
 
 ---
 ## STACK
@@ -85,7 +91,7 @@ Portal tabs can be catalogued into collapsible stacks. To create a stack,
 - `Delete stack` option in context menu, removes the stack and the contents appear as regular unstacked portals. 
 
 ### Stack settings
-There are some settings available for stacks. To access them go to `Settings → Portals` and scroll down to the **Stacks** section. 
+There are some settings available for stacks. To access them go to `Settings → Portals` and switch over to the **Portal tabs** page, go down to access the **Stacks** section. 
 -  `Hide stack names` setting can change if the stacks appear with a name or just the icon. 
 - `Stack icon position` setting can change the position of icon display on a stack from left to right.
 - `Show stack count` is a dropdown that can help show number of portal tabs inside a stack. The number can be shown while closed, always or turned off using the dropdown. 
@@ -100,19 +106,19 @@ Stacks can be reordered by dragging with a mouse or touch. Stacks can be dragged
 > Stacks cannot be edited using drag, i.e. tabs inside the stack cannot be dragged outside, unstacked tabs outside cannot be dragged inside as of now. 
 
 **Customizing stacks**
-Stacks can have custom colors which will be used to define the border highlight and icon color, if `Colored stack icon` setting is on. Stacks can have custom names. To customize a tab, press `Right-click` on desktop or `Long press` on touch devices. Stack customizations don't depend on `Tab color` or `Background color type` settings, they can always be edited from `Right-click` context menu. Stack icon color however is affected by the `Colored stack icon` setting in **Stack** section inside `Settings → Portals`.
+Stacks can have custom colors which will be used to define the border highlight and icon color, if `Colored stack icon` setting is on. Stacks can have custom names. To customize a tab, press `Right-click` on desktop or `Long press` on touch devices. Stack customizations don't depend on `Tab color` or `Background color type` settings, they can always be edited from `Right-click` context menu. Stack icon color however is affected by the `Colored stack icon` setting in **Stack** section inside the **Portals tab** page of `Settings → Portals`.
 
 ---
 ## EXPLORER SETTINGS
 
 The portal view can be customized in many ways, here we will explain each of them. 
 ### Replace file explorer
-To make portals the default explorer when opening Obsidian, use the `Replace explorer in sidebar` setting inside the **Explorer settings** in `Settings → Portals`. This will ensure portals remains the focused view every time Obsidian reloads. The default Obsidian explorer will still be available via Obsidian tabs. 
+To make portals the default explorer when opening Obsidian, use the `Replace explorer in sidebar` setting inside the **Explorer** page in `Settings → Portals`. This will ensure portals remains the focused view every time Obsidian reloads. The default Obsidian explorer will still be available via Obsidian tabs. 
 ### Compact tree view
-Compact tree view can help reduce the spacing between folders and file items. To enable, go to `Settings → Portals`, in the **Explorer settings**, find `Compact tree view`, turn it on/ off based on personal preferences. 
+Compact tree view can help reduce the spacing between folders and file items. To enable, go to `Settings → Portals`, in the **Explorer** page, find `Compact tree view`, turn it on/ off based on personal preferences. 
 
 ### Styles
-Portals offers several visual styles for the file/tag tree. Choose a style in `Settings → Portals`, go to **Explorer settings** to open the dropdown options in `Styles`. The options are, 
+Portals offers several visual styles for the file/tag tree. Choose a style in `Settings → Portals`, go to **Explorer** page to open the dropdown options in `Styles`. The options are, 
 
 | Style       | Description                                                                                 | Custom colors application                                            |
 | ----------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -128,25 +134,48 @@ Each portal tab can have its own color, transparency setting. The `Background co
 > These don't apply to side portal. 
 
 ### Bold Folder Names
-This setting is available inside **Explorer settings** in `Settings → Portals`. It can help make the folders and tag groups stand out from the rest of the file items. 
+This setting is available inside **Explorer** page in `Settings → Portals`. It can help make the folders and tag groups stand out from the rest of the file items. 
 
 ---
 ### Extension Badge
-Non-markdown files can display an extension badge. To turn this on, go to **Explorer settings** inside `Settings → Portals`, find the setting named `Show extension for non-markdown files`. The extensions are always shown on the right hand side of each file. Non-markdown files do not show `active dot` if the setting is enabled. When they're opened, the extension badge turns to accent color, serving the same purpose. If the setting for `Extension badge for non-markdown files` is on, the file's own extension (eg. `.pdf`) will be hidden from the filename. If the setting is off, the extension remains visible. 
+Non-markdown files can display an extension badge. To turn this on, go to **Explorer** page inside `Settings → Portals`, find the setting named `Show extension for non-markdown files`. The extensions are always shown on the right hand side of each file. Non-markdown files do not show `active dot` if the setting is enabled. When they're opened, the extension badge turns to accent color, serving the same purpose. If the setting for `Extension badge for non-markdown files` is on, the file's own extension (eg. `.pdf`) will be hidden from the filename. If the setting is off, the extension remains visible. 
 
 ---
 ### Quick-Add buttons
 Quick-add buttons are enabled by a user setting `Quick-add icons` can be turned on in `Settings → Portals`. They allow users to create new folders or notes inside a target folder in a folder space. For tag space, only quick add new note is added, and it creates files with the tag of the space it was created in. The setting can be kept off, it can be used on `Desktop only` mode (hover to reveal), or kept active for all devices. Hover is not available on mobile, the icons are visible normally. 
 
 ---
+### File Preview
+Markdown files can display a content snippet below the filename in the file tree. To enable, go to `Settings → Portals` → **Explorer** page and turn on `Show file preview`. 
+- Previews show file tags in folder spaces, and folders in tag spaces, if `Show file info bar` is enabled in **Explorer settings**.
+- Toggle preview per file using the hover icon or via multi-select toolbar using the `Toggle preview` action. Preferences of per file collapse and expand are stored in user data.json.
+- If a file has no content, no preview appears.
+- Disable globally using the setting or command palette, `Portals: Toggle file previews in explorer`. Users can add it to hotkey using Obsidian settings.
+---
+### File Tooltips
+On desktops, when hovering over a file, a tooltip can show word count, last modified date, and full filename (if truncated by side panel width constraints).  Enable via `Settings → Portals` → **Explorer** page → `Show file tooltips`.
+
+---
+### Sections
+Organise folders or tags into collapsible section breaks.  
+- Enable sections via `Settings → Portals` → **Explorer** page → `Enable sections`, or using command palette `Portals: Toggle sections in explorer`.
+- Use the new **Sections** floating button (appears near the sort button, if sections are enabled) to define section rules:
+    - **Properties** – group by a frontmatter property. In this option, use `Right‑click` to search available properties.
+    - **Extensions** – group by file extensions.
+    - Create new properties to use for grouping with **Sections**.
+- Each section respects the current sort order. Use hover icons on section headers to reposition sections up or down.
+
+---
 ## SIDE PORTALS
 
-A collapsible, resizable panel at the bottom of Portals. To enable it, go to `Settings → Portals`, scroll down to **Side Portal** section and turn it on. In order to display the side portal, one of its views must be selected. Side portals can be reordered using drag and reorder. 
+A collapsible, resizable panel at the bottom of Portals. To enable it, go to `Settings → Portals`, switch to **Side Portal** page and turn it on. In order to display the side portal, one of its views must be selected. Side portals can be reordered using drag and reorder. 
 
 **On Mobile** 
 Mobile display of side portal may be affected by elements based on themes. On default obsidian, turn off the `Floating navigation` in `Appearance` settings on mobile. On other themes, depending on the CSS styling, side portal visibility on mobile may be affected to various degrees. Users can opt to disable the **Side Portal** on mobile from settings. 
 
-> Note: Side Portal works perfectly with [Baseline](https://github.com/aaaaalexis/obsidian-baseline) theme on mobile because the theme sends the vault selector to the top on mobile. Other themes that allow vault selector to be sent to top, on mobile, can also achieve the same. On desktop, some themes provide the option to hide the vault. That setting may visually conflict with side portal, it is better to turn off vault hiding. 
+> Note: Side Portal works perfectly with [Baseline](https://github.com/aaaaalexis/obsidian-baseline) theme on mobile because the theme sends the vault selector to the top on mobile. Other themes that allow vault selector to be sent to top, on mobile, can also achieve the same. On desktop, some themes provide the option to hide the vault. That setting may visually conflict with side portal, it's better to turn off vault hiding. 
+
+> **Commands** – Every side portal (Recent, Bookmarks, Context Notes, Journal, Hidden, Properties, Trash) has a command palette action. Use `Portals: Open <name>` to switch to that side portal. If it’s disabled, the command will enable it first.
 
 The tabs available to be displayed in **Side Portal** are as described below. 
 
@@ -170,8 +199,8 @@ The tabs available to be displayed in **Side Portal** are as described below.
 
 #### Overview
 A context note is a markdown file with the *same name* as the folder or tag it was created from. It's placed inside the folder it was created from (if it belongs to a folder) or inside a dedicated, user defined folder (if it belongs to a tag). Context notes side portal is a viewing mode for **Context Note** feature. Please note that context notes is an expansion of the initial feature of folder notes which has changed in 1.2.0 and onwards to support both tags and folders, hence the name update. 
-- To enable context notes feature, go to `Settings → Portals`, scroll down to the **Context Note** section and turn on `Enable context notes`
-- To view context notes in side portal, go to `Settings → Portals`, scroll down to **Side Portal** section, press `Configure` and select the `Context notes` tab. This can also be done using command palette, `Cmd/Ctrl+P` and type *Configure side portals*, or using `Right click` on the triangular collapse button on the side portal collapsible window. 
+- To enable context notes feature, go to `Settings → Portals`, switch to the **Side Portal** page and scroll down to the **Context Note** section and turn on `Enable context notes`
+- To view context notes in side portal, go to **Context notes** section in `Settings`,  press `Configure` and select the `Context notes` tab. This can also be done using command palette, `Cmd/Ctrl+P` and type *Configure side portals*, or using `Right click` on the triangular collapse button on the side portal collapsible window. 
 
 > Context notes as a feature can function without being displayed on the side portal. However, the context note side portal tab will not display anything if the context note feature is off. 
 #### Important Points
@@ -187,13 +216,13 @@ The context note tab shows the associated context note of the currently active p
 - To create a context note, use `Shift+Click` on any folder or tag, or create from `Context Menu`. If a context note already exists for the target folder, the key combo opens the context note in the current active tab. 
 - `Cmd/Ctrl+Click` on a folder or a tag to open an existing context note in a new tab. 
 #### Context note highlight type 
-The folders & tags that have a context note can be highlighted in two ways, using an accent color icon or underline. To toggle this, go to `Settings → Portals`, scroll down to the **Context Note** section and choose `Context note highlight type`. Context note highlight of icon color is affected by `Tab colors` setting, making each portal capable of displaying a unique color as defined by user preferences. 
+The folders & tags that have a context note can be highlighted in two ways, using an accent color icon or underline. To toggle this, go to `Settings → Portals`, switch over to **Side portal** page, scroll down to the **Context Note** section and choose `Context note highlight type`. Context note highlight of icon color is affected by `Tab colors` setting, making each portal capable of displaying a unique color as defined by user preferences. 
 #### Open context notes from Icon
-Context notes can also be directly opened form the icon (apart from shades and minimal style as they don't show icons). To do this, go to `Settings → Portals`, scroll down to **Context notes** section and turn on `Open context notes from icon`. 
+Context notes can also be directly opened from the icon (apart from shades and minimal style as they don't show icons). To do this, go to `Settings → Portals`, switch to **Side Portal** page, scroll down to **Context notes** section and turn on `Open context notes from icon`. 
 #### Tag notes dedicated folder 
 All context notes related to tags are saved in a dedicated folder called `_Tag notes` by default. Since tags aren't folder spaces, this has been opted as a storage folder for it, so as to keep the folder views clean of tag related context notes. If users decide to change this feature, it can be done from the `Tag notes folder` setting. Set your desired folder, type the name or choose from the `Browse` list. Once selected, it is important to press the red `Migrate` button to move the available tag related context notes into the new folder. 
 #### Show context note in file tree 
-Users can choose if they want to see the context note file inside a folder or a tag tree. To enable, go to `Settings → Portals`, scroll down to the **Context Note** section and turn on `Show context notes in file tree`. If `Enable context notes` setting is off, all context notes are displayed in file tree regardless of the other settings. 
+Users can choose if they want to see the context note file inside a folder or a tag tree. To enable, turn on `Show context notes in file tree`. If `Enable context notes` setting is off, all context notes are displayed in file tree regardless of the other settings. 
 #### Show closest context note
 
 **For Folders**
@@ -209,7 +238,7 @@ This is a context menu option available in folder spaces. Users can trigger the 
 
 ---
 ### Journal
-A dedicated side portal tab for sneak peak into daily notes. For its consistent performance, users need to point it to their daily notes folder and select the correct date format. To do this, go to `Settings → Portals`, scroll down to the **Journal** section, set the date format used in their daily notes using `Journal date format` and select a `Journal folder`, it must be the same as daily notes folder. Users can type the path exactly or use the `Browse folders` option to select from a modal.  When using the Daily Notes core plugin, and if the folder is the same as defined in core plugin settings, users can leave the `Journal folder` setting empty. 
+A dedicated side portal tab for sneak peak into daily notes. For its consistent performance, users need to point it to their daily notes folder and select the correct date format. To do this, go to `Settings → Portals`, switch to the **Side portal** page, scroll to the **Journal** section, set the date format used in their daily notes using `Journal date format` and select a `Journal folder`, it must be the same as daily notes folder. Users can type the path exactly or use the `Browse folders` option to select from a modal.  When using the Daily Notes core plugin, and if the folder is the same as defined in core plugin settings, users can leave the `Journal folder` setting empty. 
 
 > [!info]
 > 1. The feature is designed to work with daily notes core plugin. While support is extended to other plugins/ methods of daily notes, the most reliable behaviour can be expected with the core plugin. 
@@ -227,8 +256,9 @@ Quotes area is used to display snippets of text that user marks in their daily n
 ##### Quote buttons
 - **Random** – shows random quotes from all the daily notes available in the user pointed folder.
 - **On this day** – shows quotes from the same day in all the months of the previous year, and on the same day and same month in previous 10 years. 
+- **Marked files** – All quotes from marked notes appear here.
 ##### Marking Quotes
-Quotes are extracted using a delimiter. Users must manually mark the snippets of text they wish to display, across all their daily notes using the set delimiter. The default delimiter used is ` == `.  Example: ` ==This is a quote== `. This is the same as default obsidian highlight syntax. Users can change the delimiter. To do this, go to `Settings → Portals`, scroll down to the **Journals** section and select from the dropdown list in `Quote delimiter`
+Quotes are extracted using a delimiter. Users must manually mark the snippets of text they wish to display, across all their daily notes using the set delimiter. The default delimiter used is ` == `.  Example: ` ==This is a quote== `. This is the same as default obsidian highlight syntax. Users can change the delimiter. To do this, go to  the **Journal** section of settings, and select from the dropdown list in `Quote delimiter`
 
 > - Changes to quote delimiter, or journal folder require an Obsidian restart. 
 > - Changes to quote delimiter will also require user to mark the files using their choice delimiter. 
@@ -237,7 +267,9 @@ Quote indicator can help users figure out if and which of their files carry wron
 - Show a quote icon on the journal cards for daily notes that have quotes being extracted successfully. 
 - Show a warning on journal cards for daily notes that have quotes but with wrong delimiter, which means quotes not extracted. 
 - Show both and show none. 
-Users can turn this on from `Settings → Portals`, scroll down to **Journal** section and use the dropdown on `Show quote indicator on date cards`. 
+Users can turn this on from `Settings → Portals`, switch to **Side Portal** page, scroll down to **Journal** section and use the dropdown on `Show quote indicator on date cards`. 
+##### Default tab
+Choose which Journal tab opens by default (All, Random, On this day, Marked) in `Settings → Portals` → **Side Portal** page → `Journal default quote tab`.
 
 ---
 ### Hidden
@@ -249,10 +281,17 @@ Users can turn this on from `Settings → Portals`, scroll down to **Journal** s
 ---
 ### Properties
  **Properties** is a side portal to browse and sort markdown files by properties. The main features are as follows:
+ 
+#### Dropdowns
  - The Property filter dropdown contains a list of all available frontmatter properties in markdown files of the vault. It can also display files with no front matter. 
 - The Value filter dropdown can help further narrow down to sort by specific values of properties selected. Value button needs some property to be selected. 
+
+#### Search Mode
 - Both property filters have a search mode. To enable search, use `Right-click` on either dropdown buttons and type your input to reveal suggested entries from all the available ones. 
+
+#### Preferences & options
 - User preference to show the count of files queried and the option to show the value badge on files in the list. 
+- Click the filtered count badge (if `Hide filtered count` is off) to open a sorting menu. Sort by property value (A→Z, Z→A) or by file count.
 - This side panel supports multi-select using `Alt+click` or `Swipe-right` on mobile. For range select, use `Alt+Shift+Click`, Multi-select options are done using multi-select toolbar for portal which has the option for bulk editing front matter properties or reset colors. Future updates will have more multi-select options available here. 
 - Property panel pauses updates while **Frontmatter editing** modal is open so that all updates can be bulk rendered in one go. This helps performance when editing large number of files. Once modal closes, the panel renders to show updated state.
 - **Cache** - Property browser works on a cache system so it lazy-loads its data listening to actual changes in file frontmatter, file create, delete, rename etc functions. 
@@ -274,12 +313,14 @@ Users can turn this on from `Settings → Portals`, scroll down to **Journal** s
 ---
 ### Custom Icons
 
-Portals comes with Phosphor icon set embedded into the code, this works completely offline. Users can assign any Phosphor icon to files, folders, tags, group tags, subtags, stacks and portal tabs. 
+Portals comes with both Phosphor and Lucide icon sets. Phosphor icon set is embedded into the code, Lucide icon set is called using Obsidian. Both work completely offline. Users can assign any icon to files, folders, tags, group tags, subtags, stacks and portal tabs. User preferences are saved based on library and icon name.
 #### How to set/remove an icon
 - `Right‑click` on the item → **Set custom icon** → choose an icon from the picker.
 - If an icon is already set, the context menu shows **Remove custom icon**.
 
-> Since there are no icons in the styles `Shades` or `Minimal`, the context menu options for icon change in those are muted. This doesn't change user set preferences of icons per folder/ file/ tag group/ subtag. 
+> 1. Since there are no icons in the styles `Shades` or `Minimal`, the context menu options for icon change in those are muted. This doesn't change user set preferences of icons per folder/ file/ tag group/ subtag. 
+> 2. For plugin hardcoded icons, use the `Plugin icon library setting` in **Utilities** page to switch between Phosphor and Lucide. This doesn't affect custom icons for user, both sets can be used simultaneously for that. 
+> 3. Icon modal contains a **Favorites** tab. Users can add to that from both libraries for quicker access to their preferred icons. 
 
 ---
 ### Active Dot
@@ -374,13 +415,23 @@ Multi-select is available for files, folders and tags. This feature works throug
 ---
 ### Command palette actions
 The actions available with command palette are as follows:
-- Open explorer
-- Add portal tabs
-- Remove portal tabs
-- Configure side portal 
-- Open guide (GitHub link to this file)
-- Bulk frontmatter editing - works when multi-select is active. 
-- Reorder folders/ tags - from command palette works on portal tab
+
+| Commands                        | Effect                                                                                                                                               |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Open explorer                   | Enables portals view. Important for loading the plugin post first install or after disabling portals view.                                           |
+| Add portal tabs                 | Opens the Add portal modal, used for configuring portal tabs from folders, tabs or subfolders.                                                       |
+| Remove portal tabs              | Helps remove existing portal tabs from view.                                                                                                         |
+| Configure side portals          | Opens the side portal modal, used to configure side portal tabs.                                                                                     |
+| Reorder folders/ tags           | Opens reorder modal to rearrange summary items (not files) on portal level. For subfolders, call the same from context menu.                         |
+| Bulk frontmatter edit           | Needs at least one file selected using multi-select. Opens the frontmatter editor modal.                                                             |
+| Open guide                      | Opens this guide in a web viewer page on GitHub.                                                                                                     |
+| Toggle sections                 | Enables or disables sections in explorer.                                                                                                            |
+| Toggle file previews            | Enables or disables file previews in explorer.                                                                                                       |
+| Switch root vault portal tab    | Switches to the root folder portal (pinned root from settings), if enabled.                                                                          |
+| Stack all unstacked portal tabs | Stacks all unstacked portal tabs into a new stack.                                                                                                   |
+| Switch to previous portal       | Switches back to the last open portal.                                                                                                               |
+| Open Portal {n}                 | Works with quick switch tabs. 10 portals can be assigned here, making it 10 commands, and called using hotkeys. Allows quick switching between tabs. |
+| Open {side portal name}         | Open any side portal directly from commands. Plugin packs seven individual commands to cover all existing side portals.                              |
 
 ---
 ## IMPORTANT POINTS
@@ -406,7 +457,7 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 
 | **Shortcut**         | **Target**        | **Action**                                                                                                          |
 | -------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `Cmd/Ctrl+Click`     | File              | Open's a file in a new tab.                                                                                         |
+| `Cmd/Ctrl+Click`     | File              | Opens a file in a new tab.                                                                                          |
 | `Cmd/Ctrl+Click`     | Folder/ Tag       | Opens the context note of a folder or a tag in a new tab, if it exists.                                             |
 | `Shift+Click`        | File              | Opens a file in a vertical split tab.                                                                               |
 | `Shift+Click`        | Folder/ Tag       | Opens the context note of a folder or a tag in the same tab.                                                        |
@@ -419,28 +470,36 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 ---
 ## SETTINGS OVERVIEW
 
-###### Explorer settings
-| Setting                                | Description                                                                  |
-| -------------------------------------- | ---------------------------------------------------------------------------- |
-| Replace file explorer                  | Opens Portals in the left sidebar on startup.                                |
-| Compact tree view                      | Reduces spacing to show more items.                                          |
-| Styles                                 | Choose tree visual theme.                                                    |
-| Background color style                 | How tab colours are applied to the file area (Gradient/Solid/None).          |
-| Bold folder names                      | Makes folder names bold.                                                     |
-| Show extensions for non‑markdown files | Displays a badge (e.g., `.PDF`) instead of a dot.                            |
-| Quick add icons                        | Choose how to display quick add icons on folder/ tag summaries in file tree. |
-###### Portal tabs
+###### Explorer > EXPLORER PAGE
+
+| Setting                                | Description                                                                                                          |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Replace file explorer                  | Opens Portals in the left sidebar on startup.                                                                        |
+| Compact tree view                      | Reduces spacing to show more items.                                                                                  |
+| Styles                                 | Choose tree visual theme.                                                                                            |
+| Background color style                 | How tab colours are applied to the file area (Gradient/Solid/None).                                                  |
+| Bold folder names                      | Makes folder names bold.                                                                                             |
+| Show extensions for non‑markdown files | Displays a badge (e.g., `.PDF`) instead of a dot.                                                                    |
+| Quick add icons                        | Choose how to display quick add icons on folder/ tag summaries in file tree.                                         |
+| Show file tooltips                     | Shows file tooltips of word count, last modified and file name, if truncated.                                        |
+| Show file preview                      | Shows a snippet of text under the file name. The snippet is the file content post frontmatter.                       |
+| Show file info bar                     | Tied to file preview. Shows file tags in folder portals under preview and folders in tag portals under file preview. |
+| Enable Sections                        | Show sections within each folder or tag to help sort and categorise files using user customizable sections.          |
+###### Portal tabs > Portal tabs page
+
 | Setting                   | Description                                                                                            |
 | ------------------------- | ------------------------------------------------------------------------------------------------------ |
 | Compact tabs              | Reduce padding, margin, sizes on portal tabs & side portal                                             |
 | Tab name display          | Choose how to display item name on portal                                                              |
 | Tab icon position         | Choose the position of icon on named portal tabs                                                       |
+| Show quick tab badge      | Shows a badge to denote an assigned number for quick switching tabs using commands or hotkeys.         |
 | Tab colors                | Global toggle for tab border colours, side portal colors, icon dots, context note highlights and more. |
 | Pin vault root            | Always show the root as the first tab.                                                                 |
 | Pin root vault appearance | Style setting for pin root vault portal.                                                               |
 | Add new portal            | Opens a modal to add new folder/ tag portals using available data.                                     |
 | Categorised portal list   | Shows a list of all folders, tags, subfolders being used as portals.                                   |
-###### Stacks
+###### Stacks > portal tabs page
+
 | Setting              | Description                                              |
 | -------------------- | -------------------------------------------------------- |
 | Hide stack names     | Hides the names on stack tabs in portal header.          |
@@ -449,13 +508,15 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Colored stack icon   | Highlights stack with app accent or user defined colors. |
 | Auto collapse stacks | Stacks will auto collapse when another stack is opened.  |
 
-###### Side Portal
+###### Side Portal > side portal page
+
 | Setting                       | Description                                                           |
 | ----------------------------- | --------------------------------------------------------------------- |
 | Side portal                   | Enable/disable the bottom panel.                                      |
 | Choose side portals           | Select which tabs appear (Recent, Context Notes, Bookmarks, Journal). |
 | Disable side portal on mobile | Hides side portal on small screens.                                   |
-###### Context Notes
+###### Context Notes > side portal page
+
 | Setting                         | Description                                                                                         |
 | ------------------------------- | --------------------------------------------------------------------------------------------------- |
 | Enable context notes            | Master switch for all context note features.                                                        |
@@ -464,25 +525,42 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Context note highlight type     | Choose how to highlight headers that have context notes.                                            |
 | Open context notes from icon    | Use the setting to open context note directly from header icon.                                     |
 | Show closest context notes      | Context note side portal shows context notes based on the active file instead of the active portal. |
-###### Journal
-| Setting                       | Description                                                                   |
-| ----------------------------- | ----------------------------------------------------------------------------- |
-| Journal date format           | Choose the date format used in daily notes folder on note title names.        |
-| Journal folder                | Folder where daily notes live.                                                |
-| Quote delimiter               | Symbols used to mark quotes, e.g, `double-equal(==)` or `double-asterisk(**)` |
-| Quote indicator on date cards | Shows an indicator on journal date cards for status of quote extraction.      |
-###### Properties
+###### Journal > side portal page
+
+| Setting                       | Description                                                                         |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| Journal date format           | Choose the date format used in daily notes folder on note title names.              |
+| Journal folder                | Folder where daily notes live.                                                      |
+| Quote delimiter               | Symbols used to mark quotes, e.g, `double-equal(==)` or `double-asterisk(**)`       |
+| Quote indicator on date cards | Shows an indicator on journal date cards for status of quote extraction.            |
+| Journal default quote tab     | Helps change the default opening tab of journal. System default is **Random** tab.  |
+###### Properties > side portal page
+
 | Setting             | Description                                              |
 | ------------------- | -------------------------------------------------------- |
 | Show current value  | Show property value on listed files after sorting.       |
 | Hide filtered count | Hide the count of total filtered items before file list. |
-###### Backup, maintenance and help 
-| Setting               | Description                                                                                                    |
-| --------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Export settings       | Exports json file of user data. Shows an option to choose location on desktop. On mobile, saves to vault root. |
-| Import settings       | Imports json file of user data                                                                                 |
-| Clean up dead portals | Remove tabs for folders/tags that no longer exist. Hard reset for dead items.                                  |
-| User Guide            | Opens this user guide on GitHub                                                                                |
+###### utilities > utilities page
+
+| Setting             | Description                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| Plugin icon library | Switch plugin hardcoded icons between lucide and phosphor library. Does not affect custom icons |
+
+###### Backup/ Restore  > utilities page
+
+| Setting            | Description                                                                                                    |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Export settings    | Exports json file of user data. Shows an option to choose location on desktop. On mobile, saves to vault root. |
+| Import settings    | Imports json file of user data                                                                                 |
+| Auto backups       | Helps auto backup data on Obsidian reload. Can be changed per device using the cloud icon.                     |
+| Auto backup folder | Folder where auto backups are stored (default: vault root).                                                    |
+###### maintenance and help > utilities page
+
+| Settings              | Description                                                                   |
+| --------------------- | ----------------------------------------------------------------------------- |
+| Clean up dead portals | Remove tabs for folders/tags that no longer exist. Hard reset for dead items. |
+| User Guide            | Opens this user guide on GitHub                                               |
+| Release notes         | Opens release notes on GitHub                                                 |
 
 ---
 ## Troubleshooting & Tips
@@ -494,7 +572,11 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 - **Drag & drop not working on mobile** – Drag and drop is disabled on mobile for now to implement properly later on. Use context menu “Move to” instead.
 - **Backup data file** - After setting the plugin up to desired customizations, please create a backup. The plugin is in active development and will go through several changes over time, it's advisable to keep a data backup. Users can do this two ways:
 	- Copy the `data.json` file at `.obsidian/plugins/portals` and save it at a secure location. 
-	- Open `Settings → Portals`, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
+	- Open `Settings → Portals`,  switch to **Utilities** page, scroll down to the **Backup/ restore** section and click on the `Export` button, save the file at a secure location. 
+- **Auto backups**, saves a data backup with obsidian reloads. Important points related to auto backups,
+	- Saves by default at vault root, can be configured to user defined folder
+	- Saves 3 copies named by system date and time. 
+	- Test feature - per device sync. A new cloud icon is added next to this setting. For those who switch devices quickly, this feature has a potential to cause conflicts as it saves 100ms after full obsidian reload. Using the cloud icon, users can disable the creation process on certain devices. The setting being on is still synced, only the creation process stops. This should help prevent multiple file creations with obsidian reloads on multiple devices. The files created by one device would sync anyway since they're inside the vault. 
 
 ---
 ## Migration Guide

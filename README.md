@@ -17,12 +17,16 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 - **Pin folders & tags** as tabs at the top of the file pane.
 - **Stacks** – group multiple tabs into collapsible stacks.
-- **Custom icons & colors** – tabs, folders, files, tag groups.
+- **Custom icons & colors** – Use Phosphor or Lucide; picker includes favourites. Use custom icons for tabs, folders, files, tag groups.
+- **File preview** – Show content snippets below filenames; toggle per file or globally.
+- **Sections** – Organise folders or tags into collapsible section breaks (by property or extension).
+- **Quick tab switcher** – Assign numbers 1–10 to portals and switch instantly via hotkeys.
+- **Auto backups** – Automatically save `data.json` on Obsidian reload.
 - **Six visual styles** + compact tree view + bold folder names.
 - **Tag grouping & subtag support** for tag portals.
 - **Multi‑select** files, folders, and tags with `Alt+Click` or `Swipe right`. Use multi-select toolbar for actions. 
-- **Command palette** to add or remove portals and configure side portals. 
-- **Foldable floating action buttons** for  note/ folder creation, tag grouping, collapse and sort. 
+- **Command palette** support includes a many commands that can enhance workflow, specially when coupled with hotkeys. 
+- **Foldable floating action buttons** for  note/ folder creation, tag grouping, sections, collapse and sort. 
 - **Quick-add buttons** for folders, tags to quickly create new items in target items.
 - **Custom display names** for tabs, stacks. 
 - **Side Portal** - A modular, collapsible, resizable view containing, **Bookmarks**, **Recent Files**, **Context notes**, **Hidden**, **Properties** and **Journal**. 
@@ -44,6 +48,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 > - For best results,
 > 	- On mobile: Works best with Baseline Theme as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. Settings > Appearance > Floating Navigation. 
 > 	- On desktop, you may need to turn off vault hiding if your theme hides the vault selector on the lower side. 
+> 	- **Auto backups** – Enable in Utilities page to save your configuration automatically on Obsidian reload.
 
 ## ⚙️ Installation
 	
@@ -75,15 +80,16 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 > For detailed walkthroughs and tips, read the **[Portals Guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md)**.
 
-## ⚙️ Settings Overview
+## ⚙️ Settings Overview (split into pages)
 
-- Explorer settings (styles, colors, compact tree, etc.)
-- Side Portal (enable/disable, choose tabs)
-- Context Notes (enable, tag notes folder, highlights)
-- Journal (folder, date format, delimiter, quote indicators)
-- Properties (current value display, filtered count)
-- Stacks (icon accent, auto‑collapse, count display)
-- Portal Tabs (pin vault, add/remove, customize)
+- **Explorer** – Replace file explorer, compact tree, styles, background color, bold folders, extension badge, quick-add icons, file preview, file tooltips, enable sections.
+- **Portal tabs** – Compact tabs, tab name display, tab icon position, show quick tab badge, tab colors, pin vault root, add/remove portals.
+- **Stacks** – Hide stack names, stack icon position, show stack count, coloured stack icon, auto‑collapse stacks.
+- **Side Portal** – Enable/disable, choose which tabs appear, disable on mobile.
+- **Context Notes** – Enable, tag notes folder, show in file tree, highlight type, open from icon, show closest context note.
+- **Journal** – Date format, journal folder, quote delimiter, quote indicator, default quote tab.
+- **Properties** – Show current value, hide filtered count.
+- **Utilities** – Plugin icon library (Phosphor/Lucide), export/import, auto backups (folder & max copies), clean up dead portals.
 
 >See the [Portals Guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md) for every setting and its description.
 ## 🧑‍💻 Development
