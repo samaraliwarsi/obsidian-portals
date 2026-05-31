@@ -1428,6 +1428,7 @@ export class PortalsView extends ItemView {
             showFileToolTips: s.showFileToolTips,
             journalDefaultCurrentMode: s.journalDefaultCurrentMode,
             iconLibrary: s.iconLibrary,
+            enableAutoBackup: s.enableAutoBackup,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),

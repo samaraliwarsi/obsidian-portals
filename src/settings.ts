@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, TFolder, Notice, Platform } from 'obsidian';
+import { App, PluginSettingTab, Setting, TFolder, Notice, Platform, ButtonComponent } from 'obsidian';
 import PortalsPlugin from './main';
 import { IconPickerModal } from './modals/iconPicker';
 import { SpaceConfig, PortalStack } from './types';
@@ -7,6 +7,7 @@ import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { AddPortalModal } from './modals/addPortalModal';
 import { SelectFolderModal } from './modals/selectFolderModal';
+import { makeSyncButton } from './utils/syncButton';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
@@ -80,6 +81,9 @@ export interface SpacesSettings {
     iconLibrary: 'phosphor' | 'lucide';
     customIconPhosphorMigrationDone: boolean;
     iconFavorites: { name: string; library: 'phosphor' | 'lucide' }[];
+    enableAutoBackup: boolean;
+    backupFolderPath: string;
+    toggleSettingsSync: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -154,6 +158,9 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     iconLibrary: 'phosphor',
     customIconPhosphorMigrationDone: false,
     iconFavorites: [] as {name: string; library: 'phosphor' | 'lucide' }[],
+    enableAutoBackup: false,
+    backupFolderPath: '',
+    toggleSettingsSync: true,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -1124,6 +1131,42 @@ export class SpacesSettingTab extends PluginSettingTab {
             .setName('Import settings')
             .setDesc('Load settings from a JSON file. This will replace your current configuration.')
             .addButton(button => button.setButtonText('Import').onClick(() => this.importSettings()));
+
+        new Setting(contentEl)
+            .setName('Auto backup settings on startup')
+            .setDesc('Create timestamped settings backup on Obsidian start. Cloud icon saves it to local storage instead of data.json. This can help prevent sync conflicts on quick switching devices.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableAutoBackup)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableAutoBackup = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }))
+            .addButton(btn => {
+                makeSyncButton(btn);
+            });
+        
+        if (this.plugin.settings.enableAutoBackup) {
+            new Setting(contentEl)
+                .setName(' Select Auto backup folder')
+                .setDesc('The folder keeps 3 backups, removes older ones. Leave the folder empty to save in the vault root.')
+                .addText(text => text
+                    .setPlaceholder('/')
+                    .setValue(this.plugin.settings.backupFolderPath)
+                    .onChange(async (value) => {
+                        this.plugin.settings.backupFolderPath = value.trim() || '/';
+                        await this.plugin.saveSettings();
+                    }))
+                .addButton(btn => btn
+                    .setButtonText('Browse')
+                    .onClick(() => {
+                        new SelectFolderModal(this.app, (folder) => {
+                            this.plugin.settings.backupFolderPath = folder.path;
+                            void this.plugin.saveSettings();
+                            this.display();
+                        }).open();
+                    }));
+        }
 
         contentEl.createEl('hr');
 

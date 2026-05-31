@@ -204,6 +204,15 @@ button.portals-portal-list-delete {
     margin-bottom: 16px;
 }
 
+/*================SETTINGS PAGE CLOUD BUTTON=======================*/
+.portals-cloud-toggle {
+  padding: 0 4px;
+}
+.portals-cloud-toggle:hover {
+  transform: scale(1.2);
+  color: var(--interactive-accent);
+}
+
 /* ----- Mobile overrides (max-width: 768px) ----- */
 @media (max-width: 768px) {
   .portals-portal-controls {

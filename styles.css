@@ -5076,7 +5076,6 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
     transform: scale(var(--portals-lucide-scale));
     transform-origin: center center;
 }
-
 /*===============================SCROLL BARS PLUGIN WIDE=======================*/
 /* ----------Tab bar and Tabs ---------*/
 .portals-tab-bar::-webkit-scrollbar {
@@ -7625,6 +7624,15 @@ button.portals-portal-list-delete {
 
 .portals-section-details {
     margin-bottom: 16px;
+}
+
+/*================SETTINGS PAGE CLOUD BUTTON=======================*/
+.portals-cloud-toggle {
+  padding: 0 4px;
+}
+.portals-cloud-toggle:hover {
+  transform: scale(1.2);
+  color: var(--interactive-accent);
 }
 
 /* ----- Mobile overrides (max-width: 768px) ----- */

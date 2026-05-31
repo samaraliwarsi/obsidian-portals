@@ -138,10 +138,8 @@ export class IconPickerModal extends Modal {
             if (this._rafId) cancelAnimationFrame(this._rafId);
             this._rafId = requestAnimationFrame(() => {
                 const provider = this.getProvider();
-                //const allIcons = provider.getIconList();
 
                 // Filter based on search input
-                console.time('filter');
                 const filtered = this.currentFilter
                     ? this.cachedIconList
                         .filter(item => item.lower.includes(this.currentFilter.toLowerCase()))
@@ -152,7 +150,6 @@ export class IconPickerModal extends Modal {
                 const toRender = this.currentFilter
                     ? filtered
                     : filtered.slice(0, this.displayCount);
-                console.timeEnd('filter');
 
                 this.iconGrid.empty();
 
@@ -162,15 +159,11 @@ export class IconPickerModal extends Modal {
                 }
 
                 // Render each icon
-                console.time('fragment-build');
                 const fragment = document.createDocumentFragment();
                 for (const name of toRender) {
                     const iconEl = document.createElement('div');
                     iconEl.className = 'icon-item';
-                    const t0 = performance.now();
                     provider.renderIcon(iconEl, name);
-                    const t1 = performance.now();
-                    if ((t1 - t0) > 1) console.warn(`Slow icon: ${name} took ${(t1 - t0).toFixed(2)}ms`);
                     iconEl.createSpan({ cls: 'portals-icon-label', text: name });
                     iconEl.addEventListener('click', () => {
                         this.onSubmit(`${this.currentLibrary}:${name}`);
