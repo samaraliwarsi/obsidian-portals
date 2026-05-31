@@ -9,6 +9,7 @@ export class IconPickerModal extends Modal {
     private lucideProvider: IconProvider;
     private currentLibrary: 'phosphor' | 'lucide' | 'favorites' = 'phosphor';
     private displayCount = 300;
+    private initialBatchSizes = { phosphor: 300, lucide: 60, favorites: 300 };
     private batchSize = 300;
     private currentFilter = '';
     private searchInput!: HTMLInputElement;
@@ -104,7 +105,7 @@ export class IconPickerModal extends Modal {
             }
             tab.classList.toggle('active', isActive);
         });
-        this.displayCount = this.batchSize;
+        this.displayCount = this.initialBatchSizes[library];
         this.currentFilter = this.searchInput.value;
         if (library !== 'favorites') {
             this.updateCachedList();
@@ -140,6 +141,7 @@ export class IconPickerModal extends Modal {
                 //const allIcons = provider.getIconList();
 
                 // Filter based on search input
+                console.time('filter');
                 const filtered = this.currentFilter
                     ? this.cachedIconList
                         .filter(item => item.lower.includes(this.currentFilter.toLowerCase()))
@@ -150,6 +152,7 @@ export class IconPickerModal extends Modal {
                 const toRender = this.currentFilter
                     ? filtered
                     : filtered.slice(0, this.displayCount);
+                console.timeEnd('filter');
 
                 this.iconGrid.empty();
 
@@ -159,11 +162,15 @@ export class IconPickerModal extends Modal {
                 }
 
                 // Render each icon
+                console.time('fragment-build');
                 const fragment = document.createDocumentFragment();
                 for (const name of toRender) {
                     const iconEl = document.createElement('div');
                     iconEl.className = 'icon-item';
+                    const t0 = performance.now();
                     provider.renderIcon(iconEl, name);
+                    const t1 = performance.now();
+                    if ((t1 - t0) > 1) console.warn(`Slow icon: ${name} took ${(t1 - t0).toFixed(2)}ms`);
                     iconEl.createSpan({ cls: 'portals-icon-label', text: name });
                     iconEl.addEventListener('click', () => {
                         this.onSubmit(`${this.currentLibrary}:${name}`);
@@ -197,6 +204,7 @@ export class IconPickerModal extends Modal {
                     fragment.appendChild(iconEl);
                 }
                 this.iconGrid.appendChild(fragment);
+                console.timeEnd('fragment-build');
 
                 // "Load more" button (only when not searching)
                 if (!this.currentFilter && this.displayCount < filtered.length) {
