@@ -121,6 +121,17 @@ export class PortalsView extends ItemView {
         }
     }
 
+    public async refreshTrashTab() {
+        if (this.trashRenderer) {
+            await this.trashRenderer.refresh();
+        } else {
+            const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
+            if (secondaryPanel && this.plugin.settings.activeSplitTab === 'trash') {
+                await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'trash');
+            }
+        }
+    }
+
     public showBulkFrontmatterModal(): void {
         const files = Array.from(this.selectedItems)
             .map(p => this.app.vault.getAbstractFileByPath(p))

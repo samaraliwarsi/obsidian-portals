@@ -16,11 +16,10 @@ export class TrashRenderer {
     private container: HTMLElement;
     private items: TrashItem[] = [];
     private destroyed = false;
-    private pollInterval: number | null = null;
-    private lastSnapshot = '';
     private rendering = false;
     private loadId = 0;
     private view: PortalsView;
+    private refreshTimer: number | null = null;
 
     constructor(app: App, plugin: PortalsPlugin, container: HTMLElement, view: PortalsView) {
         this.app = app;
@@ -31,7 +30,6 @@ export class TrashRenderer {
 
     public destroy() {
         this.destroyed = true;
-        this.stopPolling();
         this.container.empty();
     }
 
@@ -53,7 +51,6 @@ export class TrashRenderer {
 
     private async actualRender() {
         // ═══════════════════ Synchronous part → visible immediately ══════════
-        this.stopPolling();
 
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
         const tabColorEnabled = this.plugin.settings.tabColorEnabled;
@@ -104,18 +101,22 @@ export class TrashRenderer {
                 })();
             });
             this.container.appendChild(newTree);
-        }
-        // ── Background full snapshot → enables accurate polling ──
-        this.buildFullSnapshot()
-            .then(snapshot => {
-                if (this.destroyed || id !== this.loadId) return;
-                this.lastSnapshot = snapshot;
-                if (!this.pollInterval) this.startPolling();
-            })
-            .catch(err => {
-                console.error('Failed to build full snapshot for trash polling:', err)
-            });
-        }
+        }   
+    }
+
+    public async refresh() {
+        if (this.refreshTimer) clearTimeout(this.refreshTimer);
+        this.refreshTimer = window.setTimeout(() => {
+            this.refreshTimer = null;
+            this.doRefresh();
+        }, 150);
+    }
+    private async doRefresh() {
+        if (this.rendering) return;
+        this.loadId++
+        this.items = [];
+        await this.render();
+    }
 
     // ────────── Top‑level listing (only root of .trash, fast) ──────────
     private async loadTopLevelItems(): Promise<TrashItem[]> {
@@ -234,61 +235,6 @@ export class TrashRenderer {
                 }
             })();
         });
-    }
-
-    // ────────── Polling with full snapshot comparison ──────────
-    private startPolling() {
-        if (this.pollInterval) return;
-        this.pollInterval = window.setInterval(() => {
-            if (this.destroyed) {
-                this.stopPolling();
-                return;
-            }
-            void this.checkForChanges();
-        }, 1000);
-    }
-
-    private stopPolling() {
-        if (this.pollInterval) {
-            window.clearInterval(this.pollInterval);
-            this.pollInterval = null;
-        }
-    }
-
-    private async checkForChanges() {
-        try {
-            const adapter = this.app.vault.adapter;
-            const trashPath = '.trash';
-            if (!(await adapter.exists(trashPath))) {
-                if (this.items.length > 0) {
-                    await this.render();
-                }
-                return;
-            }
-
-            const newSnapshot = await this.buildFullSnapshot();
-            if (newSnapshot !== this.lastSnapshot) {
-                await this.render();
-            }
-        } catch { /* ignore */ }
-    }
-
-    // ────────── Full recursive snapshot (for accurate polling) ──────────
-    private async buildFullSnapshot(): Promise<string> {
-        const adapter = this.app.vault.adapter;
-        const trashPath = '.trash';
-        if (!(await adapter.exists(trashPath))) return '';
-
-        const paths: string[] = [];
-        const collect = async (dir: string) => {
-            const { files, folders } = await adapter.list(dir);
-            paths.push(...files, ...folders);
-            for (const sub of folders) {
-                await collect(sub);
-            }
-        };
-        await collect(trashPath);
-        return paths.sort().join(',');
     }
 
     // ────────── Restore: item → vault root, auto copy‑numbering ──────────

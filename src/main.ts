@@ -43,12 +43,14 @@ export default class PortalsPlugin extends Plugin {
                 window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
                 this.refreshAllViews();
             }
+            this.refreshTrashIfActive();
         }));
         this.registerEvent(this.app.vault.on('delete', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(file.path);
                 this.refreshAllViews();
             }
+            this.refreshTrashIfActive();
         }));
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
             if (file instanceof TFile && file.extension === 'md') {
@@ -56,6 +58,7 @@ export default class PortalsPlugin extends Plugin {
                 FrontmatterClinicRenderer.updateFileCache(this.app, file);
                 this.refreshAllViews();
             }
+            this.refreshTrashIfActive();
         }));
 
         // Ensure the selected space (if it's a folder) is in openFolders
@@ -356,6 +359,14 @@ export default class PortalsPlugin extends Plugin {
         });
     }
 
+    private refreshTrashIfActive() {
+        this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+            if (leaf.view instanceof PortalsView && leaf.view.plugin.settings.activeSplitTab === 'trash') {
+                leaf.view.refreshTrashTab();
+            }
+        });
+    }
+
     refreshAllViews() {
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {
@@ -566,7 +577,7 @@ export default class PortalsPlugin extends Plugin {
         try {
             const content = await this.app.vault.adapter.read(srcPath);
             await this.app.vault.create(destPath, content);
-            console.log(`Portals: settings backed up to ${destPath}`);
+            console.debug(`Portals: settings backed up to ${destPath}`);
         } catch (err) {
             console.error('Portals: auto backup create failed', err);
             new Notice('Portals: Auto backup failed – check console.');
