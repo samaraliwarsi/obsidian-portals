@@ -8,7 +8,6 @@ import { isContextNoteFile, hasContextNote, getContextNote } from '../renderers/
 import { getFrontmatterTags } from '../utils/tagHelpers';
 import { FileItemFactory } from '../utils/fileItemFactory';
 import { SectionRenderer } from '../utils/sectionsRenderer';
-import { getMdFiles } from '../utils/vaultProxy';
 
 
 interface TagNode {
@@ -96,7 +95,7 @@ export class TagTreeRenderer {
     // ============MAIN TAG SPACE RENDER==============================================================================================================
     render(tagName: string, container: HTMLElement, iconName: string, openFiles: Set<string>, groupTags?: string[], totalGroups: number = 0): void {
         const mainTag = '#' + tagName;
-        const allFiles = getMdFiles(this.app);
+        const allFiles = this.app.vault.getMarkdownFiles();
 
         // collect all files that have the main tag or any subtag (tagname/anything)
         const relevantFiles = allFiles.filter(file => {

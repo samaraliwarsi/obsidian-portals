@@ -6,7 +6,6 @@ import { getFrontmatterTags } from '../utils/tagHelpers';
 import { FrontmatterClinicRenderer } from './frontmatterClinic';
 import { SearchPopover } from '../utils/searchPopover';
 import { GroupTagsModal } from '../modals/groupTagsModal';
-import { getMdFiles } from '../utils/vaultProxy';
 
 type ButtonId = 'collapse' | 'sections' | 'sort' | 'newFolder' | 'newNote';
 const BUTTON_ORDER: ButtonId[] = ['collapse', 'sections', 'sort', 'newFolder', 'newNote'];
@@ -112,7 +111,7 @@ export class FloatingButtonsRenderer {
                 });
             } else if (currentSpace && currentSpace.type === 'tag') {
                 const mainTag = currentSpace.path;
-                const allFiles = getMdFiles(this.app);
+                const allFiles = this.app.vault.getMarkdownFiles();
                 const filesWithMainTag = allFiles.filter(file => {
                     const cache = this.app.metadataCache.getFileCache(file);
                     return cache?.tags?.some(t => t.tag === '#' + mainTag) || getFrontmatterTags(cache).includes(mainTag);

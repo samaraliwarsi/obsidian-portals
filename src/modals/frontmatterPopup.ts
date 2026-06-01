@@ -3,7 +3,6 @@ import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { SearchPopover } from '../utils/searchPopover';
 import { ConfirmModal } from './confirmModal'; 
-import { getMdFiles } from '../utils/vaultProxy';
 
 declare module 'obsidian' {
     interface Menu {
@@ -91,7 +90,7 @@ export class FrontmatterPopup {
 
         // Gather all known properties
         const propSet = new Set<string>();
-        for (const file of getMdFiles(this.app)) {
+        for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
             if (fm) Object.keys(fm).forEach(k => propSet.add(k));
         }
@@ -459,7 +458,7 @@ export class FrontmatterPopup {
         }
 
         let type: PropertyType | null = null;
-        for (const file of getMdFiles(this.app)) {
+        for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
             const v = fm?.[this.propertyName];
             if (v === undefined) continue;
@@ -490,7 +489,7 @@ export class FrontmatterPopup {
 
     private updateValueOptions(): void {
         const valSet = new Set<string>();
-        for (const file of getMdFiles(this.app)) {
+        for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
             const v = fm?.[this.propertyName];
             if (v !== undefined) {
@@ -555,7 +554,7 @@ export class FrontmatterPopup {
 
     private getOriginalTypedValue(): unknown {
         if (!this.propertyName || !this.value) return undefined;
-        for (const file of getMdFiles(this.app)) {
+        for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
             if (!fm) continue;
             const raw = fm[this.propertyName];
