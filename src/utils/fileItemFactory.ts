@@ -212,7 +212,8 @@ export class FileItemFactory {
         void plugin.saveSettings();
         const newState = !tempExcluded;
         if (iconEl) {
-            iconEl.className = `ph ph-${newState ? 'plus-circle' : 'minus-circle'}`;
+            iconEl.classList.remove('ph-plus-circle', 'ph-minus-circle');
+            iconEl.classList.add(newState ? 'ph-plus-circle' : 'ph-minus-circle');
         }
         return newState;
     }

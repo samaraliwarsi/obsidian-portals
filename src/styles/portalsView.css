@@ -454,10 +454,6 @@ background-color: var(--background-modifier-hover);
   display: flex;
 }
 
-.file-item:hover .portals-file-action-icons i.ph {
-  color: var(--text-normal);
-}
-
 .file-item:hover .portals-file-action-icons .svg-icon {
     font-size: 0.85em;
     width: 1em;
