@@ -1,6 +1,6 @@
 # PORTALS PLUGIN USER GUIDE
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.3.5**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.3.6**
 
 ---
 ## INSTALLATION
@@ -153,7 +153,7 @@ Markdown files can display a content snippet below the filename in the file tree
 - Disable globally using the setting or command palette, `Portals: Toggle file previews in explorer`. Users can add it to hotkey using Obsidian settings.
 ---
 ### File Tooltips
-On desktops, when hovering over a file, a tooltip can show word count, last modified date, and full filename (if truncated by side panel width constraints).  Enable via `Settings → Portals` → **Explorer** page → `Show file tooltips`.
+On desktops, when hovering over a file, a tooltip can show word count, last modified date, and full filename (if truncated by side panel width constraints).  Enable via `Settings → Portals` → **Explorer** page → `Show file tooltips`. This is limited to markdown files. Non-markdown files only display full filename (if truncated by side panel). The word count and last modified stats are limited to markdown files. 
 
 ---
 ### Sections
@@ -164,6 +164,7 @@ Organise folders or tags into collapsible section breaks.
     - **Extensions** – group by file extensions.
     - Create new properties to use for grouping with **Sections**.
 - Each section respects the current sort order. Use hover icons on section headers to reposition sections up or down.
+- Sections can display different information on each portal space, with different properties, different orders based on user choices.
 
 ---
 ## SIDE PORTALS
