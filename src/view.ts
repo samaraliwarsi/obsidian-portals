@@ -1184,6 +1184,8 @@ export class PortalsView extends ItemView {
         this.lastJournalAccentColor = null;
         this.scrollToRestore = null;
 
+        this.fileElementMap.clear();
+
         await Promise.resolve();
     }
 

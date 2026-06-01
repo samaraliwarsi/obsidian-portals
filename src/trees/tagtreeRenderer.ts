@@ -143,6 +143,14 @@ export class TagTreeRenderer {
                 const space = this.plugin.settings.spaces.find(s => s.path === tagName && s.type === 'tag');
                 if (space) {
                     space.groupTags = liveGroupTags;
+
+                    const expanded = this.plugin.settings.expandedGroups[tagName];
+                    if (expanded && Array.isArray(expanded)) {
+                        const cleaned = expanded.filter(g => liveGroupTags.includes(g));
+                        if (cleaned.length !== expanded.length) {
+                            this.plugin.settings.expandedGroups[tagName] = cleaned;
+                        }
+                    }
                     void this.plugin.saveSettings();
                 }
                 groupTags = liveGroupTags;

@@ -56,6 +56,7 @@ export class JournalRenderer {
     }
 
     private async extractAllQuotes(): Promise<{ text: string; date: Date; file: TFile }[]> {
+        if (this.destroyed) return [];
         const promises = this.notes.map(n => this.extractQuotesFromFile(n));
         const results = await Promise.all(promises);
         // Flatten using reduce with explicit accumulator type
@@ -291,6 +292,7 @@ export class JournalRenderer {
     }
 
     private updateCards(period: string) {
+        if (this.destroyed) return;
         if(!this.cardsWrapper) return;
         this.cardsWrapper.empty();
 
@@ -412,6 +414,7 @@ export class JournalRenderer {
     }
 
     private async renderQuotesSection() {
+        if (this.destroyed) return;
         this.progressBar = null;
         const quotesContainer = this.container.createDiv({ cls: 'journal-quotes-container' });
 
@@ -578,11 +581,13 @@ export class JournalRenderer {
     }
 
     private async extractQuotesFromFile(file: TFile): Promise<{ text: string; date: Date; file: TFile }[]> {
+        if (this.destroyed) return [];
         if (this.quotesCache.has(file.path)) {
             return this.quotesCache.get(file.path)!;
         }
 
         const content = await this.app.vault.read(file);
+        if (this.destroyed) return [];
         const delimiter = this.plugin.settings.quoteDelimiter;
         const escapedDelimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`${escapedDelimiter}(.*?)${escapedDelimiter}`, 'g');
