@@ -133,7 +133,7 @@ export class FileItemFactory {
             ContextMenuFactory.showFileMenu(view, file, fileEl, e)
         });
 
-        if (plugin.settings.showFileToolTips && file.extension === 'md' && !Platform.isMobile) {
+        if (plugin.settings.showFileToolTips && !Platform.isMobile) {
         fileEl.addEventListener('mouseenter', () => {
             FileItemFactory.fetchFileTooltip(file, app, nameSpan, plugin).then(tip => {
                 if (tip) {
@@ -219,17 +219,25 @@ export class FileItemFactory {
 
     private static async fetchFileTooltip(file: TFile, app: App, nameSpan: HTMLElement, plugin: PortalsPlugin): Promise<string | null> {
         try {
-            const content = await app.vault.cachedRead(file);
-            const plainText = FileItemFactory.extractSnippet(content, Infinity);
-            const words = plainText.split(/\s+/).filter(w => w.length > 0);
-            const wordCount = words.length;
-            const lastModified = new Date(file.stat.mtime).toLocaleDateString();
-            const infoLine = `${wordCount} words · Modified ${lastModified}`;
-            if (nameSpan.scrollWidth > nameSpan.clientWidth) {
-                const displayName = FileItemFactory.getDisplayName(file, plugin);
-                return `${displayName} · ${infoLine}`;
-            }
-            return infoLine;
+            if (file.extension === 'md') {
+                const content = await app.vault.cachedRead(file);
+                const plainText = FileItemFactory.extractSnippet(content, Infinity);
+                const words = plainText.split(/\s+/).filter(w => w.length > 0);
+                const wordCount = words.length;
+                const lastModified = new Date(file.stat.mtime).toLocaleDateString();
+                const infoLine = `${wordCount} words · Modified ${lastModified}`;
+                if (nameSpan.scrollWidth > nameSpan.clientWidth) {
+                    const displayName = FileItemFactory.getDisplayName(file, plugin);
+                    return `${displayName} · ${infoLine}`;
+                }
+                return infoLine;
+            } else {
+                if (nameSpan.scrollWidth > nameSpan.clientWidth) {
+                    const displayName = FileItemFactory.getDisplayName(file, plugin);
+                    return `${displayName}`;
+                }
+                return null;
+            } 
         } catch {
             return null;
         }

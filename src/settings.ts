@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, TFolder, Notice, Platform, ButtonComponent } from 'obsidian';
+import { App, PluginSettingTab, Setting, TFolder, Notice, Platform } from 'obsidian';
 import PortalsPlugin from './main';
 import { IconPickerModal } from './modals/iconPicker';
 import { SpaceConfig, PortalStack } from './types';
