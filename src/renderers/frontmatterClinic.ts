@@ -4,6 +4,7 @@ import { SearchPopover } from '../utils/searchPopover';
 import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../modals/frontmatterPopup';
+import { getMarkdownFiles } from '../utils/vaultProxy';
 
 interface PropertyValueCounts {
     counts: Map<string, Map<string, number>>;
@@ -46,7 +47,7 @@ export class FrontmatterClinicRenderer {
                 clinicCache.refs.counts.clear();
                 clinicCache.refs.fileFrontmatter.clear();
 
-                const files = app.vault.getMarkdownFiles();
+                const files = getMarkdownFiles(app);
                 for (const file of files) {
                     FrontmatterClinicRenderer.updateFileCache(app, file);
                 }
@@ -692,7 +693,7 @@ export class FrontmatterClinicRenderer {
     }
 
     private filterFiles() {
-        const files = this.app.vault.getMarkdownFiles();
+        const files = getMarkdownFiles(this.app);
         // special case: no frontmatter 
         if (this.selectedProperty === 'No frontmatter') {
             this.filteredFiles = files.filter(file => {
