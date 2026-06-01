@@ -1,7 +1,7 @@
 import { Notice } from "obsidian";
 import PortalsPlugin from "../main";
 import { PortalsView, VIEW_TYPE_PORTALS } from "../view";
-import { getGuideUrl } from "./urls";
+import { getGuideUrl } from "./Proxies/urls";
 
 export function registerAllCommands (plugin: PortalsPlugin) {
     plugin.addCommand({

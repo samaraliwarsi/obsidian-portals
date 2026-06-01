@@ -3,7 +3,7 @@ import PortalsPlugin from './main';
 import { IconPickerModal } from './modals/iconPicker';
 import { SpaceConfig, PortalStack } from './types';
 import { SidePortalModal } from './modals/sidePortalModal'; 
-import { getGuideUrl, getReleaseNotesUrl } from './utils/urls';
+import { getGuideUrl, getReleaseNotesUrl } from './utils/Proxies/urls';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { AddPortalModal } from './modals/addPortalModal';
 import { SelectFolderModal } from './modals/selectFolderModal';

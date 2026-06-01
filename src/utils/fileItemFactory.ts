@@ -4,7 +4,7 @@ import type { PortalsView } from '../view';
 import { TreeEventHelpers } from './treeEventHelpers';
 import { ContextMenuFactory } from './contextMenuFactory';
 import { getFrontmatterTags } from './tagHelpers';
-import { getPluginInstance } from './pluginInstance';
+import { getPluginInstance } from './Proxies/pluginInstance';
 
 
 export class FileItemFactory {

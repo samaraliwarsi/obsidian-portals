@@ -1,4 +1,4 @@
-import type PortalsPlugin from "../main";
+import type PortalsPlugin from "../../main";
 
 let instance: PortalsPlugin | null = null;
 

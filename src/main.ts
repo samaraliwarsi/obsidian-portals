@@ -7,8 +7,8 @@ import { registerAllCommands } from './utils/commands';
 import { LucideIconProvider } from './icons/LucideIconProvider';
 import { PhosphorIconProvider } from './icons/phosphorIconProvider';
 import { IconProvider } from './icons/iconProvider';
-import { setPluginInstance } from './utils/pluginInstance';
-import { getLocalItem } from './utils/storageProxy';
+import { setPluginInstance } from './utils/Proxies/pluginInstance';
+import { getLocalItem } from './utils/Proxies/storageProxy';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
