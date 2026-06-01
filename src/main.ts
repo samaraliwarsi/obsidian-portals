@@ -8,6 +8,7 @@ import { LucideIconProvider } from './icons/LucideIconProvider';
 import { PhosphorIconProvider } from './icons/phosphorIconProvider';
 import { IconProvider } from './icons/iconProvider';
 import { setPluginInstance } from './utils/pluginInstance';
+import { getLocalItem } from './utils/storageProxy';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
@@ -531,7 +532,7 @@ export default class PortalsPlugin extends Plugin {
     }
 
     async performAutoBackup(): Promise<void> {
-        const deviceEnabled = localStorage.getItem('portals-backup-device-enabled');
+        const deviceEnabled = getLocalItem('portals-backup-device-enabled');
         if (deviceEnabled === 'false') return;
         
         const srcPath = normalizePath(this.app.vault.configDir + '/plugins/portals/data.json');
