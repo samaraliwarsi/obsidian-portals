@@ -1423,6 +1423,7 @@ export class PortalsView extends ItemView {
             sectionCriterion: s.sectionCriterion,
             sectionPropertyName: s.sectionPropertyName,
             sectionOrders: JSON.stringify(s.sectionOrders),
+            spaceSectionPrefs: JSON.stringify(s.spaceSectionPrefs),
             contextNoteIconClick: s.contextNoteIconClick,
             showQuickTabNumberOnTabs: s.showQuickTabNumbersOnTabs,
             showFileToolTips: s.showFileToolTips,

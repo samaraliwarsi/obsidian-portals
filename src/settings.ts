@@ -73,6 +73,7 @@ export interface SpacesSettings {
     sectionCriterion: 'extension' | 'property';
     sectionPropertyName: string;
     sectionOrders: Record<string, string[]>;
+    spaceSectionPrefs: Record<string, { criterion?: 'extension' | 'property'; propertyName?: string}>;
     userPalette?: string[]
     previousSelectedSpace: { path: string; type: 'folder' | 'tag' } | null;
     showQuickTabNumbersOnTabs: boolean;
@@ -150,6 +151,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     sectionCriterion: 'extension',
     sectionPropertyName: '',
     sectionOrders: {},
+    spaceSectionPrefs: {},
     userPalette: [...DEFAULT_PORTALS_PALETTE],
     previousSelectedSpace: null,
     showQuickTabNumbersOnTabs: false,

@@ -189,38 +189,45 @@ export class FloatingButtonsRenderer {
             });
 
             if (this.plugin.settings.enableSections) {
+                const space = this.plugin.settings.selectedSpace;
+                const compositeKey = `${space!.type}:${space!.path}`;
+                const prefs = this.plugin.settings.spaceSectionPrefs[compositeKey] ?? {};
+                const currentCriterion = prefs.criterion ?? this.plugin.settings.sectionCriterion;
+                const currentProp = prefs.propertyName ?? this.plugin.settings.sectionPropertyName ?? '';
                 this.createButton('rows', 'Sections', pos.sections!, (e: MouseEvent) => {
                     const menu = new Menu();
                     const setCriterion = (criterion: 'extension' | 'property') => {
-                        this.plugin.settings.sectionCriterion = criterion;
-                        void this.plugin.saveData(this.plugin.settings);
+                        const entry = this.plugin.settings.spaceSectionPrefs[compositeKey] ?? {};
+                        entry.criterion = criterion;
+                        this.plugin.settings.spaceSectionPrefs[compositeKey] = entry;
+                        void this.plugin.saveSettings();
                         this.view.renderContent();
                     };
-                    const sectionCriterion = this.plugin.settings.sectionCriterion;
-                    const sectionProp = this.plugin.settings.sectionPropertyName || ''
                     menu.addItem(item => item
-                        .setTitle(sectionCriterion === 'property' && sectionProp
-                            ? `By frontmatter: ${sectionProp}`
+                        .setTitle(currentCriterion === 'property' && currentProp
+                            ? `By frontmatter: ${currentProp}`
                             : 'By frontmatter')
-                        .setChecked(sectionCriterion === 'property')
+                        .setChecked(currentCriterion === 'property')
                         .onClick(() => setCriterion('property')));
                     menu.addItem(item => item
                         .setTitle('By extension')
-                        .setChecked(this.plugin.settings.sectionCriterion === 'extension')
+                        .setChecked(currentCriterion === 'extension')
                         .onClick(() => setCriterion('extension')));
                     menu.showAtPosition({ x: e.clientX, y: e.clientY });
                 },
                 (e) => { 
-                    if (this.plugin.settings.sectionCriterion === 'property') {
+                    if (currentCriterion === 'property') {
                         e.preventDefault();
                         const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort();
-                        const currenPop = this.plugin.settings.sectionPropertyName || '';
                         new SearchPopover(e.currentTarget as HTMLElement, {
                             items: properties,
-                            currentSelected: currenPop,
+                            currentSelected: currentProp,
                             onSelect: (selected: string) => {
-                                this.plugin.settings.sectionPropertyName = selected;
-                                void this.plugin.saveData(this.plugin.settings).then(() => this.view.render())
+                                const entry = this.plugin.settings.spaceSectionPrefs[compositeKey] ?? {};
+                                entry.propertyName = selected;
+                                entry.criterion = 'property';
+                                this.plugin.settings.spaceSectionPrefs[compositeKey] = entry;
+                                void this.plugin.saveSettings().then(() => this.view.render())
                             },
                             placeholder: 'Property name...'
                         });

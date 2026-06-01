@@ -31,7 +31,8 @@ export class SectionRenderer {
         if (sections.length <= 1) return false;   // nothing to section
 
         // Restore saved order (if any)
-        const savedOrder = plugin.settings.sectionOrders[parentPath];
+        const orderKey = this.getOrderKey(plugin, parentPath);
+        const savedOrder = plugin.settings.sectionOrders[orderKey] ?? plugin.settings.sectionOrders[parentPath];
         if (savedOrder) {
             sections.sort((a, b) => {
                 const ai = savedOrder.indexOf(a.key);
@@ -61,7 +62,12 @@ export class SectionRenderer {
         plugin: PortalsPlugin,
         files: TFile[]
     ): Section[] {
-        const criterion = plugin.settings.sectionCriterion;
+        const space = plugin.settings.selectedSpace;
+        const compositeKey = space ? `${space.type}:${space.path}` : null;
+        const prefs = compositeKey ? plugin.settings.spaceSectionPrefs[compositeKey] : undefined;
+
+        const criterion = prefs?.criterion ?? plugin.settings.sectionCriterion;
+        const propName = prefs?.propertyName ?? plugin.settings.sectionPropertyName;
 
         // --- By file extension ---
         if (criterion === 'extension') {
@@ -80,7 +86,6 @@ export class SectionRenderer {
 
         // --- By frontmatter property ---
         if (criterion === 'property') {
-            const propName = plugin.settings.sectionPropertyName || 'section';
             const map = new Map<string, TFile[]>();
             for (const f of files) {
                 const cache = app.metadataCache.getFileCache(f);
@@ -194,7 +199,14 @@ export class SectionRenderer {
         sections: Section[]
     ) {
         const order = sections.map(s => s.key);
-        plugin.settings.sectionOrders[parentPath] = order;
+        const orderKey = this.getOrderKey(plugin, parentPath);
+        plugin.settings.sectionOrders[orderKey] = order;
         void plugin.saveSettings();
+    }
+
+    private static getOrderKey(plugin: PortalsPlugin, parentPath: string): string {
+        const space = plugin.settings.selectedSpace;
+        if (!space) return parentPath;
+        return `${space.type}:${space.path}/${parentPath}`;
     }
 }
