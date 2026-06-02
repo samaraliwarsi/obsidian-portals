@@ -1440,7 +1440,7 @@ export class PortalsView extends ItemView {
             spaceSectionPrefs: JSON.stringify(s.spaceSectionPrefs),
             contextNoteIconClick: s.contextNoteIconClick,
             showQuickTabNumberOnTabs: s.showQuickTabNumbersOnTabs,
-            showFileToolTips: s.showFileToolTips,
+            showTreeItemToolTips: s.showTreeItemToolTips,
             journalDefaultCurrentMode: s.journalDefaultCurrentMode,
             iconLibrary: s.iconLibrary,
             enableAutoBackup: s.enableAutoBackup,

@@ -133,19 +133,19 @@ export class FileItemFactory {
             ContextMenuFactory.showFileMenu(view, file, fileEl, e)
         });
 
-        if (plugin.settings.showFileToolTips && !Platform.isMobile) {
-        fileEl.addEventListener('mouseenter', () => {
-            FileItemFactory.fetchFileTooltip(file, app, nameSpan, plugin).then(tip => {
-                if (tip) {
-                    view.showTooltip(tip, fileEl, 300, 'right');
-                }
+        if (plugin.settings.showTreeItemToolTips && !Platform.isMobile) {
+            fileEl.addEventListener('mouseenter', () => {
+                FileItemFactory.fetchFileTooltip(file, app, nameSpan, plugin).then(tip => {
+                    if (tip) {
+                        view.showTooltip(tip, fileEl, 300, 'right');
+                    }
+                });
             });
-        });
 
-        fileEl.addEventListener('mouseleave', () => {
-            view.hideTooltip(100);
-        });
-    }
+            fileEl.addEventListener('mouseleave', () => {
+                view.hideTooltip(100);
+            });
+        }
 
         view.addHoverPreview(fileEl, file.path);
 

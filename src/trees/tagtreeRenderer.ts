@@ -1,4 +1,4 @@
-import { App, TFile } from 'obsidian';
+import { App, Platform, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
@@ -48,6 +48,91 @@ export class TagTreeRenderer {
         }
         // Main tag or subtag: direct match or hierarchical prefix
         return fileTags.some(t => t === tagPath || t.startsWith(tagPath + '/'));
+    }
+
+    private countTagItems(tagPath: string, tagToFiles: Map<string, TFile[]>, allTags: Set<string>): { files: number; subtags: number } {
+        const files = tagToFiles.get(tagPath)?.length || 0;
+        let subtags = 0;
+        for (const t of allTags) {
+            if (t.startsWith(tagPath + '/')) {
+                const remaining = t.slice(tagPath.length + 1);
+                if (!remaining.includes('/')) subtags++;
+            }
+        }
+        return { files, subtags };
+    }
+
+    private getTagTooltip(
+        tagPath: string, 
+        nameSpan: HTMLElement, 
+        isGroup: boolean = false, 
+        groupFileCount: number | undefined, 
+        tagToFiles: Map<string, TFile[]>, 
+        allTags: Set<string>,
+        groupTags: string[] | undefined,
+        isMainTag: boolean
+    ): string | null {
+        if (!this.plugin.settings.showTreeItemToolTips) return null;
+        const truncated = nameSpan.scrollWidth > nameSpan.clientWidth;
+        const displayName = '#' + tagPath;
+        const effectiveGroupTags = groupTags ?? [];
+        let fileCount = 0;
+        let subtags = 0;
+        let groups = 0
+
+        if (isGroup) {
+            fileCount = groupFileCount !== undefined ? groupFileCount : (tagToFiles?.get(tagPath)?.length || 0);
+        } else if (isMainTag) {
+            const allFiles = tagToFiles.get(tagPath) || [];
+            const filesInGroups = new Set<TFile>();
+            for (const file of allFiles) {
+                const cache = this.app.metadataCache.getFileCache(file);
+                const fileTags = [
+                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                    ...getFrontmatterTags(cache)
+                ];
+                for (const g of effectiveGroupTags) {
+                    if (fileTags.includes(g)) {
+                        filesInGroups.add(file);
+                        break;
+                    }
+                }
+            }
+            fileCount = allFiles.filter(f => !filesInGroups.has(f)).length;
+            groups = effectiveGroupTags.length;
+            for (const t of allTags) {
+                if (t.startsWith(tagPath + '/')) {
+                    const remaining = t.slice(tagPath.length +1);
+                    if (!remaining.includes('/')) subtags++;
+                }
+            }
+        } else {
+            fileCount = tagToFiles.get(tagPath)?.length || 0;
+            for (const t of allTags) {
+                if (t.startsWith(tagPath + '/')) {
+                    const remaining = t.slice(tagPath.length + 1);
+                    if (!remaining.includes('/')) subtags++;
+                }
+            }
+        }
+        // Build the counts string
+        const parts: string[] = [];
+        if (fileCount > 0) parts.push(`${fileCount} file${fileCount !== 1 ? 's' : ''}`);
+        if (!isGroup && subtags > 0) parts.push(`${subtags} subtag${subtags !== 1 ? 's' : ''}`);
+        if (isMainTag && groups > 0) parts.push(`${groups} group${groups !== 1 ? 's' : ''}`);
+        
+        const countsString = parts.join(', ');
+
+        // Assemble final tooltip
+        let tooltip = '';
+        if (truncated) {
+            tooltip = displayName;
+            if (countsString) tooltip += ' · ' + countsString;
+        } else {
+            tooltip = countsString;
+        }
+        
+        return tooltip || null;
     }
 
     // Highlights the summary/icon if a context note exists
@@ -204,6 +289,19 @@ export class TagTreeRenderer {
                 mainSummary.createSpan({ cls: 'open-dot' });
             }
 
+            // FLAT LIST: tree item tooltips
+            if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
+                mainSummary.addEventListener('mouseenter', () => {
+                    const nameSpan = mainSummary.querySelector('.portals-item-name') as HTMLElement;
+                    if (!nameSpan) return;
+                    const tooltip = this.getTagTooltip(tagName, nameSpan, false, undefined, tagToFiles, allTags, groupTags, true);
+                    if (tooltip) this.view.showTooltip(tooltip, mainSummary, 300, 'right');
+                });
+                mainSummary.addEventListener('mouseleave', () => {
+                    this.view.hideTooltip(100);
+                });
+            }
+
             // FLAT LIST: Apply context note highlight to main tag
             const mainTagPath = tagName;
             this.applyContextNoteHighlight(mainSummary, mainIconSpan, mainTagPath);
@@ -356,6 +454,19 @@ export class TagTreeRenderer {
                 // FLAT LIST: open-dot
                 if (this.shouldShowOpenDot(gTag, true)) {
                     summary.createSpan({ cls: 'open-dot' });
+                }
+
+                // FLAT LIST: TAG GROUPS - tree item tooltips 
+                if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
+                    summary.addEventListener('mouseenter', () => {
+                        const nameSpan = summary.querySelector('.portals-item-name') as HTMLElement;
+                        if (!nameSpan) return;
+                        const tooltip = this.getTagTooltip(gTag, nameSpan, true, files.length, tagToFiles, allTags, undefined, false);
+                        if (tooltip) this.view.showTooltip(tooltip, summary, 300, 'right');
+                    });
+                    summary.addEventListener('mouseleave', () => {
+                        this.view.hideTooltip(100);
+                    });
                 }
 
                 // FLAT LIST: TAG GROUPS - Quick‑create note for tag groups flat list (mainT + gTag)
@@ -512,6 +623,20 @@ export class TagTreeRenderer {
             summary.dataset.tagPath = node.fullPath;
             summary.dataset.reorderKey = nodeKey;
 
+            // HLIST : SUBTAGS - tree item tooltips 
+            if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
+                summary.addEventListener('mouseenter', () => {
+                    const nameSpan = summary.querySelector('.portals-item-name') as HTMLElement;
+                    if (!nameSpan) return;
+                    const tooltip = this.getTagTooltip(node.fullPath, nameSpan, false, undefined, tagToFiles, allTags, undefined, false);
+                    if (tooltip) this.view.showTooltip(tooltip, summary, 300, 'right');
+                });
+                summary.addEventListener('mouseleave', () => {
+                    this.view.hideTooltip(100);
+                });
+            }
+
+
             // HLIST: SUBTAGS - opendot
             if (this.shouldShowOpenDot(node.fullPath, false)) {
                 summary.createSpan({ cls: 'open-dot' });
@@ -656,6 +781,19 @@ export class TagTreeRenderer {
             mainSummary.createSpan({ cls: 'open-dot' });
         }
 
+        // HLIST: tree item tooltips
+        if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
+                mainSummary.addEventListener('mouseenter', () => {
+                    const nameSpan = mainSummary.querySelector('.portals-item-name') as HTMLElement;
+                    if (!nameSpan) return;
+                    const tooltip = this.getTagTooltip(tagName, nameSpan, false, undefined, tagToFiles, allTags, groupTags, true);
+                    if (tooltip) this.view.showTooltip(tooltip, mainSummary, 300, 'right');
+                });
+                mainSummary.addEventListener('mouseleave', () => {
+                    this.view.hideTooltip(100);
+                });
+            }
+
         // HLIST: Quick‑create note for sub tag tree head item (tagName)
         this.view.quickFileIcon(mainSummary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName));
 
@@ -783,6 +921,19 @@ export class TagTreeRenderer {
             // HLIST: GROUPS - open-dot
             if (this.shouldShowOpenDot(gTag, true)) {
                 summary.createSpan({ cls: 'open-dot' });
+            }
+
+            //HLIST: GROUPS - tree item tooltips 
+            if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
+                summary.addEventListener('mouseenter', () => {
+                    const nameSpan = summary.querySelector('.portals-item-name') as HTMLElement;
+                    if (!nameSpan) return;
+                    const tooltip = this.getTagTooltip(gTag, nameSpan, true, files.length, tagToFiles, allTags, undefined, false);
+                    if (tooltip) this.view.showTooltip(tooltip, summary, 300, 'right');
+                });
+                summary.addEventListener('mouseleave', () => {
+                    this.view.hideTooltip(100);
+                });
             }
 
             // HLIST: GROUPS - Quick‑create note for tag groups subtagtree (mainT + gTag)

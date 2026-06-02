@@ -77,7 +77,7 @@ export interface SpacesSettings {
     userPalette?: string[]
     previousSelectedSpace: { path: string; type: 'folder' | 'tag' } | null;
     showQuickTabNumbersOnTabs: boolean;
-    showFileToolTips: boolean;
+    showTreeItemToolTips: boolean;
     journalDefaultCurrentMode: 'random' | 'marked' | 'onThisDay';
     iconLibrary: 'phosphor' | 'lucide';
     customIconPhosphorMigrationDone: boolean;
@@ -155,7 +155,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     userPalette: [...DEFAULT_PORTALS_PALETTE],
     previousSelectedSpace: null,
     showQuickTabNumbersOnTabs: false,
-    showFileToolTips: false,
+    showTreeItemToolTips: false,
     journalDefaultCurrentMode: 'random',
     iconLibrary: 'phosphor',
     customIconPhosphorMigrationDone: false,
@@ -313,12 +313,12 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(contentEl)
-            .setName('Show file tooltips')
-            .setDesc('Show tooltips on each file item in explorer. Shows word count, last modified and name when truncated.')
+            .setName('Show tree item tooltips (desktop only)')
+            .setDesc('Show tooltips on files, folders & tags in explorer. Shows word count & last modified for files, number of subitems for folders & tags. Additionally, shows name when truncated on all.')
             .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFileToolTips)
+                .setValue(this.plugin.settings.showTreeItemToolTips)
                 .onChange(async (value) => {
-                    this.plugin.settings.showFileToolTips = value;
+                    this.plugin.settings.showTreeItemToolTips = value;
                     await this.plugin.saveSettings();
                     this.display();
                 }));

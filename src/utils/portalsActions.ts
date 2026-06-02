@@ -529,7 +529,6 @@ export class PortalsActions {
 
     private static setRenamingActive(view: PortalsView, active: boolean) {
         // In setRenamingActive
-        console.log('setRenamingActive', active, view.containerEl);
         view.containerEl.classList.toggle('portals-renaming-active', active);
         if (active) {
             view.containerEl.addClass('portals-renaming-active');

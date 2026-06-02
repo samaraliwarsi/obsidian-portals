@@ -1,4 +1,4 @@
-import { TFile, TFolder, TAbstractFile, App } from 'obsidian';
+import { TFile, TFolder, TAbstractFile, App, Platform } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
@@ -47,6 +47,17 @@ export class FolderTreeRenderer {
         nameSpan.addClass('portals-item-name');
         summary.dataset.path = folder.path;
         summary.dataset.reorderKey = folder.path;
+
+        if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
+                summary.addEventListener('mouseenter', () => {
+                    if (!nameSpan) return;
+                    const tooltip = this.getFolderTooltip(folder, nameSpan);
+                    if (tooltip) this.view.showTooltip(tooltip, summary, 300, 'right');
+                });
+                summary.addEventListener('mouseleave', () => {
+                    this.view.hideTooltip(100);
+                });
+            }
 
         const hasNote = hasContextNote(this.app, this.plugin, folder);
         if (this.plugin.settings.enableContextNotes && hasNote) {
@@ -209,6 +220,30 @@ export class FolderTreeRenderer {
             this.plugin.settings.openFolders = openFolders;
             void this.plugin.saveData(this.plugin.settings);
         });
+    }
+
+    private getFolderTooltip(folder: TFolder, nameSpan: HTMLElement): string | null {
+        if (!this.plugin.settings.showTreeItemToolTips) return null;
+        let subfolders = 0;
+        let files = 0;
+        for (const child of folder.children) {
+            if (child instanceof TFolder) subfolders++;
+            else if (child instanceof TFile) files++;
+        }
+        const truncated = nameSpan.scrollWidth > nameSpan.clientWidth;
+        const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
+        let tooltip = truncated ? displayName : '';
+        
+        const parts: string[] = [];
+        if (subfolders > 0) parts.push(`${subfolders} folder${subfolders !== 1 ? 's' : ''}`);
+        if (files > 0) parts.push(`${files} file${files !== 1 ? 's' : ''}`);
+        const countsString = parts.join(', ');
+        
+        if (countsString) {
+            if (tooltip) tooltip += ' · ';
+            tooltip += countsString;
+        }
+        return tooltip || null;
     }
 
     private sortFolderChildren(children: TAbstractFile[]): TAbstractFile[] {
