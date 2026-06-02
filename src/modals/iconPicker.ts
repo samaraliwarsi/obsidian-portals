@@ -1,4 +1,4 @@
-import { App, Modal } from 'obsidian';
+import { App, Modal, Notice } from 'obsidian';
 import { IconProvider } from '../icons/iconProvider';
 import PortalsPlugin from '../main';
 
@@ -191,7 +191,10 @@ export class IconPickerModal extends Modal {
                             this.plugin.settings.iconFavorites.push({ name, library: iconLibrary });
                         }
                         updateStar();
-                        this.plugin.saveSettings().catch(console.error);
+                        this.plugin.saveSettings().catch(err => {
+                            console.error(err);
+                            new Notice('Failed to save icon - check console of details');
+                        });
                     });
                     iconEl.appendChild(starBtn);
                     fragment.appendChild(iconEl);
