@@ -518,7 +518,7 @@ export class PortalsActions {
         const input = activeDocument.createElement('input');
         input.type = 'text';
         input.value = initialValue;
-        input.addClass('portals-rename-input');
+        input.addClass('portals-inline-rename');
 
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); onSave(input.value); }
@@ -527,12 +527,33 @@ export class PortalsActions {
         return input;
     }
 
+    private static setRenamingActive(view: PortalsView, active: boolean) {
+        // In setRenamingActive
+        console.log('setRenamingActive', active, view.containerEl);
+        view.containerEl.classList.toggle('portals-renaming-active', active);
+        if (active) {
+            view.containerEl.addClass('portals-renaming-active');
+        } else {
+            view.containerEl.removeClass('portals-renaming-active');
+        }
+    }
+
     static startRenameFile(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, fileEl: HTMLElement): void {
         const nameSpan = fileEl.querySelector('.portals-item-name') as HTMLElement;
         if (!nameSpan) return;
         const isMd = file.extension === 'md';
         const hideExtension = plugin.settings.enableFileExtensionNonMD;
         const base = isMd ? file.basename : (hideExtension ? file.basename : file.name);
+
+        const cleanup = () => {
+            if (view._activeOutsideClickListener) {
+                activeDocument.removeEventListener('mousedown', view._activeOutsideClickListener)
+                view._activeOutsideClickListener = null;
+            }
+            view.renaming = false;
+            PortalsActions.setRenamingActive(view, false);
+            view.renderContent();
+        };
 
         const input = PortalsActions.createRenameInput(base, (newBase) => {
             (async () => {
@@ -549,39 +570,42 @@ export class PortalsActions {
                     const message = err instanceof Error ? err.message : String(err);
                     new Notice(`Rename failed: ${message}`);
                 } finally {
-                    view.renaming = false;
-                    activeDocument.removeEventListener('mousedown', outsideClickListener);
-                    view._activeOutsideClickListener = null;
-                    view.renderContent();
+                    cleanup();
                 }
             })().catch(err => console.error('Rename error:', err));
-        }, () => {
-            view.renaming = false;
-            activeDocument.removeEventListener('mousedown', outsideClickListener);
-            view._activeOutsideClickListener = null;
-            view.renderContent();
-        });
-        input.addEventListener('click',  (e) => e.stopPropagation());
+        }, cleanup);
 
+        input.addEventListener('click',  (e) => e.stopPropagation());
         nameSpan.replaceWith(input);
         input.focus();
         input.select();
         view.renaming = true;
+        PortalsActions.setRenamingActive(view, true);
 
         const outsideClickListener = (e: MouseEvent) => {
             if (!input.contains(e.target as Node)) {
-                activeDocument.removeEventListener('mousedown', outsideClickListener);
-                view.renaming = false;
-                view.renderContent();
+                cleanup();
             }
         };
         view._activeOutsideClickListener = outsideClickListener;
         activeDocument.addEventListener('mousedown', outsideClickListener);
+
+        input.addEventListener('blur', cleanup);
     }
 
     static startRenameFolder(app: App, _plugin: PortalsPlugin, view: PortalsView, folder: TFolder, summaryEl: HTMLElement): void {
         const nameSpan = summaryEl.querySelector('.portals-item-name') as HTMLElement;
         if (!nameSpan) return;
+
+        const cleanup = () => {
+            if (view._activeOutsideClickListener) {
+                activeDocument.removeEventListener('mousedown', view._activeOutsideClickListener);
+                view._activeOutsideClickListener = null;
+            }
+            view.renaming = false;
+            PortalsActions.setRenamingActive(view, false);
+            view.renderContent();
+        };
 
         const input = PortalsActions.createRenameInput(folder.name, (newName) => {
             (async () => {
@@ -596,34 +620,27 @@ export class PortalsActions {
                     const message = err instanceof Error ? err.message : String(err);
                     new Notice(`Rename failed: ${message}`);
                 } finally {
-                    view.renaming = false;
-                    activeDocument.removeEventListener('mousedown', outsideClickListener);
-                    view._activeOutsideClickListener = null;
-                    view.renderContent();
+                    cleanup();
                 }
             })().catch(err => console.error('Rename error:', err));
-        }, () => {
-            view.renaming = false;
-            activeDocument.removeEventListener('mousedown', outsideClickListener);
-            view._activeOutsideClickListener = null;
-            view.renderContent();
-        });
-        input.addEventListener('click', (e) => e.stopPropagation());
+        }, cleanup);
 
+        input.addEventListener('click', (e) => e.stopPropagation());
         nameSpan.replaceWith(input);
         input.focus();
         input.select();
         view.renaming = true;
+        PortalsActions.setRenamingActive(view, true);
 
         const outsideClickListener = (e: MouseEvent) => {
             if (!input.contains(e.target as Node)) {
-                activeDocument.removeEventListener('mousedown', outsideClickListener);
-                view.renaming = false;
-                view.renderContent();
+                cleanup();
             }
         };
         view._activeOutsideClickListener = outsideClickListener;
         activeDocument.addEventListener('mousedown', outsideClickListener);
+
+        input.addEventListener('blur', cleanup);
     }
 
     // Vault‑rename event handler

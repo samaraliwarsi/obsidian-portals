@@ -5076,6 +5076,45 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
     transform: scale(var(--portals-lucide-scale));
     transform-origin: center center;
 }
+
+/*======================= RENAME INLINE =======================================================*/
+
+input.portals-inline-rename {
+    display: inline-block;
+    width: auto;
+    white-space: normal;
+    flex-grow: 1;
+    min-width: 30px;
+    max-width: calc(100% - 30px);
+    background: transparent;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 2px 4px;
+    margin-left: 4px;
+    vertical-align: middle;
+    line-height: normal;
+}
+
+input.portals-inline-rename:focus {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+}
+
+input.portals-inline-rename:hover {
+  background: var(--background-modifier-active-hover);
+}
+
+.portals-renaming-active .folder-summary:hover .portals-action-icons,
+.portals-renaming-active .file-item:hover .portals-file-action-icons,
+.portals-renaming-active .folder-summary .portals-action-icons,
+.portals-renaming-active .file-item .portals-file-action-icons {
+  display: none;
+}
+
+.portals-renaming-active .file-item .file-extension {
+    display: none;
+}
 /*===============================SCROLL BARS PLUGIN WIDE=======================*/
 /* ----------Tab bar and Tabs ---------*/
 .portals-tab-bar::-webkit-scrollbar {
@@ -5322,7 +5361,7 @@ border-bottom: 1px solid var(--background-modifier-border);
 padding-bottom: 8px;
 margin-top: 8px;
 scrollbar-width: auto;
-padding-right: 20px;
+padding-right: 10px;
 padding-left: 4px;
 }
 
@@ -5575,18 +5614,20 @@ border-left: 1px dashed var(--background-modifier-border);
 /* File items */
 
 .file-item {
-display: inline-flex;
-align-items: center;
-gap: 6px;
-padding: 2px 12px;
-cursor: pointer;
-border-radius: 4px;
-width: 100%;
-box-sizing: border-box;
-margin-bottom: 8px;
-position: relative;
-line-height: 1.3;
-vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+    position: relative;
+    line-height: 1.3;
+    vertical-align: middle;
+    white-space: nowrap;
+    flex-wrap: nowrap;
 }
 
 .file-item:hover {

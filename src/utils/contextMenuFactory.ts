@@ -55,15 +55,19 @@ export class ContextMenuFactory {
             .setWarning(true)
             .onClick(() => PortalsActions.deleteFile(view.app, view.plugin, view, file)));
 
-        menu.addItem(item => item
-            .setTitle('Duplicate')
-            .setIcon('copy')
-            .onClick(() => PortalsActions.duplicateFile(view.app, view.plugin, view, file)));
+        const isInMainTree = fileEl.closest('.portals-tree-container') !== null;
+            
+        if (isInMainTree) {
+            menu.addItem(item => item
+                .setTitle('Duplicate')
+                .setIcon('copy')
+                .onClick(() => PortalsActions.duplicateFile(view.app, view.plugin, view, file)));
 
-        menu.addItem(item => item
-            .setTitle('Rename')
-            .setIcon('pencil')
-            .onClick(() => PortalsActions.startRenameFile(view.app, view.plugin, view, file, fileEl)));
+            menu.addItem(item => item
+                .setTitle('Rename')
+                .setIcon('pencil')
+                .onClick(() => PortalsActions.startRenameFile(view.app, view.plugin, view, file, fileEl)));
+        }
 
         menu.addItem(item => item
             .setTitle('Hide')

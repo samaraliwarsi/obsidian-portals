@@ -946,6 +946,7 @@ export class PortalsView extends ItemView {
     }
 
     public scheduleRender() {
+        if (this.renaming) return;
         if (this.renderTimer) {
             window.clearTimeout(this.renderTimer);
         }
@@ -1457,6 +1458,7 @@ export class PortalsView extends ItemView {
             activeDocument.removeEventListener('mousedown', this._activeOutsideClickListener);
             this._activeOutsideClickListener = null;
             this.renaming = false;
+            this.containerEl.removeClass('portals-renaming-active');
         }
 
         if (!this.plugin.settings.enableContextNotes && this.contextNotesRenderer) {
@@ -2097,6 +2099,7 @@ export class PortalsView extends ItemView {
     }
     
     renderContent() {
+        if (this.renaming) return;
         this.hideTooltip(0);
         if (this.renderTimer) {
             window.clearTimeout(this.renderTimer);
