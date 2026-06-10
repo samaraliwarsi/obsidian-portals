@@ -270,7 +270,7 @@ export class ColorPickerModal {
             swatch.addEventListener('click', () => {
                 const hex = this.paletteColors[i]!;
                 hiddenColorInput.value = hex;
-                customSwatch.setCssProps({ '-swatch-bg': hex });
+                customSwatch.setCssProps({ '--swatch-bg': hex });
                 hiddenColorInput.dispatchEvent(new Event('input', { bubbles: true }));
             });
             swatch.addEventListener('contextmenu', (e) => {
