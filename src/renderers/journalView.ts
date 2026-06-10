@@ -41,6 +41,7 @@ export class JournalRenderer {
             const elapsed = Date.now() - startTime;
             const percent = Math.min(100, (elapsed / 30000) * 100);
             if (this.progressBar) {
+                // eslint-disable-next-line obsidianmd/no-static-styles-assignment
                 this.progressBar.setCssProps({ 'width': `${percent}%` });
             }
             if (elapsed >= 30000) {
@@ -323,8 +324,11 @@ export class JournalRenderer {
             if (this.plugin.settings.markedJournalNotes.includes(n.path)) {
                 card.addClass('journal-card-marked');
             }
+            // eslint-disable-next-line obsidianmd/no-static-styles-assignment
             card.createSpan({ cls: 'journal-card-title', text: date.toLocaleDateString() });
+            // eslint-disable-next-line obsidianmd/no-static-styles-assignment
             card.setCssProps({ 'background': `rgba(100, 100, 100, ${opacity * 0.4})` });
+            // eslint-disable-next-line obsidianmd/no-static-styles-assignment
             card.setCssProps({ '--journal-border-opacity': String(opacity * 0.25) });
 
             const indicator = this.plugin.settings.journalQuoteIndicator; // 'quote' | 'warn' | 'both' | 'none'

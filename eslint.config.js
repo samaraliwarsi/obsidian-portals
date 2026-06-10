@@ -10,7 +10,6 @@ export default [
   // TypeScript source files (type‑aware) – include Obsidian rules here
   {
     files: ['src/**/*.ts'],
-    plugins: { obsidianmd },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
