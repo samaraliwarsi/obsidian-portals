@@ -521,7 +521,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 type: 'color',
                 value: initialHex,
                 cls: 'portals-hidden-color-input'
-            }) as HTMLInputElement;
+            });
 
             const customSwatch = colorWrapper.createDiv('portals-color-swatch');
             customSwatch.setCssProps({ 'background-color': initialHex });

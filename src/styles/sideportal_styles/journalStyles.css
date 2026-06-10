@@ -27,6 +27,7 @@
     transition: transform 0.1s;
     border-bottom: 2px solid rgba(128, 128, 128, var(--journal-border-opacity, 0.25));
     position: relative;
+    background: rgba(100, 100, 100, var(--journal-card-bg-opacity, 0.4));
 }
 
 .journal-card:hover {
@@ -103,7 +104,6 @@
     width: var(--progress-width, 0%);
     height: 100%;
     background-color: color-mix(in srgb, var(--text-normal) 30%, transparent);
-    width: 0%;
 }
 
 .journal-quote-display {

@@ -60,7 +60,7 @@ export class FileItemFactory {
 
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const newState = FileItemFactory.toggleFilePreview(plugin, file.path, toggleIcon as HTMLElement);
+                const newState = FileItemFactory.toggleFilePreview(plugin, file.path, toggleIcon);
                 if (previewEl) {
                     previewEl.classList.toggle('file-item-preview-hidden', !newState);
                 }

@@ -324,7 +324,7 @@ export class JournalRenderer {
                 card.addClass('journal-card-marked');
             }
             card.createSpan({ cls: 'journal-card-title', text: date.toLocaleDateString() });
-            card.setCssProps({ 'background': `rgba(100, 100, 100, ${opacity * 0.4})` });
+            card.setCssProps({ '--journal-card-bg-opacity': String(opacity * 0.4) });
             card.setCssProps({ '--journal-border-opacity': String(opacity * 0.25) });
 
             const indicator = this.plugin.settings.journalQuoteIndicator; // 'quote' | 'warn' | 'both' | 'none'

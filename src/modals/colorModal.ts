@@ -112,14 +112,14 @@ export class ColorPickerModal {
             type: 'color',
             cls: 'portals-hidden-picker',
             value: this.color 
-        }) as HTMLInputElement;
+        });
 
         // hex input
         const hexInput = inputRow.createEl('input', {
             type: 'text',
             cls: 'cm-color-input',
             value: this.color
-        }) as HTMLInputElement;
+        });
         hexInput.setAttr('maxlength', '7');
         hexInput.setAttr('placeholder', '#000000');
 
@@ -140,7 +140,7 @@ export class ColorPickerModal {
             cls: 'cm-opacity-slider',
             type: 'range',
             attr: { min: '0', max: '1', step: '0.05', value: String(this.opacity) }
-        }) as HTMLInputElement;
+        });
        
         // preview
         const previewRow = container.createDiv({ cls: 'cm-input-wrapper' });
@@ -265,7 +265,7 @@ export class ColorPickerModal {
                 type: 'color',
                 cls: 'cm-palette-hidden-picker',
                 value: this.paletteColors[i]!
-            }) as HTMLInputElement;
+            });
 
             swatch.addEventListener('click', () => {
                 const hex = this.paletteColors[i]!;
