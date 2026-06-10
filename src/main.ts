@@ -22,7 +22,7 @@ export default class PortalsPlugin extends Plugin {
 
         this.app.workspace.onLayoutReady(() => {
             if (this.settings.enableAutoBackup) {
-                setTimeout(() => {
+                window.setTimeout(() => {
                     this.performAutoBackup().catch(err => {
                         console.error('Portals: auto backup failed silently', err);
                         new Notice('Portals: Auto backup failed - check console.');

@@ -66,7 +66,7 @@ export class TrashRenderer {
         if (this.destroyed || id !== this.loadId) return;
 
         // Build the new tree **off‑screen** in a document fragment
-        const fragment = document.createDocumentFragment();
+        const fragment = activeDocument.createDocumentFragment();
         const newTree = fragment.createDiv({ cls: 'trash-tree' });
 
         this.items = items;
@@ -105,7 +105,7 @@ export class TrashRenderer {
     }
 
     public async refresh() {
-        if (this.refreshTimer) clearTimeout(this.refreshTimer);
+        if (this.refreshTimer) window.clearTimeout(this.refreshTimer);
         this.refreshTimer = window.setTimeout(() => {
             this.refreshTimer = null;
             this.doRefresh();

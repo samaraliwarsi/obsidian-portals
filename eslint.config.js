@@ -1,10 +1,7 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
-import obsidianmd from 'eslint-plugin-obsidianmd';
 
-// The plugin’s recommended config – used only for TypeScript files
-const obsidianRules = obsidianmd.configs.recommended?.rules ?? obsidianmd.configs.recommended;
 
 export default [
   eslint.configs.recommended,
@@ -15,8 +12,6 @@ export default [
     files: ['src/**/*.ts'],
     plugins: { obsidianmd },
     rules: {
-      ...obsidianRules,
-      'obsidianmd/ui/sentence-case': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
     },

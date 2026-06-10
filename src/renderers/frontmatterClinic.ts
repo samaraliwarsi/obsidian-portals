@@ -76,9 +76,9 @@ export class FrontmatterClinicRenderer {
             return;
         }
         if (this.clinicRenderTimeout) {
-            activeWindow.clearTimeout(this.clinicRenderTimeout)
+            window.clearTimeout(this.clinicRenderTimeout)
         }
-        this.clinicRenderTimeout = activeWindow.setTimeout(() => {
+        this.clinicRenderTimeout = window.setTimeout(() => {
             this.clinicRenderTimeout = null;
             void this.render();
         }, 100);
@@ -789,7 +789,7 @@ export class FrontmatterClinicRenderer {
 
     public destroy() {
         if (this.clinicRenderTimeout) {
-            activeWindow.clearTimeout(this.clinicRenderTimeout);
+            window.clearTimeout(this.clinicRenderTimeout);
             this.clinicRenderTimeout = null;
         }
         this.container.empty();

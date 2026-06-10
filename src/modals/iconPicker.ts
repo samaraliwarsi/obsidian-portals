@@ -76,7 +76,7 @@ export class IconPickerModal extends Modal {
     }
 
     onClose() {
-        if (this._debounceTimer) clearTimeout(this._debounceTimer);
+        if (this._debounceTimer) window.clearTimeout(this._debounceTimer);
         if (this._rafId) cancelAnimationFrame(this._rafId);
         this.contentEl.empty();
     }
@@ -136,7 +136,7 @@ export class IconPickerModal extends Modal {
 
         this._debounceTimer = window.setTimeout(() => {
             if (this._rafId) cancelAnimationFrame(this._rafId);
-            this._rafId = requestAnimationFrame(() => {
+            this._rafId = window.requestAnimationFrame(() => {
                 const provider = this.getProvider();
 
                 // Filter based on search input
@@ -159,9 +159,9 @@ export class IconPickerModal extends Modal {
                 }
 
                 // Render each icon
-                const fragment = document.createDocumentFragment();
+                const fragment = activeDocument.createDocumentFragment();
                 for (const name of toRender) {
-                    const iconEl = document.createElement('div');
+                    const iconEl = activeDocument.createElement('div');
                     iconEl.className = 'icon-item';
                     provider.renderIcon(iconEl, name);
                     iconEl.createSpan({ cls: 'portals-icon-label', text: name });
@@ -172,7 +172,7 @@ export class IconPickerModal extends Modal {
 
                     const iconLibrary = this.currentLibrary as 'phosphor' | 'lucide';                    
             
-                    const starBtn = document.createElement('span');
+                    const starBtn = activeDocument.createElement('span');
                     starBtn.className = 'portals-icon-picker-fav-star';
                     const updateStar = () => {
                         const fav = this.plugin.settings.iconFavorites.some(f => f.name === name && f.library === iconLibrary);
@@ -241,9 +241,9 @@ export class IconPickerModal extends Modal {
             filteredFavs = favs.filter(f => f.name.toLowerCase().includes(q));
         }
 
-        const fragment = document.createDocumentFragment();
+        const fragment = activeDocument.createDocumentFragment();
         for (const fav of filteredFavs) {
-            const iconEl = document.createElement('div');
+            const iconEl = activeDocument.createElement('div');
             iconEl.className = 'icon-item';
 
             const provider = fav.library === 'lucide' ? this.lucideProvider : this.phosphorProvider;
@@ -255,7 +255,7 @@ export class IconPickerModal extends Modal {
                 this.close();
             });
 
-            const starBtn = document.createElement('span');
+            const starBtn = activeDocument.createElement('span');
             starBtn.className = 'portals-favorite-star';
             starBtn.textContent = '★';
             starBtn.setAttribute('aria-label', 'Remove from favorites');

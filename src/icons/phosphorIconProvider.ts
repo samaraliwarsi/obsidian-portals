@@ -20,7 +20,7 @@ export class PhosphorIconProvider implements IconProvider {
                 resolved = 'question';
             }
         }
-        const i = document.createElement('i');
+        const i = activeDocument.createElement('i');
         i.className = `ph ph-${resolved}`;
         element.empty();
         element.appendChild(i);
