@@ -1,6 +1,6 @@
 # PORTALS PLUGIN USER GUIDE
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.3.9**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.4.0**
 
 ---
 ## INSTALLATION
@@ -152,8 +152,14 @@ Markdown files can display a content snippet below the filename in the file tree
 - If a file has no content, no preview appears.
 - Disable globally using the setting or command palette, `Portals: Toggle file previews in explorer`. Users can add it to hotkey using Obsidian settings.
 ---
-### File Tooltips
-On desktops, when hovering over a file, a tooltip can show word count, last modified date, and full filename (if truncated by side panel width constraints).  Enable via `Settings → Portals` → **Explorer** page → `Show file tooltips`. This is limited to markdown files. Non-markdown files only display full filename (if truncated by side panel). The word count and last modified stats are limited to markdown files. 
+### File & Header Tooltips
+These can be enabled via `Settings → Portals` → **Explorer** page → `Show tree item tooltips`.
+
+**File tooltips**
+On desktops, when hovering over a file, a tooltip can show word count, last modified date, and full filename (if truncated by side panel width constraints).  This is limited to markdown files. Non-markdown files only display full filename (if truncated by side panel). The word count and last modified stats are limited to markdown files. 
+
+**Header (folder/tag) tooltips**
+On desktops, when hovering a folder or tag, a tooltip can show number of items inside, and the full name (if truncated by side panel width constraints). 
 
 ---
 ### Sections

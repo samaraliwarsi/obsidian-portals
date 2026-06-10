@@ -49,6 +49,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 > 	- On mobile: Works best with Baseline Theme as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. Settings > Appearance > Floating Navigation. 
 > 	- On desktop, you may need to turn off vault hiding if your theme hides the vault selector on the lower side. 
 > 	- **Auto backups** – Enable in Utilities page to save your configuration automatically on Obsidian reload.
+>   - Please note that certain portal modals may not work correctly on transparent themes. 
 
 ## ⚙️ Installation
 	
