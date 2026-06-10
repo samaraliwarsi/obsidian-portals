@@ -274,7 +274,7 @@ export class PortalsView extends ItemView {
     }
 
     public openFileInNewTab(file: TFile): void {
-        this.app.workspace.getLeaf('tab').openFile(file);
+        void this.app.workspace.getLeaf('tab').openFile(file);
     }
 
     // Reads folder/tag summaries directly from the DOM container

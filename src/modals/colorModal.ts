@@ -287,7 +287,7 @@ export class ColorPickerModal {
             palettePicker.addEventListener('change', () => {
                 this.paletteColors[i] = palettePicker.value;
                 swatch.setCssProps({ 'background-color': palettePicker.value });
-                this.savePalette();
+                void this.savePalette();
             });
         }
     }
@@ -298,7 +298,7 @@ export class ColorPickerModal {
     }
 
     close(): void { 
-        this.savePalette();
+        void this.savePalette();
         if (this.targetElement.classList.contains('file-item')) {
             this.targetElement.setCssProps({ color: this.originalFileTextColor });
             const icon = this.targetElement.querySelector('.file-icon i');

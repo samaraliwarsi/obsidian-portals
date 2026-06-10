@@ -362,7 +362,7 @@ export default class PortalsPlugin extends Plugin {
     private refreshTrashIfActive() {
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView && leaf.view.plugin.settings.activeSplitTab === 'trash') {
-                leaf.view.refreshTrashTab();
+                void leaf.view.refreshTrashTab();
             }
         });
     }

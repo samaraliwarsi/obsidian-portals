@@ -81,7 +81,7 @@ export class SetQuickTabNumberModal {
             }
 
             this.space.quickTabNumber = newNumber;
-            this.plugin.saveSettings().then(() => this.onSave());
+            void this.plugin.saveSettings().then(() => this.onSave());
             this.close();
         };
     }

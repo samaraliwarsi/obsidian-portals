@@ -108,7 +108,7 @@ export class TrashRenderer {
         if (this.refreshTimer) window.clearTimeout(this.refreshTimer);
         this.refreshTimer = window.setTimeout(() => {
             this.refreshTimer = null;
-            this.doRefresh();
+            void this.doRefresh();
         }, 150);
     }
     private async doRefresh() {

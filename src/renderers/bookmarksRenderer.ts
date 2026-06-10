@@ -167,7 +167,7 @@ export class BookmarksRenderer {
                         e.stopPropagation();
                         const abstractFile = this.app.vault.getAbstractFileByPath(item.path);
                         if (abstractFile instanceof TFile) {
-                            this.app.workspace.getLeaf('tab').openFile(abstractFile);
+                            void this.app.workspace.getLeaf('tab').openFile(abstractFile);
                         }
                     }
                 });

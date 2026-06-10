@@ -100,6 +100,7 @@
 }
 
 .journal-progress-bar {
+    width: var(--progress-width, 0%);
     height: 100%;
     background-color: color-mix(in srgb, var(--text-normal) 30%, transparent);
     width: 0%;

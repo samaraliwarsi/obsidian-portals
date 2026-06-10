@@ -121,7 +121,7 @@ export class IconPickerModal extends Modal {
         } else {
             favs?.splice(existingIndex, 1);
         }
-        this.plugin.saveSettings().then(() => {
+        void this.plugin.saveSettings().then(() => {
             this.renderIcons()
         });
     }

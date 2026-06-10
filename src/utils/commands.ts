@@ -96,7 +96,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         name: 'Toggle sections in explorer',
         callback: () => {
             plugin.settings.enableSections = !plugin.settings.enableSections
-                plugin.saveSettings();
+                void plugin.saveSettings();
         },
     });
 
@@ -105,7 +105,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         name: 'Toggle file previews in explorer',
         callback: () => {
             plugin.settings.showFilePreview = !plugin.settings.showFilePreview;
-            plugin.saveSettings();
+            void plugin.saveSettings();
         }
     });
 
@@ -119,7 +119,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
                 if (rootSpace.type === 'folder' && !plugin.settings.openFolders.includes(rootSpace.path)) {
                     plugin.settings.openFolders.push(rootSpace.path);
                 }
-                plugin.saveSettings();
+                void plugin.saveSettings();
             } else {
                 new Notice ('Vault root portal is not available. Enable "pinned vault" in settings.');
             }
@@ -150,7 +150,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             if (view instanceof PortalsView) {
                 view.rebuildTabBarOrder();
             }
-            plugin.saveSettings();
+            void plugin.saveSettings();
         }
     });
 
@@ -163,7 +163,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
                 const current = plugin.settings.selectedSpace;
                 plugin.settings.selectedSpace = prev;
                 plugin.settings.previousSelectedSpace = current ? { path: current.path, type: current.type }: null;
-                plugin.saveSettings();
+                void plugin.saveSettings();
             } else {
                 new Notice('No previous portal to switch to.');
             }
@@ -198,7 +198,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
                 if (space.type === 'folder' && !plugin.settings.openFolders.includes(space.path)) {
                     plugin.settings.openFolders.push(space.path);
                 }
-                plugin.saveSettings();
+                void plugin.saveSettings();
             }
         });
     }
@@ -224,7 +224,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
                     plugin.settings.splitViewTabs.push(tabId);
                 }
                 plugin.settings.activeSplitTab = tabId;
-                plugin.saveSettings();
+                void plugin.saveSettings();
             },
         });
     }

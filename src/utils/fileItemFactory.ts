@@ -135,7 +135,7 @@ export class FileItemFactory {
 
         if (plugin.settings.showTreeItemToolTips && !Platform.isMobile) {
             fileEl.addEventListener('mouseenter', () => {
-                FileItemFactory.fetchFileTooltip(file, app, nameSpan, plugin).then(tip => {
+                void FileItemFactory.fetchFileTooltip(file, app, nameSpan, plugin).then(tip => {
                     if (tip) {
                         view.showTooltip(tip, fileEl, 300, 'right');
                     }
