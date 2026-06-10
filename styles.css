@@ -5628,6 +5628,7 @@ border-left: 1px dashed var(--background-modifier-border);
     vertical-align: middle;
     white-space: nowrap;
     flex-wrap: nowrap;
+    color: var(--file-color, inherit);
 }
 
 .file-item:hover {
@@ -5774,6 +5775,7 @@ font-weight: normal;
     align-items: center;
     justify-content: center;
     line-height: 0;
+    color: var(--file-color, inherit);
 }
 
 .portals-tree-container .folder-icon i.ph,
@@ -6982,6 +6984,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     transition: transform 0.1s;
     border-bottom: 2px solid rgba(128, 128, 128, var(--journal-border-opacity, 0.25));
     position: relative;
+    background: rgba(100, 100, 100, var(--journal-card-bg-opacity, 0.4));
 }
 
 .journal-card:hover {
@@ -7055,9 +7058,9 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 }
 
 .journal-progress-bar {
+    width: var(--progress-width, 0%);
     height: 100%;
     background-color: color-mix(in srgb, var(--text-normal) 30%, transparent);
-    width: 0%;
 }
 
 .journal-quote-display {
@@ -8205,6 +8208,7 @@ input.portals-rename-input {
   border: 1px solid var(--background-modifier-border);
   cursor: pointer;
   transition: border-color 0.15s ease;
+  background-color: var(--swatch-bg);
 }
 .cm-color-swatch:hover {
   border-color: var(--text-accent);
@@ -8285,6 +8289,7 @@ input.cm-opacity-slider {
   border: 1px solid var(--background-modifier-border);
   box-sizing: border-box;
   transition: transform 0.1s ease;
+  background-color: var(--palette-swatch-bg);
 }
 
 .cm-palette-swatch:hover {
@@ -8303,6 +8308,7 @@ input.cm-opacity-slider {
   height: 32px;
   border-radius: var(--input-radius);
   border: var(--input-border) solid var(--background-modifier-border);
+  background-color: var(--preview-bg);
 }
 
 /*Mobile*/

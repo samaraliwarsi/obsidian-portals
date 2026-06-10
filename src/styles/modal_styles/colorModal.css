@@ -71,6 +71,7 @@
   border: 1px solid var(--background-modifier-border);
   cursor: pointer;
   transition: border-color 0.15s ease;
+  background-color: var(--swatch-bg);
 }
 .cm-color-swatch:hover {
   border-color: var(--text-accent);
@@ -151,6 +152,7 @@ input.cm-opacity-slider {
   border: 1px solid var(--background-modifier-border);
   box-sizing: border-box;
   transition: transform 0.1s ease;
+  background-color: var(--palette-swatch-bg);
 }
 
 .cm-palette-swatch:hover {
@@ -169,6 +171,7 @@ input.cm-opacity-slider {
   height: 32px;
   border-radius: var(--input-radius);
   border: var(--input-border) solid var(--background-modifier-border);
+  background-color: var(--preview-bg);
 }
 
 /*Mobile*/

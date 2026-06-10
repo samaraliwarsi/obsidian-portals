@@ -524,7 +524,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             });
 
             const customSwatch = colorWrapper.createDiv('portals-color-swatch');
-            customSwatch.setCssProps({ 'background-color': initialHex });
+            customSwatch.setCssProps({ '--swatch-bg': initialHex });
 
             // Opacity number input
             const opacityWrapper = colorRow.createDiv('portals-opacity-wrapper');
@@ -709,7 +709,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 });
 
                 const customSwatch = colorWrapper.createDiv('portals-color-swatch');
-                customSwatch.setCssProps({ 'background-color': initialHex});
+                customSwatch.setCssProps({ '--swatch-bg': initialHex});
                 
 
                 const opacityWrapper = colorRow.createDiv('portals-opacity-wrapper');

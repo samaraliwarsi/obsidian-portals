@@ -396,6 +396,7 @@ border-left: 1px dashed var(--background-modifier-border);
     vertical-align: middle;
     white-space: nowrap;
     flex-wrap: nowrap;
+    color: var(--file-color, inherit);
 }
 
 .file-item:hover {
@@ -542,6 +543,7 @@ font-weight: normal;
     align-items: center;
     justify-content: center;
     line-height: 0;
+    color: var(--file-color, inherit);
 }
 
 .portals-tree-container .folder-icon i.ph,

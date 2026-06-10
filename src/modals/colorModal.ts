@@ -105,7 +105,7 @@ export class ColorPickerModal {
         // custom visible swatch to trigger hidden picker 
         const swatchWrapper = inputRow.createDiv('cm-color-swatch-wrapper');
         const customSwatch = swatchWrapper.createDiv('cm-color-swatch');
-        customSwatch.setCssProps({ 'background-color': this.color });
+        customSwatch.setCssProps({ '--swatch-bg': this.color });
 
         // hidden input
         const hiddenColorInput = swatchWrapper.createEl('input', { 
@@ -147,7 +147,7 @@ export class ColorPickerModal {
         previewRow.createSpan({ text: 'Final preview', cls: 'cm-wrapper-header' });
         const preview = previewRow.createDiv('portals-preview-box');
         const initialColor = `rgba(${this.hexToRgb(this.color).join(',')},${this.opacity})`;
-        preview.setCssProps({ 'background-color': initialColor });
+        preview.setCssProps({ '--preview-bg': initialColor });
 
         // ------------------- UPDATE FUNCTION ----------------
 
@@ -156,16 +156,16 @@ export class ColorPickerModal {
             const rgb = this.hexToRgb(hex);
             const newOpacity = parseFloat(opacityInput.value);
             const newColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${newOpacity})`;
-            preview.setCssProps({ 'background-color': newColor });
+            preview.setCssProps({ '--preview-bg': newColor });
             if (this.targetElement.classList.contains('file-item')) {
-                this.targetElement.setCssProps({ color: newColor });
+                this.targetElement.setCssProps({ '--file-color': newColor });
                 const icon = this.targetElement.querySelector('.file-icon i');
                 const preview = this.targetElement.querySelector('.portals-file-preview');
                 if (preview instanceof HTMLElement) {
-                    preview.setCssProps({ color: newColor });
+                    preview.setCssProps({ '--file-color': newColor });
                 }
                 if (icon instanceof HTMLElement) {
-                    icon.setCssProps({ color: newColor });
+                    icon.setCssProps({ '--file-color': newColor });
                 }
             } else {
                 this.targetElement.classList.add('has-folder-color');
@@ -188,7 +188,7 @@ export class ColorPickerModal {
 
         hiddenColorInput.addEventListener('input', () => {
             const hex = hiddenColorInput.value;
-            customSwatch.setCssProps({ background: hex })
+            customSwatch.setCssProps({ '--swatch-bg': hex })
             hexInput.value = hex;
             updatePreview();
         });
@@ -196,7 +196,7 @@ export class ColorPickerModal {
             const hex = hexInput.value.trim();
             if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
                 hiddenColorInput.value = hex;
-                customSwatch.setCssProps({ 'background-color': hex });
+                customSwatch.setCssProps({ '--swatch-bg': hex });
                 updatePreview();
             }
         });
@@ -215,14 +215,14 @@ export class ColorPickerModal {
         const cancelBtn = buttonDiv.createEl('button', { text: 'Cancel' });
         cancelBtn.onclick = () => {
             if (this.targetElement.classList.contains('file-item')) {
-                this.targetElement.setCssProps({ color: this.originalFileTextColor });
+                this.targetElement.setCssProps({ '--file-color': this.originalFileTextColor });
                 const icon = this.targetElement.querySelector('.file-icon i');
                 const preview = this.targetElement.querySelector('.portals-file-preview');
                 if (icon instanceof HTMLElement) {
-                    icon.setCssProps({ color: this.originalFileIconColor });
+                    icon.setCssProps({ '--file-color': this.originalFileIconColor });
                 }
                 if (preview instanceof HTMLElement) {
-                    preview.setCssProps({ color: this.originalFileTextColor });
+                    preview.setCssProps({ '--file-color': this.originalFileTextColor });
                 }
             } else {
                 // Restore original class states
@@ -259,7 +259,7 @@ export class ColorPickerModal {
         for (let i = 0; i < this.paletteColors.length; i++) {
             const wrapper = this.palettes.createDiv('cm-palette-swatch-wrapper');
             const swatch = wrapper.createDiv('cm-palette-swatch');
-            swatch.setCssProps({ 'background-color': this.paletteColors[i]! });
+            swatch.setCssProps({ '--palette-swatch-bg': this.paletteColors[i]! });
 
             const palettePicker = wrapper.createEl('input', {
                 type: 'color',
@@ -270,7 +270,7 @@ export class ColorPickerModal {
             swatch.addEventListener('click', () => {
                 const hex = this.paletteColors[i]!;
                 hiddenColorInput.value = hex;
-                customSwatch.setCssProps({ 'background-color': hex });
+                customSwatch.setCssProps({ '-swatch-bg': hex });
                 hiddenColorInput.dispatchEvent(new Event('input', { bubbles: true }));
             });
             swatch.addEventListener('contextmenu', (e) => {
@@ -286,7 +286,7 @@ export class ColorPickerModal {
             });
             palettePicker.addEventListener('change', () => {
                 this.paletteColors[i] = palettePicker.value;
-                swatch.setCssProps({ 'background-color': palettePicker.value });
+                swatch.setCssProps({ '--palette-swatch-bg': palettePicker.value });
                 void this.savePalette();
             });
         }
@@ -304,10 +304,10 @@ export class ColorPickerModal {
             const icon = this.targetElement.querySelector('.file-icon i');
             const preview = this.targetElement.querySelector('.portals-file-preview');
             if (icon instanceof HTMLElement) {
-                icon.setCssProps({ color: this.originalFileIconColor });
+                icon.setCssProps({ '--file-color': this.originalFileIconColor });
             }
             if (preview instanceof HTMLElement) {
-                preview.setCssProps({ color: this.originalFileTextColor});
+                preview.setCssProps({ '--file-color': this.originalFileTextColor});
             }
         } else {
             if (!this.originalDetailsClass) this.targetElement.classList.remove('has-folder-color');
