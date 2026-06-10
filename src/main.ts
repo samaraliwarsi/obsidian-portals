@@ -232,7 +232,7 @@ export default class PortalsPlugin extends Plugin {
                 if (!this.settings.customIcons[compositeKey]) {
                     this.settings.customIcons[compositeKey] = this.settings.customIcons[oldKey];
                 }
-                delete this.settings.customIcons[oldKey];
+                //delete this.settings.customIcons[oldKey];
                 needsSave = true;
             }
         }
@@ -248,14 +248,14 @@ export default class PortalsPlugin extends Plugin {
             }
         }
         // remove any other bare-path customicons
-        for (const key of Object.keys(this.settings.customIcons)) {
+        /*for (const key of Object.keys(this.settings.customIcons)) {
             if (!key.includes(':')) {
                 const matchingSpace = this.settings.spaces.find(s => s.path === key);
                 if (matchingSpace) {
                     delete this.settings.customIcons[key];
                 }
             }
-        }
+        }*/
         if (needsSave) {
             await this.saveSettings();
         }
@@ -341,14 +341,14 @@ export default class PortalsPlugin extends Plugin {
         );
         if (existingLeaf) {
             // If one exists, just reveal it
-            void workspace.revealLeaf(existingLeaf);
+            //void workspace.revealLeaf(existingLeaf);
             return;
         }
         // Otherwise, create a new leaf in the left sidebar
         const newLeaf = workspace.getLeftLeaf(false);
         if (!newLeaf) return;
         await newLeaf.setViewState({ type: VIEW_TYPE_PORTALS, active: true });
-        void workspace.revealLeaf(newLeaf);
+        //void workspace.revealLeaf(newLeaf);
     }
 
     private refreshAllRecentTabs() {
