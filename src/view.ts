@@ -24,6 +24,7 @@ import { RenamePortalModal } from './modals/renamePortalModal';
 import { RemovePortalModal } from './modals/removePortalModal';
 import { SidePortalModal } from './modals/sidePortalModal';
 import { renderSidePanelContent } from './renderers/sidePanelContent';
+import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 
 const MIN_EXPANDED_HEIGHT = 150;
 export const SIDE_TAB_ICONS: Record<string, string> = {
@@ -867,7 +868,13 @@ export class PortalsView extends ItemView {
             }
 
             await this.plugin.saveSettings();
-            this.render();   // re‑render the main view to reflect changes in the left panel
+            this.render();
+            const altLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
+            for (const leaf of altLeaves) {
+                if (leaf.view instanceof AltSidePanelView) {
+                    leaf.view.refresh();
+                }
+            }
         }).open();
     }
 

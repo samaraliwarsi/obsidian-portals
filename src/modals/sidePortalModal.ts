@@ -85,16 +85,21 @@ export class SidePortalModal {
             leftCheck.checked = this.selectedLeft.has(tab.id);
             leftCheck.addEventListener('change', () => {
                 if (leftCheck.checked) {
+                    // When checking left, uncheck right for this tab
                     this.selectedLeft.add(tab.id);
+                    this.selectedRight.delete(tab.id);
+                    rightCheck.checked = false;
                 } else {
+                    // Prevent uncheck if left panel would become empty
+                    if (this.selectedLeft.size === 1 && this.selectedLeft.has(tab.id)) {
+                        leftCheck.checked = true;
+                        new Notice('Existing left side split panel must have at least one tab.');
+                        return;
+                    }
                     this.selectedLeft.delete(tab.id);
                 }
-                if (this.selectedLeft.size === 0) {
-                    leftCheck.checked = true;
-                    this.selectedLeft.add(tab.id);
-                    new Notice( 'Existing left side split panel must have atleast one tab.');
-                }
             });
+
             
             const rightCheck = checkboxRow.createEl("input", {
                 type: "checkbox",
@@ -103,7 +108,15 @@ export class SidePortalModal {
             rightCheck.checked = this.selectedRight.has(tab.id);
             rightCheck.addEventListener('change', () => {
                 if (rightCheck.checked) {
+                    // If this tab is the last one in the left panel, prevent moving it
+                    if (this.selectedLeft.has(tab.id) && this.selectedLeft.size === 1) {
+                        rightCheck.checked = false;
+                        new Notice('The left side panel must have at least one tab. Cannot move the last tab to the right.');
+                        return;
+                    }
                     this.selectedRight.add(tab.id);
+                    this.selectedLeft.delete(tab.id);
+                    leftCheck.checked = false;
                 } else {
                     this.selectedRight.delete(tab.id);
                 }

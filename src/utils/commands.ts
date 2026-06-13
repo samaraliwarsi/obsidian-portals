@@ -160,12 +160,15 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         name: 'Open right side panel (alt side portal)',
         callback: () => {
             const rightSplit = plugin.app.workspace.rightSplit;
-            if (rightSplit && rightSplit.collapsed) rightSplit.expand();
+            if (!rightSplit) return;
+            if (rightSplit.collapsed) rightSplit.expand();
+
             const existing = plugin.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
 
             for (const leaf of existing) leaf.detach();
 
-            const leaf = plugin.app.workspace.getRightLeaf(true);
+            let leaf = plugin.app.workspace.getRightLeaf(false);
+            if (!leaf) leaf = plugin.app.workspace.getRightLeaf(true);
             if (!leaf) return;
             leaf.setViewState({
                 type: VIEW_TYPE_ALT_SIDE_PANEL,

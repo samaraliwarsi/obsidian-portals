@@ -8,6 +8,7 @@ import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { AddPortalModal } from './modals/addPortalModal';
 import { SelectFolderModal } from './modals/selectFolderModal';
 import { makeSyncButton } from './utils/syncButton';
+import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
@@ -869,9 +870,13 @@ export class SpacesSettingTab extends PluginSettingTab {
                             this.plugin.settings.alternateActiveTab = '';
                         }
                         await this.plugin.saveSettings();
-                        console.log('🟢 After save – left:', left, 'right:', right);
-                        console.log('🟢 In settings – alternateSideTabs:', this.plugin.settings.alternateSideTabs);
                         this.display();
+                        const altLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
+                        for (const leaf of altLeaves) {
+                            if (leaf.view instanceof AltSidePanelView) {
+                                leaf.view.refresh();
+                            }
+                        }
                     }).open();
                 }));
 
