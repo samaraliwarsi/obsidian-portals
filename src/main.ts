@@ -9,6 +9,7 @@ import { PhosphorIconProvider } from './icons/phosphorIconProvider';
 import { IconProvider } from './icons/iconProvider';
 import { setPluginInstance } from './utils/Proxies/pluginInstance';
 import { getLocalItem } from './utils/Proxies/storageProxy';
+import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
@@ -76,6 +77,11 @@ export default class PortalsPlugin extends Plugin {
         this.registerView(
             VIEW_TYPE_PORTALS,
             (leaf) => new PortalsView(leaf, this)
+        );
+
+        this.registerView(
+            VIEW_TYPE_ALT_SIDE_PANEL,
+            (leaf) => new AltSidePanelView(leaf, this)
         );
 
         this.addRibbonIcon('folder-tree', 'Open portals', () => {

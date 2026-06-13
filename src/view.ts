@@ -23,9 +23,10 @@ import { FileItemFactory } from './utils/fileItemFactory';
 import { RenamePortalModal } from './modals/renamePortalModal';
 import { RemovePortalModal } from './modals/removePortalModal';
 import { SidePortalModal } from './modals/sidePortalModal';
+import { renderSidePanelContent } from './renderers/sidePanelContent';
 
 const MIN_EXPANDED_HEIGHT = 150;
-const SIDE_TAB_ICONS: Record<string, string> = {
+export const SIDE_TAB_ICONS: Record<string, string> = {
     recent: 'clock-counter-clockwise',
     'context-notes': 'note',
     bookmarks: 'bookmark',
@@ -852,16 +853,21 @@ export class PortalsView extends ItemView {
     
 
     public showSidePortalConfig() {
-        new SidePortalModal(this.app, this.plugin, (tabs) => {
-            if (!tabs.includes('context-notes') && this.contextNotesRenderer) {
-                this.contextNotesRenderer.destroy();
-                this.contextNotesRenderer = null;
+        new SidePortalModal(this.app, this.plugin, async (left, right) => {
+            this.plugin.settings.splitViewTabs = left;
+            this.plugin.settings.alternateSideTabs = right;
+
+            if (!left.includes(this.plugin.settings.activeSplitTab)) {
+                this.plugin.settings.activeSplitTab = left[0] || 'recent';
             }
-            this.plugin.settings.splitViewTabs = tabs;
-            if (!tabs.includes(this.plugin.settings.activeSplitTab)) {
-                this.plugin.settings.activeSplitTab = tabs[0] || 'recent';
+            if (right.length && !right.includes(this.plugin.settings.alternateActiveTab)) {
+                this.plugin.settings.alternateActiveTab = right[0] ?? '';
+            } else if (!right.length) {
+                this.plugin.settings.alternateActiveTab = '';
             }
-            void this.plugin.saveSettings().then(() => this.render());
+
+            await this.plugin.saveSettings();
+            this.render();   // re‑render the main view to reflect changes in the left panel
         }).open();
     }
 
@@ -1444,6 +1450,7 @@ export class PortalsView extends ItemView {
             journalDefaultCurrentMode: s.journalDefaultCurrentMode,
             iconLibrary: s.iconLibrary,
             enableAutoBackup: s.enableAutoBackup,
+            alternateSideTabs: s.alternateSideTabs?.join(',') || '',
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
@@ -2000,102 +2007,11 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private async renderSplitTabContent(secondaryPanel: HTMLElement, tabId: string) {
+    public async renderSplitTabContent(secondaryPanel: HTMLElement, tabId: string) {
         const contentEl = secondaryPanel.querySelector('.portals-split-content') as HTMLElement;
         if (!contentEl) return;
 
-        contentEl.empty();
-        contentEl.className = 'portals-split-content';
-        
-        // conditionals 
-        if (tabId !== 'context-notes' && tabId !== 'journal') {
-            contentEl.addClass(`portals-tree-style-${this.plugin.settings.treeStyle}`);
-        }
-        if (tabId !== 'trash' && this.trashRenderer){
-            this.trashRenderer.destroy();
-            this.trashRenderer = null;
-        }
-        
-        // Split tab integration
-        if (tabId === 'recent') {
-            if (!this.recentRenderer) {
-                this.recentRenderer = new RecentFilesRenderer(this.app, this.plugin, this);
-                }
-                this.recentRenderer.setContainer(contentEl);
-                this.recentRenderer.render();           
-        } else if (tabId === 'context-notes') {
-            if (!this.plugin.settings.enableContextNotes) {
-                if (this.contextNotesRenderer) {
-                    this.contextNotesRenderer.destroy();
-                    this.contextNotesRenderer = null;
-                }
-                contentEl.createEl('p', {
-                    text: 'Context notes are disabled. Enable them in settings.',
-                    cls: 'portals-context-note-message'
-                });
-                return;
-            }
-            if (!this.contextNotesRenderer) {
-                this.contextNotesRenderer = new ContextNotesRenderer(
-                    this.app, this.plugin, this, contentEl, this.contextNoteScrollCache
-                );
-            } else {
-                this.contextNotesRenderer.setContainer(contentEl);
-            }
-            contentEl.empty();
-            contentEl.addClass('portals-context-notes-tab-container')
-            await this.contextNotesRenderer.render();
-        } else if (tabId === 'bookmarks') {
-            if (!this.bookmarksRenderer) {
-                this.bookmarksRenderer = new BookmarksRenderer(this.app, this.plugin, this,
-                    () => {
-                        const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
-                        if (secondaryPanel) {
-                            void this.renderSplitTabContent(secondaryPanel as HTMLElement, 'bookmarks');
-                        }
-                    }
-                );
-            }
-            this.bookmarksRenderer.setContainer(contentEl);
-            this.bookmarksRenderer.render();
-        } else if (tabId === 'journal') {
-            const currentFolderPath = this.plugin.settings.journalFolderPath;
-            if (this.journalRenderer && this.journalFolderPath === currentFolderPath && this.journalContainer) {
-                //reuse existing container
-                contentEl.appendChild(this.journalContainer);
-            } else {
-                if (this.journalRenderer) {
-                    this.journalRenderer.destroy();
-                    this.journalRenderer = null;
-                }
-                // create new renderer
-                this.journalContainer = contentEl.createDiv();
-                this.journalRenderer = new JournalRenderer(this.app, this.plugin, this.journalContainer, this);
-                this.journalFolderPath = currentFolderPath;
-                await this.journalRenderer.render();
-            }
-        } else if (tabId === 'hidden') {
-            if (!this.hiddenRenderer) {
-                this.hiddenRenderer = new HiddenItemsRenderer(this.app, this.plugin, this);
-            }
-            this.hiddenRenderer.setContainer(contentEl);
-            this.hiddenRenderer.render();
-        } else if (tabId === 'properties') {
-            contentEl.empty();
-            contentEl.addClass('portals-frontmatter-clinic');
-            const renderer = new FrontmatterClinicRenderer(this.app, this.plugin, contentEl, this);
-            this.clinicRenderer = renderer;
-            await renderer.render();
-        } else if (tabId === 'trash') {
-            if (!this.trashRenderer) {
-                contentEl.empty();
-                contentEl.addClass('portals-trash-tab');
-                this.trashRenderer = new TrashRenderer(this.app, this.plugin, contentEl, this);
-            } else {
-                this.trashRenderer.setContainer(contentEl);                
-            }
-            await this.trashRenderer.render();
-        }
+        await renderSidePanelContent(this.app, this.plugin, contentEl, tabId, this);
     }
     
     renderContent() {

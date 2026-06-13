@@ -2,6 +2,7 @@ import { Notice } from "obsidian";
 import PortalsPlugin from "../main";
 import { PortalsView, VIEW_TYPE_PORTALS } from "../view";
 import { getGuideUrl } from "./Proxies/urls";
+import { VIEW_TYPE_ALT_SIDE_PANEL } from "../renderers/RightSideView";
 
 export function registerAllCommands (plugin: PortalsPlugin) {
     plugin.addCommand({
@@ -152,6 +153,26 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             }
             void plugin.saveSettings();
         }
+    });
+
+    plugin.addCommand({
+        id: 'open-alt-side-panel',
+        name: 'Open right side panel (alt side portal)',
+        callback: () => {
+            const rightSplit = plugin.app.workspace.rightSplit;
+            if (rightSplit && rightSplit.collapsed) rightSplit.expand();
+            const existing = plugin.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
+
+            for (const leaf of existing) leaf.detach();
+
+            const leaf = plugin.app.workspace.getRightLeaf(true);
+            if (!leaf) return;
+            leaf.setViewState({
+                type: VIEW_TYPE_ALT_SIDE_PANEL,
+                active: true,
+            });
+            plugin.app.workspace.revealLeaf(leaf);
+        },
     });
 
     plugin.addCommand({

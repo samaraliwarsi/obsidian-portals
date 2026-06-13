@@ -26,7 +26,7 @@ export interface SpacesSettings {
     secondaryPanelCollapsed: boolean;
     sidePanelEnabled: boolean;
     recentFilesList: string[];
-    splitViewTabs: string[];
+    splitViewTabs: string[]; // left by default
     activeSplitTab: string;
     showContextNotesInTree:boolean;
     enableContextNotes: boolean;
@@ -85,6 +85,8 @@ export interface SpacesSettings {
     enableAutoBackup: boolean;
     backupFolderPath: string;
     toggleSettingsSync: boolean;
+    alternateSideTabs: string[]; // right
+    alternateActiveTab: string; // active on right 
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -104,7 +106,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     secondaryPanelCollapsed: false,
     sidePanelEnabled: true,
     recentFilesList: [],
-    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden', 'properties', 'trash'],
+    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden', 'properties', 'trash'], // left by default
     activeSplitTab: 'recent',
     showContextNotesInTree: false,
     enableContextNotes: true,
@@ -163,6 +165,8 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     enableAutoBackup: false,
     backupFolderPath: '',
     toggleSettingsSync: true,
+    alternateSideTabs: [],
+    alternateActiveTab: '',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -852,12 +856,21 @@ export class SpacesSettingTab extends PluginSettingTab {
             .addButton(button => button
                 .setButtonText('Configure')
                 .onClick(() => {
-                    new SidePortalModal(this.app, this.plugin, (tabs) => {
-                        this.plugin.settings.splitViewTabs = tabs;
-                        if (!tabs.includes(this.plugin.settings.activeSplitTab)) { 
-                            this.plugin.settings.activeSplitTab = tabs[0] || 'recent';
+                    new SidePortalModal(this.app, this.plugin, async (left, right) => {
+                        this.plugin.settings.splitViewTabs = left;
+                        this.plugin.settings.alternateSideTabs = right;
+                        if (!left.includes(this.plugin.settings.activeSplitTab)) { 
+                            this.plugin.settings.activeSplitTab = left[0] || 'recent';
                         }
-                        void this.plugin.saveSettings();
+                        // Keep active right tab valid
+                        if (right.length && !right.includes(this.plugin.settings.alternateActiveTab)) {
+                            this.plugin.settings.alternateActiveTab = right[0] ?? '';
+                        } else if (!right.length) {
+                            this.plugin.settings.alternateActiveTab = '';
+                        }
+                        await this.plugin.saveSettings();
+                        console.log('🟢 After save – left:', left, 'right:', right);
+                        console.log('🟢 In settings – alternateSideTabs:', this.plugin.settings.alternateSideTabs);
                         this.display();
                     }).open();
                 }));

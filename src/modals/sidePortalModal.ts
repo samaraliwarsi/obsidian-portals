@@ -3,16 +3,18 @@ import PortalsPlugin from "../main";
 
 export class SidePortalModal {
     private plugin: PortalsPlugin;
-    private onSave: (tabs: string[]) => void;
-    private selectedTabs: Set<string>;
+    private onSave: (left: string[], right: string[]) => void;
+    private selectedLeft: Set<string>;
+    private selectedRight: Set<string>;
     private backdrop!: HTMLElement;
     private container!: HTMLElement;
     private keyHandler: (e: KeyboardEvent) => void;
 
-    constructor(app: App, plugin: PortalsPlugin, onSave: (tabs: string[]) => void) {
+    constructor(app: App, plugin: PortalsPlugin, onSave: (left: string[], right: string[]) => void) {
         this.plugin = plugin;
         this.onSave = onSave;
-        this.selectedTabs = new Set(plugin.settings.splitViewTabs);
+        this.selectedLeft = new Set(plugin.settings.splitViewTabs);
+        this.selectedRight = new Set(plugin.settings.alternateSideTabs);
 
         this.keyHandler = (e: KeyboardEvent) => {
             if (e.key === "Escape") this.close();
@@ -46,7 +48,7 @@ export class SidePortalModal {
         this.container.createDiv({ text: 'Choose side portals', cls: 'portals-sp-title'});
 
         this.container.createEl("p", {
-            text: "At least one must be selected to enable side portal.",
+            text: "At least one tab must be selected for the existing left side panel. The alternate right panel is optional.",
             cls: "portals-sp-modal-subtext",
         });
 
@@ -65,30 +67,45 @@ export class SidePortalModal {
             cls: "portals-sp-checkbox-container",
         });
 
+        checkboxContainer.createSpan({ text: 'Tab', cls: 'portals-sp-tab-name' });
+        checkboxContainer.createSpan({ text: 'Left', cls: 'portals-sp-left-tab-name' });
+        checkboxContainer.createSpan({ text: 'Right', cls: 'portals-sp-right-tab-name' });
+
         for (const tab of availableTabs) {
-            const checkboxDiv = checkboxContainer.createDiv({
+            const checkboxRow = this.container.createDiv({
                 cls: "portals-sp-checkbox-item",
             });
 
-            const checkbox = checkboxDiv.createEl("input", {
+            checkboxRow.createSpan({ text: tab.name, cls: 'portals-sp-checkbox-label' });
+
+            const leftCheck = checkboxRow.createEl("input", {
                 type: "checkbox",
-                value: tab.id,
-                attr: { id: `tab-${tab.id}` },
+                cls: 'tab-left-check',
             });
-            checkbox.checked = this.selectedTabs.has(tab.id);
-
-            checkboxDiv.createEl("label", {
-                text: ` ${tab.name}`,
-                cls: "portals-sp-checkbox-label",
-                attr: { for: `tab-${tab.id}` },
-            });
-
-            checkbox.addEventListener("change", (e) => {
-                const target = e.target as HTMLInputElement;
-                if (target.checked) {
-                    this.selectedTabs.add(tab.id);
+            leftCheck.checked = this.selectedLeft.has(tab.id);
+            leftCheck.addEventListener('change', () => {
+                if (leftCheck.checked) {
+                    this.selectedLeft.add(tab.id);
                 } else {
-                    this.selectedTabs.delete(tab.id);
+                    this.selectedLeft.delete(tab.id);
+                }
+                if (this.selectedLeft.size === 0) {
+                    leftCheck.checked = true;
+                    this.selectedLeft.add(tab.id);
+                    new Notice( 'Existing left side split panel must have atleast one tab.');
+                }
+            });
+            
+            const rightCheck = checkboxRow.createEl("input", {
+                type: "checkbox",
+                cls: 'tab-right-check',
+            });
+            rightCheck.checked = this.selectedRight.has(tab.id);
+            rightCheck.addEventListener('change', () => {
+                if (rightCheck.checked) {
+                    this.selectedRight.add(tab.id);
+                } else {
+                    this.selectedRight.delete(tab.id);
                 }
             });
         }
@@ -106,12 +123,12 @@ export class SidePortalModal {
             cls: "mod-cta",
         });
         saveBtn.addEventListener("click", () => {
-            const selected = Array.from(this.selectedTabs);
-            if (selected.length === 0) {
+            console.log('🔵 Modal onSave – left:', Array.from(this.selectedLeft), 'right:', Array.from(this.selectedRight));
+            if (this.selectedLeft.size === 0) {
                 new Notice("Please select at least one tab.");
                 return;
             }
-            this.onSave(selected);
+            this.onSave(Array.from(this.selectedLeft), Array.from(this.selectedRight));
             this.close();
         });
     }
