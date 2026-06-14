@@ -18,7 +18,6 @@ import { TagTreeRenderer } from './trees/tagtreeRenderer';
 import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
 import { ReorderItemsModal } from './modals/reorderItemsModal';
 import { FrontmatterPopup } from './modals/frontmatterPopup';
-import { InternalPluginsWithBookmarks } from './types';
 import { FileItemFactory } from './utils/fileItemFactory';
 import { RenamePortalModal } from './modals/renamePortalModal';
 import { RemovePortalModal } from './modals/removePortalModal';
@@ -1087,37 +1086,6 @@ export class PortalsView extends ItemView {
             }
         }));
 
-        const setupBookmarksListener = () => {
-            // @ts-expect-error - accessing internal plugin API
-            const internalPlugins = this.app.internalPlugins as unknown as InternalPluginsWithBookmarks | undefined;
-            const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
-            if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
-                const ref = bookmarksPlugin.instance.on('changed', () => {
-                    // left
-                    if (this.plugin.settings.activeSplitTab !== 'bookmarks') return;
-                    const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
-                    if (secondaryPanel instanceof HTMLElement) {                
-                        const contentEl = secondaryPanel.querySelector('.portals-split-content');
-                        if (contentEl instanceof HTMLElement) {
-                            if (this.bookmarksRenderer) {
-                                this.bookmarksRenderer.setContainer(contentEl);
-                                this.bookmarksRenderer.render();
-                            } else {
-                                void this.renderSplitTabContent(secondaryPanel, 'bookmarks');
-                            }
-                        }
-                    }  
-                    // right
-                    if (this.plugin.settings.alternateActiveTab === 'bookmarks') {
-                        this.plugin.refreshAltRightPanelContent();
-                    }
-                });
-                this.bookmarksListenerRef = ref;
-            }
-        };
-        setupBookmarksListener();
-
-
         this.registerEvent(this.app.vault.on('modify', (file) => {
             if (file instanceof TFile && this.plugin.settings.activeSplitTab === 'journal') {
                 if (this.isFileInJournalFolder(file)) {
@@ -1173,18 +1141,6 @@ export class PortalsView extends ItemView {
         if (this.sortableInstances) {
             this.sortableInstances.forEach(s => s.destroy());
             this.sortableInstances = [];
-        }
-
-        // Clean up bookmarks listener
-        const ref = this.bookmarksListenerRef;
-        if (ref) {
-            // @ts-expect-error - accessing internal plugin API
-            const internalPlugins = this.app.internalPlugins as unknown as InternalPluginsWithBookmarks | undefined;
-            const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
-            if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.off === 'function') {
-                bookmarksPlugin.instance.off('changed', ref);
-            }
-            this.bookmarksListenerRef = null;
         }
 
         activeDocument.removeEventListener('mousemove', this.handleDragMove);

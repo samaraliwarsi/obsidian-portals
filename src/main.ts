@@ -1,4 +1,4 @@
-import { Plugin, TFolder, TFile, Notice, normalizePath } from 'obsidian';
+import { Plugin, TFolder, TFile, Notice, normalizePath, App } from 'obsidian';
 import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
@@ -10,16 +10,51 @@ import { IconProvider } from './icons/iconProvider';
 import { setPluginInstance } from './utils/Proxies/pluginInstance';
 import { getLocalItem } from './utils/Proxies/storageProxy';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
+import { InternalPluginsWithBookmarks } from './types';
+
+interface AppWithInternalPlugins extends App {
+    internalPlugins: unknown;
+}
 
 export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
     lucideProvider = new LucideIconProvider;
     phosphorProvider = new PhosphorIconProvider;
+    private bookmarksListenerRef: (() => void) | null = null;
 
     async onload() {
         setPluginInstance(this);
         await this.loadSettings();
         registerAllCommands(this);
+
+        const internalPlugins = (this.app as AppWithInternalPlugins).internalPlugins as InternalPluginsWithBookmarks;
+        const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
+        if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance?.on) {
+            const onBookmarksChange = () => {
+                if (this.settings.activeSplitTab === 'bookmarks') {
+                    this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                        if (leaf.view instanceof PortalsView) {
+                            const secondaryPanel = leaf.view.containerEl.querySelector('.portals-secondary-panel');
+                            if (secondaryPanel instanceof HTMLElement) {
+                                void leaf.view.renderSplitTabContent(secondaryPanel, 'bookmarks');
+                            }
+                        }
+                    });
+                }
+                if (this.settings.alternateActiveTab === 'bookmarks') {
+                    this.refreshAltRightPanelContent();
+                }
+            };
+            const instance = bookmarksPlugin.instance as {
+                on?: (event: string, callback: () => void) => void;
+                off?: (event: string, callback: () => void) => void;
+            };
+            if (instance.on) {
+                bookmarksPlugin.instance.on('changed', onBookmarksChange);
+                this.bookmarksListenerRef = onBookmarksChange;
+            }
+        }
+
 
         this.app.workspace.onLayoutReady(() => {
             if (this.settings.enableAutoBackup) {
@@ -167,6 +202,19 @@ export default class PortalsPlugin extends Plugin {
     onunload() { 
         setPluginInstance(null);
         FrontmatterClinicRenderer.resetCache();
+        if (this.bookmarksListenerRef) {
+            const internalPlugins = (this.app as AppWithInternalPlugins).internalPlugins as InternalPluginsWithBookmarks;
+            const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
+            if (bookmarksPlugin?.instance) {
+                const instance = bookmarksPlugin.instance as {
+                    off?: (event: string, callback: () => void) => void;
+                };
+                if (instance.off) {
+                    instance.off('changed', this.bookmarksListenerRef);
+                }
+            }
+            this.bookmarksListenerRef = null;
+        }
     }
 
     async loadSettings() {
@@ -391,12 +439,14 @@ export default class PortalsPlugin extends Plugin {
     }
 
     public refreshAltRightPanelContent(tabId?: string): void {
-        this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
-            if (leaf.view instanceof AltSidePanelView) {
-                if (tabId && leaf.view.activeTabId !== tabId) return;
-                void leaf.view.refreshContent();
-            }
-        });
+        setTimeout(() => {
+            this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
+                if (leaf.view instanceof AltSidePanelView) {
+                    if (tabId && leaf.view.activeTabId !== tabId) return;
+                    void leaf.view.refreshContent();
+                }
+            });
+        }, 50);
     }
 
     async updateRecentFiles(filePath: string) {

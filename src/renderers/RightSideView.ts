@@ -45,7 +45,13 @@ export class AltSidePanelView extends ItemView {
 
     /** Re‑render the tab bar and content from current settings */
     public refresh() {
-        if (!this.mainView) return;
+        const mainLeaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+        this.mainView = mainLeaf?.view instanceof PortalsView ? mainLeaf.view : null;
+        if (!this.mainView) {
+            this.contentEl.empty();
+            this.contentEl.createEl('p', { text: 'Open the main Portals view first.' });
+            return;
+        }
         const tabs = this.plugin.settings.alternateSideTabs;
         const active = this.plugin.settings.alternateActiveTab || tabs[0] || '';
         this.activeTabId = active;
