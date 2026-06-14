@@ -14,7 +14,7 @@ export async function renderSidePanelContent(
     plugin: PortalsPlugin,
     contentEl: HTMLElement,
     tabId: string,
-    mainView: PortalsView | null
+    mainView: PortalsView | null,
 ): Promise<void> {
     contentEl.empty();
     contentEl.className = 'portals-split-content';

@@ -363,6 +363,7 @@ export default class PortalsPlugin extends Plugin {
                 leaf.view.refreshRecentTab();
             }
         });
+        this.refreshAltRightPanelContent('recent');
     }
 
     private refreshTrashIfActive() {
@@ -389,8 +390,17 @@ export default class PortalsPlugin extends Plugin {
         });
     }
 
+    public refreshAltRightPanelContent(tabId?: string): void {
+        this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
+            if (leaf.view instanceof AltSidePanelView) {
+                if (tabId && leaf.view.activeTabId !== tabId) return;
+                void leaf.view.refreshContent();
+            }
+        });
+    }
+
     async updateRecentFiles(filePath: string) {
-        const maxRecent = 20;
+        const maxRecent = 30;
         let recent = this.settings.recentFilesList || [];
         recent = recent.filter(p => p !== filePath);
         recent.unshift(filePath);

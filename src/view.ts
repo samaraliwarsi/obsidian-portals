@@ -1093,19 +1093,23 @@ export class PortalsView extends ItemView {
             const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
             if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance.on === 'function') {
                 const ref = bookmarksPlugin.instance.on('changed', () => {
+                    // left
                     if (this.plugin.settings.activeSplitTab !== 'bookmarks') return;
                     const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
-                    if (!(secondaryPanel instanceof HTMLElement)) return;
-                
-                    const contentEl = secondaryPanel.querySelector('.portals-split-content');
-                    if (contentEl instanceof HTMLElement) {
-                        if (this.bookmarksRenderer) {
-                            this.bookmarksRenderer.setContainer(contentEl);
-                            this.bookmarksRenderer.render();
-                        } else {
-                            // fallback
-                            void this.renderSplitTabContent(secondaryPanel, 'bookmarks');
+                    if (secondaryPanel instanceof HTMLElement) {                
+                        const contentEl = secondaryPanel.querySelector('.portals-split-content');
+                        if (contentEl instanceof HTMLElement) {
+                            if (this.bookmarksRenderer) {
+                                this.bookmarksRenderer.setContainer(contentEl);
+                                this.bookmarksRenderer.render();
+                            } else {
+                                void this.renderSplitTabContent(secondaryPanel, 'bookmarks');
+                            }
                         }
+                    }  
+                    // right
+                    if (this.plugin.settings.alternateActiveTab === 'bookmarks') {
+                        this.plugin.refreshAltRightPanelContent();
                     }
                 });
                 this.bookmarksListenerRef = ref;
