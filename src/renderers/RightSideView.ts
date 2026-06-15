@@ -65,7 +65,7 @@ export class AltSidePanelView extends ItemView {
         };
 
         renderSidePanel(this.contentEl, this.plugin, this.mainView, tabs, active, onTabsUpdate);
-        this.contentArea = this.contentEl.querySelector('.portals-split-content') as HTMLElement | null;
+        this.contentArea = this.contentEl.querySelector('.portals-split-content');
     }
 
     public async refreshContent() {

@@ -857,7 +857,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             .addButton(button => button
                 .setButtonText('Configure')
                 .onClick(() => {
-                    new SidePortalModal(this.app, this.plugin, async (left, right) => {
+                    void new SidePortalModal(this.app, this.plugin, async (left, right) => {
                         this.plugin.settings.splitViewTabs = left;
                         this.plugin.settings.alternateSideTabs = right;
                         if (!left.includes(this.plugin.settings.activeSplitTab)) { 

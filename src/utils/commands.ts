@@ -174,7 +174,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
                 type: VIEW_TYPE_ALT_SIDE_PANEL,
                 active: true,
             });
-            plugin.app.workspace.revealLeaf(leaf);
+            void plugin.app.workspace.revealLeaf(leaf);
         },
     });
 

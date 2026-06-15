@@ -853,7 +853,7 @@ export class PortalsView extends ItemView {
     
 
     public showSidePortalConfig() {
-        new SidePortalModal(this.app, this.plugin, async (left, right) => {
+        void new SidePortalModal(this.app, this.plugin, async (left, right) => {
             this.plugin.settings.splitViewTabs = left;
             this.plugin.settings.alternateSideTabs = right;
 

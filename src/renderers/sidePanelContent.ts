@@ -57,7 +57,7 @@ export async function renderSidePanelContent(
         // BookmarksRenderer expects (app, plugin, view, refreshCallback)
         const refresh = () => {
             // Re-render the content area of the right panel on demand
-            renderSidePanelContent(app, plugin, contentEl, tabId, mainView);
+            void renderSidePanelContent(app, plugin, contentEl, tabId, mainView);
         };
         const bmRenderer = new BookmarksRenderer(app, plugin, mainView!, refresh);
         bmRenderer.setContainer(contentEl);

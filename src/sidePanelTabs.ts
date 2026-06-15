@@ -111,9 +111,9 @@ export function renderSidePanel(
     });
 
     // Scroll the active tab into view
-    const activeSplitTab = tabContainer.querySelector('.portals-split-tab.is-active') as HTMLElement | null;
+    const activeSplitTab = tabContainer.querySelector('.portals-split-tab.is-active');
     if (activeSplitTab) {
-        setTimeout(() => {
+        window.setTimeout(() => {
             activeSplitTab.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
         }, 0);
     }
