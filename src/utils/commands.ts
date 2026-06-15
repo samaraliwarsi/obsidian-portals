@@ -240,16 +240,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         plugin.addCommand({
             id,
             name,
-            callback: () => {
-                plugin.settings.sidePanelEnabled = true;
-                plugin.settings.secondaryPanelCollapsed = false;
-
-                if (!plugin.settings.splitViewTabs.includes(tabId)) {
-                    plugin.settings.splitViewTabs.push(tabId);
-                }
-                plugin.settings.activeSplitTab = tabId;
-                void plugin.saveSettings();
-            },
+            callback: () => plugin.openSideTab(tabId),
         });
     }
 }

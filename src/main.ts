@@ -240,6 +240,16 @@ export default class PortalsPlugin extends Plugin {
         const data = (await this.loadData()) as Record<string, unknown> | null;
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data ?? {});
 
+        // migrate side tabs - ensure no tab appears in both panels
+        if (this.settings.splitViewTabs && this.settings.alternateSideTabs) {
+            const leftSet = new Set(this.settings.splitViewTabs);
+            const cleanedRight = this.settings.alternateSideTabs.filter(id => !leftSet.has(id));
+            if (cleanedRight.length !== this.settings.alternateSideTabs.length) {
+                this.settings.alternateSideTabs = cleanedRight;
+                await this.saveSettings();
+            }
+        }
+
         // === Build initial tabBarOrder if missing ===
         if (!this.settings.tabBarOrder || this.settings.tabBarOrder.length === 0) {
             const order: string[] = [];
@@ -585,6 +595,53 @@ export default class PortalsPlugin extends Plugin {
         }
 
         return { moved, skipped, errors };
+    }
+
+    public openSideTab(tabId: string) {
+        const leftTabs = this.settings.splitViewTabs;
+        const rightTabs = this.settings.alternateSideTabs;
+
+        const isOnlyRight = rightTabs.includes(tabId) && !leftTabs.includes(tabId);
+
+        if (isOnlyRight) {
+            const rightSplit = this.app.workspace.rightSplit;
+            if (rightSplit?.collapsed) rightSplit.expand();
+
+            let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL)[0];
+            if (!leaf) {
+                const candidate = this.app.workspace.getRightLeaf(false);
+                if (candidate) {
+                    leaf = candidate;
+                } else {
+                    const fallback = this.app.workspace.getRightLeaf(true);
+                    if (fallback) leaf = fallback;
+                }
+                if (leaf) {
+                    leaf.setViewState({ type: VIEW_TYPE_ALT_SIDE_PANEL, active: true });
+                } else {
+                    return;
+                }
+            }
+            this.settings.alternateActiveTab = tabId;
+            this.saveSettings();
+            if (leaf?.view instanceof AltSidePanelView) {
+                leaf.view.refresh();
+            }
+        } else {
+            this.settings.sidePanelEnabled = true;
+            this.settings.secondaryPanelCollapsed = false;
+            if (!leftTabs.includes(tabId)) {
+                leftTabs.push(tabId);
+            }
+            this.settings.activeSplitTab = tabId;
+            this.saveSettings();
+
+            this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                if (leaf.view instanceof PortalsView) {
+                    leaf.view.render();
+                }
+            })
+        }
     }
 
     // ========== MANUAL CLEANUP ==========

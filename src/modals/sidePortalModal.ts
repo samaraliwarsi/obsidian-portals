@@ -140,7 +140,9 @@ export class SidePortalModal {
                 new Notice("Please select at least one tab.");
                 return;
             }
-            this.onSave(Array.from(this.selectedLeft), Array.from(this.selectedRight));
+            const leftFinal = Array.from(this.selectedLeft);
+            const rightFinal = Array.from(this.selectedRight).filter(id => !leftFinal.includes(id));
+            this.onSave(leftFinal, rightFinal);
             this.close();
         });
     }
