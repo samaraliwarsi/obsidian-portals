@@ -887,6 +887,7 @@ export class PortalsView extends ItemView {
         this.plugin.settings.hiddenItems[key] = true;
         await this.plugin.saveSettings();
         this.render();
+        this.plugin.refreshAltRightPanelContent('hidden');
         new Notice('Item hidden');
     }
 
@@ -894,6 +895,7 @@ export class PortalsView extends ItemView {
         delete this.plugin.settings.hiddenItems[key];
         await this.plugin.saveSettings();
         this.render();
+        this.plugin.refreshAltRightPanelContent('hidden');
         new Notice(`Unhidden: ${key}`);
     }
 
@@ -901,6 +903,7 @@ export class PortalsView extends ItemView {
         this.plugin.settings.hiddenItems = {};
         await this.plugin.saveSettings();
         this.render();
+        this.plugin.refreshAltRightPanelContent('hidden');
         new Notice('All items unhidden');
     }
 

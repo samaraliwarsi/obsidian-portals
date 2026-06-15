@@ -1210,6 +1210,18 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(contentEl)
+            .setName('Clean up dead hidden keys')
+            .setDesc('Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically.')
+            .addButton(button => button
+                .setButtonText('Clean now')
+                .setWarning()
+                .onClick(async () => {
+                    const removed = await this.plugin.cleanupDeadHiddenItems();
+                    new Notice(removed > 0 ? `Removed ${removed} dead hidden key(s) in data.json` : 'No dead hidden keys found');
+                    this.display();
+                }));
+
+        new Setting(contentEl)
             .setName('User guide')
             .setDesc('Open the full documentation, the guide covers everything about the plugin.')
             .addButton(button => button

@@ -96,6 +96,18 @@ export default class PortalsPlugin extends Plugin {
                 this.refreshAllViews();
             }
             this.refreshTrashIfActive();
+
+            if (this.settings.hiddenItems[oldPath]) {
+                this.settings.hiddenItems[file.path] = true;
+                delete this.settings.hiddenItems[oldPath];
+                void this.saveSettings();
+            }
+
+            if (file instanceof TFolder && this.settings.hiddenItems[oldPath]) {
+                this.settings.hiddenItems[file.path] = true;
+                delete this.settings.hiddenItems[oldPath];
+                void this.saveSettings();
+            }
         }));
 
         // Ensure the selected space (if it's a folder) is in openFolders
@@ -152,6 +164,11 @@ export default class PortalsPlugin extends Plugin {
                         marks[index] = file.path;
                         void this.saveSettings();
                     }
+                }
+                if (this.settings.hiddenItems[oldPath]) {
+                    this.settings.hiddenItems[file.path] = true;
+                    delete this.settings.hiddenItems[oldPath];
+                    void this.saveSettings();
                 }
             }
         }));
@@ -613,6 +630,48 @@ export default class PortalsPlugin extends Plugin {
             await this.saveSettings();
         }
         return beforeCount - this.settings.spaces.length;
+    }
+
+    async cleanupDeadHiddenItems(): Promise<number> {
+        const hidden = this.settings.hiddenItems;
+        let removed = 0;
+        const tagsMap = (this.app.metadataCache as unknown as { getTags(): Record< string, number> }).getTags();
+        const existingTags = new Set(Object.keys(tagsMap).map(t => t.slice(1)));
+        
+        for (const key of Object.keys(hidden)) {
+            if (key.startsWith('tag:')) {
+                const afterPrefix = key.slice(4);
+                if (afterPrefix.includes('/group:')) {
+                    const mainTag = afterPrefix.split('/')[0];
+                    if (mainTag && !existingTags.has(mainTag)) {
+                        delete this.settings.hiddenItems[key];
+                        removed++;
+                    }
+                } else if (afterPrefix.includes('/node:')) {
+                    const fulltagPath = afterPrefix.split('/node:')[1];
+                    if (fulltagPath && !existingTags.has(fulltagPath)) {
+                        delete this.settings.hiddenItems[key];
+                        removed++
+                    }
+                } else {
+                    if (!existingTags.has(afterPrefix)) {
+                        delete this.settings.hiddenItems[key];
+                        removed++;
+                    }
+                }
+            } else {
+                if (!this.app.vault.getAbstractFileByPath(key)) {
+                    delete this.settings.hiddenItems[key];
+                    removed++
+                }
+            }
+        }
+        if (removed > 0) {
+            await this.saveSettings();
+            this.refreshAllViews();
+            this.refreshAltRightPanelContent('hidden');
+        }
+        return removed;
     }
 
     async performAutoBackup(): Promise<void> {
