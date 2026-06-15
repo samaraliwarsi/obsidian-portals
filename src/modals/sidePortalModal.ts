@@ -136,7 +136,6 @@ export class SidePortalModal {
             cls: "mod-cta",
         });
         saveBtn.addEventListener("click", () => {
-            console.log('🔵 Modal onSave – left:', Array.from(this.selectedLeft), 'right:', Array.from(this.selectedRight));
             if (this.selectedLeft.size === 0) {
                 new Notice("Please select at least one tab.");
                 return;

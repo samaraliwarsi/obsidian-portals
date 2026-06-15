@@ -21,6 +21,7 @@ export default class PortalsPlugin extends Plugin {
     lucideProvider = new LucideIconProvider;
     phosphorProvider = new PhosphorIconProvider;
     private bookmarksListenerRef: (() => void) | null = null;
+    private refreshAltRightPanelTimeout: number | null = null;
 
     async onload() {
         setPluginInstance(this);
@@ -136,6 +137,7 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.workspace.on('file-open', (file) => {
             if (file) {
                 void this.updateRecentFiles(file.path);
+                this.refreshAltRightPanelContent('context-notes');
             }
         }));
 
@@ -368,6 +370,7 @@ export default class PortalsPlugin extends Plugin {
                 }
             }
         });
+        this.refreshAltRightPanelContent('context-notes');
     }
 
     async activateView() {
@@ -439,7 +442,11 @@ export default class PortalsPlugin extends Plugin {
     }
 
     public refreshAltRightPanelContent(tabId?: string): void {
-        setTimeout(() => {
+        if (this.refreshAltRightPanelTimeout) {
+            window.clearTimeout(this.refreshAltRightPanelTimeout);
+        }
+        this.refreshAltRightPanelTimeout = window.setTimeout(() => {
+            this.refreshAltRightPanelTimeout = null;
             this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
                 if (leaf.view instanceof AltSidePanelView) {
                     if (tabId && leaf.view.activeTabId !== tabId) return;

@@ -5888,6 +5888,7 @@ opacity: 0.7;
     height: calc(100% - 40px);
     min-height: 50px;
     box-sizing: border-box;
+    position: relative;
 }
 
 .portals-split-content .file-item {
@@ -8024,24 +8025,63 @@ button.portals-portal-list-delete {
   font-size: var(--font-ui-smaller);
   color: var(--text-faint);
   text-align: left;
+  margin-bottom: 20px;
 }
 
 .portals-sp-modal .portals-sp-checkbox-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding: 8px 0;
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 10px;
-    background: var(--background-secondary);
+    border-bottom: 1px dashed var(--background-modifier-border);
+    justify-content: flex-end;
 }
 
 .portals-sp-checkbox-item {
-    padding: 6px 8px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 6px 0;
     border-bottom: 1px solid var(--background-modifier-border);
     cursor: pointer;
     transition: background 0.1s;
-    display: flex;
-    align-items: center;
     font-size: small;
+}
+
+.portals-sp-checkbox-label {
+    font-size: 0.9em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tab-left-check,
+.tab-right-check {
+    justify-self: center;
+    margin: 0;
+    width: 18px;
+    height: 18px;
+}
+
+.portals-sp-left-tab-name,
+.portals-sp-right-tab-name {
+    justify-self: center;
+}
+
+@media (max-width: 500px) {
+    .portals-sp-modal {
+        min-width: 300px;
+        width: 90%;
+    }
+    .portals-sp-checkbox-container,
+    .portals-sp-checkbox-item {
+        grid-template-columns: 2fr 0.8fr 0.8fr;
+        gap: 8px;
+    }
 }
 
 /*================================ RENAME MODAL =============================================*/

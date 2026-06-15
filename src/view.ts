@@ -22,7 +22,7 @@ import { FileItemFactory } from './utils/fileItemFactory';
 import { RenamePortalModal } from './modals/renamePortalModal';
 import { RemovePortalModal } from './modals/removePortalModal';
 import { SidePortalModal } from './modals/sidePortalModal';
-import { renderSidePanelContent } from './renderers/sidePanelContent';
+import { destroContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 
 const MIN_EXPANDED_HEIGHT = 150;
@@ -1159,6 +1159,8 @@ export class PortalsView extends ItemView {
         this.scrollToRestore = null;
 
         this.fileElementMap.clear();
+
+        destroContextRenderer(this);
 
         await Promise.resolve();
     }

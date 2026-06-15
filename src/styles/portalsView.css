@@ -656,6 +656,7 @@ opacity: 0.7;
     height: calc(100% - 40px);
     min-height: 50px;
     box-sizing: border-box;
+    position: relative;
 }
 
 .portals-split-content .file-item {

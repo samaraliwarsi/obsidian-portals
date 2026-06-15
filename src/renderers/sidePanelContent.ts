@@ -1,6 +1,6 @@
 import { App } from 'obsidian';
 import PortalsPlugin from '../main';
-import type { PortalsView } from '../view';
+import { PortalsView } from '../view';
 import { FrontmatterClinicRenderer } from '../renderers/frontmatterClinic';
 import { RecentFilesRenderer } from '../renderers/recentFiles';
 import { HiddenItemsRenderer } from '../renderers/hiddenItems';
@@ -8,6 +8,17 @@ import { BookmarksRenderer } from '../renderers/bookmarksRenderer';
 import { JournalRenderer } from '../renderers/journalView';
 import { ContextNotesRenderer } from '../renderers/contextNotes';
 import { TrashRenderer } from '../renderers/trashRenderer';
+import { AltSidePanelView } from './RightSideView';
+
+const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();
+
+export function destroContextRenderer(view: PortalsView): void {
+    const renderer = contextRenderers.get(view);
+    if (renderer) {
+        renderer.destroy();
+        contextRenderers.delete(view);
+    }
+}
 
 export async function renderSidePanelContent(
     app: App,
@@ -32,9 +43,16 @@ export async function renderSidePanelContent(
             contentEl.createEl('p', { text: 'Context notes are disabled.' });
             return;
         }
-        // ContextNotesRenderer needs (app, plugin, view, container, scrollCache)
-        const contextRenderer = new ContextNotesRenderer(app, plugin, mainView!, contentEl, new Map());
-        await contextRenderer.render();
+        if (!mainView) return;
+
+        let renderer = contextRenderers.get(mainView);
+        if (!renderer) {
+            renderer = new ContextNotesRenderer(app, plugin, mainView, contentEl, new Map());
+            contextRenderers.set(mainView, renderer);
+        } else {
+            renderer.setContainer(contentEl);
+        }
+        await renderer.render();
     } else if (tabId === 'bookmarks') {
         // BookmarksRenderer expects (app, plugin, view, refreshCallback)
         const refresh = () => {
@@ -62,4 +80,5 @@ export async function renderSidePanelContent(
         const trashRenderer = new TrashRenderer(app, plugin, contentEl, mainView!);
         await trashRenderer.render();
     }
+    return;
 }
