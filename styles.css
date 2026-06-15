@@ -7282,7 +7282,7 @@ p.fm-noFound-txt {
 }
 
 .fm-clinic-file-list {
-    max-height: 300px;
+    max-height: auto;
     overflow-y: hidden;
 }
 
