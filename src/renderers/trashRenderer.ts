@@ -222,7 +222,6 @@ export class TrashRenderer {
         restoreBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             void this.restoreItem(item);
-            void this.render();
         });
 
         deleteBtn.addEventListener('click', (e) => {
@@ -231,7 +230,6 @@ export class TrashRenderer {
                 const confirmed = await ConfirmModal.confirm(this.app, `Permanently delete ${item.basename}?`);
                 if (confirmed) {
                     await this.deleteItem(item);
-                    await this.render();
                 }
             })();
         });
@@ -259,6 +257,7 @@ export class TrashRenderer {
         await this.app.vault.adapter.rename(item.path, targetPath);
         await this.cleanEmptyTrashParents(item.path);
         new Notice(`Restored ${basename}`);
+        await this.plugin.refreshTrashIfActive();
     }
 
     // Helper: delete empty parent directories in .trash after a move
@@ -301,6 +300,7 @@ export class TrashRenderer {
             new Notice(`Failed to delete ${item.basename}`);
             console.error(e);
         }
+        await this.plugin.refreshTrashIfActive();
     }
 
     // ────────── Bulk operations ──────────
@@ -319,7 +319,7 @@ export class TrashRenderer {
             }
         }
         new Notice(`Restored ${count} items`);
-        await this.render();
+        await this.plugin.refreshTrashIfActive();
     }
 
     private async deleteAll() {
@@ -343,6 +343,6 @@ export class TrashRenderer {
             new Notice('Failed to delete all trash.');
             console.error(e);
         }
-        await this.render();
+        await this.plugin.refreshTrashIfActive();
     }
 }

@@ -69,6 +69,10 @@ export class AltSidePanelView extends ItemView {
     }
 
     public async refreshContent() {
+        const mainLeaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+        if (mainLeaf?.view instanceof PortalsView) {
+            this.mainView = mainLeaf.view;
+        }
         if (!this.mainView || !this.contentArea || !this.activeTabId) return;
 
         if (this.activeTabId === 'context-notes') {

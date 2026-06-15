@@ -434,12 +434,23 @@ export default class PortalsPlugin extends Plugin {
         this.refreshAltRightPanelContent('recent');
     }
 
-    private refreshTrashIfActive() {
+    public async refreshTrashIfActive() {
+        const promises: Promise<void>[] = [];
+        // left
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView && leaf.view.plugin.settings.activeSplitTab === 'trash') {
-                void leaf.view.refreshTrashTab();
+                promises.push(leaf.view.refreshTrashTab());
             }
         });
+        // right
+        if (this.settings.alternateActiveTab === 'trash') {
+            this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
+                if (leaf.view instanceof AltSidePanelView) {
+                    promises.push(leaf.view.refreshContent());
+                }
+            });
+        }
+        await Promise.all(promises);
     }
 
     refreshAllViews() {
