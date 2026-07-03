@@ -857,7 +857,7 @@ export class SpacesSettingTab extends PluginSettingTab {
             .addButton(button => button
                 .setButtonText('Configure')
                 .onClick(() => {
-                    new SidePortalModal(this.app, this.plugin, async (left, right) => {
+                    new SidePortalModal(this.app, this.plugin, (left, right) => {
                         void this._handleSidePortalConfigSave(left, right);
                     }).open();
                 }));

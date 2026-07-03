@@ -12,6 +12,13 @@ declare module 'obsidian' {
 
 type PropertyType = 'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'list';
 
+function getFrontmatterProperty(frontmatter: unknown, key: string): unknown {
+    if (frontmatter && typeof frontmatter === 'object' && !Array.isArray(frontmatter)) {
+        return (frontmatter as Record<string, unknown>)[key];
+    }
+    return undefined;
+}
+
 export class FrontmatterPopup {
     private app: App;
     private plugin: PortalsPlugin;
@@ -460,7 +467,7 @@ export class FrontmatterPopup {
         let type: PropertyType | null = null;
         for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
-            const v = fm?.[this.propertyName];
+            const v = getFrontmatterProperty(fm, this.propertyName);
             if (v === undefined) continue;
 
             let currentType: PropertyType;
@@ -491,7 +498,7 @@ export class FrontmatterPopup {
         const valSet = new Set<string>();
         for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
-            const v = fm?.[this.propertyName];
+            const v = getFrontmatterProperty(fm, this.propertyName);
             if (v !== undefined) {
                 const vals = Array.isArray(v) ? v : [v];
                 vals.forEach(x => valSet.add(String(x)));
@@ -557,7 +564,7 @@ export class FrontmatterPopup {
         for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
             if (!fm) continue;
-            const raw = fm[this.propertyName];
+            const raw = getFrontmatterProperty(fm, this.propertyName);
             if (raw === undefined) continue;
             const vals = Array.isArray(raw) ? raw : [raw];
             if (vals.some(v => String(v) === this.value)) {

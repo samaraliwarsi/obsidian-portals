@@ -16,6 +16,13 @@ const clinicCache = {
     }
 }
 
+function getFrontmatterProperty(frontmatter: unknown, key: string): unknown {
+    if (frontmatter && typeof frontmatter === 'object' && !Array.isArray(frontmatter)) {
+        return (frontmatter as Record<string, unknown>)[key];
+    }
+    return undefined;
+}
+
 export class FrontmatterClinicRenderer {
     private app: App;
     private plugin: PortalsPlugin;
@@ -535,7 +542,7 @@ export class FrontmatterClinicRenderer {
                 const frontmatter = cache?.frontmatter;
                 let displayValue = '';
                 if (frontmatter && frontmatter[this.selectedProperty] !== undefined) {
-                    const val = frontmatter[this.selectedProperty];
+                    const val = getFrontmatterProperty(frontmatter, this.selectedProperty);
                     displayValue = Array.isArray(val) ? val.join(', ') : String(val);
                 } else {
                     displayValue = 'none';
@@ -704,7 +711,7 @@ export class FrontmatterClinicRenderer {
         this.filteredFiles = files.filter(file => {
             const cache = this.app.metadataCache.getFileCache(file);
             const frontmatter = cache?.frontmatter;
-            const propValue = frontmatter?.[this.selectedProperty];
+            const propValue = getFrontmatterProperty(frontmatter, this.selectedProperty);
             
             if (this.selectedValue === '') {
                 // Show all files (including those without the property)

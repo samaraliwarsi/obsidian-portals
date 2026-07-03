@@ -11,6 +11,12 @@ interface Section {
     files: TFile[];
 }
 
+function getFrontmatterProperty(frontmatter: unknown, key: string): unknown {
+    if (frontmatter && typeof frontmatter === 'object' && !Array.isArray(frontmatter)) {
+        return (frontmatter as Record<string, unknown>)[key];
+    }
+    return undefined;
+}
 
 export class SectionRenderer {
     static renderSections(
@@ -90,7 +96,7 @@ export class SectionRenderer {
             for (const f of files) {
                 const cache = app.metadataCache.getFileCache(f);
                 const fm = cache?.frontmatter;
-                const val = fm?.[propName];
+                const val = getFrontmatterProperty(fm, propName);
                 let key: string;
                 if (val === undefined || val === null) {
                     key = 'none';

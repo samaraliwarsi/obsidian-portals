@@ -647,7 +647,7 @@ export default class PortalsPlugin extends Plugin {
                 leftTabs.push(tabId);
             }
             this.settings.activeSplitTab = tabId;
-            this.saveSettings();
+            void this.saveSettings();
 
             this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
                 if (leaf.view instanceof PortalsView) {
