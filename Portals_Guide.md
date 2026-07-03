@@ -177,8 +177,13 @@ Organise folders or tags into collapsible section breaks.
 
 A collapsible, resizable panel at the bottom of Portals. To enable it, go to `Settings → Portals`, switch to **Side Portal** page and turn it on. In order to display the side portal, one of its views must be selected. Side portals can be reordered using drag and reorder. 
 
+**On Right**
+Side Portals can also be opened on the right side panel of Obsidian. The side portal modal has toggle options for it. Each side portal can be opened on either side.
+
 **On Mobile** 
 Mobile display of side portal may be affected by elements based on themes. On default obsidian, turn off the `Floating navigation` in `Appearance` settings on mobile. On other themes, depending on the CSS styling, side portal visibility on mobile may be affected to various degrees. Users can opt to disable the **Side Portal** on mobile from settings. 
+
+>Note: Side portal on the right in mobile may have to opened again using commands. The side portal feature on the right is experimental and the left is stable. Future updates will improve it with user feedback and iron out any issues faced. 
 
 > Note: Side Portal works perfectly with [Baseline](https://github.com/aaaaalexis/obsidian-baseline) theme on mobile because the theme sends the vault selector to the top on mobile. Other themes that allow vault selector to be sent to top, on mobile, can also achieve the same. On desktop, some themes provide the option to hide the vault. That setting may visually conflict with side portal, it's better to turn off vault hiding. 
 
