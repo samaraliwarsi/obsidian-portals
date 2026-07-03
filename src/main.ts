@@ -11,6 +11,7 @@ import { setPluginInstance } from './utils/Proxies/pluginInstance';
 import { getLocalItem } from './utils/Proxies/storageProxy';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { InternalPluginsWithBookmarks } from './types';
+import { getContextRenderer } from './renderers/sidePanelContent';
 
 interface AppWithInternalPlugins extends App {
     internalPlugins: unknown;
@@ -149,6 +150,13 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.workspace.on('file-open', (file) => {
             if (file) {
                 void this.updateRecentFiles(file.path);
+                if (this.settings.activeSplitTab === 'context-notes') {
+                    const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+                    if (leaf?.view instanceof PortalsView) {
+                        const renderer = getContextRenderer(leaf.view);
+                        if (renderer) renderer.saveScroll();
+                    }
+                }
                 this.refreshAltRightPanelContent('context-notes');
             }
         }));
@@ -488,6 +496,11 @@ export default class PortalsPlugin extends Plugin {
             this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
                 if (leaf.view instanceof AltSidePanelView) {
                     if (tabId && leaf.view.activeTabId !== tabId) return;
+                    const mainView = leaf.view.mainView;
+                    if (mainView) {
+                        const renderer = getContextRenderer(mainView);
+                        if (renderer) renderer.saveScroll();
+                    }
                     void leaf.view.refreshContent();
                 }
             });

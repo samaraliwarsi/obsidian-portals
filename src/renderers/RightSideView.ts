@@ -2,17 +2,17 @@ import { ItemView, WorkspaceLeaf } from 'obsidian';
 import PortalsPlugin from '../main';
 import { renderSidePanel } from '../sidePanelTabs';
 import { PortalsView, VIEW_TYPE_PORTALS } from '../view';
-import { renderSidePanelContent } from './sidePanelContent';
-import { ContextNotesRenderer } from './contextNotes';
+import { getContextRenderer, renderSidePanelContent } from './sidePanelContent';
+
 
 export const VIEW_TYPE_ALT_SIDE_PANEL = 'portals-alt-side-panel';
 
 export class AltSidePanelView extends ItemView {
     plugin: PortalsPlugin;
-    private mainView: PortalsView | null = null;
+    public mainView: PortalsView | null = null;
     public activeTabId: string = '';
     private contentArea: HTMLElement | null = null;
-    private currentContextRenderer: ContextNotesRenderer | null = null;
+    //private currentContextRenderer: ContextNotesRenderer | null = null;
 
     constructor(leaf: WorkspaceLeaf, plugin: PortalsPlugin) {
         super(leaf);
@@ -54,6 +54,10 @@ export class AltSidePanelView extends ItemView {
             this.contentEl.createEl('p', { text: 'Open the main Portals view first.' });
             return;
         }
+        if (this.activeTabId === 'context-notes') {
+            const renderer = getContextRenderer(this.mainView);
+            if (renderer) renderer.saveScroll();
+        }
         const tabs = this.plugin.settings.alternateSideTabs;
         const active = this.plugin.settings.alternateActiveTab || tabs[0] || '';
         this.activeTabId = active;
@@ -75,44 +79,20 @@ export class AltSidePanelView extends ItemView {
         }
         if (!this.mainView || !this.contentArea || !this.activeTabId) return;
 
-        if (this.activeTabId === 'context-notes') {
-            if (!this.plugin.settings.enableContextNotes) {
-                this.contentArea.empty();
-                this.contentArea.createEl('p', { text: 'Context notes are disabled' });
-                return;
-            }
-            if (!this.currentContextRenderer) {
-                this.currentContextRenderer = new ContextNotesRenderer(
-                    this.plugin.app,
-                    this.plugin,
-                    this.mainView,
-                    this.contentArea,
-                    new Map()
-                );
-            } else {
-                this.currentContextRenderer.setContainer(this.contentArea);
-            }
-            await this.currentContextRenderer.render();
-        } else {
-            if (this.currentContextRenderer) {
-                this.currentContextRenderer.destroy();
-                this.currentContextRenderer = null;
-            }
-            await renderSidePanelContent(
-                this.plugin.app,
-                this.plugin,
-                this.contentArea,
-                this.activeTabId,
-                this.mainView
-            );
+        if (this.activeTabId !== 'context-notes') {
+            const renderer = getContextRenderer(this.mainView);
+            if (renderer) renderer.saveScroll();
         }
+        await renderSidePanelContent(
+            this.plugin.app,
+            this.plugin,
+            this.contentArea,
+            this.activeTabId,
+            this.mainView
+        );     
     }
 
     async onClose() {
-        if (this.currentContextRenderer) {
-            this.currentContextRenderer.destroy();
-            this.currentContextRenderer = null;
-        }
         this.contentEl.empty();
     }
 }

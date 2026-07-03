@@ -22,7 +22,7 @@ import { FileItemFactory } from './utils/fileItemFactory';
 import { RenamePortalModal } from './modals/renamePortalModal';
 import { RemovePortalModal } from './modals/removePortalModal';
 import { SidePortalModal } from './modals/sidePortalModal';
-import { destroContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
+import { destroContextRenderer, getContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 
 const MIN_EXPANDED_HEIGHT = 150;
@@ -634,7 +634,11 @@ export class PortalsView extends ItemView {
                     this.contextNotesRenderer.saveScroll(currentPath)
                 }                    
             }
-
+            if (this.plugin.settings.activeSplitTab === 'context-notes') {
+                const renderer = getContextRenderer(this);
+                if (renderer) renderer.saveScroll();
+            }
+            this.plugin.refreshAltRightPanelContent('context-notes');
             this.plugin.settings.previousSelectedSpace = this.plugin.settings.selectedSpace 
                 ? { 
                     path: this.plugin.settings.selectedSpace.path, 
@@ -644,9 +648,7 @@ export class PortalsView extends ItemView {
             this.plugin.settings.selectedSpace = {
                 path: space.path,
                 type: space.type
-            };
-
-            
+            };      
                 
             if (space.type === 'folder' && !this.plugin.settings.openFolders.includes(space.path)) {
                 this.plugin.settings.openFolders.push(space.path);

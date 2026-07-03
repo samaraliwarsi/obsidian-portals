@@ -12,6 +12,10 @@ import { AltSidePanelView } from './RightSideView';
 
 const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();
 
+export function getContextRenderer(view: PortalsView): ContextNotesRenderer | undefined {
+    return contextRenderers.get(view);
+}
+
 export function destroContextRenderer(view: PortalsView): void {
     const renderer = contextRenderers.get(view);
     if (renderer) {
@@ -44,6 +48,11 @@ export async function renderSidePanelContent(
             return;
         }
         if (!mainView) return;
+
+        const existing = contextRenderers.get(mainView);
+        if (existing) {
+            existing.saveScroll();
+        }
 
         let renderer = contextRenderers.get(mainView);
         if (!renderer) {

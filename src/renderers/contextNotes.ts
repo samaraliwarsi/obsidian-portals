@@ -266,6 +266,7 @@ export class ContextNotesRenderer {
             const scroll = noteContainer.scrollTop
             this.scrollCache.set(prevNotePath, scroll);
         }
+        console.log('[ContextNotes] saveScroll called for', prevNotePath);
     }
 
     public getCurrentNotePath(): string | null {
@@ -278,7 +279,6 @@ export class ContextNotesRenderer {
 
     public async render(): Promise<void> {
         this.destroyed = false;
-        this.container.empty();
         const token = {};
         this._currentRenderToken = token;
 
@@ -288,6 +288,28 @@ export class ContextNotesRenderer {
             return;
         }
 
+        const cached = this.cache.get(targetFile.path);
+        if (cached) {
+            const idx = this.cacheOrder.indexOf(targetFile.path);
+            if (idx !== -1) this.cacheOrder.splice(idx, 1);
+            this.cacheOrder.push(targetFile.path);
+            
+            const oldContainer = this.container.querySelector('.portals-context-note-container');
+            if (oldContainer) {
+                oldContainer.remove();
+            }
+            this.container.appendChild(cached.element);
+            const savedScroll = this.scrollCache.get(targetFile.path);
+            if (savedScroll !== undefined) {
+                window.requestAnimationFrame(() => {
+                    cached.element.scrollTop = savedScroll;
+                });
+            }
+            this.ensureContextNoteOverlay(this.container, targetFile);
+            return;
+        }
+
+        this.container.empty();
         this.ensureContextNoteOverlay(this.container, targetFile);
         await this.renderNote(targetFile, token);
         if (this._currentRenderToken !== token) return;
@@ -446,6 +468,7 @@ export class ContextNotesRenderer {
             console.error('Error rendering context note:', err);
             noteContainer.setText('Error rendering note.');
         }
+        console.log('[ContextNotes] renderNote', path, 'cached?', this.cache.has(path));
     }
 
     private ensureContextNoteOverlay(container: HTMLElement, currentNote: TFile): void {
