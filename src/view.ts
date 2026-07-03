@@ -853,30 +853,33 @@ export class PortalsView extends ItemView {
         }).open();
     }
     
-
     public showSidePortalConfig() {
-        void new SidePortalModal(this.app, this.plugin, async (left, right) => {
-            this.plugin.settings.splitViewTabs = left;
-            this.plugin.settings.alternateSideTabs = right;
-
-            if (!left.includes(this.plugin.settings.activeSplitTab)) {
-                this.plugin.settings.activeSplitTab = left[0] || 'recent';
-            }
-            if (right.length && !right.includes(this.plugin.settings.alternateActiveTab)) {
-                this.plugin.settings.alternateActiveTab = right[0] ?? '';
-            } else if (!right.length) {
-                this.plugin.settings.alternateActiveTab = '';
-            }
-
-            await this.plugin.saveSettings();
-            this.render();
-            const altLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
-            for (const leaf of altLeaves) {
-                if (leaf.view instanceof AltSidePanelView) {
-                    leaf.view.refresh();
-                }
-            }
+        new SidePortalModal(this.app, this.plugin, (left, right) => {
+            void this._handleSidePortalConfigSave(left, right);
         }).open();
+    }
+
+    public async _handleSidePortalConfigSave(left: string[], right: string[]) {
+        this.plugin.settings.splitViewTabs = left;
+        this.plugin.settings.alternateSideTabs = right;
+
+        if (!left.includes(this.plugin.settings.activeSplitTab)) {
+            this.plugin.settings.activeSplitTab = left[0] || 'recent';
+        }
+        if (right.length && !right.includes(this.plugin.settings.alternateActiveTab)) {
+            this.plugin.settings.alternateActiveTab = right[0] ?? '';
+        } else if (!right.length) {
+            this.plugin.settings.alternateActiveTab = '';
+        }
+
+        await this.plugin.saveSettings();
+        this.render();
+        const altLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
+        for (const leaf of altLeaves) {
+            if (leaf.view instanceof AltSidePanelView) {
+                leaf.view.refresh();
+            }
+        }
     }
 
     private isFileInJournalFolder(file: TFile): boolean {

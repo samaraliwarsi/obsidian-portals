@@ -645,13 +645,13 @@ export class PortalsActions {
     // Vault‑rename event handler
     static handleRename(_app: App, plugin: PortalsPlugin, view: PortalsView,file: TAbstractFile, oldPath: string): void {
         if (plugin.settings.customIcons[oldPath]) {
-            const icon = plugin.settings.customIcons[oldPath]!;
+            const icon = plugin.settings.customIcons[oldPath];
             plugin.settings.customIcons[file.path] = icon;
             delete plugin.settings.customIcons[oldPath];
             void plugin.saveSettings();
         }
         if (plugin.settings.customColors[oldPath]) {
-            const color = plugin.settings.customColors[oldPath]!;
+            const color = plugin.settings.customColors[oldPath];
             plugin.settings.customColors[file.path] = color;
             delete plugin.settings.customColors[oldPath];
             void plugin.saveSettings();
@@ -691,7 +691,7 @@ export class PortalsActions {
 
         if (!(file instanceof TFile)) {
             if (plugin.settings.customIcons[oldPath]) {
-                const icon = plugin.settings.customIcons[oldPath]!;
+                const icon = plugin.settings.customIcons[oldPath];
                 plugin.settings.customIcons[file.path] = icon;
                 delete plugin.settings.customIcons[oldPath];
                 void plugin.saveSettings();

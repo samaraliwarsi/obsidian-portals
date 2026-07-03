@@ -5,11 +5,6 @@ import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../modals/frontmatterPopup';
 
-interface PropertyValueCounts {
-    counts: Map<string, Map<string, number>>;
-    fileFrontmatter: Map<string, Map<string, string | string[]>>;
-}
-
 const clinicCache = {
     properties: new Map<string, Set<string>>(),
     noFrontmatterPaths: new Set<string>(),
@@ -18,7 +13,7 @@ const clinicCache = {
     refs: {
         counts: new Map<string, Map<string, number>>(),
         fileFrontmatter: new Map<string, Map<string, string | string[]>>()
-    } as PropertyValueCounts
+    }
 }
 
 export class FrontmatterClinicRenderer {
@@ -537,7 +532,7 @@ export class FrontmatterClinicRenderer {
             // Display current value(s) for selected property
             if (this.selectedProperty) {
                 const cache = this.app.metadataCache.getFileCache(file);
-                const frontmatter = cache?.frontmatter as Record<string, unknown> | undefined;
+                const frontmatter = cache?.frontmatter;
                 let displayValue = '';
                 if (frontmatter && frontmatter[this.selectedProperty] !== undefined) {
                     const val = frontmatter[this.selectedProperty];
@@ -708,7 +703,7 @@ export class FrontmatterClinicRenderer {
         }
         this.filteredFiles = files.filter(file => {
             const cache = this.app.metadataCache.getFileCache(file);
-            const frontmatter = cache?.frontmatter as Record<string, unknown> | undefined;
+            const frontmatter = cache?.frontmatter;
             const propValue = frontmatter?.[this.selectedProperty];
             
             if (this.selectedValue === '') {

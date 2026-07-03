@@ -857,26 +857,8 @@ export class SpacesSettingTab extends PluginSettingTab {
             .addButton(button => button
                 .setButtonText('Configure')
                 .onClick(() => {
-                    void new SidePortalModal(this.app, this.plugin, async (left, right) => {
-                        this.plugin.settings.splitViewTabs = left;
-                        this.plugin.settings.alternateSideTabs = right;
-                        if (!left.includes(this.plugin.settings.activeSplitTab)) { 
-                            this.plugin.settings.activeSplitTab = left[0] || 'recent';
-                        }
-                        // Keep active right tab valid
-                        if (right.length && !right.includes(this.plugin.settings.alternateActiveTab)) {
-                            this.plugin.settings.alternateActiveTab = right[0] ?? '';
-                        } else if (!right.length) {
-                            this.plugin.settings.alternateActiveTab = '';
-                        }
-                        await this.plugin.saveSettings();
-                        this.display();
-                        const altLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
-                        for (const leaf of altLeaves) {
-                            if (leaf.view instanceof AltSidePanelView) {
-                                leaf.view.refresh();
-                            }
-                        }
+                    new SidePortalModal(this.app, this.plugin, async (left, right) => {
+                        void this._handleSidePortalConfigSave(left, right);
                     }).open();
                 }));
 
@@ -1270,6 +1252,29 @@ export class SpacesSettingTab extends PluginSettingTab {
             }
         }
        
+    }
+
+    private async _handleSidePortalConfigSave(left: string[], right: string[]) {
+        this.plugin.settings.splitViewTabs = left;
+        this.plugin.settings.alternateSideTabs = right;
+
+        if (!left.includes(this.plugin.settings.activeSplitTab)) {
+            this.plugin.settings.activeSplitTab = left[0] || 'recent';
+        }
+        if (right.length && !right.includes(this.plugin.settings.alternateActiveTab)) {
+            this.plugin.settings.alternateActiveTab = right[0] ?? '';
+        } else if (!right.length) {
+            this.plugin.settings.alternateActiveTab = '';
+        }
+
+        await this.plugin.saveSettings();
+        this.display();
+        const altLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
+        for (const leaf of altLeaves) {
+            if (leaf.view instanceof AltSidePanelView) {
+                leaf.view.refresh();
+            }
+        }
     }
 
     private importSettings() {

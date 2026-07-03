@@ -170,7 +170,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             let leaf = plugin.app.workspace.getRightLeaf(false);
             if (!leaf) leaf = plugin.app.workspace.getRightLeaf(true);
             if (!leaf) return;
-            leaf.setViewState({
+            void leaf.setViewState({
                 type: VIEW_TYPE_ALT_SIDE_PANEL,
                 active: true,
             });

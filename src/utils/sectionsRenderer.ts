@@ -89,7 +89,7 @@ export class SectionRenderer {
             const map = new Map<string, TFile[]>();
             for (const f of files) {
                 const cache = app.metadataCache.getFileCache(f);
-                const fm = cache?.frontmatter as Record<string, unknown> | undefined;
+                const fm = cache?.frontmatter;
                 const val = fm?.[propName];
                 let key: string;
                 if (val === undefined || val === null) {

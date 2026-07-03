@@ -81,14 +81,14 @@ export default class PortalsPlugin extends Plugin {
                 window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
                 this.refreshAllViews();
             }
-            this.refreshTrashIfActive();
+            void this.refreshTrashIfActive();
         }));
         this.registerEvent(this.app.vault.on('delete', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(file.path);
                 this.refreshAllViews();
             }
-            this.refreshTrashIfActive();
+            void this.refreshTrashIfActive();
         }));
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
             if (file instanceof TFile && file.extension === 'md') {
@@ -96,7 +96,7 @@ export default class PortalsPlugin extends Plugin {
                 FrontmatterClinicRenderer.updateFileCache(this.app, file);
                 this.refreshAllViews();
             }
-            this.refreshTrashIfActive();
+            void this.refreshTrashIfActive();
 
             if (this.settings.hiddenItems[oldPath]) {
                 this.settings.hiddenItems[file.path] = true;
@@ -630,13 +630,13 @@ export default class PortalsPlugin extends Plugin {
                     if (fallback) leaf = fallback;
                 }
                 if (leaf) {
-                    leaf.setViewState({ type: VIEW_TYPE_ALT_SIDE_PANEL, active: true });
+                    void leaf.setViewState({ type: VIEW_TYPE_ALT_SIDE_PANEL, active: true });
                 } else {
                     return;
                 }
             }
             this.settings.alternateActiveTab = tabId;
-            this.saveSettings();
+            void this.saveSettings();
             if (leaf?.view instanceof AltSidePanelView) {
                 leaf.view.refresh();
             }
