@@ -515,7 +515,7 @@ export class PortalsActions {
     // ──────── RENAME HELPERS ────────
 
     static createRenameInput(initialValue: string, onSave: (val: string) => void, onCancel: () => void): HTMLInputElement {
-        const input = activeDocument.createEl('input');
+        const input = createEl('input');
         input.type = 'text';
         input.value = initialValue;
         input.addClass('portals-inline-rename');
@@ -544,7 +544,11 @@ export class PortalsActions {
         const hideExtension = plugin.settings.enableFileExtensionNonMD;
         const base = isMd ? file.basename : (hideExtension ? file.basename : file.name);
 
+        let cleanedUp = false;
+
         const cleanup = () => {
+            if (cleanedUp) return;
+            cleanedUp = true;
             if (view._activeOutsideClickListener) {
                 activeDocument.removeEventListener('mousedown', view._activeOutsideClickListener)
                 view._activeOutsideClickListener = null;
@@ -596,7 +600,11 @@ export class PortalsActions {
         const nameSpan = summaryEl.querySelector('.portals-item-name') as HTMLElement;
         if (!nameSpan) return;
 
+        let cleanedUp = false;
+
         const cleanup = () => {
+            if (cleanedUp) return;
+            cleanedUp = true;
             if (view._activeOutsideClickListener) {
                 activeDocument.removeEventListener('mousedown', view._activeOutsideClickListener);
                 view._activeOutsideClickListener = null;
