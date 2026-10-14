@@ -169,7 +169,8 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
 export class SpacesSettingTab extends PluginSettingTab {
     plugin: PortalsPlugin;
     public openSections: Set<string> = new Set();
-    public activeTab: string = 'explorer'
+    public activeTab: string = 'explorer';
+    icon = 'folder-tree';
 
     constructor(app: App, plugin: PortalsPlugin) {
         super(app, plugin);
