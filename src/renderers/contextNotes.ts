@@ -377,7 +377,7 @@ export class ContextNotesRenderer {
         }
 
         // --- Cache miss: render from scratch ---
-        const noteContainer = activeDocument.createDiv();
+        const noteContainer = createDiv();
         noteContainer.addClasses(['markdown-preview-view', 'portals-context-note-container']);
 
         try {
