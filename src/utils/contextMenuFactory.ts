@@ -286,7 +286,7 @@ export class ContextMenuFactory {
                 .setTitle('Set color')
                 .setIcon('palette')
                 .onClick(() => {
-                    const dummyEl = activeDocument.createDiv();
+                    const dummyEl = createDiv();
                     new ColorPickerModal(view.app, view.plugin, dummyEl, (color: string) => {
                         view.saveTreeScroll();
                         space.color = color;
@@ -391,7 +391,7 @@ export class ContextMenuFactory {
             .setTitle('Set color')
             .setIcon('palette')
             .onClick(() => {
-                const dummyEl = activeDocument.createDiv();
+                const dummyEl = createDiv();
                 new ColorPickerModal(view.app, view.plugin,  dummyEl, (color: string) => {
                     stack.color = color;
                     void view.plugin.saveSettings().then(() => view.render());

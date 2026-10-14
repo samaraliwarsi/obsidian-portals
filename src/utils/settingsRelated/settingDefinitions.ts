@@ -726,6 +726,7 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
                 const g = parseInt(hex.slice(3, 5), 16);
                 const b = parseInt(hex.slice(5, 7), 16);
                 portal.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                customSwatch.setCssProps({ '--swatch-bg': hex });
                 void plugin.saveSettings();
             };
             customSwatch.addEventListener('click', () => hiddenColorInput.click());
