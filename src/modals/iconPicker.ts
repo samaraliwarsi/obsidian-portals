@@ -159,9 +159,9 @@ export class IconPickerModal extends Modal {
                 }
 
                 // Render each icon
-                const fragment = activeDocument.createDocumentFragment();
+                const fragment = createFragment();
                 for (const name of toRender) {
-                    const iconEl = activeDocument.createElement('div');
+                    const iconEl = activeDocument.createEl('div');
                     iconEl.className = 'icon-item';
                     provider.renderIcon(iconEl, name);
                     iconEl.createSpan({ cls: 'portals-icon-label', text: name });
@@ -172,7 +172,7 @@ export class IconPickerModal extends Modal {
 
                     const iconLibrary = this.currentLibrary as 'phosphor' | 'lucide';                    
             
-                    const starBtn = activeDocument.createElement('span');
+                    const starBtn = activeDocument.createEl('span');
                     starBtn.className = 'portals-icon-picker-fav-star';
                     const updateStar = () => {
                         const fav = this.plugin.settings.iconFavorites.some(f => f.name === name && f.library === iconLibrary);
@@ -241,9 +241,9 @@ export class IconPickerModal extends Modal {
             filteredFavs = favs.filter(f => f.name.toLowerCase().includes(q));
         }
 
-        const fragment = activeDocument.createDocumentFragment();
+        const fragment = createFragment();
         for (const fav of filteredFavs) {
-            const iconEl = activeDocument.createElement('div');
+            const iconEl = activeDocument.createEl('div');
             iconEl.className = 'icon-item';
 
             const provider = fav.library === 'lucide' ? this.lucideProvider : this.phosphorProvider;
@@ -255,7 +255,7 @@ export class IconPickerModal extends Modal {
                 this.close();
             });
 
-            const starBtn = activeDocument.createElement('span');
+            const starBtn = activeDocument.createEl('span');
             starBtn.className = 'portals-favorite-star';
             starBtn.textContent = '★';
             starBtn.setAttribute('aria-label', 'Remove from favorites');

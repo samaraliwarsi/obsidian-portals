@@ -898,7 +898,7 @@ async function exportSettings(tab: SpacesSettingTab): Promise<void> {
     if (Platform.isDesktop) {
         const blob = new Blob([data], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        const div = activeDocument.createElement('div');
+        const div = activeDocument.createEl('div');
         const a = div.createEl('a');
         a.href = url;
         a.download = fileName;
@@ -923,7 +923,7 @@ async function exportSettings(tab: SpacesSettingTab): Promise<void> {
 
 function importSettings(tab: SpacesSettingTab): void {
     const plugin = tab.plugin;
-    const div = activeDocument.createElement('div');
+    const div = activeDocument.createEl('div');
     const input = div.createEl('input');
     input.type = 'file';
     input.accept = 'application/json';

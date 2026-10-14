@@ -515,7 +515,7 @@ export class PortalsActions {
     // ──────── RENAME HELPERS ────────
 
     static createRenameInput(initialValue: string, onSave: (val: string) => void, onCancel: () => void): HTMLInputElement {
-        const input = activeDocument.createElement('input');
+        const input = activeDocument.createEl('input');
         input.type = 'text';
         input.value = initialValue;
         input.addClass('portals-inline-rename');

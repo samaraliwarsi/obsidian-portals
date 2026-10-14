@@ -66,7 +66,7 @@ export class TrashRenderer {
         if (this.destroyed || id !== this.loadId) return;
 
         // Build the new tree **off‑screen** in a document fragment
-        const fragment = activeDocument.createDocumentFragment();
+        const fragment = createFragment();
         const newTree = fragment.createDiv({ cls: 'trash-tree' });
 
         this.items = items;
