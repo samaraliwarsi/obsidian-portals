@@ -12,19 +12,13 @@ import { makeSyncButton } from "../syncButton";
 export function buildSettingDefinitions(tab: SpacesSettingTab): SettingDefinitionItem[] {
     return [
         {
-            type: 'page',
-            name: 'Explorer',
-            items: buildExplorerPage(tab)
-        },
-        {
-            type: 'page',
-            name: 'Portal tabs',
-            items: buildPortalTabsPage(tab)
-        },
-        {
-            type: 'page',
-            name: 'Side portal',
-            items: buildSidePortalPage(tab)
+            type: 'group',
+            heading: 'Configuration',
+            items: [
+                { type: 'page', name: 'Explorer', items: buildExplorerPage(tab) },
+                { type: 'page', name: 'Portal tabs', items: buildPortalTabsPage(tab) },
+                { type: 'page', name: 'Side portal', items: buildSidePortalPage(tab) },
+            ]
         },
         {
             type: 'group',
