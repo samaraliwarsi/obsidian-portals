@@ -94,7 +94,7 @@ export function renderSidePanel(
                 tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-', ' ');
             if (span.hasClass('hide')) {
                 tabBtn.addEventListener('mouseenter', () => {
-                    view.showTooltip(displayName, tabBtn, 300, 'right');
+                    view.showTooltip(displayName, tabBtn, 300, 'below');
                 });
                 tabBtn.addEventListener('mouseleave', () => {
                     view.hideTooltip(100);

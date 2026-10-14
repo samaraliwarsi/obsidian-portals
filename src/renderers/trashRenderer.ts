@@ -207,6 +207,9 @@ export class TrashRenderer {
     private addItemActions(parentEl: HTMLElement, item: TrashItem) {
         const actionBar = parentEl.createDiv({ cls: 'trash-item-actions' });
 
+        const isRightSidebar = this.container.closest('.mod-right-split') !== null;
+        const preferred: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
+
         const restoreBtn = actionBar.createEl('button', { cls: 'trash-action-btn' });
         if (!Platform.isMobile) {
             this.view.attachTooltip(restoreBtn, 'Restore', 300, 'left')
@@ -215,7 +218,7 @@ export class TrashRenderer {
 
         const deleteBtn = actionBar.createEl('button', { cls: 'trash-delete-btn' });
         if (!Platform.isMobile) {
-            this.view.attachTooltip(deleteBtn, 'Delete item', 300, 'right');
+            this.view.attachTooltip(deleteBtn, 'Delete item', 300, preferred);
         }
         this.plugin.renderPluginIcon(deleteBtn, 'trash');
 

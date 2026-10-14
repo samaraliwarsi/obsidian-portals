@@ -504,8 +504,10 @@ export class FrontmatterClinicRenderer {
             const countBadge = countRow.createSpan({ cls: 'fm-file-count', text: `${this.filteredFiles.length} results` });
             this.sortClinicFiles(countBadge);
             if (!Platform.isMobile) {
+                const isRightSidebar = this.container.closest('.mod-right-split') !== null;
+                const preferred: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
                 countBadge.addEventListener('mouseenter', () => {
-                    this.view.showTooltip('Sort files', countBadge, 300, 'right');
+                    this.view.showTooltip('Sort files', countBadge, 300, preferred);
                 });
                 countBadge.addEventListener('mouseleave', () => this.view.hideTooltip(100));
                 

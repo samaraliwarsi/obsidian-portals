@@ -267,7 +267,9 @@ export class JournalRenderer {
         // Compact filter button with icon
         const filterButton = cardsContainer.createEl('button', { cls: 'portals-reset-btn journal-btn journal-filter-btn' });
         if (!Platform.isMobile) {
-            this.view.attachTooltip(filterButton, 'Toggle range', 300, 'right');
+            const inRightSidebar = this.container.closest('.mod-right-split');
+            const preferred: 'left' | 'right' = inRightSidebar ? 'left' : 'right';
+            this.view.attachTooltip(filterButton, 'Toggle range', 300, preferred);
         }
         this.plugin.renderPluginIcon(filterButton, 'funnel-simple');
         const periodSpan = filterButton.createSpan({ text: 'All files', cls: 'journal-btn-text' });
@@ -566,7 +568,16 @@ export class JournalRenderer {
             onThisDayBtn.addEventListener('mouseenter', () => {
                 if (onThisDayTooltipShown) return;
                 onThisDayTooltipShown = true;
-                this.view.showTooltip('This day, this year & this day in history.', onThisDayBtn, 300, 'right');
+
+                // choose side based on available space
+                const inRightSidebar = this.container.closest('.mod-right-split') !== null;
+                const preferred: 'left' | 'right' = inRightSidebar ? 'left' : 'right';
+                this.view.showTooltip(
+                    'This day, this year & this day in history.',
+                    onThisDayBtn,
+                    300,
+                    preferred
+                );
             });
             onThisDayBtn.addEventListener('mouseleave', () => {
                 this.view.hideTooltip(100)
