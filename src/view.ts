@@ -71,6 +71,8 @@ export class PortalsView extends ItemView {
     private journalContainer: HTMLElement | null = null;
     private lastJournalAccentColor: string | null = null;
     public scrollToRestore: number | null = null;
+    private spaceScrollCache = new Map<string, number>();
+    private lastRenderedSpaceKey: string = '';
     private scrollAnchor: { selector: string; offset: number } | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
     public rangeSelectionAnchor: string | null = null;
@@ -1102,6 +1104,17 @@ export class PortalsView extends ItemView {
             }
         }));
 
+        this.registerDomEvent(this.containerEl, 'scroll', (e) => {
+            const target = e.target as HTMLElement | null;
+            if (!target?.classList?.contains('portals-tree-container')) return;
+            if (!target.isConnected) return;
+            const space = this.plugin.settings.selectedSpace;
+            if (!space) return;
+            const key = `${space.type}:${space.path}`;
+            if (key !== this.lastRenderedSpaceKey) return;
+            this.spaceScrollCache.set(key, target.scrollTop);
+        }, { capture: true });
+
         // Global drag listeners
         activeDocument.addEventListener('mousemove', this.handleDragMove);
         activeDocument.addEventListener('touchmove', this.handleDragMove, { passive: false });
@@ -1975,6 +1988,13 @@ export class PortalsView extends ItemView {
                     this.applySpaceBackground(spaceContent, selectedSpace.color);
                     new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
                 }
+            }
+            const currentSpacekey = selectedSpace ? `${selectedSpace.type}:${selectedSpace.path}`: '';
+            const spaceChanged = currentSpacekey !== this.lastRenderedSpaceKey;
+            this.lastRenderedSpaceKey = currentSpacekey;
+            if (spaceChanged) {
+                const cached = this.spaceScrollCache.get(currentSpacekey);
+                this.scrollToRestore = cached ?? 0;
             }
             this.restoreTreeScroll();
             // Floating buttons (attached to mainPanel)
