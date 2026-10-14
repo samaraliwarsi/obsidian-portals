@@ -1069,7 +1069,7 @@ export class LegacyDisplay {
         if (Platform.isDesktop) {
             const blob = new Blob([data], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-            const div = activeDocument.createEl('div');
+            const div = activeDocument.createDiv();
             const a = div.createEl('a');
             a.href = url;
             a.download = fileName;
@@ -1117,7 +1117,7 @@ export class LegacyDisplay {
     }
 
     private importSettings() {
-        const div = activeDocument.createEl('div')
+        const div = activeDocument.createDiv()
         const input = div.createEl('input');
         input.type = 'file';
         input.accept = 'application/json';
