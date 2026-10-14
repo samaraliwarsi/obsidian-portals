@@ -25,7 +25,7 @@
     "eslint-plugin-obsidianmd": "^0.1.9",
     "globals": "^14.0.0",
     "jiti": "^2.6.1",
-    "obsidian": "1.14.4",
+    "obsidian": "^1.14.4",
     "postcss": "^8.5.15",
     "postcss-scss": "^4.0.9",
     "stylelint": "^17.12.0",
