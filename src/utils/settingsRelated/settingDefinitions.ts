@@ -124,109 +124,133 @@ function buildExplorerPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
 function buildPortalTabsPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
     return [
         {
-            name: 'Compact tabs',
-            desc: 'Reduce padding and font size for portal, side portal tabs and stack headers.',
-            control: { type: 'toggle', key: 'compactTabs' }
+            type: 'group',
+            heading: 'Tabs',
+            items: [
+                {
+                    name: 'Compact tabs',
+                    desc: 'Reduce padding and font size for portal, side portal tabs and stack headers.',
+                    control: { type: 'toggle', key: 'compactTabs' }
+                },
+                {
+                    name: 'Tab name display',
+                    desc: 'Control how tab names are shown. Tooltips appear on hover only when names are hidden.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'tabNameDisplay',
+                        defaultValue: 'activeOnly',
+                        options: {
+                            'none': 'Icons only',
+                            'activeOnly': 'Show active tab name',
+                            'all': 'Show all tab names'
+                        }
+                    }
+                },
+                {
+                    name: 'Tab icon position',
+                    desc: 'Place the icon to the left or right of the tab name or side portal name. Disabled when tab name displayed is icon only.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'tabIconPosition',
+                        defaultValue: 'right',
+                        options: {
+                            'left': 'Left of name',
+                            'right': 'Right of name'
+                        }
+                    }
+                },
+                {
+                    name: 'Show quick tab badge',
+                    desc: 'Shows a badge to denote asssigned tab number for quick switching using command or hotkeys.',
+                    control: { type: 'toggle', key: 'showQuickTabNumbersOnTabs' }
+                },
+                {
+                    name: 'Tab colors',
+                    desc: 'Show tab color on bottom borders of active tabs. Portal style uses the same color when enabled. The color of the pinned vault root is used in side portals.',
+                    control: { type: 'toggle', key: 'tabColorEnabled' }
+                },
+            ]
         },
         {
-            name: 'Tab name display',
-            desc: 'Control how tab names are shown. Tooltips appear on hover only when names are hidden.',
-            control: {
-                type: 'dropdown',
-                key: 'tabNameDisplay',
-                defaultValue: 'activeOnly',
-                options: {
-                    'none': 'Icons only',
-                    'activeOnly': 'Show active tab name',
-                    'all': 'Show all tab names'
+            type: 'group',
+            heading: 'Root vault',
+            items: [
+                {
+                    name: 'Pin vault',
+                    desc: 'Show vault root as pinned tab (always with a left border). Users can customize its icon and color below.',
+                    control: { type: 'toggle', key: 'pinVaultRoot' }
+                },
+                {
+                    name: 'Pinned vault appearance',
+                    desc: 'Customize icon and color for the vault root tab.',
+                    visible: () => tab.plugin.settings.pinVaultRoot,
+                    render: (setting) => renderPinnedVaultAppearance(setting, tab)
+                },
+            ]
+        },
+        {
+            type: 'group',
+            heading: 'Active portals',
+            items: [
+                {
+                    name: 'Add new portal',
+                    desc: 'Add a folder or tag as a portal tab.',
+                    render: (setting) => renderAddPortalButton(setting, tab)
+                },
+                {
+                    name: 'Active tabs',
+                    desc: 'Manage your portal tabs - folders and tags.',
+                    render: (setting) => renderActiveTabsSection(setting, tab)
+                },
+            ]
+        },
+        {
+            type: 'group',
+            heading: 'Stacks',
+            items: [
+                {
+                    name: 'Hide stack names',
+                    desc: 'Show only the stack icon; the name will appear in tooltip on hover.',
+                    control: { type: 'toggle', key: 'hideStackNames' }
+                },
+                {
+                    name: 'Stack icon position',
+                    desc: 'Place the icon to the left or right of the stack name. Disabled when stack name is hidden.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'stackIconPosition',
+                        defaultValue: 'left',
+                        options: {
+                            'left': 'Left of name',
+                            'right': 'Right of name'
+                        }
+                    }
+                },
+                {
+                    name: 'Show stack count',
+                    desc: 'When to display the number of portals inside a stack.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'showStackCount',
+                        defaultValue: 'never',
+                        options: {
+                            'always': 'Always',
+                            'collapsed': 'Collapsed only',
+                            'never': 'Never'
+                        }
+                    }
+                },
+                {
+                    name: 'Colored stack icon',
+                    desc: 'Use colors on stack icon, app accent or user defined. When turned off, stack icons use default color like tab icons.',
+                    control: { type: 'toggle', key: 'stackIconAccent' }
+                },
+                {
+                    name: 'Auto-collapse stacks',
+                    desc: 'When expanding a stack, automatically collapse open stacks.',
+                    control: { type: 'toggle', key: 'stackAutoCollapse' }
                 }
-            }
-        },
-        {
-            name: 'Tab icon position',
-            desc: 'Place the icon to the left or right of the tab name or side portal name. Disabled when tab name displayed is icon only.',
-            control: {
-                type: 'dropdown',
-                key: 'tabIconPosition',
-                defaultValue: 'right',
-                options: {
-                    'left': 'Left of name',
-                    'right': 'Right of name'
-                }
-            }
-        },
-        {
-            name: 'Show quick tab badge',
-            desc: 'Shows a badge to denote asssigned tab number for quick switching using command or hotkeys.',
-            control: { type: 'toggle', key: 'showQuickTabNumbersOnTabs' }
-        },
-        {
-            name: 'Tab colors',
-            desc: 'Show tab color on bottom borders of active tabs. Portal style uses the same color when enabled. The color of the pinned vault root is used in side portals.',
-            control: { type: 'toggle', key: 'tabColorEnabled' }
-        },
-        {
-            name: 'Pin vault',
-            desc: 'Show vault root as pinned tab (always with a left border). Users can customize its icon and color below.',
-            control: { type: 'toggle', key: 'pinVaultRoot' }
-        },
-        {
-            name: 'Pinned vault appearance',
-            desc: 'Customize icon and color for the vault root tab.',
-            visible: () => tab.plugin.settings.pinVaultRoot,
-            render: (setting) => renderPinnedVaultAppearance(setting, tab)
-        },
-        {
-            name: 'Add new portal',
-            desc: 'Add a folder or tag as a portal tab.',
-            render: (setting) => renderAddPortalButton(setting, tab)
-        },
-        {
-            name: 'Active tabs',
-            desc: 'Manage your portal tabs - folders and tags.',
-            render: (setting) => renderActiveTabsSection(setting, tab)
-        },
-        {
-            name: 'Hide stack names',
-            desc: 'Show only the stack icon; the name will appear in tooltip on hover.',
-            control: { type: 'toggle', key: 'hideStackNames' }
-        },
-        {
-            name: 'Stack icon position',
-            desc: 'Place the icon to the left or right of the stack name. Disabled when stack name is hidden.',
-            control: {
-                type: 'dropdown',
-                key: 'stackIconPosition',
-                defaultValue: 'left',
-                options: {
-                    'left': 'Left of name',
-                    'right': 'Right of name'
-                }
-            }
-        },
-        {
-            name: 'Show stack count',
-            desc: 'When to display the number of portals inside a stack.',
-            control: {
-                type: 'dropdown',
-                key: 'showStackCount',
-                defaultValue: 'never',
-                options: {
-                    'always': 'Always',
-                    'collapsed': 'Collapsed only',
-                    'never': 'Never'
-                }
-            }
-        },
-        {
-            name: 'Colored stack icon',
-            desc: 'Use colors on stack icon, app accent or user defined. When turned off, stack icons use default color like tab icons.',
-            control: { type: 'toggle', key: 'stackIconAccent' }
-        },
-        {
-            name: 'Auto-collapse stacks',
-            desc: 'When expanding a stack, automatically collapse open stacks.',
-            control: { type: 'toggle', key: 'stackAutoCollapse' }
+            ]
         }
     ];
 }
@@ -234,176 +258,180 @@ function buildPortalTabsPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
 function buildSidePortalPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
     return [
         // ─── Side portal basics ───
-        {
-            name: 'Side portal',
-            desc: 'Show a collapsible panel at the bottom with additional tabs.',
-            control: { type: 'toggle', key: 'sidePanelEnabled' }
+        { 
+            type: 'group',
+            heading: 'Side portal',
+            items: [
+                {
+                    name: 'Side portal',
+                    desc: 'Show a collapsible panel at the bottom with additional tabs.',
+                    control: { type: 'toggle', key: 'sidePanelEnabled' }
+                },
+                {
+                    name: 'Choose side portals',
+                    desc: 'Select which tabs appear in the side portal.',
+                    render: (setting) => {
+                        const controlEl = setting.controlEl;
+                        controlEl.empty();
+                        const btn = controlEl.createEl('button', { text: 'Configure', cls: 'mod-cta' });
+                        btn.addEventListener('click', () => {
+                            new SidePortalModal(tab.app, tab.plugin, (left, right) => {
+                                void handleSidePortalConfigSave(tab, left, right);
+                            }).open();
+                        });
+                    }
+                },
+                {
+                    name: 'Disable side portal on mobile',
+                    desc: 'Hide side portal on mobile devices.',
+                    control: { type: 'toggle', key: 'disableSidePanelOnMobile' }
+                },
+            ]
         },
-        {
-            name: 'Choose side portals',
-            desc: 'Select which tabs appear in the side portal.',
-            render: (setting) => {
-                const controlEl = setting.controlEl;
-                controlEl.empty();
-                const btn = controlEl.createEl('button', { text: 'Configure', cls: 'mod-cta' });
-                btn.addEventListener('click', () => {
-                    new SidePortalModal(tab.app, tab.plugin, (left, right) => {
-                        void handleSidePortalConfigSave(tab, left, right);
-                    }).open();
-                });
-            }
-        },
-        {
-            name: 'Disable side portal on mobile',
-            desc: 'Hide side portal on mobile devices.',
-            control: { type: 'toggle', key: 'disableSidePanelOnMobile' }
-        },
-
         // ─── Context notes ───
         {
-            name: 'Context notes',
-            desc: 'An expansion to the older folder notes feature. Context notes apply to folders as well as tags.',
-            render: () => {
-                // Section heading — no interactive control
-            }
+            type: 'group',
+            heading: 'Context Notes',
+            items: [
+                {
+                    name: 'Enable context notes',
+                    desc: 'When disabled, context notes are treated as normal files and the side portal shows a notice. Menu items, context note listeners and cache are removed.',
+                    control: { type: 'toggle', key: 'enableContextNotes' }
+                },
+                {
+                    name: 'Tag notes folder',
+                    desc: 'Tag notes storage folder. After changing folder path, use the "Migrate" button to move the files.',
+                    render: (setting) => renderTagNotesFolder(setting, tab)
+                },
+                {
+                    name: 'Show context notes in file tree',
+                    desc: 'When context notes are enabled, controls if they appear in file or tag tree. If context notes are disabled, this setting has no effect.',
+                    visible: () => tab.plugin.settings.enableContextNotes,
+                    control: { type: 'toggle', key: 'showContextNotesInTree' }
+                },
+                {
+                    name: 'Context note highlight type',
+                    desc: 'How to visually indicate folders and tags that have a context note.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'contextNoteHighlightStyle',
+                        defaultValue: 'icon',
+                        options: {
+                            'icon': 'Icon highlight',
+                            'underline': 'Text underline',
+                            'none': 'Off'
+                        }
+                    }
+                },
+                {
+                    name: 'Open context note from icon',
+                    desc: 'When enabled, clicking the icon of a folder or tag will open its context note in the current tab.',
+                    visible: () => tab.plugin.settings.enableContextNotes,
+                    control: { type: 'toggle', key: 'contextNoteIconClick' }
+                },
+                {
+                    name: 'Show closest context note',
+                    desc: "Side portal shows context note for the active file's nearest ancestor folder (folder spaces only). Falls back to portal's context note if none found.",
+                    visible: () => tab.plugin.settings.enableContextNotes,
+                    control: {
+                        type: 'dropdown',
+                        key: 'contextNoteFollowActive',
+                        defaultValue: 'off',
+                        options: {
+                            'off': 'Off',
+                            'on-status': 'On, show status',
+                            'on-noStatus': 'On, no status'
+                        }
+                    }
+                },
+            ]
         },
-        {
-            name: 'Enable context notes',
-            desc: 'When disabled, context notes are treated as normal files and the side portal shows a notice. Menu items, context note listeners and cache are removed.',
-            control: { type: 'toggle', key: 'enableContextNotes' }
-        },
-        {
-            name: 'Tag notes folder',
-            desc: 'Tag notes storage folder. After changing folder path, use the "Migrate" button to move the files.',
-            render: (setting) => renderTagNotesFolder(setting, tab)
-        },
-        {
-            name: 'Show context notes in file tree',
-            desc: 'When context notes are enabled, controls if they appear in file or tag tree. If context notes are disabled, this setting has no effect.',
-            visible: () => tab.plugin.settings.enableContextNotes,
-            control: { type: 'toggle', key: 'showContextNotesInTree' }
-        },
-        {
-            name: 'Context note highlight type',
-            desc: 'How to visually indicate folders and tags that have a context note.',
-            control: {
-                type: 'dropdown',
-                key: 'contextNoteHighlightStyle',
-                defaultValue: 'icon',
-                options: {
-                    'icon': 'Icon highlight',
-                    'underline': 'Text underline',
-                    'none': 'Off'
-                }
-            }
-        },
-        {
-            name: 'Open context note from icon',
-            desc: 'When enabled, clicking the icon of a folder or tag will open its context note in the current tab.',
-            visible: () => tab.plugin.settings.enableContextNotes,
-            control: { type: 'toggle', key: 'contextNoteIconClick' }
-        },
-        {
-            name: 'Show closest context note',
-            desc: "Side portal shows context note for the active file's nearest ancestor folder (folder spaces only). Falls back to portal's context note if none found.",
-            visible: () => tab.plugin.settings.enableContextNotes,
-            control: {
-                type: 'dropdown',
-                key: 'contextNoteFollowActive',
-                defaultValue: 'off',
-                options: {
-                    'off': 'Off',
-                    'on-status': 'On, show status',
-                    'on-noStatus': 'On, no status'
-                }
-            }
-        },
-
         // ─── Journal ───
         {
-            name: 'Journal',
-            desc: 'A viewing and marking tool for Daily Notes with a quote display feature.',
-            render: () => {}
+            type: 'group',
+            heading: 'Journal',
+            items: [
+                {
+                    name: 'Journal date format',
+                    desc: 'Choose date format used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'journalDateFormat',
+                        defaultValue: 'DD-MM-YYYY',
+                        options: {
+                            'DD-MM-YYYY': 'DD-MM-YYYY',
+                            'MM-DD-YYYY': 'MM-DD-YYYY',
+                            'YYYY-MM-DD': 'YYYY-MM-DD'
+                        }
+                    }
+                },
+                {
+                    name: 'Journal folder',
+                    desc: 'Folder containing daily notes. Type the path or choose from the list. Leave empty to use the folder from the Daily Notes core plugin.',
+                    render: (setting) => renderJournalFolder(setting, tab)
+                },
+                {
+                    name: 'Quote delimiter',
+                    desc: 'Symbols used to mark quotes in your notes. Changes made to selected quotes or symbols will reflect after Obsidian reload.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'quoteDelimiter',
+                        defaultValue: '==',
+                        options: {
+                            '==': '== (double equals)',
+                            '**': '** (double asterisk)',
+                            '++': '++ (double plus)',
+                            '||': '|| (double pipe)'
+                        }
+                    }
+                },
+                {
+                    name: 'Journal default quote tab',
+                    desc: 'Choose a journal tab for default display, requires Obsidian reload.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'journalDefaultCurrentMode',
+                        defaultValue: 'random',
+                        options: {
+                            'random': 'Random',
+                            'marked': 'Marked',
+                            'onThisDay': 'On this day'
+                        }
+                    }
+                },
+                {
+                    name: 'Show quote indicator on date cards',
+                    desc: 'Adds a small icon to journal date cards that contain at least one quote.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'journalQuoteIndicator',
+                        defaultValue: 'none',
+                        options: {
+                            'quotes': 'Quotes',
+                            'warnings': 'Warnings',
+                            'all': 'All',
+                            'none': 'None'
+                        }
+                    }
+                },
+            ]
         },
-        {
-            name: 'Journal date format',
-            desc: 'Choose date format used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.',
-            control: {
-                type: 'dropdown',
-                key: 'journalDateFormat',
-                defaultValue: 'DD-MM-YYYY',
-                options: {
-                    'DD-MM-YYYY': 'DD-MM-YYYY',
-                    'MM-DD-YYYY': 'MM-DD-YYYY',
-                    'YYYY-MM-DD': 'YYYY-MM-DD'
-                }
-            }
-        },
-        {
-            name: 'Journal folder',
-            desc: 'Folder containing daily notes. Type the path or choose from the list. Leave empty to use the folder from the Daily Notes core plugin.',
-            render: (setting) => renderJournalFolder(setting, tab)
-        },
-        {
-            name: 'Quote delimiter',
-            desc: 'Symbols used to mark quotes in your notes. Changes made to selected quotes or symbols will reflect after Obsidian reload.',
-            control: {
-                type: 'dropdown',
-                key: 'quoteDelimiter',
-                defaultValue: '==',
-                options: {
-                    '==': '== (double equals)',
-                    '**': '** (double asterisk)',
-                    '++': '++ (double plus)',
-                    '||': '|| (double pipe)'
-                }
-            }
-        },
-        {
-            name: 'Journal default quote tab',
-            desc: 'Choose a journal tab for default display, requires Obsidian reload.',
-            control: {
-                type: 'dropdown',
-                key: 'journalDefaultCurrentMode',
-                defaultValue: 'random',
-                options: {
-                    'random': 'Random',
-                    'marked': 'Marked',
-                    'onThisDay': 'On this day'
-                }
-            }
-        },
-        {
-            name: 'Show quote indicator on date cards',
-            desc: 'Adds a small icon to journal date cards that contain at least one quote.',
-            control: {
-                type: 'dropdown',
-                key: 'journalQuoteIndicator',
-                defaultValue: 'none',
-                options: {
-                    'quotes': 'Quotes',
-                    'warnings': 'Warnings',
-                    'all': 'All',
-                    'none': 'None'
-                }
-            }
-        },
-
         // ─── Properties ───
         {
-            name: 'Properties',
-            desc: 'A viewing tool for markdown files, based on their properties.',
-            render: () => {}
-        },
-        {
-            name: 'Show current value',
-            desc: 'Show current property value on list of files filtered by properties.',
-            control: { type: 'toggle', key: 'showCurrentPropertyValue' }
-        },
-        {
-            name: 'Hide filtered badge',
-            desc: 'Hide the count display of files filtered in properties. The number is based on dropdown choices.',
-            control: { type: 'toggle', key: 'hideFilteredCount' }
+            type: 'group',
+            heading: 'Properties',
+            items: [
+                {
+                    name: 'Show current value',
+                    desc: 'Show current property value on list of files filtered by properties.',
+                    control: { type: 'toggle', key: 'showCurrentPropertyValue' }
+                },
+                {
+                    name: 'Hide filtered badge',
+                    desc: 'Hide the count display of files filtered in properties. The number is based on dropdown choices.',
+                    control: { type: 'toggle', key: 'hideFilteredCount' }
+                }
+            ]
         }
     ];
 }
@@ -412,59 +440,70 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
     return [
         // ─── Backup / restore ───
         {
-            name: 'Export settings',
-            desc: 'Export your current portals configuration as a JSON file.',
-            render: (setting) => {
-                const btn = setting.controlEl.createEl('button', { text: 'Export' });
-                btn.addEventListener('click', () => { void exportSettings(tab); });
-            }
+            type: 'group',
+            heading: 'Backup & restore',
+            items: [
+                {
+                    name: 'Export settings',
+                    desc: 'Export your current portals configuration as a JSON file.',
+                    render: (setting) => {
+                        const btn = setting.controlEl.createEl('button', { text: 'Export' });
+                        btn.addEventListener('click', () => { void exportSettings(tab); });
+                    }
+                },
+                {
+                    name: 'Import settings',
+                    desc: 'Load settings from a JSON file. This will replace your current configuration.',
+                    render: (setting) => {
+                        const btn = setting.controlEl.createEl('button', { text: 'Import' });
+                        btn.addEventListener('click', () => importSettings(tab));
+                    }
+                },
+                {
+                    name: 'Auto backup settings on startup',
+                    desc: 'Create timestamped settings backup on Obsidian start. Cloud icon saves it to local storage instead of data.json. This can help prevent sync conflicts on quick switching devices.',
+                    render: (setting) => renderAutoBackupRow(setting, tab)
+                },
+                {
+                    name: 'Select Auto backup folder',
+                    desc: 'The folder keeps 3 backups, removes older ones. Leave the folder empty to save in the vault root.',
+                    visible: () => tab.plugin.settings.enableAutoBackup,
+                    render: (setting) => renderBackupFolder(setting, tab)
+                },
+            ]
         },
-        {
-            name: 'Import settings',
-            desc: 'Load settings from a JSON file. This will replace your current configuration.',
-            render: (setting) => {
-                const btn = setting.controlEl.createEl('button', { text: 'Import' });
-                btn.addEventListener('click', () => importSettings(tab));
-            }
-        },
-        {
-            name: 'Auto backup settings on startup',
-            desc: 'Create timestamped settings backup on Obsidian start. Cloud icon saves it to local storage instead of data.json. This can help prevent sync conflicts on quick switching devices.',
-            render: (setting) => renderAutoBackupRow(setting, tab)
-        },
-        {
-            name: 'Select Auto backup folder',
-            desc: 'The folder keeps 3 backups, removes older ones. Leave the folder empty to save in the vault root.',
-            visible: () => tab.plugin.settings.enableAutoBackup,
-            render: (setting) => renderBackupFolder(setting, tab)
-        },
-
         // ─── Maintenance & help ───
         {
-            name: 'Clean up dead portals',
-            desc: 'Remove portal tabs for folders or tags that no longer exist. This cannot be undone.',
-            render: (setting) => {
-                const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
-                btn.addEventListener('click', () => {
-                    void (async () => {
-                        const removed = await tab.plugin.cleanupDeadSpaces();
-                        new Notice(removed > 0 ? `Removed ${removed} dead portal(s)` : 'No dead portals found');
-                    })();
-                });
-            }
-        },
-        {
-            name: 'Clean up dead hidden keys',
-            desc: 'Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically.',
-            render: (setting) => {
-                const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
-                btn.addEventListener('click', () => {
-                    void (async () => {
-                        const removed = await tab.plugin.cleanupDeadHiddenItems();
-                        new Notice(removed > 0 ? `Removed ${removed} dead hidden key(s) in data.json` : 'No dead hidden keys found');
-                    })();
-                });
-            }
+            type: 'group',
+            heading: 'Force cleanup',
+            items: [
+                {
+                    name: 'Clean up dead portals',
+                    desc: 'Remove portal tabs for folders or tags that no longer exist. This cannot be undone.',
+                    render: (setting) => {
+                        const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
+                        btn.addEventListener('click', () => {
+                            void (async () => {
+                                const removed = await tab.plugin.cleanupDeadSpaces();
+                                new Notice(removed > 0 ? `Removed ${removed} dead portal(s)` : 'No dead portals found');
+                            })();
+                        });
+                    }
+                },
+                {
+                    name: 'Clean up dead hidden keys',
+                    desc: 'Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically.',
+                    render: (setting) => {
+                        const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
+                        btn.addEventListener('click', () => {
+                            void (async () => {
+                                const removed = await tab.plugin.cleanupDeadHiddenItems();
+                                new Notice(removed > 0 ? `Removed ${removed} dead hidden key(s) in data.json` : 'No dead hidden keys found');
+                            })();
+                        });
+                    }
+                }
+            ]
         }
     ]
 }

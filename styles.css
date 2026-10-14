@@ -7717,17 +7717,12 @@ button.portals-portal-list-delete {
     border-bottom: none;
   }
 }
-/* CSS for portal tabs as they appear in settings page
+/* CSS for portal tabs as they appear in settings page */
 
 /* Full-width setting rows — stacks the info above the control */
 .portals-full-width-setting {
     flex-direction: column;
     align-items: stretch;
-}
-
-.portals-full-width-setting .setting-item-control {
-    justify-content: flex-start;
-    text-align: left;
 }
 
 .portals-full-width-setting .setting-item-info {
@@ -7739,29 +7734,8 @@ button.portals-portal-list-delete {
     width: 100%;
     justify-content: flex-start;
     align-items: stretch;
+    text-align: left;
     overflow-x: hidden;
-}
-
-.portals-full-width-setting .portals-active-tabs-controls {
-    align-items: stretch;
-    text-align: left;
-    flex: 1;
-}
-
-.portals-full-width-setting .portals-section-details {
-    text-align: left;
-    margin-left: 0;
-    margin-right: 0;
-}
-
-.portals-full-width-setting .portals-section-summary {
-    text-align: left;
-    justify-content: flex-start;
-}
-
-.portals-full-width-setting .portals-portal-info {
-    text-align: left;
-    align-items: flex-start;
 }
 
 /* Portal tabs list — stack sections vertically */
@@ -7770,27 +7744,43 @@ button.portals-portal-list-delete {
     flex-direction: column;
     gap: 16px;
     width: 100%;
+    align-items: stretch;
+    text-align: left;
+    flex: 1;
+    padding-left: 0;
+    margin-left: 0;
 }
 
 /* Each section (Root Folders, Tags, etc.) takes full width */
 .portals-active-tabs-controls .portals-section-details {
     width: 100%;
     display: block;
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
 }
 
+/* Section headers — match Obsidian's own label styling */
 .portals-active-tabs-controls .portals-section-summary {
     width: 100%;
+    text-align: left;
+    justify-content: flex-start;
     cursor: pointer;
+    font-weight: var(--font-semibold);
+    color: var(--text-muted);
+    font-size: var(--font-ui-small);
+    padding: 4px 0 8px;
+    margin: 0;
 }
 
-/* Each portal item row is full width with info left, controls right */
+/* Each portal item row — full width, no stray padding */
 .portals-active-tabs-controls .portals-portal-row {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 6px 8px;
+    padding: 6px 0;
     gap: 12px;
     box-sizing: border-box;
 }
@@ -7800,21 +7790,32 @@ button.portals-portal-list-delete {
     flex-direction: column;
     flex: 1;
     min-width: 0;
+    text-align: left;
+    align-items: flex-start;
 }
 
+/* Override the base 200px cap so names use full width */
 .portals-active-tabs-controls .portals-portal-name {
-    font-weight: 500;
+    font-weight: var(--font-normal);
+    font-size: var(--font-ui-medium);
+    color: var(--text-normal);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: none;
+    line-height: 1.3;
 }
 
+/* Override the base 250px cap so paths use full width */
 .portals-active-tabs-controls .portals-portal-path {
-    font-size: 0.85em;
-    opacity: 0.7;
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    opacity: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: none;
+    line-height: 1.3;
 }
 
 .portals-active-tabs-controls .portals-portal-controls {
@@ -7823,6 +7824,7 @@ button.portals-portal-list-delete {
     align-items: center;
     gap: 6px;
     flex-shrink: 0;
+    justify-content: flex-end;
 }
 
 .portals-active-tabs-controls .portals-color-row {
@@ -7830,6 +7832,27 @@ button.portals-portal-list-delete {
     flex-direction: row;
     align-items: center;
     gap: 6px;
+}
+
+/* Mobile / narrow pane: stack info above controls for each portal row */
+@media (max-width: 600px) {
+    .portals-active-tabs-controls .portals-portal-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .portals-active-tabs-controls .portals-portal-info {
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+
+    .portals-active-tabs-controls .portals-portal-controls {
+        width: 100%;
+        justify-content: flex-start;
+        flex-shrink: 1;
+    }
 }
 /*==================================SEARCH POPOVER=========================================*/
 
