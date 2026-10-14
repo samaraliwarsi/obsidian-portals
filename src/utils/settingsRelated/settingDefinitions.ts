@@ -904,11 +904,13 @@ async function exportSettings(tab: SpacesSettingTab): Promise<void> {
     if (Platform.isDesktop) {
         const blob = new Blob([data], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        const div = activeDocument.createDiv();
-        const a = div.createEl('a');
-        a.href = url;
-        a.download = fileName;
+        const a = activeDocument.body.createEl('a', {
+            attr: { href: url, download: fileName }
+        });
+        a.style.display = 'none';
         a.click();
+        a.remove();
+
         URL.revokeObjectURL(url);
         new Notice('Settings exported');
     } else {
@@ -929,22 +931,27 @@ async function exportSettings(tab: SpacesSettingTab): Promise<void> {
 
 function importSettings(tab: SpacesSettingTab): void {
     const plugin = tab.plugin;
-    const div = activeDocument.createDiv();
-    const input = div.createEl('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async () => {
-        const file = input.files?.[0];
-        if (!file) return;
-        try {
-            const text = await file.text();
-            const imported = JSON.parse(text) as Partial<SpacesSettings>;
-            plugin.settings = Object.assign({}, DEFAULT_SETTINGS, imported);
-            await plugin.saveSettings();
-            new Notice('Settings imported successfully');
-        } catch {
-            new Notice('Invalid settings file');
-        }
-    };
+
+    const input = activeDocument.body.createEl('input', {
+        attr: { type: 'file', accept: 'application/json' }
+    });
+    input.style.display = 'none';
+    input.addEventListener('change', () => {
+        void (async () => {
+            const file = input.files?.[0];
+            input.remove();
+            if (!file) return;
+            try {
+                const text = await file.text();
+                const imported = JSON.parse(text) as Partial<SpacesSettings>;
+                plugin.settings = Object.assign({}, DEFAULT_SETTINGS, imported);
+                await plugin.saveSettings();
+                new Notice('Settings imported successfully');
+            } catch {
+                new Notice('Invalid settings file');
+            }
+        })();
+    })
+    input.addEventListener('cancel', () => input.remove());
     input.click();
 }
