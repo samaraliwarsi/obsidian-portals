@@ -486,6 +486,28 @@ export default class PortalsPlugin extends Plugin {
         await Promise.all(promises);
     }
 
+    public refreshSidePortal(tabId: string): void {
+        // left bottom panel
+        if (this.settings.activeSplitTab === tabId) {
+            this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                if (leaf.view instanceof PortalsView) {
+                    const sp = leaf.view.containerEl.querySelector('.portals-secondary-panel');
+                    if (sp instanceof HTMLElement) {
+                        void leaf.view.renderSplitTabContent(sp, tabId);
+                    }
+                }
+            });
+        }
+        // right side panel
+        if (this.settings.alternateActiveTab === tabId) {
+            this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
+                if (leaf.view instanceof AltSidePanelView) {
+                    void leaf.view.refreshContent();
+                }
+            });
+        }
+    }
+
     refreshAllViews() {
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {
@@ -551,6 +573,7 @@ export default class PortalsPlugin extends Plugin {
         await this.saveData(this.settings);
         this.refreshAllRecentTabs();
     }
+
 
     private getTags(): Record<string, number> {
         return (this.app.metadataCache as unknown as { getTags(): Record<string, number> }).getTags();

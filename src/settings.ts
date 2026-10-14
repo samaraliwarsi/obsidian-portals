@@ -230,5 +230,8 @@ export class SpacesSettingTab extends PluginSettingTab {
         // (which re-renders all open portal views).
         (this.plugin.settings as unknown as Record<string, unknown>)[key] = value;
         await this.plugin.saveSettings();
+        if (key === 'showCurrentPropertyValue' || key === 'hideFilteredCount') {
+            this.plugin.refreshSidePortal('properties');
+        }
     }
 }
