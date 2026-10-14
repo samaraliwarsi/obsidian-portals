@@ -266,7 +266,6 @@ export class ContextNotesRenderer {
             const scroll = noteContainer.scrollTop
             this.scrollCache.set(prevNotePath, scroll);
         }
-        console.log('[ContextNotes] saveScroll called for', prevNotePath);
     }
 
     public getCurrentNotePath(): string | null {
@@ -468,7 +467,6 @@ export class ContextNotesRenderer {
             console.error('Error rendering context note:', err);
             noteContainer.setText('Error rendering note.');
         }
-        console.log('[ContextNotes] renderNote', path, 'cached?', this.cache.has(path));
     }
 
     private ensureContextNoteOverlay(container: HTMLElement, currentNote: TFile): void {

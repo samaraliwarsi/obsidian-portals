@@ -168,7 +168,7 @@ function buildPortalTabsPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
         {
             name: 'Pin vault',
             desc: 'Show vault root as pinned tab (always with a left border). Users can customize its icon and color below.',
-            control: { type: 'toggle', key: 'pinnedVaultRoot' }
+            control: { type: 'toggle', key: 'pinVaultRoot' }
         },
         {
             name: 'Pinned vault appearance',
@@ -445,9 +445,11 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
             desc: 'Remove portal tabs for folders or tags that no longer exist. This cannot be undone.',
             render: (setting) => {
                 const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
-                btn.addEventListener('click', async () => {
-                    const removed = await tab.plugin.cleanupDeadSpaces();
-                    new Notice(removed > 0 ? `Removed ${removed} dead portal(s)` : 'No dead portals found');
+                btn.addEventListener('click', () => {
+                    void (async () => {
+                        const removed = await tab.plugin.cleanupDeadSpaces();
+                        new Notice(removed > 0 ? `Removed ${removed} dead portal(s)` : 'No dead portals found');
+                    })();
                 });
             }
         },
@@ -456,9 +458,11 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
             desc: 'Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically.',
             render: (setting) => {
                 const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
-                btn.addEventListener('click', async () => {
-                    const removed = await tab.plugin.cleanupDeadHiddenItems();
-                    new Notice(removed > 0 ? `Removed ${removed} dead hidden key(s) in data.json` : 'No dead hidden keys found');
+                btn.addEventListener('click', () => {
+                    void (async () => {
+                        const removed = await tab.plugin.cleanupDeadHiddenItems();
+                        new Notice(removed > 0 ? `Removed ${removed} dead hidden key(s) in data.json` : 'No dead hidden keys found');
+                    })();
                 });
             }
         }
@@ -779,20 +783,22 @@ function renderTagNotesFolder(setting: Setting, tab: SpacesSettingTab): void {
     });
 
     const migrateBtn = controlEl.createEl('button', { text: 'Migrate', cls: 'mod-warning' });
-    migrateBtn.addEventListener('click', async () => {
-        const result = await plugin.migrateTagNotes();
-        if (result.moved > 0) {
-            new Notice(`Moved ${result.moved} tag note(s) to "${plugin.settings.tagNotesFolderPath}".`);
-        }
-        if (result.skipped > 0) {
-            new Notice(`Skipped ${result.skipped} note(s) — already exist in destination.`);
-        }
-        if (result.errors.length > 0) {
-            new Notice(`Errors: ${result.errors.join('; ')}`);
-        }
-        if (result.moved === 0 && result.skipped === 0 && result.errors.length === 0) {
-            new Notice('No tag notes found to migrate.');
-        }
+    migrateBtn.addEventListener('click', () => {
+        void (async () => {
+            const result = await plugin.migrateTagNotes();
+            if (result.moved > 0) {
+                new Notice(`Moved ${result.moved} tag note(s) to "${plugin.settings.tagNotesFolderPath}".`);
+            }
+            if (result.skipped > 0) {
+                new Notice(`Skipped ${result.skipped} note(s) — already exist in destination.`);
+            }
+            if (result.errors.length > 0) {
+                new Notice(`Errors: ${result.errors.join('; ')}`);
+            }
+            if (result.moved === 0 && result.skipped === 0 && result.errors.length === 0) {
+                new Notice('No tag notes found to migrate.');
+            }
+        })();
     });
 }
 

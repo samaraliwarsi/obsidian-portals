@@ -220,6 +220,12 @@ export class SpacesSettingTab extends PluginSettingTab {
                 }
             }
         }
+        if (key === 'sidePanelEnabled' && value === false) {
+            this.plugin.settings.secondaryPanelCollapsed = true;
+        }
+        if (key === 'enableContextNotes' && value === false) {
+            this.plugin.settings.contextNoteFollowActive = 'off';
+        }
         // Default path: write the value, then run the plugin's saveSettings()
         // (which re-renders all open portal views).
         (this.plugin.settings as unknown as Record<string, unknown>)[key] = value;

@@ -12,7 +12,6 @@ import type { SpacesSettingTab } from '../../settings';
 import type { SpaceConfig } from '../../types';
 import { DEFAULT_SETTINGS, SpacesSettings } from '../../settings';
 
-
 export class LegacyDisplay {
     constructor(private tab: SpacesSettingTab) {}
     private get app(): App { return this.tab.app; }
@@ -753,7 +752,7 @@ export class LegacyDisplay {
                 }))
             .addButton(btn => btn
                 .setButtonText('Migrate')
-                .setWarning()
+                .setDestructive()
                 .onClick(async () => {
                     const result = await this.plugin.migrateTagNotes();
                     if (result.moved > 0) {
@@ -1024,7 +1023,7 @@ export class LegacyDisplay {
             .setDesc('Remove portal tabs for folders or tags that no longer exist. This cannot be undone.')
             .addButton(button => button
                 .setButtonText('Clean now')
-                .setWarning()
+                .setDestructive()
                 .onClick(async () => {
                     const removed = await this.plugin.cleanupDeadSpaces();
                     new Notice(removed > 0 ? `Removed ${removed} dead portal(s)` : 'No dead portals found');
@@ -1036,7 +1035,7 @@ export class LegacyDisplay {
             .setDesc('Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically.')
             .addButton(button => button
                 .setButtonText('Clean now')
-                .setWarning()
+                .setDestructive()
                 .onClick(async () => {
                     const removed = await this.plugin.cleanupDeadHiddenItems();
                     new Notice(removed > 0 ? `Removed ${removed} dead hidden key(s) in data.json` : 'No dead hidden keys found');

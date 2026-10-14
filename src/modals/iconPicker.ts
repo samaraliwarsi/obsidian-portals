@@ -200,7 +200,6 @@ export class IconPickerModal extends Modal {
                     fragment.appendChild(iconEl);
                 }
                 this.iconGrid.appendChild(fragment);
-                console.timeEnd('fragment-build');
 
                 // "Load more" button (only when not searching)
                 if (!this.currentFilter && this.displayCount < filtered.length) {
