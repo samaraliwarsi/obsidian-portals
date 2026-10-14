@@ -23,6 +23,7 @@ export default class PortalsPlugin extends Plugin {
     phosphorProvider = new PhosphorIconProvider;
     private bookmarksListenerRef: (() => void) | null = null;
     private refreshAltRightPanelTimeout: number | null = null;
+    private treeRefreshTimer: number | null = null;
 
     async onload() {
         setPluginInstance(this);
@@ -71,10 +72,13 @@ export default class PortalsPlugin extends Plugin {
 
         // Forward frontmatter cache updates (no startup cost)
         this.registerEvent(this.app.metadataCache.on('changed', (file) => {
-            if (file instanceof TFile && file.extension === 'md') {
-                FrontmatterClinicRenderer.updateFileCache(this.app, file);
+            if (!(file instanceof TFile) || file.extension !== 'md') return;
+            FrontmatterClinicRenderer.updateFileCache(this.app, file);
+            if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
+            this.treeRefreshTimer = window.setTimeout(() => {
+                this.treeRefreshTimer = null;
                 this.refreshAllTreeContent();
-            }
+            }, 400)            
         }));
         this.registerEvent(this.app.vault.on('create', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
