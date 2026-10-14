@@ -161,7 +161,7 @@ export class IconPickerModal extends Modal {
                 // Render each icon
                 const fragment = createFragment();
                 for (const name of toRender) {
-                    const iconEl = activeDocument.createDiv();
+                    const iconEl = createDiv();
                     iconEl.className = 'icon-item';
                     provider.renderIcon(iconEl, name);
                     iconEl.createSpan({ cls: 'portals-icon-label', text: name });
@@ -172,7 +172,7 @@ export class IconPickerModal extends Modal {
 
                     const iconLibrary = this.currentLibrary as 'phosphor' | 'lucide';                    
             
-                    const starBtn = activeDocument.createSpan();
+                    const starBtn = createSpan();
                     starBtn.className = 'portals-icon-picker-fav-star';
                     const updateStar = () => {
                         const fav = this.plugin.settings.iconFavorites.some(f => f.name === name && f.library === iconLibrary);
@@ -242,7 +242,7 @@ export class IconPickerModal extends Modal {
 
         const fragment = createFragment();
         for (const fav of filteredFavs) {
-            const iconEl = activeDocument.createDiv();
+            const iconEl = createDiv();
             iconEl.className = 'icon-item';
 
             const provider = fav.library === 'lucide' ? this.lucideProvider : this.phosphorProvider;
@@ -254,7 +254,7 @@ export class IconPickerModal extends Modal {
                 this.close();
             });
 
-            const starBtn = activeDocument.createSpan();
+            const starBtn = createSpan();
             starBtn.className = 'portals-favorite-star';
             starBtn.textContent = '★';
             starBtn.setAttribute('aria-label', 'Remove from favorites');
