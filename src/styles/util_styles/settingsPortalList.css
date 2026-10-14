@@ -1,0 +1,114 @@
+/* CSS for portal tabs as they appear in settings page
+
+/* Full-width setting rows — stacks the info above the control */
+.portals-full-width-setting {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.portals-full-width-setting .setting-item-control {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.portals-full-width-setting .setting-item-info {
+    margin-bottom: 12px;
+}
+
+.portals-full-width-setting .setting-item-control {
+    flex: 1;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-x: hidden;
+}
+
+.portals-full-width-setting .portals-active-tabs-controls {
+    align-items: stretch;
+    text-align: left;
+    flex: 1;
+}
+
+.portals-full-width-setting .portals-section-details {
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.portals-full-width-setting .portals-section-summary {
+    text-align: left;
+    justify-content: flex-start;
+}
+
+.portals-full-width-setting .portals-portal-info {
+    text-align: left;
+    align-items: flex-start;
+}
+
+/* Portal tabs list — stack sections vertically */
+.portals-active-tabs-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Each section (Root Folders, Tags, etc.) takes full width */
+.portals-active-tabs-controls .portals-section-details {
+    width: 100%;
+    display: block;
+}
+
+.portals-active-tabs-controls .portals-section-summary {
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Each portal item row is full width with info left, controls right */
+.portals-active-tabs-controls .portals-portal-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 6px 8px;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.portals-active-tabs-controls .portals-portal-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.portals-active-tabs-controls .portals-portal-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.portals-active-tabs-controls .portals-portal-path {
+    font-size: 0.85em;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.portals-active-tabs-controls .portals-portal-controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.portals-active-tabs-controls .portals-color-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}

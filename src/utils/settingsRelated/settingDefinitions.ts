@@ -18,6 +18,7 @@ export function buildSettingDefinitions(tab: SpacesSettingTab): SettingDefinitio
                 { type: 'page', name: 'Explorer', items: buildExplorerPage(tab) },
                 { type: 'page', name: 'Portal tabs', items: buildPortalTabsPage(tab) },
                 { type: 'page', name: 'Side portal', items: buildSidePortalPage(tab) },
+                { type: 'page', name: 'Maintenance', items: buildMaintainPage(tab) }
             ]
         },
         {
@@ -407,22 +408,8 @@ function buildSidePortalPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
     ];
 }
 
-function buildUtilitiesSection(tab: SpacesSettingTab): SettingGroupItem[] {
+function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
     return [
-        {
-            name: 'Plugin icon library',
-            desc: "Icon library only defines the icons for plugin's native elements.",
-            control: {
-                type: 'dropdown',
-                key: 'iconLibrary',
-                defaultValue: 'phosphor',
-                options: {
-                    'phosphor': 'Phosphor',
-                    'lucide': 'Lucide'
-                }
-            }
-        },
-
         // ─── Backup / restore ───
         {
             name: 'Export settings',
@@ -473,6 +460,24 @@ function buildUtilitiesSection(tab: SpacesSettingTab): SettingGroupItem[] {
                     const removed = await tab.plugin.cleanupDeadHiddenItems();
                     new Notice(removed > 0 ? `Removed ${removed} dead hidden key(s) in data.json` : 'No dead hidden keys found');
                 });
+            }
+        }
+    ]
+}
+
+function buildUtilitiesSection(_tab: SpacesSettingTab): SettingGroupItem[] {
+    return [
+        {
+            name: 'Plugin icon library',
+            desc: "Icon library only defines the icons for plugin's native elements.",
+            control: {
+                type: 'dropdown',
+                key: 'iconLibrary',
+                defaultValue: 'phosphor',
+                options: {
+                    'phosphor': 'Phosphor',
+                    'lucide': 'Lucide'
+                }
             }
         },
         {
@@ -598,6 +603,7 @@ function renderAddPortalButton(setting: Setting, tab: SpacesSettingTab): void {
 }
 
 function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void {
+    setting.settingEl.addClass('portals-full-width-setting');
     const plugin = tab.plugin;
     const app = tab.app;
     const controlEl = setting.controlEl;
