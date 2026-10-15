@@ -7114,20 +7114,69 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 /*================CONTEXT NOTE, Bases Styling & User message Display================*/
 
 .portals-embed-link {
-    display: inline-block;
-    margin: 4px 0;
+    margin: 8px 0;
 }
 .portals-embed-link a {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    padding: 2px 8px;
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
+    gap: 8px;
+    padding: 6px 8px;
+    background: var(--background-secondary);
+    color: var(--text-normal);
     border-radius: var(--input-radius);
-    font-size: 0.9em;
+    border: 1px solid var(--background-modifier-border);
+    font-size: var(--font-ui-small);
+    font-weight: var(--font-medium);
+    transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
 }
+
+.portals-embed-link a::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    background-color: var(--text-muted);
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18'/><path d='M9 21V9'/></svg>");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18'/><path d='M9 21V9'/></svg>");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    transition: background-color 120ms ease;
+}
+
+.portals-embed-link a::after {
+    content: "↗";
+    margin-left: auto;
+    font-size: 1em;
+    opacity: 0.4;
+    transition: opacity 120ms ease;
+}
+
 .portals-embed-link a:hover {
-    background: var(--interactive-accent-hover);
+    background: var(--background-modifier-hover);
+    border-color: var(--background-modifier-border-hover);
+}
+
+.portals-embed-link a:hover::before {
+    opacity: 1;
+}
+
+.portals-embed-link a:hover::after {
+    opacity: 1;
+}
+
+/* When the file name is long, keep the chevron anchored */
+.portals-embed-link a {
+    min-width: 0;
+}
+
+.portals-embed-link a > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .portals-context-note-message {
@@ -7180,6 +7229,40 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 
 .portals-context-notes-tab-container {
     position: relative;
+}
+
+/* Link visibility in context notes — decoupled from accent color
+   to stay readable regardless of the user's accent choice. */
+
+.portals-context-note-container a.internal-link,
+.portals-context-note-container a.external-link,
+.portals-context-note-container a.tag,
+.portals-context-note-container .internal-link,
+.portals-context-note-container .external-link,
+.portals-context-note-container .tag {
+    color: var(--color-blue);
+    text-decoration: none;
+}
+
+.portals-context-note-container a.internal-link:hover,
+.portals-context-note-container a.external-link:hover,
+.portals-context-note-container a.tag:hover,
+.portals-context-note-container .internal-link:hover,
+.portals-context-note-container .external-link:hover,
+.portals-context-note-container .tag:hover {
+    color: var(--color-blue);
+    text-decoration: underline;
+}
+
+/* Unresolved links — typically dimmer, and often styled with a dotted underline.
+   Keep them visibly distinct from resolved links. */
+.portals-context-note-container .is-unresolved {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+.portals-context-note-container .is-unresolved:hover {
+    color: var(--text-normal);
 }
 .trash-btn-row {
   display: flex;
