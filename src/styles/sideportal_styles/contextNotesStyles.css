@@ -151,3 +151,9 @@
 .portals-context-note-container .is-unresolved:hover {
     color: var(--text-normal);
 }
+
+/* custom padding for markdown preview view to override obsidian native padding */
+.markdown-preview-view.portals-context-note-container {
+    padding-left: 12px;
+    padding-right: 12px;
+}
