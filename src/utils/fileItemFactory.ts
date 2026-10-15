@@ -55,13 +55,10 @@ export class FileItemFactory {
             // Explicit visibility:
             // - Normal Mode: show unless the user explicitly hid this file.
             // - Collapse Mode: hide unless uer wants this file shown. 
-
             const showPreview = collapsed ? explicit === false : explicit !== true;
-            //const isExcluded = plugin.settings.previewExcludedFiles[file.path] ?? false;
 
             const toggleBtn = fileEl.createSpan({ cls: 'portals-file-action-icons' });
             plugin.renderPluginIcon(toggleBtn, showPreview ? 'minus-circle' : 'plus-circle');
-            const toggleIcon = toggleBtn.firstElementChild as HTMLElement;
 
             let previewEl: HTMLDivElement | null = null;
             let infoBar: HTMLDivElement | null = null;
@@ -72,16 +69,11 @@ export class FileItemFactory {
                 void plugin.saveSettings();
                 
                 const noShown = !showPreview;
-                //const newState = FileItemFactory.toggleFilePreview(plugin, file.path, toggleIcon);
                 if (previewEl) {
                     previewEl.classList.toggle('file-item-preview-hidden', !noShown);
                 }
                 if (infoBar) {
                     infoBar.classList.toggle('file-item-preview-hidden', !noShown);
-                }
-                if (toggleIcon) {
-                    toggleIcon.classList.remove('ph-plus-circle', 'ph-minus-circle');
-                    toggleIcon.classList.add(noShown ? 'ph-plus-circle' : 'ph-minus-circle');
                 }
             });
             

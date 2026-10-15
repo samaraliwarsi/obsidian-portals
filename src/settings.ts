@@ -3,7 +3,6 @@ import type { SettingDefinitionItem } from 'obsidian';
 import PortalsPlugin from './main';
 import { SpaceConfig, PortalStack } from './types';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
-import { LegacyDisplay } from './utils/settingsRelated/settingsDisplay';
 import { buildSettingDefinitions } from './utils/settingsRelated/settingDefinitions';
 
 export interface SpacesSettings {
@@ -169,17 +168,11 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
 export class SpacesSettingTab extends PluginSettingTab {
     plugin: PortalsPlugin;
     public openSections: Set<string> = new Set();
-    public activeTab: string = 'explorer';
     icon = 'folder-tree';
 
     constructor(app: App, plugin: PortalsPlugin) {
         super(app, plugin);
         this.plugin = plugin;
-    }
-
-    // Legacy imperative fallback for Obsidian < 1.13.
-    display(): void {
-        new LegacyDisplay(this).display();
     }
 
     // New declarative API for Obsidian 1.13+
