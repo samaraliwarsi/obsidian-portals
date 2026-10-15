@@ -1,10 +1,3 @@
----
-created: 2026-05-15
-tags:
-  - portals
-Status:
-  - recurring
----
 # Portals for Obsidian
 
 <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
