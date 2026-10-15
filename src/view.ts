@@ -767,10 +767,25 @@ export class PortalsView extends ItemView {
     }
 
     public reapplySelectionHighlights(): void {
-        if (this.selectedItems.size === 0) return;
+        if (this.selectedItems.size === 0) {
+            this.updateMultiSelectToolbar();
+            return;
+        }
 
         const tree = this.containerEl.querySelector('.portals-tree-container');
         if (!tree) return;
+
+        const presentKeys = new Set<string>();
+        tree.querySelectorAll<HTMLElement>('[data-path], [data-tag-path]').forEach(el => {
+            const key = el.dataset.path || el.dataset.tagPath || '';
+            if (key) presentKeys.add(key);
+        });
+
+        for (const key of Array.from(this.selectedItems)) {
+            if (!presentKeys.has(key)) {
+                this.selectedItems.delete(key);
+            }
+        }
 
         tree.querySelectorAll<HTMLElement>('[data-path], [data-tag-path]').forEach(el => {
             const key = el.dataset.path || el.dataset.tagPath || '';
@@ -778,6 +793,10 @@ export class PortalsView extends ItemView {
                 el.addClass('is-selected');
             }
         });
+        if (this.rangeSelectionAnchor && !presentKeys.has(this.rangeSelectionAnchor)) {
+            this.rangeSelectionAnchor = null;
+        }
+
         this.updateMultiSelectToolbar();
     }
 
@@ -1103,6 +1122,20 @@ export class PortalsView extends ItemView {
                 }
             }
         }));
+
+        this.registerDomEvent(activeDocument, 'keydown', (e: KeyboardEvent) => {
+            if (e.key !== 'Escape') return;
+            if (this.renaming) return;
+            if (this.selectedItems.size === 0) return;
+
+            const activeEl = activeDocument.activeElement;
+            if (activeEl instanceof HTMLElement &&
+                activeEl.closest('.modal-container, .modal, .prompt')
+            ) return;
+            e.preventDefault();
+            e.stopPropagation();
+            this.clearSelection();
+        });
 
         this.registerDomEvent(this.containerEl, 'scroll', (e) => {
             const target = e.target as HTMLElement | null;
@@ -1999,6 +2032,7 @@ export class PortalsView extends ItemView {
             this.restoreTreeScroll();
             // Floating buttons (attached to mainPanel)
             new FloatingButtonsRenderer(this.app, this.plugin, this).render(mainPanel);
+            this.reapplySelectionHighlights();
         } catch (e) {
             console.error('Portals render error:', e);
         }
@@ -2066,6 +2100,7 @@ export class PortalsView extends ItemView {
             new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
         }
         this.restoreTreeScroll();
+        this.reapplySelectionHighlights();
     }
 
     public refreshRecentTab() {

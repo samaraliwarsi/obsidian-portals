@@ -5,6 +5,7 @@ import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../modals/frontmatterPopup';
 
+
 const clinicCache = {
     properties: new Map<string, Set<string>>(),
     noFrontmatterPaths: new Set<string>(),
@@ -36,6 +37,7 @@ export class FrontmatterClinicRenderer {
     private clinicRenderTimeout: number | null = null;
     private fmModalOpen = false;
     private deferredRefresh = false;
+    private _escapeHandler: ((e: KeyboardEvent) => void) | null = null;
 
     static async buildCache(app: App) {
         if (clinicCache.ready) return;
@@ -635,6 +637,23 @@ export class FrontmatterClinicRenderer {
                 }
             });
         }
+        if (!this._escapeHandler) {
+            this._escapeHandler = (e: KeyboardEvent) => {
+                if (e.key !== 'Escape') return;
+                if (this.clinicSelectedPaths.size === 0) return;
+                const activeEl = activeDocument.activeElement;
+                if (activeEl instanceof HTMLElement &&
+                    activeEl.closest('.modal-container, .modal, .prompt')
+                ) return;
+                e.preventDefault();
+                e.stopPropagation();
+                this.clinicSelectedPaths.clear();
+                this.container.querySelectorAll('.fm-file-item.is-selected').forEach(el => el.classList.remove('is-selected'));
+                this.view.rangeSelectionAnchor = null;
+                this.updateClinicToolbar();
+            };
+            activeDocument.addEventListener('keydown', this._escapeHandler);
+        }
     }
 
     private sortClinicFiles(target: HTMLElement) {
@@ -807,6 +826,10 @@ export class FrontmatterClinicRenderer {
         if (this.frontmatterChangedRef) {
             this.app.metadataCache.offref(this.frontmatterChangedRef);
             this.frontmatterChangedRef = null;
+        }
+        if (this._escapeHandler) {
+            activeDocument.removeEventListener('keydown', this._escapeHandler);
+            this._escapeHandler = null;
         }
     }
 }
