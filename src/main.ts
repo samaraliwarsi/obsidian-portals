@@ -854,4 +854,11 @@ export default class PortalsPlugin extends Plugin {
             console.error('Portals: backup rotation failed', err);
         }
     }
+
+    async resetPreviewPreferences(): Promise<number> {
+        const count = Object.keys(this.settings.previewExcludedFiles).length;
+        this.settings.previewExcludedFiles = {};
+        await this.saveSettings();
+        return count;
+    }
 }

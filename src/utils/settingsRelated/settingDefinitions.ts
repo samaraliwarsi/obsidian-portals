@@ -502,6 +502,19 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                             })();
                         });
                     }
+                },
+                {
+                    name: 'Reset all preview preferences',
+                    desc: 'Clears all per-file preview expand/collapse choices accumulated overtime. Useful for a fresh start with floating preview button.',
+                    render: (setting) => {
+                        const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
+                        btn.addEventListener('click', () => {
+                            void (async () => {
+                                const count = await tab.plugin.resetPreviewPreferences();
+                                new Notice(count > 0 ? `Cleared ${count} preview preference(s).` : 'No preview preferences to clear');
+                            })();
+                        });
+                    }
                 }
             ]
         }

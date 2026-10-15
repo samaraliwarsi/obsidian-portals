@@ -1,6 +1,14 @@
+---
+tags:
+  - portals
+created: 2026-04-07
+Progress: 5
+Status: recurring
+order: 1
+---
 # PORTALS PLUGIN USER GUIDE
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.4.1**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customizable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.4.3**
 
 ---
 ## INSTALLATION
@@ -151,6 +159,11 @@ Markdown files can display a content snippet below the filename in the file tree
 - Toggle preview per file using the hover icon or via multi-select toolbar using the `Toggle preview` action. Preferences of per file collapse and expand are stored in user data.json.
 - If a file has no content, no preview appears.
 - Disable globally using the setting or command palette, `Portals: Toggle file previews in explorer`. Users can add it to hotkey using Obsidian settings.
+#### File preview bulk toggle
+This is a floating button activated only when file previews are enabled from settings. **Preview button** works on all files generally but respects the user defined expand or collapse of individual file previews over time. The file previews that user has manually turned off or on are saved in data.json and those are left unaffected by bulk opening or closing using the Preview button. This is to respect long term preferences for certain files that user may want to keep expanded or closed. 
+
+>A new clean up option is introduced in version 1.4.3. This can be used to reset all accumulated preview preferences in settings. This can help users who have lots of files and wish to start over fresh with the introduction of the bulk preview button. 
+
 ---
 ### File & Header Tooltips
 These can be enabled via `Settings → Portals` → **Explorer** page → `Show tree item tooltips`.
@@ -372,17 +385,19 @@ In this part users can directly apply YAML to the markdown files. Simply press `
 ### Foldable floating Action Buttons
 Four buttons at the bottom‑left of the file panel (can be folded/unfolded into a single button via `Right‑Click`):
 
-| Button                           | Icon          | Action                                                                                        |
-| -------------------------------- | ------------- | --------------------------------------------------------------------------------------------- |
-| New Note                         | file-plus     | Create a new note in the current folder/tag space.                                            |
-| New Folder (Folder portals only) | folder-plus   | Create a new subfolder.                                                                       |
-| Tag groups (Tag portals only)    | funnel        | Open the **Tag groups** modal – choose which subtags appear as separate collapsible sections. |
-| Sort files and folders           | caret-up-down | Change sorting (Name A→Z, Name Z→A, Created oldest/newest, Modified oldest/newest).           |
-| Collapse/fold                    | stack         | Click to collapse all subfolders (root stays expanded). Right click to fold/ unfold icons.    |
+| Button                           | Icon              | Action                                                                                                                                                       |
+| -------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| New Note                         | file-plus         | Create a new note in the current folder/tag space.                                                                                                           |
+| New Folder (Folder portals only) | folder-plus       | Create a new subfolder.                                                                                                                                      |
+| Tag groups (Tag portals only)    | funnel            | Open the **Tag groups** modal – choose which subtags appear as separate collapsible sections.                                                                |
+| Sections                         | rows              | Only enabled when the setting 'Enable sections' is on. Helps user choose sections preferences.                                                               |
+| Sort files and folders           | caret-up-down     | Change sorting (Name A→Z, Name Z→A, Created oldest/newest, Modified oldest/newest).                                                                          |
+| Toggle preview                   | circle-plus/minus | Toggles bulk preview on or off. Users can manually turn individual file previews on or off, those choices are respected even when using bulk preview button. |
+| Collapse/fold                    | stack             | Click to collapse all subfolders (root stays expanded). Right click to fold/ unfold icons.                                                                   |
 
-> Collapse button has two functions: `Click` collapses the view, `Right-Click` folds/ unfolds the other 3 icons. Click to collapse works in both folded and unfolded state. A tooltip related to this is set to display once per session on hover, after which the collapse button shows its regular tooltip. 
-
-> Sort button works primarily on files. Folders, over the course of sync, backup and system explorer level changes can lose the modified and created status. So the sort for folders using created, modified times may not work as reliably. 
+> [!note]
+> - **Collapse button** has two functions: `Click` collapses the view, `Right-Click` folds/ unfolds the other 3 icons. Click to collapse works in both folded and unfolded state. A tooltip related to this is set to display once per session on hover, after which the collapse button shows its regular tooltip. 
+> - **Sort button** works primarily on files. Folders, over the course of sync, backup and system explorer level changes can lose the modified and created status. So the sort for folders using created, modified times may not work as reliably. 
 
 ---
 ### Page Preview 
@@ -465,7 +480,7 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 - **Buttons** : Tag trees omit the `New Folder` button and display a `Tag group` button that can be used to add grouped separation to tag views based on secondary tags. 
 
 ---
-## SHORTCUTS & QUICK ACTIONS OVERVIEW
+## SHORTCUTS & QUICK ACTIONS
 
 | **Shortcut**         | **Target**        | **Action**                                                                                                          |
 | -------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -481,8 +496,11 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 
 ---
 ## SETTINGS OVERVIEW
+The setting page from 1.4.3 is redesigned to support Obsidian's native searchable setting. Each item on the docket is a searchable entry directly accessible from Obsidian setting's search. The setting page is broken down into groups and sections, 
 
-###### Explorer > EXPLORER PAGE
+### Configuration
+The first group is Configuration which includes several pages
+#### Explorer
 
 | Setting                                | Description                                                                                                          |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
@@ -497,20 +515,24 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Show file preview                      | Shows a snippet of text under the file name. The snippet is the file content post frontmatter.                       |
 | Show file info bar                     | Tied to file preview. Shows file tags in folder portals under preview and folders in tag portals under file preview. |
 | Enable Sections                        | Show sections within each folder or tag to help sort and categorise files using user customizable sections.          |
-###### Portal tabs > Portal tabs page
+#### Portal tabs
+###### Tabs
 
-| Setting                   | Description                                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Compact tabs              | Reduce padding, margin, sizes on portal tabs & side portal                                             |
-| Tab name display          | Choose how to display item name on portal                                                              |
-| Tab icon position         | Choose the position of icon on named portal tabs                                                       |
-| Show quick tab badge      | Shows a badge to denote an assigned number for quick switching tabs using commands or hotkeys.         |
-| Tab colors                | Global toggle for tab border colours, side portal colors, icon dots, context note highlights and more. |
-| Pin vault root            | Always show the root as the first tab.                                                                 |
-| Pin root vault appearance | Style setting for pin root vault portal.                                                               |
-| Add new portal            | Opens a modal to add new folder/ tag portals using available data.                                     |
-| Categorised portal list   | Shows a list of all folders, tags, subfolders being used as portals.                                   |
-###### Stacks > portal tabs page
+| Setting                 | Description                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| Compact tabs            | Reduce padding, margin, sizes on portal tabs & side portal                                             |
+| Tab name display        | Choose how to display item name on portal                                                              |
+| Tab icon position       | Choose the position of icon on named portal tabs                                                       |
+| Show quick tab badge    | Shows a badge to denote an assigned number for quick switching tabs using commands or hotkeys.         |
+| Tab colors              | Global toggle for tab border colours, side portal colors, icon dots, context note highlights and more. |
+###### Root vault
+| Setting                   | Description                                                          |
+| ------------------------- | -------------------------------------------------------------------- |
+| Pin vault root            | Always show the root as the first tab.                               |
+| Pin root vault appearance | Style setting for pin root vault portal.                             |
+| Add new portal            | Opens a modal to add new folder/ tag portals using available data.   |
+| Categorised portal list   | Shows a list of all folders, tags, subfolders being used as portals. |
+###### Stacks
 
 | Setting              | Description                                              |
 | -------------------- | -------------------------------------------------------- |
@@ -520,14 +542,16 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Colored stack icon   | Highlights stack with app accent or user defined colors. |
 | Auto collapse stacks | Stacks will auto collapse when another stack is opened.  |
 
-###### Side Portal > side portal page
+#### Side Portal
+
+###### Side Portal
 
 | Setting                       | Description                                                           |
 | ----------------------------- | --------------------------------------------------------------------- |
 | Side portal                   | Enable/disable the bottom panel.                                      |
 | Choose side portals           | Select which tabs appear (Recent, Context Notes, Bookmarks, Journal). |
 | Disable side portal on mobile | Hides side portal on small screens.                                   |
-###### Context Notes > side portal page
+###### Context Notes
 
 | Setting                         | Description                                                                                         |
 | ------------------------------- | --------------------------------------------------------------------------------------------------- |
@@ -537,7 +561,7 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Context note highlight type     | Choose how to highlight headers that have context notes.                                            |
 | Open context notes from icon    | Use the setting to open context note directly from header icon.                                     |
 | Show closest context notes      | Context note side portal shows context notes based on the active file instead of the active portal. |
-###### Journal > side portal page
+###### Journal 
 
 | Setting                       | Description                                                                         |
 | ----------------------------- | ----------------------------------------------------------------------------------- |
@@ -546,19 +570,14 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Quote delimiter               | Symbols used to mark quotes, e.g, `double-equal(==)` or `double-asterisk(**)`       |
 | Quote indicator on date cards | Shows an indicator on journal date cards for status of quote extraction.            |
 | Journal default quote tab     | Helps change the default opening tab of journal. System default is **Random** tab.  |
-###### Properties > side portal page
+###### Properties 
 
 | Setting             | Description                                              |
 | ------------------- | -------------------------------------------------------- |
 | Show current value  | Show property value on listed files after sorting.       |
 | Hide filtered count | Hide the count of total filtered items before file list. |
-###### utilities > utilities page
-
-| Setting             | Description                                                                                     |
-| ------------------- | ----------------------------------------------------------------------------------------------- |
-| Plugin icon library | Switch plugin hardcoded icons between lucide and phosphor library. Does not affect custom icons |
-
-###### Backup/ Restore  > utilities page
+#### Maintenance
+###### Backup & restore
 
 | Setting            | Description                                                                                                    |
 | ------------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -566,16 +585,25 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 | Import settings    | Imports json file of user data                                                                                 |
 | Auto backups       | Helps auto backup data on Obsidian reload. Can be changed per device using the cloud icon.                     |
 | Auto backup folder | Folder where auto backups are stored (default: vault root).                                                    |
-###### maintenance and help > utilities page
+###### Force cleanup
 
-| Settings              | Description                                                                   |
-| --------------------- | ----------------------------------------------------------------------------- |
-| Clean up dead portals | Remove tabs for folders/tags that no longer exist. Hard reset for dead items. |
-| User Guide            | Opens this user guide on GitHub                                               |
-| Release notes         | Opens release notes on GitHub                                                 |
+| Settings                     | Description                                                                                                                                                 |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Clean up dead portals        | Remove tabs for folders/tags that no longer exist. Hard reset for dead items.                                                                               |
+| Clean up dead hidden keys    | Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically. |
+| Clean up preview preferences | Clears all per-file preview expand/collapse choices accumulated overtime. Useful for a fresh start with floating preview button.                            |
+
+### Utilities
+The second group is Utilities, displayed on the main settings page, these include,
+
+| Settings            | Description                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| Plugin icon library | Switch plugin hardcoded icons between lucide and phosphor library. Does not affect custom icons |
+| User Guide          | Opens this user guide on GitHub                                                                 |
+| Release notes       | Opens release notes on GitHub                                                                   |
 
 ---
-## Troubleshooting & Tips
+## TROUBLESHOOTING TIPS
 
 - **My custom icon disappeared after rename** – it should persist; if not, restart Obsidian.  
 - **Journal quotes not showing** – ensure journal folder is set correctly and daily notes use the chosen delimiter.  
@@ -589,25 +617,6 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 	- Saves by default at vault root, can be configured to user defined folder
 	- Saves 3 copies named by system date and time. 
 	- Test feature - per device sync. A new cloud icon is added next to this setting. For those who switch devices quickly, this feature has a potential to cause conflicts as it saves 100ms after full obsidian reload. Using the cloud icon, users can disable the creation process on certain devices. The setting being on is still synced, only the creation process stops. This should help prevent multiple file creations with obsidian reloads on multiple devices. The files created by one device would sync anyway since they're inside the vault. 
-
----
-## Migration Guide
-###  Important: Required for 1.1.1,  for users who are updating from any previous version (v1.1.0 or earlier)
-The plugin ID has changed from `obsidian-portals` to `portals` to follow Obsidian's guidelines. User settings won't be updated automatically for this round. For users updating from an older version (1.1.0 or earlier), please follow these steps to migrate previous settings. There are two ways to do this, 
-### Export/Import of json file
-1. **Export** using the older version. Use the feature provided at the bottom of the settings page. Save the json file at a safe location.
-2. **Uninstall Portals**
-3. **Reinstall** the latest version
-4. **Import** using the newer version. Use the feature provided at the bottom of the settings page. Select a saved json file.
-### Use Data File
-1. **Close Obsidian** completely.
-2. **Navigate to vault's `.obsidian/plugins/` folder**.
-3. Find the old folder named `obsidian-portals`. Inside it, find the file `data.json` – this contains all the portal configurations.
-4. **Create a new folder** named `portals` in the same location (if it doesn't already exist).
-5. **Copy the `data.json` file** from the `obsidian-portals` folder into the new `portals` folder.
-6. (Optional) After confirming everything works, users may delete the old `obsidian-portals` folder.
-7. **Restart Obsidian** and enable the new plugin (`Portals`). User settings should now be restored.
-8. Users can prefer to start fresh – old settings will not be used automatically.
 
 ---
 ## Need More Help?

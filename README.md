@@ -1,3 +1,10 @@
+---
+created: 2026-05-15
+tags:
+  - portals
+Status:
+  - recurring
+---
 # Portals for Obsidian
 
 <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
@@ -45,11 +52,11 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 > [!Note]
 > - Please back up your data file after preferences setup, color & icon choices. Copy the file `.obsidian/plugins/portals/data.json` to a safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates. 
+> - Portals version 1.4.3 release onwards requires Obsidian 1.13.0 or later. If you're on an older version, update Obsidian please.
 > - For best results,
 > 	- On mobile: Works best with Baseline Theme as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. Settings > Appearance > Floating Navigation. 
 > 	- On desktop, you may need to turn off vault hiding if your theme hides the vault selector on the lower side. 
 > 	- **Auto backups** – Enable in Utilities page to save your configuration automatically on Obsidian reload.
->   - Please note that certain portal modals may not work correctly on transparent themes. 
 
 ## ⚙️ Installation
 	
