@@ -7,8 +7,8 @@ import { FrontmatterClinicRenderer } from './frontmatterClinic';
 import { SearchPopover } from '../utils/searchPopover';
 import { GroupTagsModal } from '../modals/groupTagsModal';
 
-type ButtonId = 'collapse' | 'sections' | 'sort' | 'newFolder' | 'newNote';
-const BUTTON_ORDER: ButtonId[] = ['collapse', 'sections', 'sort', 'newFolder', 'newNote'];
+type ButtonId = 'collapse' | 'preview' | 'sections' | 'sort' | 'newFolder' | 'newNote';
+const BUTTON_ORDER: ButtonId[] = ['collapse', 'preview', 'sections', 'sort', 'newFolder', 'newNote'];
 
 function getButtonPositions(plugin: PortalsPlugin): Record<ButtonId, number | null> {
     const visible: ButtonId[] = [];
@@ -16,6 +16,9 @@ function getButtonPositions(plugin: PortalsPlugin): Record<ButtonId, number | nu
         switch (id) {
             case 'collapse':
                 visible.push(id);
+                break;
+            case 'preview':
+                if (plugin.settings.showFilePreview) visible.push(id);
                 break;
             case 'sections':
                 if (plugin.settings.enableSections) visible.push(id);
@@ -33,6 +36,7 @@ function getButtonPositions(plugin: PortalsPlugin): Record<ButtonId, number | nu
     }
     const positions: Record<ButtonId, number | null> = {
         collapse: null,
+        preview: null,
         sections: null,
         sort: null,
         newFolder: null,
@@ -233,6 +237,19 @@ export class FloatingButtonsRenderer {
                         });
                     }
                 });
+            }
+
+            // bulk preview toggle button
+            if (this.plugin.settings.showFilePreview) {
+                const isCollapsed = this.view.previewsCollapsed;
+                const icon = isCollapsed ? 'eye' : 'eye-slash';
+                const tooltip = isCollapsed ? 'Show previews' : 'Hide previews';
+
+                this.createButton(icon, tooltip, pos.preview!, () => {
+                    this.view.previewsCollapsed = !this.view.previewsCollapsed;
+                    this.view.saveTreeScroll();
+                    this.view.render();
+                })
             }
 
             // Collapse button with contextmenu toggling

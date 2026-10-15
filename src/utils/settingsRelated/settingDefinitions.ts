@@ -103,7 +103,7 @@ function buildExplorerPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
         },
         {
             name: 'Show file preview',
-            desc: 'Show a snippet of file text under the file name in folder or tag tree.',
+            desc: 'Show text snippets under file names. A floating button appears to bulk fold or unfold previews, outside of the individual file preview preferences saved overtime in userdata.',
             control: { type: 'toggle', key: 'showFilePreview' }
         },
         {

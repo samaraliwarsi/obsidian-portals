@@ -80,6 +80,7 @@ export class PortalsView extends ItemView {
     private trashRenderer: TrashRenderer | null = null;
     private recentRenderer: RecentFilesRenderer | null = null;
     private hiddenRenderer: HiddenItemsRenderer | null = null;
+    public previewsCollapsed = false;
     private bookmarksRenderer: BookmarksRenderer | null = null;
     public clinicRenderer: FrontmatterClinicRenderer | null = null;
     public activeGroupTag: string | null = null;
@@ -1460,6 +1461,7 @@ export class PortalsView extends ItemView {
             tabIconPosition: s.tabIconPosition,
             stackIconPosition: s.stackIconPosition,
             showFilePreview: s.showFilePreview,
+            previewsCollapsed: this.previewsCollapsed,
             previewExcludedFiles: JSON.stringify(s.previewExcludedFiles),
             showFileInfoBar: s.showFileInfoBar,
             enableSections: s.enableSections,

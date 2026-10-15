@@ -49,23 +49,39 @@ export class FileItemFactory {
         if (plugin.settings.showFilePreview && file.extension === 'md') {
             fileEl.addClass('file-item-has-preview');
 
-            const isExcluded = plugin.settings.previewExcludedFiles[file.path] ?? false;
+            const explicit = plugin.settings.previewExcludedFiles[file.path];
+            const collapsed = view.previewsCollapsed;
+
+            // Explicit visibility:
+            // - Normal Mode: show unless the user explicitly hid this file.
+            // - Collapse Mode: hide unless uer wants this file shown. 
+
+            const showPreview = collapsed ? explicit === false : explicit !== true;
+            //const isExcluded = plugin.settings.previewExcludedFiles[file.path] ?? false;
 
             const toggleBtn = fileEl.createSpan({ cls: 'portals-file-action-icons' });
-            //const toggleIcon = toggleBtn.createEl('i', { cls: `ph ph-${isExcluded ? 'plus-circle' : 'minus-circle'}` });
-            plugin.renderPluginIcon(toggleBtn, isExcluded ? 'plus-circle' : 'minus-circle');
+            plugin.renderPluginIcon(toggleBtn, showPreview ? 'minus-circle' : 'plus-circle');
             const toggleIcon = toggleBtn.firstElementChild as HTMLElement;
+
             let previewEl: HTMLDivElement | null = null;
             let infoBar: HTMLDivElement | null = null;
 
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const newState = FileItemFactory.toggleFilePreview(plugin, file.path, toggleIcon);
+                plugin.settings.previewExcludedFiles[file.path] = showPreview;
+                void plugin.saveSettings();
+                
+                const noShown = !showPreview;
+                //const newState = FileItemFactory.toggleFilePreview(plugin, file.path, toggleIcon);
                 if (previewEl) {
-                    previewEl.classList.toggle('file-item-preview-hidden', !newState);
+                    previewEl.classList.toggle('file-item-preview-hidden', !noShown);
                 }
                 if (infoBar) {
-                    infoBar.classList.toggle('file-item-preview-hidden', !newState);
+                    infoBar.classList.toggle('file-item-preview-hidden', !noShown);
+                }
+                if (toggleIcon) {
+                    toggleIcon.classList.remove('ph-plus-circle', 'ph-minus-circle');
+                    toggleIcon.classList.add(noShown ? 'ph-plus-circle' : 'ph-minus-circle');
                 }
             });
             
@@ -97,7 +113,7 @@ export class FileItemFactory {
                         }
                     }
 
-                    if (isExcluded) {
+                    if (!showPreview) {
                         previewEl.addClass('file-item-preview-hidden');
                         if (infoBar) infoBar.addClass('file-item-preview-hidden');
                     }
