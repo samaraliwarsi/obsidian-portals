@@ -947,7 +947,7 @@ async function exportSettings(tab: SpacesSettingTab): Promise<void> {
         const a = activeDocument.body.createEl('a', {
             attr: { href: url, download: fileName }
         });
-        a.style.display = 'none';
+        a.hide();
         a.click();
         a.remove();
 
@@ -975,7 +975,7 @@ function importSettings(tab: SpacesSettingTab): void {
     const input = activeDocument.body.createEl('input', {
         attr: { type: 'file', accept: 'application/json' }
     });
-    input.style.display = 'none';
+    input.hide();
     input.addEventListener('change', () => {
         void (async () => {
             const file = input.files?.[0];
