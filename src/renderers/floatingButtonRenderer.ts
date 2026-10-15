@@ -242,7 +242,7 @@ export class FloatingButtonsRenderer {
             // bulk preview toggle button
             if (this.plugin.settings.showFilePreview) {
                 const isCollapsed = this.view.previewsCollapsed;
-                const icon = isCollapsed ? 'eye' : 'eye-slash';
+                const icon = isCollapsed ? 'plus-circle' : 'minus-circle';
                 const tooltip = isCollapsed ? 'Show previews' : 'Hide previews';
 
                 this.createButton(icon, tooltip, pos.preview!, () => {
