@@ -7265,7 +7265,7 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
     color: var(--text-normal);
 }
 
-/* custom padding for markdown preview view to override obsidian native padding 
+/* custom padding for markdown preview view to override obsidian native padding */
 .markdown-preview-view.portals-context-note-container {
     padding-left: 12px;
     padding-right: 12px;

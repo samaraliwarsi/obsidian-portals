@@ -247,6 +247,7 @@ export class ContextNotesRenderer {
     private destroyed = false;
     private currentNotePath: string | null = null;
     private _currentRenderToken: object | null = null;
+    private scrollFrozen = false;
 
     constructor(app: App, plugin: PortalsPlugin, view: ContextNotesView, container: HTMLElement, scrollCache: Map<string, number>) {
         this.app = app;
@@ -258,14 +259,14 @@ export class ContextNotesRenderer {
 
     // =====================================PUBLIC API====================================
 
-    public saveScroll(overridePath?: string): void {
-        const prevNotePath = overridePath ?? resolveContextNote(this.app, this.plugin, this.plugin.settings.selectedSpace)?.path;
-        if (!prevNotePath) return;
-        const noteContainer = this.container.querySelector('.portals-context-note-container');
-        if (noteContainer) {
-            const scroll = noteContainer.scrollTop
-            this.scrollCache.set(prevNotePath, scroll);
-        }
+    public saveScroll(_overridePath?: string): void {
+        const path = _overridePath ?? this.currentNotePath;
+        if (!path) return;
+        const noteContainer = this.container.querySelector<HTMLElement>('.portals-context-note-container');
+        if (!noteContainer) return;
+        if (!noteContainer.isConnected) return;
+        if (noteContainer.dataset.notePath !== path) return;
+        this.scrollCache.set(path, noteContainer.scrollTop);
     }
 
     public getCurrentNotePath(): string | null {
@@ -280,15 +281,18 @@ export class ContextNotesRenderer {
         this.destroyed = false;
         const token = {};
         this._currentRenderToken = token;
+        this.scrollFrozen = true;
 
         const targetFile = resolveContextNote(this.app, this.plugin, this.plugin.settings.selectedSpace, this.view.activeGroupTag);
         if (!targetFile) {
             this.showMessage('No context note found for the current space.');
+            this.scrollFrozen = false;
             return;
         }
 
         const cached = this.cache.get(targetFile.path);
         if (cached) {
+            this.currentNotePath = targetFile.path;
             const idx = this.cacheOrder.indexOf(targetFile.path);
             if (idx !== -1) this.cacheOrder.splice(idx, 1);
             this.cacheOrder.push(targetFile.path);
@@ -299,11 +303,14 @@ export class ContextNotesRenderer {
             }
             this.container.appendChild(cached.element);
             const savedScroll = this.scrollCache.get(targetFile.path);
-            if (savedScroll !== undefined) {
-                window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                if (savedScroll !== undefined) {
                     cached.element.scrollTop = savedScroll;
+                }
+                window.requestAnimationFrame(() => {
+                    this.scrollFrozen = false;
                 });
-            }
+            });
             this.ensureContextNoteOverlay(this.container, targetFile);
             return;
         }
@@ -314,6 +321,9 @@ export class ContextNotesRenderer {
         if (this._currentRenderToken !== token) return;
         this.watchForInternalLinks(this.container, targetFile.path);
         this.registerVaultEvents();
+        if (this.scrollFrozen && !this._currentRenderToken) {
+            this.scrollFrozen = false;
+        }
     }
 
     public destroy(): void {
@@ -379,6 +389,15 @@ export class ContextNotesRenderer {
         // --- Cache miss: render from scratch ---
         const noteContainer = createDiv();
         noteContainer.addClasses(['markdown-preview-view', 'portals-context-note-container']);
+        noteContainer.dataset.notePath = path;
+
+        // Track scroll position continuously
+        noteContainer.addEventListener('scroll', () => {
+            if (this.scrollFrozen) return;
+            if (!noteContainer.isConnected) return;
+            if (noteContainer.dataset.notePath !== this.currentNotePath) return;    
+            this.scrollCache.set(this.currentNotePath, noteContainer.scrollTop)
+        }, { passive: true });
 
         try {
             const content = await this.app.vault.read(targetFile);
@@ -458,11 +477,15 @@ export class ContextNotesRenderer {
             }
             this.container.appendChild(noteContainer);
             const savedScroll = this.scrollCache.get(targetFile.path);
-            if (savedScroll !== undefined) {
-                window.requestAnimationFrame(() => {
+        
+            window.requestAnimationFrame(() => {
+                if (savedScroll !== undefined) {
                     noteContainer.scrollTop = savedScroll;
+                }
+                window.requestAnimationFrame(() => {
+                    this.scrollFrozen = false;
                 });
-            }
+            });
         } catch (err) {
             console.error('Error rendering context note:', err);
             noteContainer.setText('Error rendering note.');
