@@ -15,7 +15,7 @@ Status:
 <a href="https://obsidian.md"><img src="https://img.shields.io/badge/Obsidian-Plugin-blue?logo=obsidian" alt="Obsidian Plugin"></a>
 </div>
 
-Portals enhances your Obsidian file navigation by letting you pin any folder or tag as a customizable tab, a Portal into your selected folder trees. Add icons to Tabs, background colors, gradients and rearrange them to suit your workflow.
+Portals enhances your Obsidian file navigation by letting you pin any folder or tag as a customisable tab, a Portal into your selected folder trees. Add icons to Tabs, background colours, gradients and rearrange them to suit your workflow.
 
 ![Portals_Main](Screenshots/Portals_Main.png)
 
@@ -24,7 +24,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 - **Pin folders & tags** as tabs at the top of the file pane.
 - **Stacks** – group multiple tabs into collapsible stacks.
-- **Custom icons & colors** – Use Phosphor or Lucide; picker includes favourites. Use custom icons for tabs, folders, files, tag groups.
+- **Custom icons & colours** – Use Phosphor or Lucide; picker includes favourites. Use custom icons for tabs, folders, files, tag groups.
 - **File preview** – Show content snippets below filenames; toggle per file or globally.
 - **Sections** – Organise folders or tags into collapsible section breaks (by property or extension).
 - **Quick tab switcher** – Assign numbers 1–10 to portals and switch instantly via hotkeys.
@@ -42,7 +42,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 	- **Bookmarks** - Shows bookmarked files, folders or web links.
 	- **Journal** - A viewing and marking tool for Daily Notes with a quote display feature. 
 	- **Hidden** - Place to show files, tags and folders hidden from the main view. 
-	- **Properties** - A viewing tool for markdown files, based on their properties. 
+	- **Properties** - A viewing tool for Markdown files, based on their properties. 
 	- **Trash** - A trash explorer for notes and folders based on Obsidian's `.trash` folder at vault root. 
 - **Drag & drop** reordering for portal tabs and stacks (desktop).
 - **Mobile friendly** – Responsive design that works on small screens. Tested on Android (more platforms coming).
@@ -51,7 +51,7 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 > For a full featured guide, checkout [Portals guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md)
 
 > [!Note]
-> - Please back up your data file after preferences setup, color & icon choices. Copy the file `.obsidian/plugins/portals/data.json` to a safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates. 
+> - Please back up your data file after preferences setup, colour & icon choices. Copy the file `.obsidian/plugins/portals/data.json` to a safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates. 
 > - Portals version 1.4.3 release onwards requires Obsidian 1.13.0 or later. If you're on an older version, update Obsidian please.
 > - For best results,
 > 	- On mobile: Works best with Baseline Theme as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. Settings > Appearance > Floating Navigation. 
@@ -90,8 +90,8 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 ## ⚙️ Settings Overview (split into pages)
 
-- **Explorer** – Replace file explorer, compact tree, styles, background color, bold folders, extension badge, quick-add icons, file preview, file tooltips, enable sections.
-- **Portal tabs** – Compact tabs, tab name display, tab icon position, show quick tab badge, tab colors, pin vault root, add/remove portals.
+- **Explorer** – Replace file explorer, compact tree, styles, background colour, bold folders, extension badge, quick-add icons, file preview, file tooltips, enable sections.
+- **Portal tabs** – Compact tabs, tab name display, tab icon position, show quick tab badge, tab colours, pin vault root, add/remove portals.
 - **Stacks** – Hide stack names, stack icon position, show stack count, coloured stack icon, auto‑collapse stacks.
 - **Side Portal** – Enable/disable, choose which tabs appear, disable on mobile.
 - **Context Notes** – Enable, tag notes folder, show in file tree, highlight type, open from icon, show closest context note.
