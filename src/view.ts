@@ -5,7 +5,6 @@ import { SpaceConfig } from './types';
 import { AddPortalModal } from './modals/addPortalModal';
 import { PortalStack } from './types';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
-import { TrashRenderer } from './renderers/trashRenderer';
 import { ContextMenuFactory } from './utils/contextMenuFactory';
 import { PortalsActions } from './utils/portalsActions';
 import { FolderTreeRenderer } from './trees/foldertreeRenderer';
@@ -64,7 +63,6 @@ export class PortalsView extends ItemView {
     private scrollAnchor: { selector: string; offset: number } | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
     public rangeSelectionAnchor: string | null = null;
-    private trashRenderer: TrashRenderer | null = null;
     public previewsCollapsed = false;
     public clinicRenderer: FrontmatterClinicRenderer | null = null;
     public activeGroupTag: string | null = null;
@@ -80,14 +78,10 @@ export class PortalsView extends ItemView {
     }
 
     public async refreshTrashTab() {
-        if (this.trashRenderer) {
-            await this.trashRenderer.refresh();
-        } else {
-            const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
-            if (secondaryPanel && this.plugin.settings.activeSplitTab === 'trash') {
-                await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'trash');
-            }
-        }
+        const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
+        if (!secondaryPanel) return;
+        if (this.plugin.settings.activeSplitTab !== 'trash') return;
+        await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'trash');
     }
 
     public showBulkFrontmatterModal(): void {
