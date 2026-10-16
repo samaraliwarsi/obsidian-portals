@@ -6,7 +6,6 @@ import { AddPortalModal } from './modals/addPortalModal';
 import { PortalStack } from './types';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { TrashRenderer } from './renderers/trashRenderer';
-import { ContextNotesRenderer} from './renderers/contextNotes';
 import { ContextMenuFactory } from './utils/contextMenuFactory';
 import { PortalsActions } from './utils/portalsActions';
 import { FolderTreeRenderer } from './trees/foldertreeRenderer';
@@ -54,7 +53,6 @@ export class PortalsView extends ItemView {
     private currentSplitter: HTMLElement | null = null;
     private sortableInstances: Sortable[] = [];
     private isDraggingTab: boolean = false;
-    private contextNotesRenderer: ContextNotesRenderer | null = null;
     public floatingBtnCollapseTooltipShown = false;
     public floatingBtnSectionTooltipShown = false;
     public _activeOutsideClickListener: ((e: MouseEvent) => void) | null = null;
@@ -587,12 +585,6 @@ export class PortalsView extends ItemView {
         tab.addEventListener('click', () => {
             this.activeGroupTag = null;
             this.hideTooltip(0);
-            if (this.contextNotesRenderer) {
-                const currentPath = this.contextNotesRenderer.getCurrentNotePath();
-                if (currentPath) {
-                    this.contextNotesRenderer.saveScroll(currentPath)
-                }                    
-            }
             if (this.plugin.settings.activeSplitTab === 'context-notes') {
                 const renderer = getContextRenderer(this);
                 if (renderer) renderer.saveScroll();
@@ -1054,15 +1046,6 @@ export class PortalsView extends ItemView {
                 }
                 this.renderContent();
             }
-            if (this.plugin.settings.enableContextNotes && this.plugin.settings.activeSplitTab === 'context-notes') {
-                if (this.contextNotesRenderer) {
-                    this.contextNotesRenderer.saveScroll(this.contextNotesRenderer.getCurrentNotePath() ?? undefined);
-                }
-                const sp = this.containerEl.querySelector('.portals-secondary-panel') as HTMLElement;
-                if (sp) {
-                    void this.renderSplitTabContent(sp, 'context-notes');
-                }
-            }
         }));
         this.registerEvent(this.app.workspace.on('layout-change', () => {
             if (!this.renaming){
@@ -1118,11 +1101,6 @@ export class PortalsView extends ItemView {
             this.renderTimer = null;
         }
 
-        if (this.contextNotesRenderer) {
-            this.contextNotesRenderer.destroy();
-            this.contextNotesRenderer = null;
-        }
-        
         if (this.tooltipEl) {
             this.tooltipEl.remove();
             this.tooltipEl = null;
@@ -1431,20 +1409,6 @@ export class PortalsView extends ItemView {
             this._activeOutsideClickListener = null;
             this.renaming = false;
             this.containerEl.removeClass('portals-renaming-active');
-        }
-
-        if (!this.plugin.settings.enableContextNotes && this.contextNotesRenderer) {
-            this.contextNotesRenderer.destroy();
-            this.contextNotesRenderer = null;
-        }
-
-        if (this.plugin.settings.enableContextNotes &&
-            this.plugin.settings.activeSplitTab === 'context-notes' &&
-            this.contextNotesRenderer) {
-            const currentPath = this.contextNotesRenderer.getCurrentNotePath();
-            if (currentPath) {
-                this.contextNotesRenderer.saveScroll(currentPath);
-            }
         }
 
         if (!this.plugin.settings.tabBarOrder || this.plugin.settings.tabBarOrder.length === 0) {
@@ -1811,10 +1775,6 @@ export class PortalsView extends ItemView {
                     if (rootColor) {
                         //tabBtn.style.setProperty('--split-tab-active-color', rootColor);
                         tabBtn.setCssProps({ '--split-tab-active-color': rootColor });
-                    }
-                    // Render new content
-                    if (this.contextNotesRenderer) {
-                        this.contextNotesRenderer.saveScroll();
                     }
                     void this.renderSplitTabContent(secondaryPanel, tabId);
                 });
