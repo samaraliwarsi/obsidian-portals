@@ -2,7 +2,6 @@ import { ItemView, WorkspaceLeaf, TFile, TFolder, Notice, Platform, View } from 
 import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './types';
-import { JournalRenderer } from './renderers/journalView';
 import { AddPortalModal } from './modals/addPortalModal';
 import { PortalStack } from './types';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
@@ -61,17 +60,12 @@ export class PortalsView extends ItemView {
     public _activeOutsideClickListener: ((e: MouseEvent) => void) | null = null;
     private renderTimer: number | null = null;
     public fileElementMap = new Map<string, HTMLElement>();
-    private journalRenderer: JournalRenderer | null = null;
-    private journalFolderPath: string = '';
-    private journalContainer: HTMLElement | null = null;
-    private lastJournalAccentColor: string | null = null;
     public scrollToRestore: number | null = null;
     private spaceScrollCache = new Map<string, number>();
     private lastRenderedSpaceKey: string = '';
     private scrollAnchor: { selector: string; offset: number } | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
     public rangeSelectionAnchor: string | null = null;
-    private lastJournalIndicatorValue: string;
     private trashRenderer: TrashRenderer | null = null;
     public previewsCollapsed = false;
     public clinicRenderer: FrontmatterClinicRenderer | null = null;
@@ -83,38 +77,8 @@ export class PortalsView extends ItemView {
     public async refreshJournalTab() {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
-        if (this.plugin.settings.activeSplitTab === 'journal') {
-            const currentFolderPath = this.plugin.settings.journalFolderPath;
-            // compute current accent color from root vault
-            const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
-            const tabColorEnabled = this.plugin.settings.tabColorEnabled;
-            const currentColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
-            // Determine if we need to refresh
-            const folderChanged = (this.journalFolderPath !== currentFolderPath);
-            const colorChanged = (currentColor !== this.lastJournalAccentColor);
-            const currentIndicator = this.plugin.settings.journalQuoteIndicator;
-            const indicatorChanged = (currentIndicator !== this.lastJournalIndicatorValue);
-
-            if (folderChanged || colorChanged || indicatorChanged) {
-                // Update cache
-                this.journalFolderPath = currentFolderPath;
-                this.lastJournalAccentColor = currentColor;
-                this.lastJournalIndicatorValue = currentIndicator;
-                // Only invalidate if folder path has changed
-                if (this.journalFolderPath !== currentFolderPath) {
-                    if (this.journalRenderer) {
-                        this.journalRenderer.destroy();
-                        this.journalRenderer = null;
-                    }
-                    this.journalRenderer = null;
-                    this.journalContainer = null;
-                    this.journalFolderPath = currentFolderPath;
-                    await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'journal');
-                } else if (this.journalRenderer) {
-                    void this.journalRenderer.render();
-                }
-            }
-        }
+        if (this.plugin.settings.activeSplitTab !== 'journal') return;
+        await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'journal');
     }
 
     public async refreshTrashTab() {
@@ -1047,7 +1011,6 @@ export class PortalsView extends ItemView {
     constructor(leaf: WorkspaceLeaf, plugin: PortalsPlugin) {
         super(leaf);
         this.plugin = plugin;
-        this.lastJournalIndicatorValue = plugin.settings.journalQuoteIndicator;
     }
 
     getViewType(): string {
@@ -1188,14 +1151,6 @@ export class PortalsView extends ItemView {
         activeDocument.removeEventListener('mouseup', this.handleDragEnd);
         activeDocument.removeEventListener('touchend', this.handleDragEnd);
 
-        if (this.journalRenderer) {
-            this.journalRenderer.destroy();
-            this.journalRenderer = null;
-        }
-        this.journalContainer = null;
-        this.journalRenderer = null;
-        this.journalContainer = null;
-        this.lastJournalAccentColor = null;
         this.scrollToRestore = null;
 
         this.fileElementMap.clear();
