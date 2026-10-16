@@ -166,11 +166,9 @@ export class TagTreeRenderer {
             details.classList.add('has-folder-color');
             summary.classList.add('has-folder-color');
             childrenContainer.classList.add('has-folder-color');
-            //details.style.setProperty('--folder-color', savedColor);
             details.setCssProps({ '--folder-color': savedColor });
         } else {
             details.classList.remove('has-folder-color');
-            //details.style.removeProperty('--folder-color');
             details.setCssProps({ '--folder-color': '' });
             summary.classList.remove('has-folder-color');
             childrenContainer.classList.remove('has-folder-color');
@@ -406,10 +404,8 @@ export class TagTreeRenderer {
                     shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
 
                     summary.classList.add('shaded-folder-summary');
-                    //summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
                     summary.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
                     groupChildren.classList.add('shaded-folder-children');
-                    //groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
                     groupChildren.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
                 }
 
@@ -429,16 +425,10 @@ export class TagTreeRenderer {
                         opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
                     }
                     summary.classList.add('hued-folder-summary');
-                    //summary.style.setProperty('--hue-start', String(hue));
-                    //summary.style.setProperty('--hue-end', String((hue + 30) % 360));
-                    //summary.style.setProperty('--hue-opacity', String(opacity));
                     summary.setCssProps({ '--hue-start': String(hue) });
                     summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
                     summary.setCssProps({ '--hue-opacity': String(opacity) });
                     groupChildren.classList.add('hued-folder-children');
-                    //groupChildren.style.setProperty('--hue-start', String(hue));
-                    //groupChildren.style.setProperty('--hue-end', String((hue + 30) % 360));
-                    //groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
                     groupChildren.setCssProps({ '--hue-start': String(hue) });
                     groupChildren.setCssProps({ '--hue-end': String((hue + 30) % 360) });
                     groupChildren.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
@@ -665,10 +655,8 @@ export class TagTreeRenderer {
                 }
                 shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
                 summary.classList.add('shaded-folder-summary');
-                //summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
                 summary.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
                 childrenContainer.classList.add('shaded-folder-children');
-                //childrenContainer.style.setProperty('--folder-shade-opacity', String(shadeOpacity * 0.6));
                 childrenContainer.setCssProps({ '--folder-shade-opacity': String(shadeOpacity * 0.6) });
             } else if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
                 const minOpacity = 0.1, maxOpacity = 0.3;
@@ -683,16 +671,10 @@ export class TagTreeRenderer {
                 }
                 opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
                 summary.classList.add('hued-folder-summary');
-                //summary.style.setProperty('--hue-start', String(hue));
-                //summary.style.setProperty('--hue-end', String((hue + 30) % 360));
-                //summary.style.setProperty('--hue-opacity', String(opacity));
                 summary.setCssProps({ '--hue-start': String(hue) });
                 summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
                 summary.setCssProps({ '--hue-opacity': String(opacity) });
                 childrenContainer.classList.add('hued-folder-children');
-                //childrenContainer.style.setProperty('--hue-start', String(hue));
-                //childrenContainer.style.setProperty('--hue-end', String((hue + 30) % 360));
-                //childrenContainer.style.setProperty('--hue-opacity', String(opacity * 0.6));
                 childrenContainer.setCssProps({ '--hue-start': String(hue) });
                 childrenContainer.setCssProps({ '--hue-end': String((hue + 30) % 360) });
                 childrenContainer.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
@@ -878,10 +860,8 @@ export class TagTreeRenderer {
                 }
                 shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
                 summary.classList.add('shaded-folder-summary');
-                //summary.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
                 summary.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
                 groupChildren.classList.add('shaded-folder-children');
-                //groupChildren.style.setProperty('--folder-shade-opacity', String(shadeOpacity));
                 groupChildren.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
             } else if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
                 const minOpacity = 0.1, maxOpacity = 0.3;
@@ -896,16 +876,10 @@ export class TagTreeRenderer {
                 }
                 opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
                 summary.classList.add('hued-folder-summary');
-                //summary.style.setProperty('--hue-start', String(hue));
-                //summary.style.setProperty('--hue-end', String((hue + 30) % 360));
-                //summary.style.setProperty('--hue-opacity', String(opacity));
                 summary.setCssProps({ '--hue-start': String(hue) });
                 summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
                 summary.setCssProps({ '--hue-opacity': String(opacity) });
                 groupChildren.classList.add('hued-folder-children');
-                //groupChildren.style.setProperty('--hue-start', String(hue));
-                //groupChildren.style.setProperty('--hue-end', String((hue + 30) % 360));
-                //groupChildren.style.setProperty('--hue-opacity', String(opacity * 0.6));
                 groupChildren.setCssProps({ '--hue-start': String(hue) });
                 groupChildren.setCssProps({ '--hue-end': String((hue + 30) % 360) });
                 groupChildren.setCssProps({ '--hue-opacity': String(opacity * 0.6) });

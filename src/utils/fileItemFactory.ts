@@ -23,12 +23,10 @@ export class FileItemFactory {
         const icon = fileEl.querySelector('.file-icon i');
         if (savedColor) {
             fileEl.classList.add('has-file-color');
-            //fileEl.style.setProperty('--file-color', savedColor);
             fileEl.setCssProps({ '--file-color': savedColor });
             if (icon) icon.addClass('has-file-color');
         } else {
             fileEl.classList.remove('has-file-color');
-            //fileEl.style.removeProperty('--file-color');
             fileEl.setCssProps({ '--file-color': '' });
         }
 
@@ -40,7 +38,6 @@ export class FileItemFactory {
             const extSpan = fileEl.createSpan({ cls: 'file-extension' });
             extSpan.setText('.' + file.extension.toUpperCase());
             if (openDotSpan) {
-                //openDotSpan.style.display = 'none';
                 openDotSpan.setCssProps({ display: 'none' });
             }
             if (isOpen) extSpan.addClass('is-open');
@@ -112,20 +109,16 @@ export class FileItemFactory {
 
                     if (savedColor) {
                         previewEl.addClass('has-file-color');
-                        //previewEl.style.setProperty('--file-color', savedColor);
                         previewEl.setCssProps({ '--file-color': savedColor });
                         if (infoBar) {
                             infoBar.addClass('has-file-color');
-                            //infoBar.style.setProperty('--file-color', savedColor);
                             infoBar.setCssProps({ '--file-color': savedColor });
                         }
                     } else {
                         previewEl.removeClass('has-file-color');
-                        //previewEl.style.removeProperty('--file-color');
                         previewEl.setCssProps({ '--file-color': '' });
                         if (infoBar) {
                             infoBar.removeClass('has-file-color');
-                            //infoBar.style.removeProperty('--file-color');
                             infoBar.setCssProps({ '--file-color': '' });
                         }
                     }

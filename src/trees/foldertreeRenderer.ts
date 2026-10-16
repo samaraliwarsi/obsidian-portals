@@ -152,18 +152,12 @@ export class FolderTreeRenderer {
             }
             opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
             summary.classList.add('hued-folder-summary');
-            //summary.style.setProperty('--hue-start', String(hue));
             summary.setCssProps({ '--hue-start': String(hue) });
-            //summary.style.setProperty('--hue-end', String((hue + 30) % 360));
             summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-            //summary.style.setProperty('--hue-opacity', String(opacity));
             summary.setCssProps({ '--hue-opacity': String(opacity) });
             childrenContainer.classList.add('hued-folder-children');
-            //childrenContainer.style.setProperty('--hue-start', String(hue));
             childrenContainer.setCssProps({ '--hue-start': String(hue) });
-            //childrenContainer.style.setProperty('--hue-end', String((hue + 30) % 360));
             childrenContainer.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-            //childrenContainer.style.setProperty('--hue-opacity', String(opacity * 0.6));
             childrenContainer.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
         }
 
