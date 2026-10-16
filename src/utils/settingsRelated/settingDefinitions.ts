@@ -515,6 +515,23 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                             })();
                         });
                     }
+                },
+                {
+                    name: 'Clean up orphaned settings fields',
+                    desc: 'Removes stale data.json fields left over from older plugin versions. Harmless to run — it only touches fields the current version no longer uses.',
+                    render: (setting) => {
+                        const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
+                        btn.addEventListener('click', () => {
+                            void (async () => {
+                                const removed = await tab.plugin.cleanupOrphanedSettingsFields();
+                                if (removed.length > 0) {
+                                    new Notice(`Removed ${removed.length} orphaned field(s): ${removed.join(', ')}`);
+                                } else {
+                                    new Notice('No orphaned fields found.');
+                                }
+                            })();
+                        });
+                    }
                 }
             ]
         }

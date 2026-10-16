@@ -754,4 +754,21 @@ export default class PortalsPlugin extends Plugin {
         await this.saveSettings();
         return count;
     }
+
+    async cleanupOrphanedSettingsFields(): Promise<string[]> {
+        const knownKeys = new Set(Object.keys(DEFAULT_SETTINGS));
+        const orphaned: string[] = [];
+        for (const key of Object.keys(this.settings)) {
+            if (!knownKeys.has(key)) {
+                orphaned.push(key);
+            }
+        }
+        if (orphaned.length > 0) {
+            for (const key of orphaned) {
+                delete (this.settings as unknown as Record<string, unknown>)[key];
+            }
+            await this.saveSettings();
+        }
+        return orphaned;
+    }
 }
