@@ -58,7 +58,6 @@ export default class PortalsPlugin extends Plugin {
             }
         }
 
-
         this.app.workspace.onLayoutReady(() => {
             if (this.settings.enableAutoBackup) {
                 window.setTimeout(() => {
@@ -279,119 +278,13 @@ export default class PortalsPlugin extends Plugin {
             this.settings.tabBarOrder = order;
         }
 
-        // === NEW: Migrate existing plain paths to composite keys ===
-        if (this.settings.tabBarOrder && this.settings.tabBarOrder.length > 0) {
-            const convertedOrder: string[] = [];
-            let needsConversion = false;
-            for (const entry of this.settings.tabBarOrder) {
-                if (entry.startsWith('stack:')) {
-                    convertedOrder.push(entry);
-                } else if (!entry.includes(':')) {
-                    // Plain path – find matching portal (first unstacked)
-                    const space = this.settings.spaces.find(s => s.path === entry && !s.stackId);
-                    if (space) {
-                        convertedOrder.push(`${space.type}:${space.path}`);
-                        needsConversion = true;
-                    }
-                    // If no space found, skip (portal was deleted)
-                } else {
-                    convertedOrder.push(entry);
-                }
-            }
-            if (needsConversion) {
-                this.settings.tabBarOrder = convertedOrder;
-                await this.saveSettings();
-            }
-        }
-
-        // Migrate icons to new managemenet using compositeKey for spaces and clean up of old 
-        const FOLDER_DEFAULT = 'folder-simple';
-        const TAG_DEFAULT = 'tag';
-        const STACK_DEFAULT = 'stack';
-        let needsSave = false;
-
-        // migrate space icons
-        for (const space of this.settings.spaces) {
-            const compositeKey = `${space.type}:${space.path}`;
-            const defaulIcon = space.type === 'folder' ? FOLDER_DEFAULT : TAG_DEFAULT;
-            if (space.icon && space.icon !== defaulIcon) {
-                if (!this.settings.customIcons[compositeKey]) {
-                    this.settings.customIcons[compositeKey] = space.icon;
-                }
-                space.icon = defaulIcon;
-                needsSave = true;
-            }
-            // clean olf plain-paths like ('/') 
-            const oldKey = space.path;
-            if (this.settings.customIcons[oldKey]) {
-                if (!this.settings.customIcons[compositeKey]) {
-                    this.settings.customIcons[compositeKey] = this.settings.customIcons[oldKey];
-                }
-                //delete this.settings.customIcons[oldKey];
-                needsSave = true;
-            }
-        }
-        // migrate stack icons
-        for (const stack of this.settings.portalStacks) {
-            const stackKey = `stack:${stack.id}`;
-            if (stack.icon && stack.icon !== STACK_DEFAULT) {
-                if (!this.settings.customIcons[stackKey]) {
-                    this.settings.customIcons[stackKey] = stack.icon;
-                }
-                stack.icon = STACK_DEFAULT;
-                needsSave = true;
-            }
-        }
-        // remove any other bare-path customicons
-        /*for (const key of Object.keys(this.settings.customIcons)) {
-            if (!key.includes(':')) {
-                const matchingSpace = this.settings.spaces.find(s => s.path === key);
-                if (matchingSpace) {
-                    delete this.settings.customIcons[key];
-                }
-            }
-        }*/
-        if (needsSave) {
-            await this.saveSettings();
-        }
-
-        // for custom user icons
-        if (!this.settings.customIconPhosphorMigrationDone) {
-            const fixed: Record<string, string> = {};
-            for (const [key, value] of Object.entries(this.settings.customIcons)) {
-                if (!value.includes(':')) {
-                    fixed[key] = `phosphor:${value}`;
-                } else {
-                    fixed[key] = value;
-                }
-            }
-            this.settings.customIcons = fixed;
-            this.settings.customIconPhosphorMigrationDone = true;
-            await this.saveSettings();
-        }
-        
-
         // Clean up orphaned stacks on load
         const referencedStackIds = new Set(this.settings.spaces.map(s => s.stackId).filter(id => id !== undefined));
         this.settings.portalStacks = this.settings.portalStacks.filter(stack => referencedStackIds.has(stack.id));
 
-        // for tag notes migration (user enabled)
+        // for tag notes initialization (user enabled)
         if (!this.settings.previousTagNotesFolderPath) {
             this.settings.previousTagNotesFolderPath = this.settings.tagNotesFolderPath;
-        }
-        
-        // Migrate old selectedSpace (string) to new object format (edge case if a very old user opens portals to newer versions)
-        if (typeof this.settings.selectedSpace === 'string') {
-            const oldPath = this.settings.selectedSpace;
-            const matchingSpace = this.settings.spaces.find(s => s.path === oldPath);
-            if (matchingSpace) {
-                this.settings.selectedSpace = {
-                    path: matchingSpace.path,
-                    type: matchingSpace.type
-                };
-            } else {
-                this.settings.selectedSpace = null;
-            }
         }
     }
 

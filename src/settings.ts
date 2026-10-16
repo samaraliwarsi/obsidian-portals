@@ -76,7 +76,6 @@ export interface SpacesSettings {
     showTreeItemToolTips: boolean;
     journalDefaultCurrentMode: 'random' | 'marked' | 'onThisDay';
     iconLibrary: 'phosphor' | 'lucide';
-    customIconPhosphorMigrationDone: boolean;
     iconFavorites: { name: string; library: 'phosphor' | 'lucide' }[];
     enableAutoBackup: boolean;
     backupFolderPath: string;
@@ -156,7 +155,6 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showTreeItemToolTips: false,
     journalDefaultCurrentMode: 'random',
     iconLibrary: 'phosphor',
-    customIconPhosphorMigrationDone: false,
     iconFavorites: [] as {name: string; library: 'phosphor' | 'lucide' }[],
     enableAutoBackup: false,
     backupFolderPath: '',
