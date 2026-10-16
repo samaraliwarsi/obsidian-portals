@@ -8,6 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // Order matters – legacy first, then modules
 const files = [
   'src/styles/util_styles/phosphorIcons.css',
+  'src/styles/util_styles/emojiIcons.css',
   'src/styles/util_styles/tooltips.css',
   'src/styles/util_styles/utilities.css',
   'src/styles/util_styles/scrollbars.css',

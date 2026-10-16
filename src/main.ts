@@ -12,6 +12,7 @@ import { getLocalItem } from './utils/Proxies/storageProxy';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { InternalPluginsWithBookmarks } from './types';
 import { getContextRenderer } from './renderers/sidePanelContent';
+import { EmojiIconProvider } from './icons/emojiIconProvider';
 
 interface AppWithInternalPlugins extends App {
     internalPlugins: unknown;
@@ -21,6 +22,7 @@ export default class PortalsPlugin extends Plugin {
     settings!: SpacesSettings;
     lucideProvider = new LucideIconProvider;
     phosphorProvider = new PhosphorIconProvider;
+    emojiProvider = new EmojiIconProvider();
     private bookmarksListenerRef: (() => void) | null = null;
     private refreshAltRightPanelTimeout: number | null = null;
     private treeRefreshTimer: number | null = null;
@@ -207,9 +209,12 @@ export default class PortalsPlugin extends Plugin {
     }
 
     // for user icons 
-    public getProviderForLibrary(library: 'phosphor' | 'lucide'): IconProvider {
-        return library === 'lucide' ? this.lucideProvider : this.phosphorProvider;
+    public getProviderForLibrary(library: 'phosphor' | 'lucide' | 'emoji'): IconProvider {
+        if (library === 'lucide') return this.lucideProvider;
+        if (library === 'emoji') return this.emojiProvider;
+        return this.phosphorProvider;
     }
+
     public renderCustomIcon(element: HTMLElement, key: string, fallback: string): void {
         const stored = this.settings.customIcons[key];
         if (!stored) {
@@ -220,7 +225,7 @@ export default class PortalsPlugin extends Plugin {
         if (colonIndex > 0) {
             const library = stored.substring(0, colonIndex);
             const iconName = stored.substring(colonIndex + 1);
-            if (library === 'phosphor' || library === 'lucide') {
+            if (library === 'phosphor' || library === 'lucide' || library === 'emoji') {
                 const provider = this.getProviderForLibrary(library);           
                 provider.renderIcon(element, iconName);
                 return;

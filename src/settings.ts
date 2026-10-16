@@ -76,7 +76,7 @@ export interface SpacesSettings {
     showTreeItemToolTips: boolean;
     journalDefaultCurrentMode: 'random' | 'marked' | 'onThisDay';
     iconLibrary: 'phosphor' | 'lucide';
-    iconFavorites: { name: string; library: 'phosphor' | 'lucide' }[];
+    iconFavorites: { name: string; library: 'phosphor' | 'lucide' | 'emoji' }[];
     enableAutoBackup: boolean;
     backupFolderPath: string;
     toggleSettingsSync: boolean;
@@ -155,7 +155,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     showTreeItemToolTips: false,
     journalDefaultCurrentMode: 'random',
     iconLibrary: 'phosphor',
-    iconFavorites: [] as {name: string; library: 'phosphor' | 'lucide' }[],
+    iconFavorites: [] as {name: string; library: 'phosphor' | 'lucide' | 'emoji' }[],
     enableAutoBackup: false,
     backupFolderPath: '',
     toggleSettingsSync: true,

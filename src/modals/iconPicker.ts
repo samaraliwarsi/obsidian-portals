@@ -1,15 +1,16 @@
 import { App, Modal, Notice } from 'obsidian';
 import { IconProvider } from '../icons/iconProvider';
 import PortalsPlugin from '../main';
+import { EMOJI_LIST } from '../icons/emojiList';
 
 export class IconPickerModal extends Modal {
     onSubmit: (iconKey: string) => void;
     private phosphorProvider: IconProvider;
     private plugin: PortalsPlugin;
     private lucideProvider: IconProvider;
-    private currentLibrary: 'phosphor' | 'lucide' | 'favorites' = 'phosphor';
+    private currentLibrary: 'phosphor' | 'lucide' | 'emoji' | 'favorites' = 'phosphor';
     private displayCount = 300;
-    private initialBatchSizes = { phosphor: 300, lucide: 60, favorites: 300 };
+    private initialBatchSizes = { phosphor: 300, lucide: 60, emoji: 60, favorites: 300 };
     private batchSize = 300;
     private currentFilter = '';
     private searchInput!: HTMLInputElement;
@@ -47,9 +48,14 @@ export class IconPickerModal extends Modal {
             text: 'Lucide',
             cls: 'portals-icon-picker-tab-btn'
         });
+        const emojiTab = tabContainer.createDiv({
+            text: 'Emoji',
+            cls: 'portals-icon-picker-tab-btn'
+        });
         phosphorTab.addEventListener('click', () => this.switchTab('phosphor'));
         lucideTab.addEventListener('click', () => this.switchTab('lucide'));
         favTab.addEventListener('click', () => this.switchTab('favorites'));
+        emojiTab.addEventListener('click', () => this.switchTab('emoji'))
         
 
         this.searchInput = contentEl.createEl('input', {
@@ -91,7 +97,7 @@ export class IconPickerModal extends Modal {
         this.cachedIconList = list.map(name => ({ name, lower: name.toLowerCase() }));
     }
 
-    private switchTab(library: 'phosphor' | 'lucide' | 'favorites') {
+    private switchTab(library: 'phosphor' | 'lucide' | 'emoji' | 'favorites') {
         this.currentLibrary = library;
         
         const tabs = this.contentEl.querySelectorAll('.portals-icon-picker-tab-btn');
@@ -107,13 +113,13 @@ export class IconPickerModal extends Modal {
         });
         this.displayCount = this.initialBatchSizes[library];
         this.currentFilter = this.searchInput.value;
-        if (library !== 'favorites') {
+        if (library !== 'favorites' && library !== 'emoji') {
             this.updateCachedList();
         }
         this.renderIcons();
     }
 
-    private toggleFavorite(name: string, library: 'phosphor' | 'lucide') {
+    private toggleFavorite(name: string, library: 'phosphor' | 'lucide' | 'emoji') {
         const favs = this.plugin.settings.iconFavorites;
         const existingIndex = favs?.findIndex(f => f.name === name && f.library === library);
         if (existingIndex === -1) {
@@ -126,11 +132,71 @@ export class IconPickerModal extends Modal {
         });
     }
 
+    private renderEmojiGrid() {
+        if (this._debounceTimer) window.clearTimeout(this._debounceTimer);
+        if (this._rafId) cancelAnimationFrame(this._rafId);
+        this._rafId = window.requestAnimationFrame(() => {
+            const filter = this.currentFilter.toLowerCase().trim();
+            const filtered = filter ? EMOJI_LIST.filter(e => e.name.toLowerCase().includes(filter) || e.char.includes(filter)) : EMOJI_LIST;
+            this.iconGrid.empty();
+
+            //paste row
+            const pasteRow = this.iconGrid.createDiv({ cls: 'portals-emoji-paste-row' });
+            const pasteInput = pasteRow.createEl('input', {
+                type: 'text',
+                placeholder: 'Or paste any emoji here (e.g. 🏳️‍⚧️)',
+                cls: 'portals-emoji-paste-input'
+            });
+            pasteInput.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+                const pasted = pasteInput.value.trim();
+                if (!pasted) return;
+                this.onSubmit(`emoji:${pasted}`);
+                this.close();
+            });
+
+            if (filtered.length === 0) {
+                this.iconGrid.createSpan({ text: 'No emojis found.', cls: 'portals-iconpicker-subtext' });
+                return;
+            }
+            
+            const fragment = createFragment();
+            for (const entry of filtered) {
+                const iconEl = createDiv({ cls: 'icon-item portals-emoji-item' });
+                const glyph = iconEl.createSpan({ cls: 'portals-emoji-glyph' });
+                glyph.setText(entry.char);
+                iconEl.setAttribute('aria-label', entry.name);
+                iconEl.setAttribute('title', entry.name);
+                iconEl.addEventListener('click', () => {
+                    this.onSubmit(`emoji:${entry.char}`);
+                    this.close();
+                });
+
+                const starBtn = createSpan({ cls: 'portals-icon-picker-fav-star' });
+                const isFav = this.isFavorite(entry.char, 'emoji');
+                starBtn.textContent = isFav ? '★' : '☆';
+                starBtn.setAttribute('aria-label', isFav ? 'Remove from favorites' : 'Add to favorites');
+                starBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleFavorite(entry.char, 'emoji');
+                });
+                iconEl.appendChild(starBtn);
+                fragment.appendChild(iconEl);
+            }
+            this.iconGrid.appendChild(fragment);
+        });
+    }
+
     private renderIcons() {
         if (this._debounceTimer) window.clearTimeout(this._debounceTimer);
 
         if (this.currentLibrary === 'favorites') {
             this.renderFavoritesTab();
+            return;
+        }
+        if (this.currentLibrary === 'emoji') {
+            this.renderEmojiGrid();
             return;
         }
 
@@ -217,7 +283,7 @@ export class IconPickerModal extends Modal {
         }, 200);
     }
 
-    private isFavorite(name: string, library: 'phosphor' | 'lucide'): boolean {
+    private isFavorite(name: string, library: 'phosphor' | 'lucide' | 'emoji'): boolean {
         return this.plugin.settings.iconFavorites.some(
             f => f.name === name && f.library === library
         );
@@ -245,10 +311,20 @@ export class IconPickerModal extends Modal {
             const iconEl = createDiv();
             iconEl.className = 'icon-item';
 
-            const provider = fav.library === 'lucide' ? this.lucideProvider : this.phosphorProvider;
-            provider.renderIcon(iconEl, fav.name);
-
-            iconEl.createSpan({ cls: 'portals-icon-label', text: fav.name });
+            if (fav.library === 'emoji') {
+                iconEl.addClass('portals-emoji-item');
+                const glyph = iconEl.createSpan({ cls: 'portals-emoji-glyph' });
+                glyph.setText(fav.name);
+                const entry = EMOJI_LIST.find(e => e.char === fav.name);
+                const label = entry ? entry.name : fav.name;
+                iconEl.setAttribute('title', label);
+                iconEl.setAttribute('aria-label', label);
+            } else {
+                const provider = fav.library === 'lucide' ? this.lucideProvider : this.phosphorProvider;
+                provider.renderIcon(iconEl, fav.name);
+                iconEl.setAttribute('title', fav.name);
+                iconEl.setAttribute('aria-label', fav.name);
+            }
             iconEl.addEventListener('click', () => {
                 this.onSubmit(`${fav.library}:${fav.name}`);
                 this.close();

@@ -173,3 +173,6 @@
     transform: scale(1.2);
 }
 
+.icon-item .portals-favorite-star {
+    margin-top: auto;
+}
