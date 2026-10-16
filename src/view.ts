@@ -8,9 +8,6 @@ import { PortalStack } from './types';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { TrashRenderer } from './renderers/trashRenderer';
 import { ContextNotesRenderer} from './renderers/contextNotes';
-import { RecentFilesRenderer } from './renderers/recentFiles';
-import { HiddenItemsRenderer } from './renderers/hiddenItems';
-import { BookmarksRenderer } from './renderers/bookmarksRenderer';
 import { ContextMenuFactory } from './utils/contextMenuFactory';
 import { PortalsActions } from './utils/portalsActions';
 import { FolderTreeRenderer } from './trees/foldertreeRenderer';
@@ -56,11 +53,9 @@ export class PortalsView extends ItemView {
     private isDraggingSplitter: boolean = false;
     private currentSecondaryPanel: HTMLElement | null = null;
     private currentSplitter: HTMLElement | null = null;
-    private contextNoteScrollCache = new Map<string, number>();
     private sortableInstances: Sortable[] = [];
     private isDraggingTab: boolean = false;
     private contextNotesRenderer: ContextNotesRenderer | null = null;
-    private bookmarksListenerRef: unknown = null;
     public floatingBtnCollapseTooltipShown = false;
     public floatingBtnSectionTooltipShown = false;
     public _activeOutsideClickListener: ((e: MouseEvent) => void) | null = null;
@@ -78,10 +73,7 @@ export class PortalsView extends ItemView {
     public rangeSelectionAnchor: string | null = null;
     private lastJournalIndicatorValue: string;
     private trashRenderer: TrashRenderer | null = null;
-    private recentRenderer: RecentFilesRenderer | null = null;
-    private hiddenRenderer: HiddenItemsRenderer | null = null;
     public previewsCollapsed = false;
-    private bookmarksRenderer: BookmarksRenderer | null = null;
     public clinicRenderer: FrontmatterClinicRenderer | null = null;
     public activeGroupTag: string | null = null;
     public getTagGroupKey(mainTag: string, groupTag: string): string {
@@ -1167,10 +1159,6 @@ export class PortalsView extends ItemView {
             this.contextNotesRenderer.destroy();
             this.contextNotesRenderer = null;
         }
-
-        if (this.hiddenRenderer) {
-            this.hiddenRenderer = null;
-        }
         
         if (this.tooltipEl) {
             this.tooltipEl.remove();
@@ -1188,9 +1176,6 @@ export class PortalsView extends ItemView {
             this.vaultEventRef();
             this.vaultEventRef = null;
         }
-
-        this.recentRenderer = null;
-        this.bookmarksRenderer = null;
 
        // Clean up all Sortable instances
         if (this.sortableInstances) {
