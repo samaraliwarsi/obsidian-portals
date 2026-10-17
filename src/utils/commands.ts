@@ -194,7 +194,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         }
     });
 
-    for (let i = 1; i <= 10; i++) {
+    /*for (let i = 1; i <= 10; i++) {
         plugin.addCommand({
             id: `open-portal-${i}`,
             name: `Open portal ${i}`,
@@ -225,7 +225,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
                 void plugin.saveSettings();
             }
         });
-    }
+    }*/
 
     const sideTabCommands: { id: string; name: string; tabId: string }[] = [
         { id: 'open-side-recent', name: 'Show recent files', tabId: 'recent' },
@@ -242,5 +242,55 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             name,
             callback: () => plugin.openSideTab(tabId),
         });
+    }
+}
+
+export function updatePortalCommands(plugin: PortalsPlugin) {
+    // 1. Clear previously registered portal commands
+    if (plugin.registeredPortalCommandIds) {
+        const appWithCommands = plugin.app as unknown as { commands: { removeCommand(id: string): void } };
+        for (const id of plugin.registeredPortalCommandIds) {
+            appWithCommands.commands.removeCommand(id);
+        }
+        plugin.registeredPortalCommandIds = [];
+    }
+
+    // 2. Stop if the setting is off
+    if (!plugin.settings.registerPortalsInCmdPalette) return;
+
+    // 3. Register a command for each portal
+    for (const space of plugin.settings.spaces) {
+        // Replace non-alphanumeric characters to create a safe, unique ID
+        // e.g. "folder:My Folder" becomes "switch-portal-folder-My-Folder"
+        const safePath = space.path.replace(/[^a-zA-Z0-9]/g, '-');
+        const commandId = `switch-portal-${space.type}-${safePath}`;
+        
+        let displayName = space.displayName;
+        if (!displayName) {
+            if (space.type === 'folder') {
+                displayName = space.path === '/' ? plugin.app.vault.getName() : (plugin.app.vault.getAbstractFileByPath(space.path)?.name || space.path);
+            } else {
+                displayName = '#' + space.path;
+            }
+        }
+
+        let stackPrefix = '';
+        if (space.stackId) {
+            const stack = plugin.settings.portalStacks.find(s => s.id === space.stackId);
+            if (stack) stackPrefix = `[${stack.name}] `;
+        }
+
+        const numPrefix = space.quickTabNumber ? `[${space.quickTabNumber}] ` : '';
+        const commandName = `${numPrefix}${stackPrefix}${displayName}`;
+
+        plugin.addCommand({
+            id: commandId,
+            name: `Switch to ${commandName}`,
+            callback: () => {
+                void plugin.switchToPortal(space);
+            }
+        });
+
+        plugin.registeredPortalCommandIds.push(commandId);
     }
 }

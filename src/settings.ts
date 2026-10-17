@@ -81,7 +81,8 @@ export interface SpacesSettings {
     backupFolderPath: string;
     toggleSettingsSync: boolean;
     alternateSideTabs: string[]; // right
-    alternateActiveTab: string; // active on right 
+    alternateActiveTab: string; // active on right
+    registerPortalsInCmdPalette: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -161,6 +162,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     toggleSettingsSync: true,
     alternateSideTabs: [],
     alternateActiveTab: '',
+    registerPortalsInCmdPalette: true,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

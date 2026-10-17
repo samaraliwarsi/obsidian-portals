@@ -3,14 +3,14 @@ import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
 import { getFrontmatterTags } from './utils/tagHelpers';
-import { registerAllCommands } from './utils/commands';
+import { registerAllCommands, updatePortalCommands } from './utils/commands';
 import { LucideIconProvider } from './icons/LucideIconProvider';
 import { PhosphorIconProvider } from './icons/phosphorIconProvider';
 import { IconProvider } from './icons/iconProvider';
 import { setPluginInstance } from './utils/Proxies/pluginInstance';
 import { getLocalItem } from './utils/Proxies/storageProxy';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
-import { InternalPluginsWithBookmarks } from './types';
+import { InternalPluginsWithBookmarks, SpaceConfig } from './types';
 import { getContextRenderer } from './renderers/sidePanelContent';
 import { EmojiIconProvider } from './icons/emojiIconProvider';
 
@@ -26,10 +26,12 @@ export default class PortalsPlugin extends Plugin {
     private bookmarksListenerRef: (() => void) | null = null;
     private refreshAltRightPanelTimeout: number | null = null;
     private treeRefreshTimer: number | null = null;
+    public registeredPortalCommandIds: string[] = [];
 
     async onload() {
         setPluginInstance(this);
         await this.loadSettings();
+        updatePortalCommands(this);
         registerAllCommands(this);
 
         const internalPlugins = (this.app as AppWithInternalPlugins).internalPlugins as InternalPluginsWithBookmarks;
@@ -295,6 +297,7 @@ export default class PortalsPlugin extends Plugin {
 
     async saveSettings() {
         await this.saveData(this.settings);
+        updatePortalCommands(this);
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {
                 const treeContainer = leaf.view.containerEl.querySelector('.portals-tree-container');
@@ -591,6 +594,34 @@ export default class PortalsPlugin extends Plugin {
                 }
             })
         }
+    }
+
+    public async switchToPortal(space: SpaceConfig): Promise<void> {
+        this.settings.previousSelectedSpace = this.settings.selectedSpace
+            ? { path: this.settings.selectedSpace.path, type: this.settings.selectedSpace.type }
+            : null;
+
+        this.settings.selectedSpace = { path: space.path, type: space.type };
+
+        if (space.type === 'folder' && !this.settings.openFolders.includes(space.path)) {
+            this.settings.openFolders.push(space.path);
+        }
+
+        if (space.stackId) {
+            if (this.settings.stackAutoCollapse) {
+                for (const stack of this.settings.portalStacks) {
+                    if (stack.id !== space.stackId) {
+                        stack.collapsed = true;
+                    }
+                }
+            }
+            const targetStack = this.settings.portalStacks.find(s => s.id === space.stackId);
+            if (targetStack) {
+                targetStack.collapsed = false;
+            }
+        }
+
+        await this.saveSettings();
     }
 
     // ========== MANUAL CLEANUP ==========

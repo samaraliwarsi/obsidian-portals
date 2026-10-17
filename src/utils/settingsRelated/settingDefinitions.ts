@@ -554,6 +554,11 @@ function buildUtilitiesSection(_tab: SpacesSettingTab): SettingGroupItem[] {
             }
         },
         {
+            name: 'Register portals in Obsidian command palette',
+            desc: 'Adds every portal to command palette as "Portals: Switch to...". You can assign hotkeys to them in Obsidian settings. Turn off to keep the palette clean.',
+            control: { type: 'toggle', key: 'registerPortalsInCmdPalette' }
+        },
+        {
             name: 'User guide',
             desc: 'Open the full documentation, the guide covers everything about the plugin.',
             render: (setting) => {
