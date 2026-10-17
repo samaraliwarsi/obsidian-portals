@@ -418,3 +418,12 @@ input.portals-inline-rename:hover {
 .portals-renaming-active .file-item .file-extension {
     display: none;
 }
+
+/*====================REMINDER COLORS=========================*/
+
+:root {
+  --portals-reminder-overdue: var(--text-error, #e93147);
+  --portals-reminder-today: #f59e0b;
+  --portals-reminder-upcoming: #10b981;
+  --portals-reminder-later: var(--text-faint, #888888);
+}

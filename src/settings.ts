@@ -83,6 +83,11 @@ export interface SpacesSettings {
     alternateSideTabs: string[]; // right
     alternateActiveTab: string; // active on right
     registerPortalsInCmdPalette: boolean;
+    reminderProperty: string;
+    reminderShowOverDue: boolean;
+    reminderOrder: 'overdue-first' | 'future-first';
+    reminderTabNotification: boolean;
+    reminderTreeIndicator: 'off' | 'simple' | 'dynamic';
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -102,7 +107,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     secondaryPanelCollapsed: false,
     sidePanelEnabled: true,
     recentFilesList: [],
-    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden', 'properties', 'trash'], // left by default
+    splitViewTabs: ['recent', 'context-notes', 'bookmarks', 'journal', 'hidden', 'properties', 'trash', 'reminders'], // left by default
     activeSplitTab: 'recent',
     showContextNotesInTree: false,
     enableContextNotes: true,
@@ -163,6 +168,11 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     alternateSideTabs: [],
     alternateActiveTab: '',
     registerPortalsInCmdPalette: true,
+    reminderProperty: 'remind_at',
+    reminderShowOverDue: true,
+    reminderOrder: 'overdue-first',
+    reminderTabNotification: true,
+    reminderTreeIndicator: 'dynamic',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -225,6 +235,10 @@ export class SpacesSettingTab extends PluginSettingTab {
         await this.plugin.saveSettings();
         if (key === 'showCurrentPropertyValue' || key === 'hideFilteredCount') {
             this.plugin.refreshSidePortal('properties');
+        }
+        // for reminder notification icon color change
+        if (key === 'reminderTabNotification') {
+            this.plugin.updateReminderBadge();
         }
     }
 }

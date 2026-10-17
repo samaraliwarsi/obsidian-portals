@@ -13,6 +13,8 @@ import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSid
 import { InternalPluginsWithBookmarks, SpaceConfig } from './types';
 import { getContextRenderer } from './renderers/sidePanelContent';
 import { EmojiIconProvider } from './icons/emojiIconProvider';
+import { DatePickerModal } from './styles/modal_styles/datePickerModal';
+import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
 
 interface AppWithInternalPlugins extends App {
     internalPlugins: unknown;
@@ -27,6 +29,7 @@ export default class PortalsPlugin extends Plugin {
     private refreshAltRightPanelTimeout: number | null = null;
     private treeRefreshTimer: number | null = null;
     public registeredPortalCommandIds: string[] = [];
+    private reminderRefreshTimer: number | null = null;
 
     async onload() {
         setPluginInstance(this);
@@ -63,6 +66,7 @@ export default class PortalsPlugin extends Plugin {
         }
 
         this.app.workspace.onLayoutReady(() => {
+            // auto backup
             if (this.settings.enableAutoBackup) {
                 window.setTimeout(() => {
                     this.performAutoBackup().catch(err => {
@@ -71,18 +75,55 @@ export default class PortalsPlugin extends Plugin {
                     });
                 }, 100);
             }
+            
+            // Check for reminders on startup
+            window.setTimeout(() => {
+                const propName = this.settings.reminderProperty || 'remind_at';
+                let count = 0;
+
+                for (const file of this.app.vault.getMarkdownFiles()) {
+                    const rawDate = this.app.metadataCache.getFileCache(file)?.frontmatter?.[propName];
+                    if (rawDate) {
+                        const dateObj = parseLocalDate(rawDate);
+                        if (dateObj && getDaysDifference(dateObj) <= 0) {
+                            count++;
+                        }
+                    }
+                }
+                if (count >0) {
+                    new Notice(`Portals: You have ${count} reminders due today or overdue.`);
+                }
+            }, 1000);
         });
 
         // Forward frontmatter cache updates (no startup cost)
         this.registerEvent(this.app.metadataCache.on('changed', (file) => {
             if (!(file instanceof TFile) || file.extension !== 'md') return;
+
             FrontmatterClinicRenderer.updateFileCache(this.app, file);
+
+            // Tree refresh debounce (400ms)
             if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
             this.treeRefreshTimer = window.setTimeout(() => {
                 this.treeRefreshTimer = null;
                 this.refreshAllTreeContent();
-            }, 400)            
+            }, 400);
+
+            // Reminders & Badge debounce (300ms)
+            if (this.reminderRefreshTimer) window.clearTimeout(this.reminderRefreshTimer);
+            this.reminderRefreshTimer = window.setTimeout(() => {
+                this.reminderRefreshTimer = null;
+
+                // refresh list content (only if tab is actually open)
+                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                    this.refreshSidePortal('reminders');
+                }
+
+                // always update the badge
+                this.updateReminderBadge();
+            }, 300);          
         }));
+
         this.registerEvent(this.app.vault.on('create', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
@@ -90,6 +131,7 @@ export default class PortalsPlugin extends Plugin {
             }
             void this.refreshTrashIfActive();
         }));
+
         this.registerEvent(this.app.vault.on('delete', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(file.path);
@@ -97,6 +139,7 @@ export default class PortalsPlugin extends Plugin {
             }
             void this.refreshTrashIfActive();
         }));
+
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(oldPath);
@@ -475,6 +518,32 @@ export default class PortalsPlugin extends Plugin {
         this.refreshAllRecentTabs();
     }
 
+    public updateReminderBadge(): void {
+        const prop = this.settings.reminderProperty || 'remind_at';
+        let hasDue = false;
+        
+        for (const f of this.app.vault.getMarkdownFiles()) {
+            const d = this.app.metadataCache.getFileCache(f)?.frontmatter?.[prop];
+            if (d) {
+                // Use the helper!
+                const dateObj = parseLocalDate(String(d));
+                if (dateObj && getDaysDifference(dateObj) <= 0) {
+                    hasDue = true;
+                    break;
+                }
+            }
+        }
+
+        // Find the reminders tab in the DOM and toggle the class
+        const tabBtns = activeDocument.querySelectorAll('.portals-split-tab[data-tab-id="reminders"]');
+        tabBtns.forEach(btn => {
+            if (hasDue && this.settings.reminderTabNotification) {
+                btn.addClass('has-reminder-due');
+            } else {
+                btn.removeClass('has-reminder-due');
+            }
+        });
+    }
 
     private getTags(): Record<string, number> {
         return (this.app.metadataCache as unknown as { getTags(): Record<string, number> }).getTags();
@@ -622,6 +691,14 @@ export default class PortalsPlugin extends Plugin {
         }
 
         await this.saveSettings();
+    }
+
+    // Add this to PortalsPlugin class:
+    public promptForReminder(file: TFile) {
+        new DatePickerModal(this.app, this, file, () => {
+            // Refresh the reminders tab if it's open
+            this.refreshSidePortal('reminders');
+        }).open();
     }
 
     // ========== MANUAL CLEANUP ==========

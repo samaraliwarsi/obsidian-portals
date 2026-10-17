@@ -5,6 +5,7 @@ import { TreeEventHelpers } from './treeEventHelpers';
 import { ContextMenuFactory } from './contextMenuFactory';
 import { getFrontmatterTags } from './tagHelpers';
 import { getPluginInstance } from './Proxies/pluginInstance';
+import { getDaysDifference, parseLocalDate } from './dateHelpers';
 
 
 export class FileItemFactory {
@@ -18,6 +19,33 @@ export class FileItemFactory {
         const nameSpan = fileEl.createSpan({ text: FileItemFactory.getDisplayName(file, plugin) });
         nameSpan.addClass('portals-item-name');
         fileEl.dataset.path = file.path;
+        // reminder icon
+        if (plugin.settings.reminderTreeIndicator !== 'off') {
+            const prop = plugin.settings.reminderProperty || 'remind_at';
+            const hasReminder = app.metadataCache.getFileCache(file)?.frontmatter?.[prop];
+            if (hasReminder) {
+                const clockSpan = fileEl.createSpan({ cls: 'portals-reminder-indicator' });
+
+                if (plugin.settings.reminderTreeIndicator === 'dynamic') {
+                    const dateObj = parseLocalDate(String(hasReminder)); // Added String()
+
+                    if (dateObj) {
+                        const diffDays = getDaysDifference(dateObj);
+
+                        if (diffDays < 0) {
+                            clockSpan.addClass('is-overdue');
+                        } else if (diffDays === 0) {
+                            clockSpan.addClass('is-today');
+                        } else if (diffDays <= 7) {
+                            clockSpan.addClass('is-upcoming'); // Fixed typo here
+                        } else {
+                            clockSpan.addClass('is-later');
+                        }
+                    }
+                }
+                plugin.renderPluginIcon(clockSpan, 'bell');
+            }
+        }
 
         const savedColor = plugin.settings.customColors[file.path];
         const icon = fileEl.querySelector('.file-icon i');

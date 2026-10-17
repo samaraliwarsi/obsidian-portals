@@ -1,0 +1,148 @@
+.portals-reminders-tab {
+    padding: 8px;
+}
+
+.reminders-section {
+    margin-bottom: 24px;
+}
+
+.reminders-header {
+    font-size: var(--font-ui-small);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 16px 0 8px 0;
+    padding: 4px 0 4px 8px;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.reminders-header.is-overdue {
+    color: var(--portals-reminder-overdue);
+    border-left-color: var(--portals-reminder-overdue);
+}
+
+.reminders-header.is-today {
+    color: var(--portals-reminder-today);
+    border-left-color: var(--portals-reminder-today);
+}
+
+.reminders-header.is-upcoming {
+    color: var(--portals-reminder-upcoming);
+    border-left-color: var(--portals-reminder-upcoming);
+}
+
+.reminders-header.is-later {
+    color: var(--portals-reminder-later);
+    border-left-color: var(--portals-reminder-later);
+}
+
+.reminders-date {
+    margin-left: auto;
+    font-size: 0.55em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    background: var(--background-modifier-hover);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+
+.portals-split-tab.has-reminder-due .portals-tab-icon {
+    color: var(--text-error);
+}
+
+/* Force higher specificity using the view data attributes */
+[data-type="portals-view"] .portals-split-tab.has-reminder-due .portals-tab-icon,
+[data-type="portals-alt-side-panel"] .portals-split-tab.has-reminder-due .portals-tab-icon,
+[data-type="portals-view"] .portals-split-tab.has-reminder-due .portals-tab-icon svg,
+[data-type="portals-alt-side-panel"] .portals-split-tab.has-reminder-due .portals-tab-icon svg,
+[data-type="portals-view"] .portals-split-tab.has-reminder-due .portals-tab-icon i,
+[data-type="portals-alt-side-panel"] .portals-split-tab.has-reminder-due .portals-tab-icon i {
+    color: var(--text-error);
+    stroke: var(--text-error); /* For Lucide/SVG icons that use stroke */
+    fill: var(--text-error);   /* For Phosphor icons that use fill */
+}
+
+.portals-split-tab.has-reminder-due {
+    box-shadow: inset 0 2px 0 var(--portals-reminder-later);
+}
+
+.portals-reminder-indicator {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+}
+
+.portals-reminder-indicator svg,
+.portals-reminder-indicator i {
+    width: 12px;
+    height: 12px;
+}
+
+.portals-reminder-indicator {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+}
+
+.portals-reminder-indicator svg,
+.portals-reminder-indicator i {
+    width: 12px;
+    height: 12px;
+}
+
+/* OVERDUE (Red) */
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-overdue,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-overdue svg,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-overdue svg *,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-overdue i,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-overdue,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-overdue svg,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-overdue svg *,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-overdue i {
+    color: var(--portals-reminder-overdue);
+    stroke: var(--portals-reminder-overdue);
+    
+}
+
+/* TODAY (Orange) */
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-today,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-today svg,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-today svg *,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-today i,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-today,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-today svg,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-today svg *,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-today i {
+    color: var(--portals-reminder-today);
+    stroke: var(--portals-reminder-today);
+    
+}
+
+/* UPCOMING (Green) */
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-upcoming,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-upcoming svg,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-upcoming svg *,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-upcoming i,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-upcoming,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-upcoming svg,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-upcoming svg *,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-upcoming i {
+    color: var(--portals-reminder-upcoming);
+    stroke: var(--portals-reminder-upcoming);
+    
+}
+
+/* LATER (Grey) */
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-later,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-later svg,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-later svg *,
+[data-type="portals-view"] .file-item .portals-reminder-indicator.is-later i,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-later,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-later svg,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-later svg *,
+[data-type="portals-alt-side-panel"] .file-item .portals-reminder-indicator.is-later i {
+    color: var(--portals-reminder-later);
+    stroke: var(--portals-reminder-later);
+    
+}

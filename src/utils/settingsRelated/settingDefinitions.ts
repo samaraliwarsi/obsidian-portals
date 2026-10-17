@@ -432,6 +432,55 @@ function buildSidePortalPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     control: { type: 'toggle', key: 'hideFilteredCount' }
                 }
             ]
+        },
+        // Reminders
+        {
+            type: 'group',
+            heading: 'Reminders',
+            items: [
+                {
+                    name: 'Reminder property',
+                    desc: 'The frontmatter property Portals uses to find reminders (e.g., remind_at, due, date) (default - remind_at).',
+                    control: { type: 'text', key: 'reminderProperty' }
+                },
+                {
+                    name: 'Show overdue',
+                    desc: 'Display reminders with past dates in the sidebar.',
+                    control: { type: 'toggle', key: 'reminderShowOverdue' }
+                },
+                {
+                    name: 'Order',
+                    desc: 'Sort order for reminders list.',
+                    control: {
+                        type: 'dropdown',
+                        key: 'reminderOrder',
+                        defaultValue: 'overdue-first',
+                        options: {
+                            'overdue-first': 'Overdue first',
+                            'future-first': 'Future first'
+                        }
+                    }
+                },
+                {
+                    name: 'Tab nofitication badge',
+                    desc: 'Show a red badge on the reminders tab if you have overdue or today\'s reminders.',
+                    control: { type: 'toggle', key: 'reminderTabNotification' }
+                },
+                {
+                    name: 'Reminder indicator in file tree',
+                    desc: 'Show bell icon next to files that have a reminder set.',
+                    control: { 
+                        type: 'dropdown',
+                        key: 'reminderTreeIndicator',
+                        defaultValue: 'dynamic',
+                        options: {
+                            'off': 'Off',
+                            'simple' : 'Simple (gray icon)',
+                            'dynamic': 'Dynamic (color coded)'
+                        }
+                    }
+                }
+            ]
         }
     ];
 }

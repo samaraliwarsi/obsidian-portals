@@ -14,6 +14,19 @@ export function registerAllCommands (plugin: PortalsPlugin) {
     });
 
     plugin.addCommand({
+        id: 'set-reminder',
+        name: 'Set reminder for current file',
+        checkCallback: (checking) => {
+            const file = plugin.app.workspace.getActiveFile();
+            if (file) {
+                if (!checking) plugin.promptForReminder(file);
+                return true;
+            }
+            return false;
+        }
+    });
+
+    plugin.addCommand({
         id: 'add-portal-tab',
         name: 'Add portal tab',
         callback: () => {

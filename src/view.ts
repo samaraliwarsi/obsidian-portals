@@ -28,6 +28,7 @@ export const SIDE_TAB_ICONS: Record<string, string> = {
     hidden: 'eye-slash',
     properties: 'list-dashes',
     trash: 'trash',
+    reminders: 'bell',
 };
 
 type TabBarItem = 
@@ -1725,7 +1726,11 @@ export class PortalsView extends ItemView {
                         this.hideTooltip(100);
                     });   
                 }
-            
+
+                if (tabId === 'reminders') {
+                    window.setTimeout(() => this.plugin.updateReminderBadge(), 0);
+                }
+
                 // Click handler
                 tabBtn.addEventListener('click', () => {
                     this.expandPanel();

@@ -1,4 +1,4 @@
-import { Menu, TFile, TFolder, MenuItem } from 'obsidian';
+import { Menu, TFile, TFolder, MenuItem, Notice } from 'obsidian';
 import type { PortalsView } from '../view';
 import type { SpaceConfig, PortalStack } from '../types';
 import { IconPickerModal } from '../modals/iconPicker';
@@ -100,6 +100,29 @@ export class ContextMenuFactory {
                 .setTitle('Reset folder color')
                 .setIcon('undo')
                 .onClick(() => PortalsActions.resetCustomColorForFile(view.app, view.plugin, view, file)));
+        }
+
+        menu.addSeparator();
+        const prop = view.plugin.settings.reminderProperty || 'remind_at';
+        const hasReminder = view.app.metadataCache.getFileCache(file)?.frontmatter?.[prop];
+
+        menu.addItem(item => item
+            .setTitle(hasReminder ? 'Change reminder' : 'Set reminder')
+            .setIcon('bell')
+            .onClick(() => view.plugin.promptForReminder(file)));
+
+        if (hasReminder) {
+            menu.addItem(item => item
+                .setTitle('Remove reminder')
+                .setIcon('bell-off')
+                .onClick(() => {
+                    void (async () => {
+                        await view.app.fileManager.processFrontMatter(file, (fm) => {
+                            delete fm[prop];
+                        });
+                        new Notice('Reminder removed');
+                    })();
+                }));
         }
 
         menu.addSeparator();

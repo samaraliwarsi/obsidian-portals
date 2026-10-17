@@ -61,6 +61,7 @@ export class SidePortalModal {
             { id: "hidden", name: "Hidden", icon: "eye-slash" },
             { id: "properties", name: "Properties", icon: "list-checks" },
             { id: "trash", name: "Trash", icon: "trash" },
+            { id: "reminders", name: "Reminders", icon: "bell" },
         ];
 
         const checkboxContainer = this.container.createDiv({

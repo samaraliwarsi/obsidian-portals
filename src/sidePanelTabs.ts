@@ -14,6 +14,7 @@ const SIDE_TAB_ICONS: Record<string, string> = {
     hidden: 'eye-slash',
     properties: 'list-dashes',
     trash: 'trash',
+    reminders: 'bell'
 };
 
 /** Map of container → Sortable instance (so callers can destroy them later) */
@@ -99,6 +100,26 @@ export function renderSidePanel(
                 tabBtn.addEventListener('mouseleave', () => {
                     view.hideTooltip(100);
                 });
+            }
+        }
+
+        if (tabId === 'reminders' && plugin.settings.reminderTabNotification) {
+            const prop = plugin.settings.reminderProperty || 'remind_at';
+            const today = new Date(); today.setHours(23, 59, 59, 999);
+            let hasDue = false;
+            
+            for (const f of app.vault.getMarkdownFiles()) {
+                const d = app.metadataCache.getFileCache(f)?.frontmatter?.[prop];
+                if (d) {
+                    const dateObj = new Date(d);
+                    if (!isNaN(dateObj.getTime()) && dateObj <= today) {
+                        hasDue = true;
+                        break;
+                    }
+                }
+            }
+            if (hasDue) {
+                tabBtn.addClass('has-reminder-due');
             }
         }
 

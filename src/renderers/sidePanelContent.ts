@@ -9,6 +9,7 @@ import { JournalRenderer } from '../renderers/journalView';
 import { ContextNotesRenderer } from '../renderers/contextNotes';
 import { TrashRenderer } from '../renderers/trashRenderer';
 import { AltSidePanelView } from './RightSideView';
+import { RemindersRenderer } from './remindersRenderer';
 
 const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();
 
@@ -88,6 +89,11 @@ export async function renderSidePanelContent(
         contentEl.addClass('portals-trash-tab');
         const trashRenderer = new TrashRenderer(app, plugin, contentEl, mainView!);
         await trashRenderer.render();
+    } else if (tabId === 'reminders') {
+        contentEl.addClass('portals-reminders-tab');
+        const remindersRenderer = new RemindersRenderer(app, plugin, mainView!);
+        remindersRenderer.setContainer(contentEl);
+        remindersRenderer.render();
     }
     return;
 }

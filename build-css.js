@@ -20,6 +20,7 @@ const files = [
   'src/styles/sideportal_styles/trashStyles.css',
   'src/styles/sideportal_styles/frontmatterClinicStyles.css',
   'src/styles/sideportal_styles/hiddenItemsStyles.css',
+  'src/styles/sideportal_styles/reminders.css',
   'src/styles/settings.css',
   'src/styles/util_styles/settingsPortalList.css',
   'src/styles/modal_styles/searchPopover.css',
