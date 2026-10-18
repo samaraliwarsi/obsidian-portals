@@ -353,7 +353,7 @@ export default class PortalsPlugin extends Plugin {
                 }
             }
         });
-        this.refreshAltRightPanelContent('context-notes');
+        this.refreshAltRightPanelContent();
     }
 
     async activateView() {
