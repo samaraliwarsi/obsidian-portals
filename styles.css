@@ -7416,15 +7416,34 @@ button.trash-delete-btn:not(.clickable-icon):hover {
     padding: 4px 8px;
 }
 
+.fm-clinic-views-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.fm-clinic-views-row select.dropdown {
+    flex: 1;
+}
+
+.fm-clinic-filters-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
 .fm-clinic-header {
     display: flex;
-    justify-content:space-between;
     align-items: center;
     gap: 8px;
-    padding-bottom: 6px;
-    margin-bottom: 6px;
-    width: 100%;
-    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.fm-clinic-header .portals-reset-btn {
+    flex: 1;
+    justify-content: flex-start;
+    border: 1px solid var(--background-modifier-border);
 }
 
 p.fm-noFound-txt {
@@ -7432,6 +7451,23 @@ p.fm-noFound-txt {
     text-align: center;
     color: var(--text-muted);
     font-style: italic;
+}
+
+.fm-clinic-add-filter-row {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 4px;
+}
+
+.fm-clinic-add-filter-row .portals-reset-btn {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    padding: 4px 8px;
+}
+
+.fm-clinic-add-filter-row .portals-reset-btn:hover {
+    color: var(--text-normal);
+    background: var(--background-modifier-hover);
 }
 
 /*

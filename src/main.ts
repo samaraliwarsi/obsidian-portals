@@ -37,6 +37,19 @@ export default class PortalsPlugin extends Plugin {
         updatePortalCommands(this);
         registerAllCommands(this);
 
+        // migrate old clinicState to new multi-filter format
+        const oldClinic = this.settings.clinicState as unknown as Record<string, unknown>;
+        if (oldClinic && !oldClinic.filters) {
+            const oldProp = oldClinic.selectedProperty as string;
+            const oldVal = oldClinic.selectedValue as string;
+            this.settings.clinicState = {
+                filters: oldProp ? [{ property: oldProp, value: oldVal || '' }] : [],
+                clinicSortBy: (oldClinic.clinicSortBy as 'name' | 'created' | 'modified') || 'name',
+                clinicSortorder: (oldClinic.clinicSortorder as 'asc' | 'desc') || 'asc',
+                savedViews: {}
+            };
+        }
+
         const internalPlugins = (this.app as AppWithInternalPlugins).internalPlugins as InternalPluginsWithBookmarks;
         const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
         if (bookmarksPlugin?.instance && typeof bookmarksPlugin.instance?.on) {

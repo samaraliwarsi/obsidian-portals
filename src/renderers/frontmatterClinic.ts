@@ -1,9 +1,10 @@
-import { App, TFile, Notice, Menu, Platform, EventRef } from 'obsidian';
+import { App, TFile, Menu, Platform, EventRef } from 'obsidian';
 import PortalsPlugin from '../main';
 import { SearchPopover } from '../utils/searchPopover';
 import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../modals/frontmatterPopup';
+import { SaveViewModal } from '../modals/saveViewModal';
 
 
 const clinicCache = {
@@ -280,27 +281,6 @@ export class FrontmatterClinicRenderer {
         return clinicCache.ready;
     }
 
-    private get selectedProperty(): string{
-        return this.plugin.settings.clinicState?.selectedProperty ?? '';
-    }
-    private set selectedProperty(value: string) {
-        if (!this.plugin.settings.clinicState) {
-            this.plugin.settings.clinicState = { selectedProperty: '', selectedValue: '', clinicSortBy: 'name', clinicSortorder: 'asc'};
-        }
-        this.plugin.settings.clinicState.selectedProperty = value;
-    }
-
-    private get selectedValue(): string {
-        return this.plugin.settings.clinicState?.selectedValue ?? '';
-    }
-    private set selectedValue(value: string) {
-        if (!this.plugin.settings.clinicState) {
-            this.plugin.settings.clinicState = { selectedProperty: '', selectedValue: '', clinicSortBy: 'name', clinicSortorder: 'asc'};
-        }
-        this.plugin.settings.clinicState.selectedValue = value;
-    }
-
-
     constructor(app: App, plugin: PortalsPlugin, container: HTMLElement, view: PortalsView) {
         this.app = app;
         this.plugin = plugin;
@@ -339,6 +319,150 @@ export class FrontmatterClinicRenderer {
         }
 
         this.filterFiles();
+
+        // --- SAVED VIEWS ROW ---
+        const viewsRow = this.container.createDiv({ cls: 'fm-clinic-views-row' });
+        const viewSelect = viewsRow.createEl('select', { cls: 'dropdown' });
+        viewSelect.createEl('option', { value: '', text: 'Custom View' });
+
+        let activeViewName = '';
+        const currentFilterStr = JSON.stringify(this.plugin.settings.clinicState.filters);
+        
+        for (const viewName of Object.keys(this.plugin.settings.clinicState.savedViews)) {
+            const opt = viewSelect.createEl('option', { value: viewName, text: viewName });
+            if (JSON.stringify(this.plugin.settings.clinicState.savedViews[viewName]) === currentFilterStr) {
+                opt.selected = true;
+                activeViewName = viewName;
+            }
+        }
+
+        viewSelect.addEventListener('change', () => {
+            const viewName = viewSelect.value;
+            if (viewName && this.plugin.settings.clinicState.savedViews[viewName]) {
+                this.plugin.settings.clinicState.filters = JSON.parse(JSON.stringify(this.plugin.settings.clinicState.savedViews[viewName]));
+                void this.plugin.saveSettings().then(() => this.render());
+            }
+        });
+
+        if (activeViewName) {
+            const deleteViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Delete view' } });
+            this.plugin.renderPluginIcon(deleteViewBtn, 'trash');
+            deleteViewBtn.addEventListener('click', () => {
+                delete this.plugin.settings.clinicState.savedViews[activeViewName];
+                void this.plugin.saveSettings().then(() => this.render());
+            });
+        }
+
+        const saveViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon', attr: { 'aria-label': 'Save current view' } });
+        this.plugin.renderPluginIcon(saveViewBtn, 'save');
+        saveViewBtn.addEventListener('click', () => {
+            new SaveViewModal(this.app, activeViewName, (name) => {
+                this.plugin.settings.clinicState.savedViews[name] = JSON.parse(JSON.stringify(this.plugin.settings.clinicState.filters));
+                void this.plugin.saveSettings().then(() => this.render());
+            }).open();
+        });
+
+        // --- FILTER ROWS ---
+        const filtersContainer = this.container.createDiv({ cls: 'fm-clinic-filters-container' });
+        
+        this.plugin.settings.clinicState.filters.forEach((filter, index) => {
+            const headerRow = filtersContainer.createDiv({ cls: 'fm-clinic-header' });
+            
+            // Property Button
+            const propBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-property-btn' });
+            this.plugin.renderPluginIcon(propBtn, 'funnel');
+            propBtn.createSpan({ text: filter.property || 'Select property', cls: 'fm-btn-text' });
+
+            propBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const menu = new Menu();
+                menu.addItem(item => item.setTitle('None').onClick(() => {
+                    filter.property = '';
+                    filter.value = '';
+                    void this.plugin.saveSettings().then(() => this.render());
+                }));
+                menu.addItem(item => item.setTitle('No frontmatter').onClick(() => {
+                    filter.property = 'No frontmatter';
+                    filter.value = '';
+                    void this.plugin.saveSettings().then(() => this.render());
+                }));
+                menu.addSeparator();
+                for (const prop of FrontmatterClinicRenderer.getProperties().keys()) {
+                    menu.addItem(item => item.setTitle(prop).onClick(() => {
+                        filter.property = prop;
+                        filter.value = '';
+                        void this.plugin.saveSettings().then(() => this.render());
+                    }));
+                }
+                const rect = propBtn.getBoundingClientRect();
+                menu.showAtPosition({ x: rect.left, y: rect.bottom });
+            });
+
+            // Value Button
+            const valueBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-value-btn' });
+            this.plugin.renderPluginIcon(valueBtn, 'funnel-simple');
+            valueBtn.createSpan({ 
+                text: filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : filter.value, 
+                cls: 'fm-btn-text' 
+            });
+
+            if (filter.property === 'No frontmatter') {
+                valueBtn.disabled = true;
+            } else {
+                valueBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!filter.property) return;
+                    const menu = new Menu();
+                    menu.addItem(item => item.setTitle('All values').onClick(() => {
+                        filter.value = '';
+                        void this.plugin.saveSettings().then(() => this.render());
+                    }));
+                    menu.addItem(item => item.setTitle('None').onClick(() => {
+                        filter.value = '__none__';
+                        void this.plugin.saveSettings().then(() => this.render());
+                    }));
+                    menu.addSeparator();
+                    const values = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set();
+                    for (const val of Array.from(values).sort()) {
+                        menu.addItem(item => item.setTitle(val).onClick(() => {
+                            filter.value = val;
+                            void this.plugin.saveSettings().then(() => this.render());
+                        }));
+                    }
+                    const rect = valueBtn.getBoundingClientRect();
+                    menu.showAtPosition({ x: rect.left, y: rect.bottom });
+                });
+            }
+
+            // Remove Filter Button
+            if (index > 0 || this.plugin.settings.clinicState.filters.length > 1) {
+                const removeBtn = headerRow.createEl('button', { cls: 'clickable-icon fm-remove-filter-btn', attr: { 'aria-label': 'Remove filter' } });
+                this.plugin.renderPluginIcon(removeBtn, 'x');
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.plugin.settings.clinicState.filters.splice(index, 1);
+                    if (this.plugin.settings.clinicState.filters.length === 0) {
+                        this.plugin.settings.clinicState.filters.push({ property: '', value: '' });
+                    }
+                    void this.plugin.saveSettings().then(() => this.render());
+                });
+            }
+        });
+
+        // Add Filter Button
+        const addFilterRow = filtersContainer.createDiv({ cls: 'fm-clinic-add-filter-row' });
+        const addFilterBtn = addFilterRow.createEl('button', { cls: 'portals-reset-btn' });
+        this.plugin.renderPluginIcon(addFilterBtn, 'plus');
+        addFilterBtn.createSpan({ text: 'Add filter', cls: 'fm-btn-text' });
+        addFilterBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.plugin.settings.clinicState.filters.push({ property: '', value: '' });
+            void this.plugin.saveSettings().then(() => this.render());
+        });
+
+        const hasFiles = this.filteredFiles.length > 0;
+
+        /*---------------------
 
         // Header with two dropdowns
         const headerRow = this.container.createDiv({ cls: 'fm-clinic-header' });
@@ -499,7 +623,7 @@ export class FrontmatterClinicRenderer {
             }
         }
 
-        const hasFiles = this.filteredFiles.length > 0;
+        const hasFiles = this.filteredFiles.length > 0;*/
 
         if (!this.plugin.settings.hideFilteredCount && hasFiles) {
             const countRow = this.container.createDiv({ cls: 'fm-count-row' });
@@ -541,26 +665,29 @@ export class FrontmatterClinicRenderer {
             }
 
             // Display current value(s) for selected property
-            if (this.selectedProperty) {
+                        // Display current value(s) for the first active filter
+            const primaryFilter = this.plugin.settings.clinicState.filters[0];
+            if (primaryFilter && primaryFilter.property && primaryFilter.property !== 'No frontmatter') {
                 const cache = this.app.metadataCache.getFileCache(file);
                 const frontmatter = cache?.frontmatter;
                 let displayValue = '';
-                if (frontmatter && frontmatter[this.selectedProperty] !== undefined) {
-                    const val = getFrontmatterProperty(frontmatter, this.selectedProperty);
+                if (frontmatter && frontmatter[primaryFilter.property] !== undefined) {
+                    const val = getFrontmatterProperty(frontmatter, primaryFilter.property);
                     displayValue = Array.isArray(val) ? val.join(', ') : String(val);
                 } else {
                     displayValue = 'none';
                 }
+                
                 if (this.plugin.settings.showCurrentPropertyValue) {
                     const valueSpan = fileRow.createSpan({ text: displayValue, cls: 'fm-current-value clickable' });
-
+                    
                     valueSpan.addEventListener('click', (e) => {
                         e.preventDefault();
-                        e.stopPropagation();
+                        e.stopPropagation(); 
 
-                        const valuesSet = FrontmatterClinicRenderer.getProperties().get(this.selectedProperty) || new Set<string>();
+                        const valuesSet = FrontmatterClinicRenderer.getProperties().get(primaryFilter.property) || new Set<string>();
                         const availableValues = Array.from(valuesSet).sort();
-
+                        
                         if (!availableValues.includes('none')) {
                             availableValues.unshift('none');
                         }
@@ -569,9 +696,9 @@ export class FrontmatterClinicRenderer {
                             void (async () => {
                                 await this.app.fileManager.processFrontMatter(file, (fm) => {
                                     if (newValue === 'none') {
-                                        delete fm[this.selectedProperty];
+                                        delete fm[primaryFilter.property];
                                     } else {
-                                        fm[this.selectedProperty] = newValue;
+                                        fm[primaryFilter.property] = newValue;
                                     }
                                 });
                             })();
@@ -740,43 +867,39 @@ export class FrontmatterClinicRenderer {
 
     private filterFiles() {
         const files = this.app.vault.getMarkdownFiles();
+        const filters = this.plugin.settings.clinicState.filters;
+
         // special case: no frontmatter 
-        if (this.selectedProperty === 'No frontmatter') {
-            this.filteredFiles = files.filter(file => {
-            return FrontmatterClinicRenderer.getNoFrontmatterPaths().has(file.path)
-            });
+        if (filters.length === 1 && filters[0]?.property === 'No frontmatter') {
+            this.filteredFiles = files.filter(file => FrontmatterClinicRenderer.getNoFrontmatterPaths().has(file.path));
             this.sortForFilter();
             return;
-
         }
-        if (!this.selectedProperty) {
-            this.filteredFiles = [];
-            return;
-        }
+        
         this.filteredFiles = files.filter(file => {
             const cache = this.app.metadataCache.getFileCache(file);
             const frontmatter = cache?.frontmatter;
-            const propValue = getFrontmatterProperty(frontmatter, this.selectedProperty);
             
-            if (this.selectedValue === '') {
-                // Show all files (including those without the property)
-                return propValue !== undefined && propValue !== null && !(Array.isArray(propValue) && propValue.length === 0);
-            } else if (this.selectedValue === '__none__') {
-                // Show files missing the property or with empty value
-                return propValue === undefined || propValue === null || 
-                       (Array.isArray(propValue) && propValue.length === 0);
-            } else {
-                if (propValue === undefined) return false;
-                if (Array.isArray(propValue)) {
-                    return propValue.map(v => String(v)).includes(this.selectedValue);
+            for (const filter of filters) {
+                const propValue = getFrontmatterProperty(frontmatter, filter.property);
+            
+                if (filter.value === '') {
+                    // All values for this property
+                    if (propValue === undefined || propValue === null || (Array.isArray(propValue) && propValue.length === 0)) return false;
+                } else if (filter.value === '__none__') {
+                    // "None" for this property
+                    if (propValue !== undefined && propValue !== null && (!Array.isArray(propValue) || propValue.length > 0)) return false;
+                } else {
+                    if (propValue === undefined) return false;
+                    if (Array.isArray(propValue)) {
+                        if (!propValue.map(v => String(v)).includes(filter.value)) return false;
+                    } else {
+                        if (String(propValue) !== filter.value) return false;
+                    }
                 }
-                if (typeof propValue === 'string' || typeof propValue === 'number' || typeof propValue === 'boolean') {
-                    return String(propValue) === this.selectedValue;
-                }
-                return false;
             }
+            return true;
         });
-        // Sort by file name
         this.sortForFilter();
     }
 
