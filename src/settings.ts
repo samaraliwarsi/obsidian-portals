@@ -88,6 +88,7 @@ export interface SpacesSettings {
     reminderOrder: 'overdue-first' | 'future-first';
     reminderTabNotification: boolean;
     reminderTreeIndicator: 'off' | 'simple' | 'dynamic';
+    reminderSectionStates: Record<string, boolean>;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -173,6 +174,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     reminderOrder: 'overdue-first',
     reminderTabNotification: true,
     reminderTreeIndicator: 'dynamic',
+    reminderSectionStates: { overdue: true, today: true, upcoming: true, later: true },
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

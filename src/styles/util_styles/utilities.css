@@ -422,8 +422,8 @@ input.portals-inline-rename:hover {
 /*====================REMINDER COLORS=========================*/
 
 :root {
-  --portals-reminder-overdue: var(--text-error, #e93147);
-  --portals-reminder-today: #f59e0b;
+  --portals-reminder-overdue: var(--text-error, #ff1100);
+  --portals-reminder-today: #fdba2b;
   --portals-reminder-upcoming: #10b981;
   --portals-reminder-later: var(--text-faint, #888888);
 }

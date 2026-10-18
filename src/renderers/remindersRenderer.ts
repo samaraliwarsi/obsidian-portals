@@ -91,13 +91,28 @@ export class RemindersRenderer {
 
     private renderSection(title: string, items: {file: TFile, date: Date}[], type: 'overdue' | 'today' | 'upcoming' | 'later') {
         if (!this.container) return;
-        const section = this.container.createDiv({ cls: 'reminders-section' });
-        section.createEl('h4', { text: title, cls: `reminders-header is-${type}` });
+
+        const details = this.container.createEl('details', {cls: 'reminders-section' });
+
+        const isOpen = this.plugin.settings.reminderSectionStates?.[type] ?? true;
+        if (isOpen) details.open = true;
+
+        const summary = details.createEl('summary', { cls: `reminders-header is-${type}` });
+        summary.createSpan({ text: title });
+
+        details.addEventListener('toggle', () => {
+            if (!this.plugin.settings.reminderSectionStates) {
+                this.plugin.settings.reminderSectionStates = {};
+            }
+            this.plugin.settings.reminderSectionStates[type] = details.open;
+            void this.plugin.saveData(this.plugin.settings);
+        });
+
+        const content = details.createDiv({ cls: 'reminders-section-content' });
 
         for (const item of items) {
-            const fileEl = section.createDiv({ cls: 'file-item' });
+            const fileEl = content.createDiv({ cls: 'file-item' });
             const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-
             this.plugin.renderCustomIcon(iconSpan, item.file.path, 'calendar');
             
             fileEl.createSpan({ text: this.view.getDisplayName(item.file), cls: 'portals-item-name' });

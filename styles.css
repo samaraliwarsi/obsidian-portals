@@ -5172,8 +5172,8 @@ input.portals-inline-rename:hover {
 /*====================REMINDER COLORS=========================*/
 
 :root {
-  --portals-reminder-overdue: var(--text-error, #e93147);
-  --portals-reminder-today: #f59e0b;
+  --portals-reminder-overdue: var(--text-error, #ff1100);
+  --portals-reminder-today: #fdba2b;
   --portals-reminder-upcoming: #10b981;
   --portals-reminder-later: var(--text-faint, #888888);
 }
@@ -7617,17 +7617,51 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
 }
 
 .reminders-section {
-    margin-bottom: 24px;
+    margin-bottom: 8px;
+}
+
+.reminders-section-content {
+    padding-top: 4px;
+    padding-bottom: 8px;
 }
 
 .reminders-header {
     font-size: var(--font-ui-small);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin: 16px 0 8px 0;
+    margin: 8px 0 4px 0;
     padding: 4px 0 4px 8px;
-    border-left: 3px solid transparent;
-    border-bottom: 1px solid var(--background-modifier-border);
+    border-left: 2px solid transparent;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    background-color: var(--background-primary);
+}
+
+.reminders-header:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.reminders-header::-webkit-details-marker {
+    display: none;
+}
+
+details[open] > .reminders-header::before {
+    transform: rotate(90deg);
+}
+
+.reminders-header::before {
+    content: "▶";
+    font-size: 0.8em;
+    margin-right: 8px;
+    color: var(--text-faint);
+    transition: transform 0.2s ease;
+}
+
+.reminders-header:hover::before {
+    color: inherit;
 }
 
 .reminders-header.is-overdue {
@@ -7662,7 +7696,7 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
 
 
 .portals-split-tab.has-reminder-due .portals-tab-icon {
-    color: var(--text-error);
+    color: var(--portals-reminder-overdue);
 }
 
 /* Force higher specificity using the view data attributes */
@@ -7672,13 +7706,12 @@ button.unhide-btn:not(.clickable-icon) .svg-icon {
 [data-type="portals-alt-side-panel"] .portals-split-tab.has-reminder-due .portals-tab-icon svg,
 [data-type="portals-view"] .portals-split-tab.has-reminder-due .portals-tab-icon i,
 [data-type="portals-alt-side-panel"] .portals-split-tab.has-reminder-due .portals-tab-icon i {
-    color: var(--text-error);
-    stroke: var(--text-error); /* For Lucide/SVG icons that use stroke */
-    fill: var(--text-error);   /* For Phosphor icons that use fill */
+    color: var(--portals-reminder-overdue);
+    stroke: var(--portals-reminder-overdue);
 }
 
 .portals-split-tab.has-reminder-due {
-    box-shadow: inset 0 2px 0 var(--portals-reminder-later);
+    box-shadow: inset 0 2px 0 var(--portals-reminder-overdue);
 }
 
 .portals-reminder-indicator {
