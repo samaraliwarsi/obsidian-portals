@@ -7477,6 +7477,19 @@ p.fm-noFound-txt {
     white-space: nowrap;
 }
 
+.fm-current-value.clickable {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.fm-current-value.clickable:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+    text-decoration: underline;
+}
+
 .fm-multiselect-container {
     max-height: 250px;
     overflow-y: auto;

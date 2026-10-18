@@ -423,7 +423,7 @@ function buildSidePortalPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
             items: [
                 {
                     name: 'Show current value',
-                    desc: 'Show current property value on list of files filtered by properties.',
+                    desc: 'Show current property value on list of files filtered by properties. These values are editable on the go.',
                     control: { type: 'toggle', key: 'showCurrentPropertyValue' }
                 },
                 {

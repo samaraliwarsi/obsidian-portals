@@ -552,7 +552,31 @@ export class FrontmatterClinicRenderer {
                     displayValue = 'none';
                 }
                 if (this.plugin.settings.showCurrentPropertyValue) {
-                    fileRow.createSpan({ text: displayValue, cls: 'fm-current-value' });
+                    const valueSpan = fileRow.createSpan({ text: displayValue, cls: 'fm-current-value clickable' });
+
+                    valueSpan.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const valuesSet = FrontmatterClinicRenderer.getProperties().get(this.selectedProperty) || new Set<string>();
+                        const availableValues = Array.from(valuesSet).sort();
+
+                        if (!availableValues.includes('none')) {
+                            availableValues.unshift('none');
+                        }
+
+                        this.showSearchPopoverForClinic(valueSpan, availableValues, displayValue, (newValue) => {
+                            void (async () => {
+                                await this.app.fileManager.processFrontMatter(file, (fm) => {
+                                    if (newValue === 'none') {
+                                        delete fm[this.selectedProperty];
+                                    } else {
+                                        fm[this.selectedProperty] = newValue;
+                                    }
+                                });
+                            })();
+                        });
+                    });
                 }
             }
 

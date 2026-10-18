@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, TFile, TFolder, Notice, Platform, View } from 'obsidian';
 import PortalsPlugin from './main';
-import Sortable, { active, SortableEvent } from 'sortablejs';
+import Sortable, { SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './types';
 import { AddPortalModal } from './modals/addPortalModal';
 import { PortalStack } from './types';
