@@ -670,12 +670,14 @@ opacity: 0.7;
   font-size: 12px;
   width: 12px;
   height: 12px;
+  color: inherit;
 }
 
 .portals-split-content .file-icon .svg-icon {
     font-size: 12.5px;
     width: 1em;
     height: 1em;
+    color: inherit;
 }
 
 .portals-split-content .folder-summary {
@@ -802,7 +804,13 @@ body.portals-dragging {
   border-bottom-color: var(--split-tab-active-color ,var(--interactive-accent));
 }
 
-
+.portals-split-tab .portals-tab-icon,
+.portals-split-tab .portals-tab-icon i,
+.portals-split-tab .portals-tab-icon svg {
+    font-style: normal;
+    color: inherit;
+    stroke: currentColor;
+}
 
 .portals-collapse-icon {
     flex-shrink: 0;
