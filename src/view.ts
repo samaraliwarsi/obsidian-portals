@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, TFile, TFolder, Notice, Platform, View } from 'obsidian';
 import PortalsPlugin from './main';
-import Sortable, { SortableEvent } from 'sortablejs';
+import Sortable, { active, SortableEvent } from 'sortablejs';
 import { SpaceConfig } from './types';
 import { AddPortalModal } from './modals/addPortalModal';
 import { PortalStack } from './types';
@@ -86,13 +86,24 @@ export class PortalsView extends ItemView {
     }
 
     public showBulkFrontmatterModal(): void {
-        const files = Array.from(this.selectedItems)
+        // get files from multi-select
+        let files = Array.from(this.selectedItems)
             .map(p => this.app.vault.getAbstractFileByPath(p))
             .filter((f): f is TFile => f instanceof TFile && f.extension === 'md');
+        
+        // fallback: if nothing selected, grab the current active file if any
         if (files.length === 0) {
-            new Notice('Select at least one Markdown file.');
+            const activeFile = this.app.workspace.getActiveFile();
+            if (activeFile && activeFile.extension === 'md') {
+                files = [activeFile]
+            }
+        }
+        // if still no files (eg. active is canvas, base or nothing open) show notice
+        if (files.length === 0) {
+            new Notice('Open a Markdown file or select files in explorer first.');
             return;
         }
+        
         if (this.plugin.settings.activeSplitTab === 'properties' && this.clinicRenderer) {
             this.clinicRenderer.openFrontmatterModal(files);
         } else {
