@@ -108,8 +108,8 @@ details[open] > .reminders-header::before {
 
 .portals-reminder-indicator svg,
 .portals-reminder-indicator i {
-    width: 12px;
-    height: 12px;
+    width: calc(var(--portals-icon-size) * 0.8); 
+    height: calc(var(--portals-icon-size) * 0.8);
 }
 
 .portals-reminder-indicator {

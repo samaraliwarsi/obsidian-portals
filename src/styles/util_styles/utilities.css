@@ -346,7 +346,18 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .portals-tab-bar i.ph,
 .portals-tree-container i.ph,
 .portals-secondary-panel i.ph,
-.portals-icon-picker-modal i.ph {
+.portals-icon-picker-modal i.ph,
+.portals-split-content i.ph {
+    color: inherit;
+}
+
+/*==================LUCIDE ICON COLOR OVERRIDE==========================*/
+.portals-container .svg-icon,
+.portals-tab-bar .svg-icon,
+.portals-tree-container .svg-icon,
+.portals-secondary-panel .svg-icon,
+.portals-icon-picker-modal .svg-icon,
+.portals-split-content .svg-icon {
     color: inherit;
 }
 
