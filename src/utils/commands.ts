@@ -129,11 +129,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         callback: () => {
             const rootSpace = plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
             if (rootSpace) {
-                plugin.settings.selectedSpace = { path: rootSpace.path, type: rootSpace.type };
-                if (rootSpace.type === 'folder' && !plugin.settings.openFolders.includes(rootSpace.path)) {
-                    plugin.settings.openFolders.push(rootSpace.path);
-                }
-                void plugin.saveSettings();
+                void plugin.switchToPortal(rootSpace);
             } else {
                 new Notice ('Vault root portal is not available. Enable "pinned vault" in settings.');
             }
@@ -197,10 +193,12 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         callback: () => {
             const prev = plugin.settings.previousSelectedSpace;
             if (prev) {
-                const current = plugin.settings.selectedSpace;
-                plugin.settings.selectedSpace = prev;
-                plugin.settings.previousSelectedSpace = current ? { path: current.path, type: current.type }: null;
-                void plugin.saveSettings();
+                const space = plugin.settings.spaces.find(s => s.path === prev.path && s.type === prev.type);
+                if (space) {
+                    void plugin.switchToPortal(space);
+                } else {
+                    new Notice('Previous portal is no longer available');
+                }
             } else {
                 new Notice('No previous portal to switch to.');
             }
@@ -248,6 +246,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         { id: 'open-side-properties', name: 'Show properties', tabId: 'properties' },
         { id: 'open-side-trash', name: 'Show trash', tabId: 'trash' },
         { id: 'open-journal', name: 'Show journal', tabId: 'journal' },
+        { id: 'reminders', name: 'Show reminders', tabId: 'reminders' },
     ];
     for (const { id, name, tabId } of sideTabCommands ) {
         plugin.addCommand({

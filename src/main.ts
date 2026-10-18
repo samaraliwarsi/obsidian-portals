@@ -358,6 +358,11 @@ export default class PortalsPlugin extends Plugin {
 
     async activateView() {
         const { workspace } = this.app;
+
+        if (workspace.leftSplit.collapsed) {
+            workspace.leftSplit.expand();
+        }
+
         let leaf = workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
         if (!leaf) {
             const newLeaf = workspace.getLeftLeaf(false);
@@ -367,7 +372,7 @@ export default class PortalsPlugin extends Plugin {
             } else {
                 return;
             }
-        }
+    }
         void workspace.revealLeaf(leaf);
     }
 
@@ -628,27 +633,34 @@ export default class PortalsPlugin extends Plugin {
             const rightSplit = this.app.workspace.rightSplit;
             if (rightSplit?.collapsed) rightSplit.expand();
 
-            let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL)[0];
-            if (!leaf) {
-                const candidate = this.app.workspace.getRightLeaf(false);
-                if (candidate) {
-                    leaf = candidate;
-                } else {
-                    const fallback = this.app.workspace.getRightLeaf(true);
-                    if (fallback) leaf = fallback;
-                }
-                if (leaf) {
-                    void leaf.setViewState({ type: VIEW_TYPE_ALT_SIDE_PANEL, active: true });
-                } else {
-                    return;
-                }
-            }
             this.settings.alternateActiveTab = tabId;
             void this.saveSettings();
-            if (leaf?.view instanceof AltSidePanelView) {
-                leaf.view.refresh();
-            }
+
+            void (async () => {
+                let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).find(l => l.getRoot() === rightSplit);
+                if (!leaf) {
+                    let newLeaf = this.app.workspace.getRightLeaf(false);
+                    if (!newLeaf) newLeaf = this.app.workspace.getRightLeaf(true);
+                    if (!newLeaf) return;
+                    leaf = newLeaf;
+                    await leaf.setViewState({ type: VIEW_TYPE_ALT_SIDE_PANEL, active: true });
+                }
+
+                await this.app.workspace.revealLeaf(leaf);
+
+                if (leaf.view instanceof AltSidePanelView) {
+                    leaf.view.refresh();
+                }
+            })();
         } else {
+            if (this.app.workspace.leftSplit.collapsed) {
+                this.app.workspace.leftSplit.expand();
+            }
+            const mainLeaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+            if (mainLeaf) {
+                void this.app.workspace.revealLeaf(mainLeaf);
+            }
+
             this.settings.sidePanelEnabled = true;
             this.settings.secondaryPanelCollapsed = false;
             if (!leftTabs.includes(tabId)) {
@@ -690,6 +702,7 @@ export default class PortalsPlugin extends Plugin {
             }
         }
 
+        await this.activateView();
         await this.saveSettings();
     }
 
