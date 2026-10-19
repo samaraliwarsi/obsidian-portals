@@ -653,7 +653,7 @@ export class FrontmatterClinicRenderer {
         if (!this.frontmatterChangedRef) {
             this.frontmatterChangedRef = this.app.metadataCache.on('changed', (file) => {
                 if (file instanceof TFile && file.extension === 'md') {
-                    if (this.plugin.settings.activeSplitTab === 'properties') {
+                    if (this.plugin.settings.activeSplitTab === 'properties' || this.plugin.settings.alternateActiveTab === 'properties') {
                         void this.scheduleClinicRefresh();
                     }
                 }
