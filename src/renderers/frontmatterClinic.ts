@@ -630,6 +630,9 @@ export class FrontmatterClinicRenderer {
                 details.open = this.plugin.settings.clinicState.groupStates?.[groupName] ?? true;
 
                 details.addEventListener('toggle', () => {
+                    if (!this.plugin.settings.clinicState.groupStates) {
+                        this.plugin.settings.clinicState.groupStates = {};
+                    }
                     this.plugin.settings.clinicState.groupStates[groupName] = details.open;
                     void this.plugin.saveData(this.plugin.settings);
                 })
