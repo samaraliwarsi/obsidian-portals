@@ -42,6 +42,11 @@ function buildExplorerPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
             control: { type: 'toggle', key: 'compactTree' }
         },
         {
+            name: 'Auto-collapse folders and tags',
+            desc: 'When expanding a folder or a tag, automatically collapse other open items.',
+            control: { type: 'toggle', key: 'autoCollapseTree' }
+        },
+        {
             name: 'Styles',
             desc: 'Choose a visual theme for file tree and list items in side portal.',
             control: {

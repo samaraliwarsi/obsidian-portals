@@ -97,6 +97,7 @@ export interface SpacesSettings {
     reminderTabNotification: boolean;
     reminderTreeIndicator: 'off' | 'simple' | 'dynamic';
     reminderSectionStates: Record<string, boolean>;
+    autoCollapseTree: boolean;
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -191,6 +192,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     reminderTabNotification: true,
     reminderTreeIndicator: 'dynamic',
     reminderSectionStates: { overdue: true, today: true, upcoming: true, later: true },
+    autoCollapseTree: false,
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

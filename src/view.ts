@@ -1093,6 +1093,22 @@ export class PortalsView extends ItemView {
             this.spaceScrollCache.set(key, target.scrollTop);
         }, { capture: true });
 
+        this.registerDomEvent(this.contentEl, 'toggle', (e: Event) => {
+            const target = e.target as HTMLElement;
+
+            if (!target.matches('.folder-details') || !(target as HTMLDetailsElement).open) return;
+
+            if (!this.plugin.settings.autoCollapseTree) return;
+
+            const openDetails = this.containerEl.querySelectorAll<HTMLDetailsElement>('.folder-details[open]');
+            openDetails.forEach(details => {
+                if (details === target) return;
+                if (details.contains(target)) return;
+                if (target.contains(details)) return;
+                details.open = false;
+            });
+        }, { capture: true });
+
         // Global drag listeners
         activeDocument.addEventListener('mousemove', this.handleDragMove);
         activeDocument.addEventListener('touchmove', this.handleDragMove, { passive: false });
