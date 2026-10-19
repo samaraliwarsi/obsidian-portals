@@ -627,7 +627,7 @@ export class FrontmatterClinicRenderer {
                 if (!groupFiles) continue;
 
                 const details = listContainer.createEl('details', { cls : 'fm-clinic-group' });
-                details.open = this.plugin.settings.clinicState.groupStates[groupName] ?? true;
+                details.open = this.plugin.settings.clinicState.groupStates?.[groupName] ?? true;
 
                 details.addEventListener('toggle', () => {
                     this.plugin.settings.clinicState.groupStates[groupName] = details.open;
@@ -736,71 +736,71 @@ export class FrontmatterClinicRenderer {
                     });
                 });
             }
-            this.attachClinicSwipe(fileRow, file.path);
+        }
+        this.attachClinicSwipe(fileRow, file.path);
 
-            fileRow.addEventListener('click', (e: MouseEvent) => {
-                if (e.altKey) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const key = file.path;
-                    if (e.shiftKey && this.view.rangeSelectionAnchor) {
-                        const list = this.container.querySelector('.fm-clinic-file-list') as HTMLElement;
-                        if (list) {
-                            const elements = Array.from(list.querySelectorAll<HTMLElement>('[data-path]'));
-                            const orderedKeys = elements.map(el => el.dataset.path!);
-                            const anchorIdx = orderedKeys.indexOf(this.view.rangeSelectionAnchor);
-                            const targetIdx = orderedKeys.indexOf(key);
-                            if (anchorIdx !== -1 && targetIdx !== -1) {
-                                const [from, to] = [Math.min(anchorIdx, targetIdx), Math.max(anchorIdx, targetIdx)];
-                                this.clinicSelectedPaths.clear();
-                                list.querySelectorAll('.is-selected').forEach(el => el.classList.remove('is-selected'));
-                                for (let i = from; i<= to; i++) {
-                                    const rangeKey = orderedKeys[i]!;
-                                    this.clinicSelectedPaths.add(rangeKey);
-                                    const el = elements[i];
-                                    if (el) el.classList.add('is-selected');
-                                }
+        fileRow.addEventListener('click', (e: MouseEvent) => {
+            if (e.altKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                const key = file.path;
+                if (e.shiftKey && this.view.rangeSelectionAnchor) {
+                    const list = this.container.querySelector('.fm-clinic-file-list') as HTMLElement;
+                    if (list) {
+                        const elements = Array.from(list.querySelectorAll<HTMLElement>('[data-path]'));
+                        const orderedKeys = elements.map(el => el.dataset.path!);
+                        const anchorIdx = orderedKeys.indexOf(this.view.rangeSelectionAnchor);
+                        const targetIdx = orderedKeys.indexOf(key);
+                        if (anchorIdx !== -1 && targetIdx !== -1) {
+                            const [from, to] = [Math.min(anchorIdx, targetIdx), Math.max(anchorIdx, targetIdx)];
+                            this.clinicSelectedPaths.clear();
+                            list.querySelectorAll('.is-selected').forEach(el => el.classList.remove('is-selected'));
+                            for (let i = from; i<= to; i++) {
+                                const rangeKey = orderedKeys[i]!;
+                                this.clinicSelectedPaths.add(rangeKey);
+                                const el = elements[i];
+                                if (el) el.classList.add('is-selected');
                             }
-                        }
-                    } else {
-                        if (this.clinicSelectedPaths.has(key)) {
-                            this.clinicSelectedPaths.delete(key);
-                            fileRow.removeClass('is-selected');
-                            if (this.view.rangeSelectionAnchor === key) {
-                                this.view.rangeSelectionAnchor = null;
-                            }
-                        } else {
-                            this.clinicSelectedPaths.add(key);
-                            fileRow.addClass('is-selected');
-                            this.view.rangeSelectionAnchor = key;
                         }
                     }
-                    this.updateClinicToolbar();
-                } else if (e.metaKey || e.ctrlKey) {
-                    e.preventDefault();
-                    void this.app.workspace.getLeaf('tab').openFile(file);
-                } else if (e.shiftKey) {
-                    e.preventDefault();
-                    void this.app.workspace.getLeaf('split').openFile(file);
                 } else {
-                    void this.app.workspace.getLeaf().openFile(file);
+                    if (this.clinicSelectedPaths.has(key)) {
+                        this.clinicSelectedPaths.delete(key);
+                        fileRow.removeClass('is-selected');
+                        if (this.view.rangeSelectionAnchor === key) {
+                            this.view.rangeSelectionAnchor = null;
+                        }
+                    } else {
+                        this.clinicSelectedPaths.add(key);
+                        fileRow.addClass('is-selected');
+                        this.view.rangeSelectionAnchor = key;
+                    }
                 }
-            });
-
-            fileRow.addEventListener('contextmenu', (e: MouseEvent) => {
-                e.stopPropagation();
+                this.updateClinicToolbar();
+            } else if (e.metaKey || e.ctrlKey) {
                 e.preventDefault();
-                ContextMenuFactory.showFileMenu(this.view, file, nameSpan, e);
-            });
+                void this.app.workspace.getLeaf('tab').openFile(file);
+            } else if (e.shiftKey) {
+                e.preventDefault();
+                void this.app.workspace.getLeaf('split').openFile(file);
+            } else {
+                void this.app.workspace.getLeaf().openFile(file);
+            }
+        });
 
-            fileRow.addEventListener('mouseup', (e: MouseEvent) => {
-                if (e.button === 1) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.view.openFileInNewTab(file);
-                }
-            });
-        }
+        fileRow.addEventListener('contextmenu', (e: MouseEvent) => {
+            e.stopPropagation();
+            e.preventDefault();
+            ContextMenuFactory.showFileMenu(this.view, file, nameSpan, e);
+        });
+
+        fileRow.addEventListener('mouseup', (e: MouseEvent) => {
+            if (e.button === 1) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.view.openFileInNewTab(file);
+            }
+        });
         this.updateClinicToolbar();
     }
 
