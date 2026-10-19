@@ -318,6 +318,9 @@ export class FrontmatterClinicRenderer {
             this.container.setCssProps({ '--sideportal-accent-color': '' });
         }
 
+        const isRightSidebar = this.container.closest('.mod-right-split') !== null;
+        const tooltipDir: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
+
         this.filterFiles();
 
         const controlDetails = this.container.createEl('details', { cls: 'fm-clinic-controls' });
@@ -363,8 +366,11 @@ export class FrontmatterClinicRenderer {
         });
 
         if (activeViewName) {
-            const deleteViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon fm-view-icon', attr: { 'aria-label': 'Delete view' } });
+            const deleteViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon fm-view-icon' });
             this.plugin.renderPluginIcon(deleteViewBtn, 'trash');
+            if (!Platform.isMobile) {
+                this.view.attachTooltip(deleteViewBtn, 'Delete view', 300, tooltipDir);
+            }
             deleteViewBtn.addEventListener('click', () => {
                 delete this.plugin.settings.clinicState.savedViews[activeViewName];
                 this.plugin.settings.clinicState.filters = [{ property: '', value: ''}];
@@ -373,8 +379,11 @@ export class FrontmatterClinicRenderer {
             });
         }
 
-        const saveViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon fm-view-icon', attr: { 'aria-label': 'Save current view' } });
+        const saveViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon fm-view-icon' });
         this.plugin.renderPluginIcon(saveViewBtn, 'save');
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(saveViewBtn, activeViewName ? 'Update view' : 'Save as new view', 300, tooltipDir);
+        }
         saveViewBtn.addEventListener('click', () => {
             new SaveViewModal(this.app, activeViewName, (name) => {
                 this.plugin.settings.clinicState.savedViews[name] = {
@@ -391,8 +400,11 @@ export class FrontmatterClinicRenderer {
         const groupSelect = groupRow.createEl('select', { cls: 'portals-reset-dropD dropdown' });
         groupSelect.createEl('option', { value: '', text: 'none (flat list)' });
 
-        const groupIcon = groupRow.createSpan({ cls: 'clickable-icon fm-group-icon', attr: { 'aria-label': 'Group by' } });
+        const groupIcon = groupRow.createSpan({ cls: 'clickable-icon fm-group-icon' });
         this.plugin.renderPluginIcon(groupIcon, 'rows');
+        if (!Platform.isMobile) {
+            this.view.attachTooltip(groupIcon, 'Group by', 300, tooltipDir);
+        }
         
         const allProps = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort();
         for (const prop of allProps) {
@@ -527,8 +539,11 @@ export class FrontmatterClinicRenderer {
 
             // Remove Filter Button
             if (index > 0 || this.plugin.settings.clinicState.filters.length > 1) {
-                const removeBtn = headerRow.createEl('button', { cls: 'clickable-icon fm-remove-filter-btn', attr: { 'aria-label': 'Remove filter' } });
+                const removeBtn = headerRow.createEl('button', { cls: 'clickable-icon fm-remove-filter-btn' });
                 this.plugin.renderPluginIcon(removeBtn, 'x');
+                if (!Platform.isMobile) {
+                    this.view.attachTooltip(removeBtn, 'Remove filter', 300, tooltipDir);
+                }
                 removeBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.plugin.settings.clinicState.filters.splice(index, 1);
@@ -691,6 +706,11 @@ export class FrontmatterClinicRenderer {
             
             if (this.plugin.settings.showCurrentPropertyValue) {
                 const valueSpan = fileRow.createSpan({ text: displayValue, cls: 'fm-current-value clickable' });
+                const isRightSidebar = this.container.closest('.mod-right-split') !== null;
+                const tooltipDir: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
+                if (!Platform.isMobile) {
+                    this.view.attachTooltip(valueSpan, 'Edit value', 300, tooltipDir)
+                }
                 
                 valueSpan.addEventListener('click', (e) => {
                     e.preventDefault();

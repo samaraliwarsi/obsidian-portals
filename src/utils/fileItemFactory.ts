@@ -255,7 +255,12 @@ export class FileItemFactory {
                 const words = plainText.split(/\s+/).filter(w => w.length > 0);
                 const wordCount = words.length;
                 const lastModified = new Date(file.stat.mtime).toLocaleDateString();
-                const infoLine = `${wordCount} words · Modified ${lastModified}`;
+                let infoLine = `${wordCount} words · Modified ${lastModified}`;
+                const prop = plugin.settings.reminderProperty || 'remind_at';
+                const rawDate = app.metadataCache.getFileCache(file)?.frontmatter?.[prop];
+                if (rawDate) {
+                    infoLine += ` · Reminder ${String(rawDate)}`;
+                }
                 if (nameSpan.scrollWidth > nameSpan.clientWidth) {
                     const displayName = FileItemFactory.getDisplayName(file, plugin);
                     return `${displayName} · ${infoLine}`;

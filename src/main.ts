@@ -48,7 +48,8 @@ export default class PortalsPlugin extends Plugin {
                 clinicSortorder: (oldClinic.clinicSortorder as 'asc' | 'desc') || 'asc',
                 savedViews: {},
                 groupBy: '',
-                controlsOpen: true
+                controlsOpen: true,
+                groupStates: {}
             };
         }
 

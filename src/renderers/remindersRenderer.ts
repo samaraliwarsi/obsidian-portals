@@ -1,4 +1,4 @@
-import { App, TFile } from 'obsidian';
+import { App, Platform, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
@@ -119,7 +119,20 @@ export class RemindersRenderer {
             
             // Format date as YYYY-MM-DD
             const dateStr = formatLocalDate(item.date);
-            fileEl.createSpan({ text: dateStr, cls: 'reminders-date' });
+            const dateEl = fileEl.createSpan({ text: dateStr, cls: 'reminders-date' });
+
+            if (!Platform.isMobile) {
+                const DiffDays = getDaysDifference(item.date);
+                let tooltip = '';
+                if (DiffDays === 0) tooltip = 'Due today';
+                else if (DiffDays === 1) tooltip = 'Due tomorrow';
+                else if (DiffDays < 0) tooltip = `Overdue by ${Math.abs(DiffDays)} day(s)`;
+                else tooltip = `Due in ${DiffDays} days`;
+
+                const isRightSidebar = this.container.closest('.mod-right-split') !== null;
+                const preferred = isRightSidebar ? 'left' : 'right';
+                this.view.attachTooltip(dateEl, tooltip, 300, preferred);
+            }
 
             this.view.addHoverPreview(fileEl, item.file.path);
 
