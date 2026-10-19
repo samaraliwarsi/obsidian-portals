@@ -15,7 +15,7 @@
 .fm-clinic-controls {
     background: var(--background-secondary);
     border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-m);
+    border-radius: 4px;
     margin-bottom: 8px;
     overflow: hidden;
 }
@@ -173,8 +173,14 @@ p.fm-noFound-txt {
     cursor: pointer;
     padding: 4px;
     font-size: 0.8em;
-    color: var(--text-normal);
+    color: var(--text-faint);
     list-style: none; /* Hide default triangle */
+    border-radius: 4px;
+}
+
+.fm-clinic-group-header:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
 }
 
 .fm-clinic-group-header::-webkit-details-marker {
@@ -187,6 +193,10 @@ p.fm-noFound-txt {
     margin-right: 8px;
     color: var(--text-faint);
     transition: transform 0.2s ease;
+}
+
+.fm-clinic-group-header::before:hover {
+    color: var(--text-normal);
 }
 
 .fm-clinic-group[open] > .fm-clinic-group-header::before {
