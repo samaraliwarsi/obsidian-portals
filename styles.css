@@ -4800,7 +4800,9 @@ select.dropdown.portals-reset-dropD {
 .portals-reorder-modal .modal-button-container,
 .portals-qtn-modal .modal-button-container,
 .portals-rename-modal .modal-button-container,
-.portals-cnf-modal .modal-button-container {
+.portals-cnf-modal .modal-button-container,
+.portals-date-modal .modal-button-container,
+.portals-saveview-modal .modal-button-container {
   margin-top: 1.2em;
   display: flex;
   justify-content: flex-end;
@@ -4820,7 +4822,9 @@ select.dropdown.portals-reset-dropD {
 .remove-portal-modal button,
 .portals-qtn-modal button, 
 .portals-rename-modal button,
-.portals-cnf-modal button {
+.portals-cnf-modal button,
+.portals-date-modal button,
+.portals-saveview-modal button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4848,7 +4852,9 @@ select.dropdown.portals-reset-dropD {
 .portals-sp-modal .modal-button-container button.mod-cta,
 .portals-reorder-modal .modal-button-container button.mod-cta,
 .portals-qtn-modal .modal-button-container button.mod-cta,
-.portals-rename-modal .modal-button-container button.mod-cta {
+.portals-rename-modal .modal-button-container button.mod-cta,
+.portals-date-modal .modal-button-container button.mod-cta,
+.portals-saveview-modal .modal-button-container button.mod-cta {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
 }
@@ -4860,7 +4866,9 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button.mod-cta:hover,
 .portals-reorder-modal .modal-button-container button.mod-cta:hover,
 .portals-qtn-modal .modal-button-container button.mod-cta:hover,
-.portals-rename-modal .modal-button-container button.mod-cta:hover {
+.portals-rename-modal .modal-button-container button.mod-cta:hover,
+.portals-saveview-modal .modal-button-container button.mod-cta:hover, 
+.portals-date-modal .modal-button-container button.mod-cta:hover {
   background-color: var(--interactive-accent-hover);
   color: var(--text-on-accent);
 }
@@ -4872,7 +4880,9 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-reorder-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-qtn-modal .modal-button-container button.mod-cta:focus-visible,
-.portals-rename-modal .modal-button-container button.mod-cta:focus-visible {
+.portals-rename-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-date-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-saveview-modal .modal-button-container button.mod-cta:focus-visible {
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);
   color: var(--text-on-accent);
 }
@@ -4885,7 +4895,9 @@ select.dropdown.portals-reset-dropD {
   .portals-fm-modal .modal-button-container button.mod-cta:hover,
   .portals-reorder-modal .modal-button-container button.mod-cta:hover,
   .portals-qtn-modal .modal-button-container button.mod-cta:hover,
-  .portals-rename-modal .modal-button-container button.mod-cta:hover {
+  .portals-rename-modal .modal-button-container button.mod-cta:hover,
+  .portals-date-modal .modal-button-container button.mod-cta:hover,
+  .portals-saveview-modal .modal-button-container button.mod-cta:hover {
     background-color: var(--interactive-accent-hover);
     color: var(--text-on-accent);
   }
@@ -4895,14 +4907,16 @@ select.dropdown.portals-reset-dropD {
 
 .portals-fm-modal .modal-button-container button.mod-warning,
 .portals-remP-modal button.mod-warning,
-.portals-cnf-modal .modal-button-container button.mod-warning {
+.portals-cnf-modal .modal-button-container button.mod-warning,
+.portals-date-modal .modal-button-container button.mod-warning {
   background-color: var(--background-modifier-error);
   color: var(--text-on-accent);
 }
 
 .portals-fm-modal .modal-button-container button.mod-warning:hover,
 .portals-remP-modal button.mod-warning:hover,
-.portals-cnf-modal .modal-button-container button.mod-warning:hover {
+.portals-cnf-modal .modal-button-container button.mod-warning:hover,
+.portals-date-modal .modal-button-container button.mod-warning:hover {
   background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
   color: var(--text-color);
 }
@@ -4910,7 +4924,8 @@ select.dropdown.portals-reset-dropD {
 @media (hover: hover) {
   .portals-fm-modal .modal-button-container button.mod-warning:hover,
   .portals-remP-modal button.mod-warning:hover,
-  .portals-cnf-modal .modal-button-container button.mod-warning:hover {
+  .portals-cnf-modal .modal-button-container button.mod-warning:hover,
+  .portals-date-modal .modal-button-container button.mod-warning:hover {
     background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
     color: var(--text-color);
   }
@@ -4925,7 +4940,9 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button,
 .portals-qtn-modal .modal-button-container button,
 .portals-rename-modal .modal-button-container button,
-.portals-cnf-modal .modal-button-container button {
+.portals-cnf-modal .modal-button-container button,
+.portals-date-modal .modal-button-container button,
+.portals-saveview-modal .modal-button-container button {
   color: var(--text-color);
   background-color: var(--interactive-normal);
 }
@@ -4937,7 +4954,9 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button:hover,
 .portals-qtn-modal .modal-button-container button:hover,
 .portals-rename-modal .modal-button-container button:hover,
-.portals-cnf-modal .modal-button-container button:hover {
+.portals-cnf-modal .modal-button-container button:hover,
+.portals-date-modal .modal-button-container button:hover,
+.portals-saveview-modal .modal-button-container button:hover {
   color: var(--text-color);
   background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
 }
@@ -4949,7 +4968,9 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button:focus-visible,
 .portals-qtn-modal .modal-button-container button:focus-visible,
 .portals-rename-modal .modal-button-container button:focus-visible,
-.portals-cnf-modal .modal-button-container button:focus-visible {
+.portals-cnf-modal .modal-button-container button:focus-visible,
+.portals-date-modal .modal-button-container button:focus-visible,
+.portals-saveview-modal .modal-button-container button:focus-visible {
   color: var(--text-color);
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);;
 }
@@ -4962,7 +4983,9 @@ select.dropdown.portals-reset-dropD {
   .portals-fm-modal .modal-button-container button:hover,
   .portals-qtn-modal .modal-button-container button:hover,
   .portals-rename-modal .modal-button-container button:hover,
-  .portals-cnf-modal .modal-button-container button:hover {
+  .portals-cnf-modal .modal-button-container button:hover,
+  .portals-date-modal .modal-button-container button:hover,
+  .portals-saveview-modal .modal-button-container button:hover {
     color: var(--text-color);
     background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
   }  
@@ -9716,4 +9739,28 @@ input.cm-opacity-slider {
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
+}
+
+.portals-date-title,
+.portals-saveview-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-normal);
+}
+
+.portals-date-input,
+.portals-saveview-input {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+}
+
+/* Optional: Make the calendar icon on the date input match the theme */
+.portals-date-input::-webkit-calendar-picker-indicator {
+    filter: invert(var(--icon-invert, 0));
+    cursor: pointer;
 }

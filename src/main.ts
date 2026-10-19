@@ -13,7 +13,7 @@ import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSid
 import { InternalPluginsWithBookmarks, SpaceConfig } from './types';
 import { getContextRenderer } from './renderers/sidePanelContent';
 import { EmojiIconProvider } from './icons/emojiIconProvider';
-import { DatePickerModal } from './styles/modal_styles/datePickerModal';
+import { DatePickerModal } from './modals/datePickerModal';
 import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
 
 interface AppWithInternalPlugins extends App {

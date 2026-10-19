@@ -36,6 +36,7 @@ const files = [
   'src/styles/modal_styles/frontmatterPopup.css',
   'src/styles/modal_styles/iconPicker.css',
   'src/styles/modal_styles/confirmModal.css',
+  'src/styles/modal_styles/datepicker-saveview.css',
   // Future modules:
   // 'src/styles/icons.css',
 ];

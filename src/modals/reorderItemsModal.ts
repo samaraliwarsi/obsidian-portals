@@ -8,6 +8,7 @@ export class ReorderItemsModal extends Modal {
     private sourceEl: HTMLElement | null;
     private detailsEl: HTMLElement |null;
     private detailsHighlightClass: string = '';
+
     constructor(
         app: App,
         private plugin: PortalsPlugin,
@@ -18,7 +19,8 @@ export class ReorderItemsModal extends Modal {
         super(app);
         this.sourceEl = sourceEl ?? null;
         this.detailsEl = sourceEl?.closest('.folder-details') as HTMLElement ?? null;
-        if (this.detailsEl?.instanceOf(HTMLDetailsElement)) {
+
+        if (this.detailsEl instanceof HTMLDetailsElement) {
             this.detailsHighlightClass = this.detailsEl.open
                 ? 'portals-reordering-details-open-active'
                 : 'portals-reordering-details-closed-active';
@@ -32,6 +34,7 @@ export class ReorderItemsModal extends Modal {
         contentEl.empty();
         contentEl.addClass('portals-reorder-modal');
         contentEl.addClass('portals-modal');
+
         this.contentEl.createDiv({ text: 'Reorder items', cls: 'portals-reorder-title'});
 
         const list = contentEl.createDiv({ cls: 'portals-sortable-list' });
@@ -74,14 +77,14 @@ export class ReorderItemsModal extends Modal {
         const btnDiv = contentEl.createDiv({ cls: 'modal-button-container' });
         btnDiv.createEl('button', { text: 'Done', cls: 'mod-cta' })
             .addEventListener('click', () => this.close());
-        }
-        onClose() {
-            if (this.sourceEl) {
-                this.sourceEl.removeClass('portals-reordering-source-active');
-            }
-            if (this.detailsEl) {
-                this.detailsEl.removeClass(this.detailsHighlightClass);
-            }
-            this.contentEl.empty();
-        }
     }
+    onClose() {
+        if (this.sourceEl) {
+            this.sourceEl.removeClass('portals-reordering-source-active');
+        }
+        if (this.detailsEl) {
+            this.detailsEl.removeClass(this.detailsHighlightClass);
+        }
+        this.contentEl.empty();
+    }
+}

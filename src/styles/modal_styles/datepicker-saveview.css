@@ -1,0 +1,23 @@
+.portals-date-title,
+.portals-saveview-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+}
+
+.portals-date-input,
+.portals-saveview-input {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+}
+
+/* Optional: Make the calendar icon on the date input match the theme */
+.portals-date-input::-webkit-calendar-picker-indicator {
+    filter: invert(var(--icon-invert, 0));
+    cursor: pointer;
+}

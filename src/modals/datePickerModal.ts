@@ -1,6 +1,6 @@
 import { App, Modal, Notice, TFile } from 'obsidian';
-import type PortalsPlugin from '../../main';
-import { formatLocalDate } from '../../utils/dateHelpers';
+import type PortalsPlugin from '../main';
+import { formatLocalDate } from '../utils/dateHelpers';
 
 export class DatePickerModal extends Modal {
     private plugin: PortalsPlugin;
@@ -16,19 +16,26 @@ export class DatePickerModal extends Modal {
 
     onOpen() {
         const { contentEl } = this;
+        contentEl.empty();
+
+        this.contentEl.addClass('portals-date-modal');
+        this.contentEl.addClass('portals-modal');
         const prop = this.plugin.settings.reminderProperty || 'remind_at';
         const cache = this.app.metadataCache.getFileCache(this.file);
         const existingDate = cache?.frontmatter?.[prop];
 
-        contentEl.createEl('h3', { text: `Reminder for ${this.file.basename}` });
+        contentEl.createDiv({ text: `Reminder for ${this.file.basename}`, cls: 'portals-date-title' });
+
+        contentEl.createEl('p', {
+            text: `This will add the property "${prop} to the frontmatter.`,
+            cls: 'portals-fm-modal-select-status'
+        });
         
         const input = contentEl.createEl('input', { 
             type: 'date', 
-            value: existingDate || formatLocalDate(new Date())
+            value: existingDate || formatLocalDate(new Date()),
+            cls: 'portals-date-input'
         });
-        input.style.width = '100%';
-        input.style.marginBottom = '16px';
-        input.style.padding = '8px';
         
         // Focus input so pressing Enter works immediately
         window.setTimeout(() => input.focus(), 50);
@@ -79,15 +86,12 @@ export class DatePickerModal extends Modal {
         const btnDiv = contentEl.createDiv({ cls: 'modal-button-container' });
 
         if (existingDate) {
-            btnDiv.createEl('button', { text: 'Remove', cls: 'mod-warning' })
-                .addEventListener('click', removeAction);
+            btnDiv.createEl('button', { text: 'Remove', cls: 'mod-warning' }).onclick = removeAction;
         }
 
-        btnDiv.createEl('button', { text: 'Cancel' })
-            .addEventListener('click', () => this.close());
+        btnDiv.createEl('button', { text: 'Cancel' }).onclick = () => this.close();
 
-        btnDiv.createEl('button', { text: 'Save', cls: 'mod-cta' })
-            .addEventListener('click', saveAction);
+        btnDiv.createEl('button', { text: 'Save', cls: 'mod-cta' }).onclick = saveAction;
     }
 
     onClose() {
