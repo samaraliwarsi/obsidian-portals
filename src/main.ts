@@ -143,7 +143,7 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.vault.on('create', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
-                this.refreshAllViews();
+                this.refreshAllTreeContent();
             }
             void this.refreshTrashIfActive();
         }));
@@ -151,7 +151,7 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.vault.on('delete', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(file.path);
-                this.refreshAllViews();
+                this.refreshAllTreeContent();
             }
             void this.refreshTrashIfActive();
         }));
@@ -160,7 +160,7 @@ export default class PortalsPlugin extends Plugin {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(oldPath);
                 FrontmatterClinicRenderer.updateFileCache(this.app, file);
-                this.refreshAllViews();
+                this.refreshAllTreeContent();
             }
             void this.refreshTrashIfActive();
 

@@ -131,6 +131,7 @@ export class PortalsActions {
             newPath = dir ? `${dir}/${newName}` : newName;
         }
         try {
+            view.cancelScheduledRender();
             view.saveTreeScroll();                     // scroll saved numerically
             const savedScroll = view.scrollToRestore;
             await app.vault.copy(file, newPath);

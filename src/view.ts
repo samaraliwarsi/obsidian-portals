@@ -148,7 +148,25 @@ export class PortalsView extends ItemView {
 
     public saveTreeScroll(): void {
         const treeContainer = this.containerEl.querySelector('.portals-tree-container');
-        this.scrollToRestore = treeContainer ? treeContainer.scrollTop : 0;
+        if (!treeContainer) return;
+        this.scrollToRestore = treeContainer.scrollTop;
+
+        // find first visible item to use as an anchor
+        const items = Array.from(treeContainer.querySelectorAll<HTMLElement>('[data-path], [data-tag-path]'));
+        const containerRect = treeContainer.getBoundingClientRect();
+        for (const item of items) {
+            const rect = item.getBoundingClientRect();
+            if (rect.bottom > containerRect.top) {
+                const path = item.dataset.path || item.dataset.tagPath;
+                if (path) {
+                    this.scrollAnchor = {
+                        selector: item.dataset.path ? `[data-path="${path}"]` : `[data-tag-path="${path}"]`,
+                        offset: rect.top - containerRect.top
+                    };
+                }
+                break;
+            }
+        }
     }
     public restoreTreeScroll(): void {
         // anchor based
@@ -160,16 +178,18 @@ export class PortalsView extends ItemView {
                 if (!(treeEl instanceof HTMLElement)) return;
                 const el = treeEl?.querySelector(selector);
                 if (!(el instanceof HTMLElement)) return;
-                void treeEl.offsetHeight;
-                const containerRect = treeEl.getBoundingClientRect();
-                const elRect = el.getBoundingClientRect();
-                const newOffset = elRect.top - containerRect.top;
-                treeEl.scrollTop = treeEl.scrollTop + newOffset - offset;
-                void treeEl.offsetHeight;
-                this.scrollToRestore = treeEl.scrollTop;
-                
+
+                const adjust = () => {
+                    const containerRect = treeEl.getBoundingClientRect();
+                    const elRect = el.getBoundingClientRect();
+                    const newOffset = elRect.top - containerRect.top;
+                    if (Math.abs(newOffset - offset) > 1) {
+                        treeEl.scrollTop = treeEl.scrollTop + newOffset - offset;
+                    }
+                };
+                adjust();
+                window.setTimeout(adjust, 100);
             });
-            return;
         }
         // fallback numeric restore
         if (this.scrollToRestore === null) return;
@@ -989,6 +1009,9 @@ export class PortalsView extends ItemView {
         (async () => {
             const currentSpace = this.plugin.settings.selectedSpace;
             if (!currentSpace) return;
+
+            this.scrollAnchor = null;
+            this.scrollToRestore = 0;
 
             if (currentSpace.type === 'folder') {
             this.plugin.settings.openFolders = [currentSpace.path];
@@ -1970,6 +1993,7 @@ export class PortalsView extends ItemView {
         const container = this.containerEl.children[1] as HTMLElement;
         const treeContainer = container.querySelector('.portals-tree-container');
         if (!treeContainer) return;
+        treeContainer.addClass('portals-is-rebuilding');
         treeContainer.empty();
 
         this.fileElementMap.clear();
@@ -2009,6 +2033,9 @@ export class PortalsView extends ItemView {
             new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
         }
         this.restoreTreeScroll();
+        window.requestAnimationFrame(() => {
+            treeContainer.removeClass('portals-is-rebuilding');
+        });
         this.reapplySelectionHighlights();
     }
 
@@ -2086,8 +2113,13 @@ export class PortalsView extends ItemView {
     private scrollToAndHighlight(path: string) {
         window.setTimeout(() => {
             const item = this.containerEl.querySelector(`[data-path="${path}"]`);
-            if (item) {
-                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const tree = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
+            if (item && tree) {
+                const itemRect = item.getBoundingClientRect();
+                const treeRect = tree.getBoundingClientRect();
+                const offset = itemRect.top - treeRect.top - (treeRect.height / 2) + (itemRect.height / 2);
+
+                tree.scrollBy({ top: offset, behavior: 'smooth' });
                 item.addClass('portals-item-highlight');
                 window.setTimeout(() => item.removeClass('portals-item-highlight'), 2000);
             }

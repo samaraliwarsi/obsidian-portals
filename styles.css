@@ -5229,6 +5229,12 @@ input.portals-inline-rename:hover {
   --portals-reminder-upcoming: #10b981;
   --portals-reminder-later: var(--text-faint, #888888);
 }
+
+/*============CLASS TO SAVE SCROLL RESET SOMEHOW=============*/
+.portals-tree-container.portals-is-rebuilding {
+    opacity: 0;
+    pointer-events: none;
+}
 /*===============================SCROLL BARS PLUGIN WIDE=======================*/
 /* ----------Tab bar and Tabs ---------*/
 .portals-tab-bar::-webkit-scrollbar {
