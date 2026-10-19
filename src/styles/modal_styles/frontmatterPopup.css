@@ -13,12 +13,15 @@
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: var(--layer-modal);
-    background-color: var(--background-primary);
+    background-color: var(--modal-background);
+    backdrop-filter: blur(var(--ui-blur, 10px));
+    --webkit-backdrop-filter: blur(var(--ui-blur, 10px));
     border: var(--modal-border-width) solid var(--modal-border-color);
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
+    width: auto;
+    max-width: var(--dialog-width);
     min-width: 320px;
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
