@@ -21,6 +21,24 @@ button.portals-reset-btn {
   box-shadow: none;
 }
 
+/*=============================== BUTTON RESET CLASS===================================*/
+
+select.dropdown.portals-reset-dropD {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  --webkit-app-region: no-drag;
+  box-shadow: none;
+}
+
 /*===================================PORTALS MODAL COMMON STYLES=====================================*/
 /*------Buttons container for all modals-----*/
 .portals-fm-modal .modal-button-container,

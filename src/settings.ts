@@ -60,7 +60,10 @@ export interface SpacesSettings {
         filters: { property: string; value: string }[];
         clinicSortBy: 'name' | 'created' | 'modified';
         clinicSortorder: 'asc' | 'desc';
-        savedViews: Record<string, { property: string, name: string }[]>
+        savedViews: Record<string, { filters: { property: string, value: string }[]; groupBy: string }>;
+        groupBy: string;
+        controlsOpen: boolean;
+        groupStates: Record<string, boolean>;
     },
     compactTabs: boolean;
     quickAddIcon: 'off' | 'on' | 'desktop-only';
@@ -151,7 +154,10 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
         filters: [],
         clinicSortBy: 'name',
         clinicSortorder: 'asc',
-        savedViews: {}
+        savedViews: {},
+        groupBy: '',
+        controlsOpen: true,
+        groupStates: {}
     },
     compactTabs: false,
     quickAddIcon: 'desktop-only',

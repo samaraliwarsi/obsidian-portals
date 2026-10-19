@@ -10,22 +10,109 @@
     padding: 4px 8px;
 }
 
+/* ------------------Control Layer-------------------------------*/
+
+.fm-clinic-controls {
+    background: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.fm-clinic-controls-summary {
+    display: flex;
+    align-items: center;
+    padding: 2px 12px;
+    cursor: pointer;
+    font-size: 0.8em;
+    color: var(--text-normal);
+    list-style: none; /* Hide default triangle */
+    background: var(--background-secondary-alt);
+    transition: background 0.15s ease;
+}
+
+.fm-clinic-controls-summary:hover {
+    background: var(--background-modifier-hover);
+}
+
+/* Hide default triangle in WebKit */
+.fm-clinic-controls-summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Custom chevron */
+.fm-clinic-controls-summary::before {
+    content: "▶";
+    font-size: 0.75em;
+    margin-right: 8px;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.fm-clinic-controls[open] > .fm-clinic-controls-summary::before {
+    transform: rotate(90deg);
+}
+
+.fm-clinic-controls-content {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+/* -----------Custom view & group row------------ */
 .fm-clinic-views-row {
     display: flex;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     align-items: center;
 }
 
-.fm-clinic-views-row select.dropdown {
+.fm-clinic-views-row select.dropdown.portals-reset-dropD {
     flex: 1;
+    font-size: 0.8em;
+    height: var(--input-height-tight);
+    padding-left: 4px;
+    color: var(--text-muted);
+    background: transparent;
+    border-bottom: 1px solid var(--sideportal-accent-color, var(--interactive-accent));
+    border-radius: 4px;
 }
 
+.fm-clinic-views-row select.dropdown.portals-reset-dropD:hover {
+    background: var(--background-modifier-hover);
+}
+
+.fm-group-icon.clickable-icon,
+.fm-view-icon.clickable-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.fm-group-icon:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+.fm-group-icon svg,
+.fm-group-icon i {
+    width: 16px;
+    height: 16px;
+}
+
+/* ---------Property and Filter headers and buttons--------- */
 .fm-clinic-filters-container {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 }
 
 .fm-clinic-header {
@@ -64,21 +151,54 @@ p.fm-noFound-txt {
     background: var(--background-modifier-hover);
 }
 
-/*
-.fm-dropdown-icon {
-    position: absolute;
-    left: 8px;
-    pointer-events: none;
-    color: var(--text-muted);
-    font-size: 14px;
-}*/
-
 .fm-clinic-header select {
     flex: 1;
     padding: 4px;
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
     border-radius: 4px;
+}
+
+/*----------grouped lists ------------*/
+
+.fm-clinic-group {
+    border-bottom: 1px solid var(--background-modifier-border);
+    min-height: var(--input-height-tight);
+}
+
+.fm-clinic-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 0.8em;
+    color: var(--text-normal);
+    list-style: none; /* Hide default triangle */
+}
+
+.fm-clinic-group-header::-webkit-details-marker {
+    display: none;
+}
+
+.fm-clinic-group-header::before {
+    content: "▶";
+    font-size: 0.7em;
+    margin-right: 8px;
+    color: var(--text-faint);
+    transition: transform 0.2s ease;
+}
+
+.fm-clinic-group[open] > .fm-clinic-group-header::before {
+    transform: rotate(90deg);
+}
+
+.fm-clinic-group-count {
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    background: var(--background-modifier-hover);
+    padding: 2px 8px;
+    border-radius: 12px;
 }
 
 .fm-clinic-file-list {

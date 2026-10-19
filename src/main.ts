@@ -46,7 +46,9 @@ export default class PortalsPlugin extends Plugin {
                 filters: oldProp ? [{ property: oldProp, value: oldVal || '' }] : [],
                 clinicSortBy: (oldClinic.clinicSortBy as 'name' | 'created' | 'modified') || 'name',
                 clinicSortorder: (oldClinic.clinicSortorder as 'asc' | 'desc') || 'asc',
-                savedViews: {}
+                savedViews: {},
+                groupBy: '',
+                controlsOpen: true
             };
         }
 
