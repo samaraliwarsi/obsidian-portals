@@ -32,9 +32,7 @@ export class PortalsActions {
                 plugin.settings.openFolders.push(folder.path);
                 await plugin.saveData(plugin.settings);
             }
-
-            view.renderContent();
-            view.triggerRenameOnPath(newFile.path);   // this method remains in view for now
+            view.triggerRenameOnPath(newFile.path);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Failed to create note: ${message}`);
@@ -57,8 +55,6 @@ export class PortalsActions {
                 plugin.settings.openFolders.push(parent.path);
                 await plugin.saveData(plugin.settings);
             }
-
-            view.renderContent();
             view.triggerRenameOnPath(candidate);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
@@ -77,7 +73,6 @@ export class PortalsActions {
         try {
             await app.vault.create(candidate, '{"nodes":[],"edges":[]}');
             new Notice('Canvas created');
-            view.renderContent();
             view.triggerRenameOnPath(candidate);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
@@ -110,7 +105,6 @@ export class PortalsActions {
                 }
             });
             await app.workspace.getLeaf().openFile(newFile);
-            view.renderContent();
             view.triggerRenameOnPath(newFile.path);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
@@ -132,13 +126,11 @@ export class PortalsActions {
         }
         try {
             view.cancelScheduledRender();
-            view.saveTreeScroll();                     // scroll saved numerically
+            view.saveTreeScroll();
             const savedScroll = view.scrollToRestore;
             await app.vault.copy(file, newPath);
             new Notice(`Duplicated to ${newName}`);
-            // preserve the saved scroll across the render
             view.scrollToRestore = savedScroll;
-            view.renderContent();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Duplicate failed: ${message}`);
@@ -163,7 +155,6 @@ export class PortalsActions {
             await PortalsActions.copyFolderContents(app, folder, newPath);
             new Notice(`Folder duplicated to ${newName}`);
             view.scrollToRestore = savedScroll;
-            view.renderContent();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Duplicate failed: ${message}`);
@@ -187,8 +178,7 @@ export class PortalsActions {
         try {
             await app.fileManager.trashFile(file);
             delete plugin.settings.customIcons[file.path];
-            await plugin.saveSettings();
-            view.renderContent();
+            await plugin.saveData(plugin.settings);
             new Notice(`File "${file.name}" deleted`, 2000);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
@@ -209,9 +199,8 @@ export class PortalsActions {
                 delete plugin.settings.customIcons[path];
                 delete plugin.settings.customTreeOrder[folder.path];
             }
-            await plugin.saveSettings();
+            await plugin.saveData(plugin.settings);
             new Notice(`Folder "${folder.name}" deleted`, 2000);
-            view.renderContent();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Delete failed: ${message}`, 3000);
@@ -260,10 +249,9 @@ export class PortalsActions {
                 new Notice(`Failed to delete ${item.name}`);
             }
         }
-        await plugin.saveSettings();
+        await plugin.saveData(plugin.settings);
         const deletedCount = view.selectedItems.size;
         view.clearSelection();
-        view.renderContent();
         new Notice(`Deleted ${deletedCount} item(s)`);
     }
 
@@ -309,7 +297,6 @@ export class PortalsActions {
                 }
                 void plugin.saveData(plugin.settings).then(() => {
                     view.clearSelection();
-                    view.renderContent();
                     new Notice(`Moved ${movedCount} item(s) to ${targetFolder.path}`);
                 });
             })();
@@ -367,7 +354,6 @@ export class PortalsActions {
             }
             await plugin.saveSettings();
             view.clearSelection();
-            view.renderContent();
             new Notice(`Created folder "${folderName}" and moved ${movedCount} item(s)`);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
@@ -556,7 +542,12 @@ export class PortalsActions {
             }
             view.renaming = false;
             PortalsActions.setRenamingActive(view, false);
-            view.renderContent();
+            if (input.isConnected && input.parentElement) {
+                const nameSpan = activeDocument.createElement('span');
+                nameSpan.className = 'portals-item-name';
+                nameSpan.textContent = file.basename;
+                input.replaceWith(nameSpan);
+            }
         };
 
         const input = PortalsActions.createRenameInput(base, (newBase) => {
@@ -612,7 +603,12 @@ export class PortalsActions {
             }
             view.renaming = false;
             PortalsActions.setRenamingActive(view, false);
-            view.renderContent();
+            if (input.isConnected && input.parentElement) {
+                const newNameSpan = activeDocument.createElement('span');
+                newNameSpan.className = 'portals-item-name';
+                newNameSpan.textContent = folder.name; // Uses the updated folder name
+                input.replaceWith(newNameSpan);
+            }
         };
 
         const input = PortalsActions.createRenameInput(folder.name, (newName) => {
@@ -657,26 +653,22 @@ export class PortalsActions {
             const icon = plugin.settings.customIcons[oldPath];
             plugin.settings.customIcons[file.path] = icon;
             delete plugin.settings.customIcons[oldPath];
-            void plugin.saveSettings();
+            void plugin.saveData(plugin.settings);
         }
         if (plugin.settings.customColors[oldPath]) {
             const color = plugin.settings.customColors[oldPath];
             plugin.settings.customColors[file.path] = color;
             delete plugin.settings.customColors[oldPath];
-            void plugin.saveSettings();
+            void plugin.saveData(plugin.settings);
         }
 
         if (file instanceof TFolder) {
             const openFolders = plugin.settings.openFolders;
             const index = openFolders.indexOf(oldPath);
-            if (index !== -1) {
-                openFolders[index] = file.path;
-                void plugin.saveSettings();
-            }
+            if (index !== -1) openFolders[index] = file.path;
             if (plugin.settings.selectedSpace?.type === 'folder' &&
                 plugin.settings.selectedSpace.path === oldPath) {
                 plugin.settings.selectedSpace.path = file.path;
-                void plugin.saveSettings();
             }
             const customOrder = plugin.settings.customTreeOrder;
             if (customOrder[oldPath] !== undefined) {
@@ -694,30 +686,20 @@ export class PortalsActions {
                 }
             }
             void plugin.saveData(plugin.settings);
-            view.scheduleRender();
             return;
         }
 
         if (!(file instanceof TFile)) {
-            if (plugin.settings.customIcons[oldPath]) {
-                const icon = plugin.settings.customIcons[oldPath];
-                plugin.settings.customIcons[file.path] = icon;
-                delete plugin.settings.customIcons[oldPath];
-                void plugin.saveSettings();
-            }
-            view.scheduleRender();
             return;
         }
 
         const oldDir = oldPath.substring(0, oldPath.lastIndexOf('/'));
         const newDir = file.parent?.path || '';
         if (oldDir !== newDir) {
-            view.scheduleRender();
             return;
         }
         const element = view.fileElementMap.get(oldPath);
         if (!element) {
-            view.scheduleRender();
             return;
         }
         const nameSpan = element.querySelector('.portals-item-name') as HTMLElement;
@@ -762,7 +744,6 @@ export class PortalsActions {
                 plugin.settings.customColors[newFolderPath] = color;
             }
             await plugin.saveSettings();
-            view.renderContent();
             new Notice(`"${file.basename}" set as context note of "${folderName}".`);
         } catch (err) {
             new Notice(`Failed to set as context note: ${err}`);

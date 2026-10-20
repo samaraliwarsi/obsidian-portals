@@ -234,23 +234,21 @@ export class PortalsView extends ItemView {
         if (this.scrollAnchor) {
             const { selector, offset } = this.scrollAnchor;
             this.scrollAnchor = null;
-            window.requestAnimationFrame(() => {
-                const treeEl = this.containerEl.querySelector('.portals-tree-container');
-                if (!(treeEl instanceof HTMLElement)) return;
+            const treeEl = this.containerEl.querySelector('.portals-tree-container');
+            if (treeEl instanceof HTMLElement) {
                 const el = treeEl?.querySelector(selector);
-                if (!(el instanceof HTMLElement)) return;
-
-                const adjust = () => {
-                    const containerRect = treeEl.getBoundingClientRect();
-                    const elRect = el.getBoundingClientRect();
-                    const newOffset = elRect.top - containerRect.top;
-                    if (Math.abs(newOffset - offset) > 1) {
-                        treeEl.scrollTop = treeEl.scrollTop + newOffset - offset;
-                    }
-                };
-                adjust();
-                window.setTimeout(adjust, 100);
-            });
+                if (el instanceof HTMLElement) {
+                    window.requestAnimationFrame(() => {
+                        const containerRect = treeEl.getBoundingClientRect();
+                        const elRect = el.getBoundingClientRect();
+                        const newOffset = elRect.top - containerRect.top;
+                        treeEl.scrollTop = treeEl.scrollTop + newOffset - offset;    
+                    });
+                    this.scrollAnchor = null;
+                    return;
+                }
+            }
+            this.scrollAnchor = null;
         }
         // fallback numeric restore
         if (this.scrollToRestore === null) return;
@@ -264,6 +262,7 @@ export class PortalsView extends ItemView {
             }
         });
     }
+
     public saveScrollWithAnchor(anchorEl: HTMLElement) {
         const tree = this.containerEl.querySelector('.portals-tree-container');
         if (!tree) return;
@@ -1110,16 +1109,6 @@ export class PortalsView extends ItemView {
     async onOpen() {
         this.render();
 
-        const renameRef = this.app.vault.on('rename', (file, oldPath) => PortalsActions.handleRename(this.app, this.plugin, this, file, oldPath));
-        const deleteRef = this.app.vault.on('delete', () => this.scheduleRender());
-        const createRef = this.app.vault.on('create', () => this.scheduleRender());
-
-        this.vaultEventRef = () => {
-            this.app.vault.offref(renameRef);
-            this.app.vault.offref(deleteRef);
-            this.app.vault.offref(createRef);
-        };
-
         this.containerEl.addEventListener('mousedown', (e: MouseEvent) => {
             if (e.button ===1) {
                 e.preventDefault();
@@ -1136,6 +1125,10 @@ export class PortalsView extends ItemView {
                 //this.scheduleRender();
                 this.refreshRecentTab();
             }
+        }));
+
+        this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
+            PortalsActions.handleRename(this.app, this.plugin, this, file, oldPath);
         }));
 
         this.registerEvent(this.app.vault.on('modify', (file) => {
@@ -1174,12 +1167,27 @@ export class PortalsView extends ItemView {
             const target = e.target as HTMLElement;
             if (!target.matches('.folder-details') || !(target as HTMLDetailsElement).open) return;
             if (!this.plugin.settings.autoCollapseTree) return;
+
+            const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
+            if (!treeContainer) return;
+
+            const targetRect = target.getBoundingClientRect();
+            const containerRect = treeContainer.getBoundingClientRect();
+            const offsetBefore = targetRect.top - containerRect.top;
+
             const openDetails = this.containerEl.querySelectorAll<HTMLDetailsElement>('.folder-details[open]');
             openDetails.forEach(details => {
                 if (details === target) return;
                 if (details.contains(target)) return;
                 if (target.contains(details)) return;
                 details.open = false;
+            });
+
+            window.requestAnimationFrame(() => {
+                const newRect = target.getBoundingClientRect();
+                const newContainerRect = treeContainer.getBoundingClientRect();
+                const offsetAfter = newRect.top - newContainerRect.top;
+                treeContainer.scrollTop += (offsetAfter - offsetBefore);
             });
         }, { capture: true });
 
@@ -1208,10 +1216,6 @@ export class PortalsView extends ItemView {
         if (this.tooltipShowTimeout) {
             window.clearTimeout(this.tooltipShowTimeout);
             this.tooltipShowTimeout = null;
-        }
-        if (this.vaultEventRef) {
-            this.vaultEventRef();
-            this.vaultEventRef = null;
         }
 
        // Clean up all Sortable instances
@@ -2047,7 +2051,6 @@ export class PortalsView extends ItemView {
         const container = this.containerEl.children[1] as HTMLElement;
         const treeContainer = container.querySelector('.portals-tree-container');
         if (!treeContainer) return;
-        treeContainer.addClass('portals-is-rebuilding');
         treeContainer.empty();
 
         this.fileElementMap.clear();
@@ -2087,9 +2090,6 @@ export class PortalsView extends ItemView {
             new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
         }
         this.restoreTreeScroll();
-        window.setTimeout(() => {
-            treeContainer.removeClass('portals-is-rebuilding');
-        }, 120);
         this.reapplySelectionHighlights();
     }
 

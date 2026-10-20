@@ -38,9 +38,6 @@ export default class PortalsPlugin extends Plugin {
         updatePortalCommands(this);
         registerAllCommands(this);
 
-        // perpetually staying migration for old reminder property to new reminder property, if user decides to change
-
-
         // migrate old clinicState to new multi-filter format
         const oldClinic = this.settings.clinicState as unknown as Record<string, unknown>;
         if (oldClinic && !oldClinic.filters) {
@@ -142,11 +139,7 @@ export default class PortalsPlugin extends Plugin {
                 });
             } else {
                 // 2. DEBOUNCED REBUILD FOR TAG PORTALS IF TAGS DID CHANGE
-                if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
-                this.treeRefreshTimer = window.setTimeout(() => {
-                    this.treeRefreshTimer = null;
-                    this.refreshAllTreeContent();
-                }, 400);
+                debouncedTreeRefresh();
             }
 
             // Reminders & Badge debounce (300ms)
@@ -160,10 +153,18 @@ export default class PortalsPlugin extends Plugin {
             }, 300);          
         }));
 
+        const debouncedTreeRefresh = () => {
+            if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
+            this.treeRefreshTimer = window.setTimeout(() => {
+                this.treeRefreshTimer = null;
+                this.refreshAllTreeContent();
+            }, 50);
+        }
+
         this.registerEvent(this.app.vault.on('create', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
-                this.refreshAllTreeContent();
+                debouncedTreeRefresh();
             }
             void this.refreshTrashIfActive();
         }));
@@ -171,7 +172,20 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.vault.on('delete', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(file.path);
-                this.refreshAllTreeContent();
+                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                    if (leaf.view instanceof PortalsView) {
+                        const el = leaf.view.fileElementMap.get(file.path);
+                        if (el && el.isConnected) {
+                            el.remove();
+                            leaf.view.fileElementMap.delete(file.path);
+                        }
+                    }
+                });
+                if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
+                this.treeRefreshTimer = window.setTimeout(() => {
+                    this.treeRefreshTimer = null;
+                    this.refreshAllTreeContent();
+                }, 600);
             }
             void this.refreshTrashIfActive();
         }));
@@ -180,20 +194,24 @@ export default class PortalsPlugin extends Plugin {
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(oldPath);
                 FrontmatterClinicRenderer.updateFileCache(this.app, file);
-                this.refreshAllTreeContent();
+                if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
+                this.treeRefreshTimer = window.setTimeout(() => {
+                    this.treeRefreshTimer = null;
+                    this.refreshAllTreeContent();
+                }, 600);
             }
             void this.refreshTrashIfActive();
 
             if (this.settings.hiddenItems[oldPath]) {
                 this.settings.hiddenItems[file.path] = true;
                 delete this.settings.hiddenItems[oldPath];
-                void this.saveSettings();
+                void this.saveData(this.settings);
             }
 
             if (file instanceof TFolder && this.settings.hiddenItems[oldPath]) {
                 this.settings.hiddenItems[file.path] = true;
                 delete this.settings.hiddenItems[oldPath];
-                void this.saveSettings();
+                void this.saveData(this.settings);
             }
         }));
 
@@ -205,7 +223,7 @@ export default class PortalsPlugin extends Plugin {
         if (selectedSpace && selectedSpace.type === 'folder') {
             if (!this.settings.openFolders.includes(selectedSpace.path)) {
                 this.settings.openFolders.push(selectedSpace.path);
-                await this.saveSettings();
+                await this.saveData(this.saveSettings);
             }
         }
 
@@ -256,13 +274,13 @@ export default class PortalsPlugin extends Plugin {
                     const index = marks.indexOf(oldPath);
                     if (index !== -1) {
                         marks[index] = file.path;
-                        void this.saveSettings();
+                        void this.saveData(this.saveSettings);
                     }
                 }
                 if (this.settings.hiddenItems[oldPath]) {
                     this.settings.hiddenItems[file.path] = true;
                     delete this.settings.hiddenItems[oldPath];
-                    void this.saveSettings();
+                    void this.saveData(this.saveSettings);
                 }
             }
         }));

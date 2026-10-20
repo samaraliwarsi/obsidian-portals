@@ -480,8 +480,9 @@ input.portals-inline-rename:hover {
   --portals-reminder-later: var(--text-faint, #888888);
 }
 
-/*============CLASS TO SAVE SCROLL RESET SOMEHOW=============*/
+/*============CLASS TO SAVE SCROLL RESET SOMEHOW on delete=============*/
 .portals-tree-container.portals-is-rebuilding {
-    opacity: 0;
+    visibility: hidden;
     pointer-events: none;
+    contain: strict;
 }
