@@ -27,7 +27,7 @@ export class DatePickerModal extends Modal {
         contentEl.createDiv({ text: `Reminder for ${this.file.basename}`, cls: 'portals-date-title' });
 
         contentEl.createEl('p', {
-            text: `This will add the property "${prop} to the frontmatter.`,
+            text: `This will add the property "${prop}" to the frontmatter.`,
             cls: 'portals-fm-modal-select-status'
         });
         

@@ -940,9 +940,9 @@ export default class PortalsPlugin extends Plugin {
                 await this.app.fileManager.processFrontMatter(file, (fm) => {
                     if (fm[newProp] === undefined) {
                         fm[newProp] = oldValue;
-                        delete fm[oldProp];
                         count++
                     }
+                    delete fm[oldProp];
                 });
             }
         }
@@ -951,7 +951,7 @@ export default class PortalsPlugin extends Plugin {
         FrontmatterClinicRenderer.resetCache();
         void FrontmatterClinicRenderer.buildCache(this.app);
         if (count === 0) {
-            new Notice('No reminders found to migrate (or files already have the new property name.');
+            new Notice('No reminders found to migrate (or files already have the new property name).');
         }
         return count;
     }

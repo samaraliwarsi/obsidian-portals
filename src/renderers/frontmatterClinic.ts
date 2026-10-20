@@ -741,7 +741,7 @@ export class FrontmatterClinicRenderer {
                 const isRightSidebar = this.container.closest('.mod-right-split') !== null;
                 const tooltipDir: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
                 if (!Platform.isMobile) {
-                    this.view.attachTooltip(valueSpan, `Edit ${badgeProperty}`, 300, tooltipDir)
+                    this.view.attachTooltip(valueSpan, `Edit value`, 300, tooltipDir)
                 }
                 
                 valueSpan.addEventListener('click', (e) => {
