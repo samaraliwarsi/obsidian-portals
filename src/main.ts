@@ -162,6 +162,9 @@ export default class PortalsPlugin extends Plugin {
         }
 
         this.registerEvent(this.app.vault.on('create', (file) => {
+            if (file instanceof TFolder) {
+                debouncedTreeRefresh();
+            }
             if (file instanceof TFile && file.extension === 'md') {
                 window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
                 debouncedTreeRefresh();
@@ -170,8 +173,15 @@ export default class PortalsPlugin extends Plugin {
         }));
 
         this.registerEvent(this.app.vault.on('delete', (file) => {
+            if (file instanceof TFolder) {
+                debouncedTreeRefresh();
+                this.refreshSidePortal('properties');
+                this.refreshAltRightPanelContent('properties');
+            }
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(file.path);
+                this.refreshSidePortal('properties');
+                this.refreshAltRightPanelContent('properties')
                 this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
                     if (leaf.view instanceof PortalsView) {
                         const el = leaf.view.fileElementMap.get(file.path);
@@ -191,14 +201,23 @@ export default class PortalsPlugin extends Plugin {
         }));
 
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
+            if (file instanceof TFolder) {
+                debouncedTreeRefresh();
+            }
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(oldPath);
                 FrontmatterClinicRenderer.updateFileCache(this.app, file);
+                
                 if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
                 this.treeRefreshTimer = window.setTimeout(() => {
                     this.treeRefreshTimer = null;
                     this.refreshAllTreeContent();
                 }, 600);
+
+                window.setTimeout(() => {
+                    this.refreshSidePortal('properties');
+                    this.refreshAltRightPanelContent('properties');
+                }, 150);
             }
             void this.refreshTrashIfActive();
 
@@ -522,6 +541,7 @@ export default class PortalsPlugin extends Plugin {
     private refreshAllTreeContent() {
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {
+                leaf.view.saveTreeScroll();
                 leaf.view.renderContent();
             }
         });
