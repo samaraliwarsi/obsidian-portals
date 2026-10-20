@@ -3,6 +3,7 @@ import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { SearchPopover } from '../utils/searchPopover';
 import { ConfirmModal } from './confirmModal'; 
+import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
 
 declare module 'obsidian' {
     interface Menu {
@@ -477,6 +478,8 @@ export class FrontmatterPopup {
                 currentType = 'number';
             } else if (typeof v === 'boolean') {
                 currentType = 'boolean';
+            } else if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+                currentType = 'date';
             } else {
                 currentType = 'string';
             }
@@ -496,12 +499,22 @@ export class FrontmatterPopup {
 
     private updateValueOptions(): void {
         const valSet = new Set<string>();
+        const displayFormat = this.plugin.settings.dateDisplayFormat;
         for (const file of this.app.vault.getMarkdownFiles()) {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
             const v = getFrontmatterProperty(fm, this.propertyName);
             if (v !== undefined) {
                 const vals = Array.isArray(v) ? v : [v];
-                vals.forEach(x => valSet.add(String(x)));
+                vals.forEach(x => {
+                    let str = String(x);
+                    if (this.propertyType === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(str)) {
+                        const dateObj = parseLocalDate(str);
+                        if (dateObj) str = formatDisplayDate(dateObj, displayFormat);
+                    } else if (this.propertyType === 'datetime') {
+                        str = str.replace('T', ' ');
+                    }
+                    valSet.add(str);
+                });
             }
         }
         this.propertyValues = Array.from(valSet).sort();
@@ -551,7 +564,13 @@ export class FrontmatterPopup {
                 return input.toLowerCase() === 'true';
             case 'list':
                 return input.split(',').map(s => s.trim()).filter(s => s.length > 0);
-            case 'date':
+            case 'date': {
+                    const parsedDate = parseLocalDate(input);
+                    if (parsedDate) {
+                        return formatLocalDate(parsedDate);
+                    }
+                    return input;
+                }
             case 'datetime':
                 return input; // ISO string
             default:
@@ -567,8 +586,17 @@ export class FrontmatterPopup {
             const raw = getFrontmatterProperty(fm, this.propertyName);
             if (raw === undefined) continue;
             const vals = Array.isArray(raw) ? raw : [raw];
-            if (vals.some(v => String(v) === this.value)) {
-                // Found the original value. Return the raw value as-is.
+
+            if (vals.some(v => {
+                const strVal = String(v);
+                if (/^\d{4}-\d{2}-\d{2}$/.test(strVal)) {
+                    const dateObj = parseLocalDate(strVal);
+                    if (dateObj) {
+                        return formatDisplayDate(dateObj, this.plugin.settings.dateDisplayFormat) === this.value;
+                    }
+                }
+                return strVal === this.value;
+            })) {
                 return Array.isArray(raw) ? raw : raw;
             }
         }

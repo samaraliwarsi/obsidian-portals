@@ -5,7 +5,7 @@ import { TreeEventHelpers } from './treeEventHelpers';
 import { ContextMenuFactory } from './contextMenuFactory';
 import { getFrontmatterTags } from './tagHelpers';
 import { getPluginInstance } from './Proxies/pluginInstance';
-import { getDaysDifference, parseLocalDate } from './dateHelpers';
+import { formatDisplayDate, getDaysDifference, parseLocalDate } from './dateHelpers';
 
 
 export class FileItemFactory {
@@ -252,14 +252,20 @@ export class FileItemFactory {
             if (file.extension === 'md') {
                 const content = await app.vault.cachedRead(file);
                 const plainText = FileItemFactory.extractSnippet(content, Infinity);
+
                 const words = plainText.split(/\s+/).filter(w => w.length > 0);
                 const wordCount = words.length;
-                const lastModified = new Date(file.stat.mtime).toLocaleDateString();
-                let infoLine = `${wordCount} words · Modified ${lastModified}`;
+
+                const lastModifiedDate = new Date(file.stat.mtime);
+                const lastModified = formatDisplayDate(lastModifiedDate, plugin.settings.dateDisplayFormat);
+                let infoLine = `${wordCount} words · Modified: ${lastModified}`;
+
                 const prop = plugin.settings.reminderProperty || 'remind_at';
                 const rawDate = app.metadataCache.getFileCache(file)?.frontmatter?.[prop];
                 if (rawDate) {
-                    infoLine += ` · Reminder ${String(rawDate)}`;
+                    const dateObj = parseLocalDate(String(rawDate));
+                    const displayDate = dateObj ? formatDisplayDate(dateObj, plugin.settings.dateDisplayFormat) : String(rawDate);
+                    infoLine += ` · Reminder: ${displayDate}`;
                 }
                 if (nameSpan.scrollWidth > nameSpan.clientWidth) {
                     const displayName = FileItemFactory.getDisplayName(file, plugin);

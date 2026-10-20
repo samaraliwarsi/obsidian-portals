@@ -5,6 +5,7 @@ import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../modals/frontmatterPopup';
 import { SaveViewModal } from '../modals/saveViewModal';
+import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
 
 
 const clinicCache = {
@@ -458,6 +459,13 @@ export class FrontmatterClinicRenderer {
             // Value Button
             const valueBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-value-btn' });
             this.plugin.renderPluginIcon(valueBtn, 'funnel-simple');
+
+            let displayFilterValue = filter.value;
+            if (displayFilterValue && displayFilterValue !== '__none__' && /^\d{4}-\d{2}-\d{2}$/.test(displayFilterValue)) {
+                const d = parseLocalDate(displayFilterValue);
+                if (d) displayFilterValue = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
+            }
+
             valueBtn.createSpan({ 
                 text: filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : filter.value, 
                 cls: 'fm-btn-text' 
@@ -481,7 +489,15 @@ export class FrontmatterClinicRenderer {
                     menu.addSeparator();
                     const values = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set();
                     for (const val of Array.from(values).sort()) {
-                        menu.addItem(item => item.setTitle(val).onClick(() => {
+                        let displayVal = val;
+
+                        // Format for display
+                        if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                            const d = parseLocalDate(val);
+                            if (d) displayVal = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
+                        }
+
+                        menu.addItem(item => item.setTitle(displayVal).onClick(() => {
                             filter.value = val;
                             void this.plugin.saveSettings().then(() => this.render());
                         }));
@@ -611,6 +627,11 @@ export class FrontmatterClinicRenderer {
                 let groupName = 'None';
                 if (val !== undefined && val !== null) {
                     groupName = Array.isArray(val) ? val.join(', ') : String(val);
+
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(groupName)) {
+                        const d = parseLocalDate(groupName);
+                        if (d) groupName = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
+                    }
                 }
                 if (!groups[groupName]) groups[groupName] = [];
                 groups[groupName]?.push(file);
@@ -683,7 +704,6 @@ export class FrontmatterClinicRenderer {
         fileRow.dataset.path = file.path;
         this.view.addHoverPreview(fileRow, file.path);
 
-        // File name (click to open)
         const nameSpan = fileRow.createSpan({ text: file.basename, cls: 'fm-file-name' });
 
         const savedColor = this.plugin.settings.customColors[file.path];
@@ -695,14 +715,23 @@ export class FrontmatterClinicRenderer {
         }
 
         // Display current value(s) for selected property 
-        const primaryFilter = this.plugin.settings.clinicState.filters[0];
-        if (primaryFilter && primaryFilter.property && primaryFilter.property !== 'No frontmatter') {
+        let badgeProperty = this.plugin.settings.clinicState.filters[0]?.property;
+        if (!badgeProperty && this.plugin.settings.clinicState.groupBy) {
+            badgeProperty = this.plugin.settings.clinicState.groupBy;
+        }
+
+        if (badgeProperty && badgeProperty !== 'No frontmatter') {
             const cache = this.app.metadataCache.getFileCache(file);
             const frontmatter = cache?.frontmatter;
             let displayValue = '';
-            if (frontmatter && frontmatter[primaryFilter.property] !== undefined) {
-                const val = getFrontmatterProperty(frontmatter, primaryFilter.property);
+            if (frontmatter && frontmatter[badgeProperty] !== undefined) {
+                const val = getFrontmatterProperty(frontmatter, badgeProperty);
                 displayValue = Array.isArray(val) ? val.join(', ') : String(val);
+
+                if (/^\d{4}-\d{2}-\d{2}$/.test(displayValue)) {
+                    const d = parseLocalDate(displayValue);
+                    if (d) displayValue = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
+                }
             } else {
                 displayValue = 'none';
             }
@@ -712,27 +741,42 @@ export class FrontmatterClinicRenderer {
                 const isRightSidebar = this.container.closest('.mod-right-split') !== null;
                 const tooltipDir: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
                 if (!Platform.isMobile) {
-                    this.view.attachTooltip(valueSpan, 'Edit value', 300, tooltipDir)
+                    this.view.attachTooltip(valueSpan, `Edit ${badgeProperty}`, 300, tooltipDir)
                 }
                 
                 valueSpan.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation(); 
 
-                    const valuesSet = FrontmatterClinicRenderer.getProperties().get(primaryFilter.property) || new Set<string>();
-                    const availableValues = Array.from(valuesSet).sort();
-                    
-                    if (!availableValues.includes('none')) {
-                        availableValues.unshift('none');
-                    }
+                    const valuesSet = FrontmatterClinicRenderer.getProperties().get(badgeProperty) || new Set<string>();
+                    const rawValues = Array.from(valuesSet).sort();
 
-                    this.showSearchPopoverForClinic(valueSpan, availableValues, displayValue, (newValue) => {
+                    const displayToRaw = new Map<string, string>();
+                    const displayValues = rawValues.map(v => {
+                        if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+                            const d = parseLocalDate(v);
+                            if (d) {
+                                const formatted = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
+                                displayToRaw.set(formatted, v);
+                                return formatted;
+                            }
+                        }
+                        return v;
+                    });
+
+                    if (!displayValues.includes('none')) {
+                        displayValues.unshift('none');
+                    }
+                    
+                    this.showSearchPopoverForClinic(valueSpan, displayValues, displayValue, (selected) => {
+                        const newValue = selected === 'none' ? 'none' : (displayToRaw.get(selected) || selected);
                         void (async () => {
                             await this.app.fileManager.processFrontMatter(file, (fm) => {
                                 if (newValue === 'none') {
-                                    delete fm[primaryFilter.property];
+                                    delete fm[badgeProperty];
                                 } else {
-                                    fm[primaryFilter.property] = newValue;
+                                    const parsedDate = parseLocalDate(newValue);
+                                    fm[badgeProperty] = parsedDate ? formatLocalDate(parsedDate) : newValue;
                                 }
                             });
                         })();

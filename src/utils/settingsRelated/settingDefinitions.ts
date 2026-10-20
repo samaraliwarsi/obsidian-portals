@@ -358,7 +358,7 @@ function buildSidePortalPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
             items: [
                 {
                     name: 'Journal date format',
-                    desc: 'Choose date format used in daily note filenames. The format must match for journal to work consistently. Changes require a reload.',
+                    desc: 'Choose date format used in daily note filenames. The format must match for journal to work consistently. Changes require a reload. This is only applies to Journal.',
                     control: {
                         type: 'dropdown',
                         key: 'journalDateFormat',
@@ -632,8 +632,22 @@ function buildUtilitiesSection(_tab: SpacesSettingTab): SettingGroupItem[] {
         },
         {
             name: 'Register portals in Obsidian command palette',
-            desc: 'Adds every portal to command palette as "Portals: Switch to...". You can assign hotkeys to them in Obsidian settings. Turn off to keep the palette clean.',
+            desc: 'Adds every portal to command palette as "Portals: Switch to...". You can assign hotkeys in Obsidian.',
             control: { type: 'toggle', key: 'registerPortalsInCmdPalette' }
+        },
+        {
+            name: 'General date display format',
+            desc: 'Files are saved with YYYY-MM-DD internally. Does not affect Journal.',
+            control: {
+                type: 'dropdown',
+                key: 'dateDisplayFormat',
+                defaultValue: 'YYYY-MM-DD',
+                options: {
+                    'YYYY-MM-DD': 'YYYY-MM-DD (2026-10-25)',
+                    'DD-MM-YYYY': 'DD-MM-YYYY (25-10-2026)',
+                    'MM-DD-YYYY': 'MM-DD-YYYY (10-25-2026)'
+                }
+            }
         },
         {
             name: 'User guide',

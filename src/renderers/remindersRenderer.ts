@@ -2,7 +2,7 @@ import { App, Platform, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
-import { formatLocalDate, getDaysDifference, parseLocalDate } from '../utils/dateHelpers';
+import { formatDisplayDate, getDaysDifference, parseLocalDate } from '../utils/dateHelpers';
 
 export class RemindersRenderer {
     private app: App;
@@ -26,7 +26,7 @@ export class RemindersRenderer {
 
         const propName = this.plugin.settings.reminderProperty || 'remind_at';
 
-        const showOverdue = this.plugin.settings.reminderShowOverDue;
+        const showOverdue = this.plugin.settings.reminderShowOverdue;
         const order = this.plugin.settings.reminderOrder;
         const files = this.app.vault.getMarkdownFiles();
 
@@ -118,7 +118,7 @@ export class RemindersRenderer {
             fileEl.createSpan({ text: this.view.getDisplayName(item.file), cls: 'portals-item-name' });
             
             // Format date as YYYY-MM-DD
-            const dateStr = formatLocalDate(item.date);
+            const dateStr = formatDisplayDate(item.date, this.plugin.settings.dateDisplayFormat);
             const dateEl = fileEl.createSpan({ text: dateStr, cls: 'reminders-date' });
 
             if (!Platform.isMobile) {

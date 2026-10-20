@@ -1437,6 +1437,9 @@ export class PortalsView extends ItemView {
             iconLibrary: s.iconLibrary,
             enableAutoBackup: s.enableAutoBackup,
             alternateSideTabs: s.alternateSideTabs?.join(',') || '',
+            dateDisplayFormat: s.dateDisplayFormat,
+            reminderProperty: s.reminderProperty,
+            reminderTreeIndicator: s.reminderTreeIndicator,
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),

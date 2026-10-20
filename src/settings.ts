@@ -93,12 +93,13 @@ export interface SpacesSettings {
     registerPortalsInCmdPalette: boolean;
     reminderProperty: string;
     previousReminderProperty: string;
-    reminderShowOverDue: boolean;
+    reminderShowOverdue: boolean;
     reminderOrder: 'overdue-first' | 'future-first';
     reminderTabNotification: boolean;
     reminderTreeIndicator: 'off' | 'simple' | 'dynamic';
     reminderSectionStates: Record<string, boolean>;
     autoCollapseTree: boolean;
+    dateDisplayFormat: 'YYYY-MM-DD' | 'DD-MM-YYYY' | 'MM-DD-YYYY';
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -189,12 +190,13 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     registerPortalsInCmdPalette: true,
     reminderProperty: 'remind_at',
     previousReminderProperty: '',
-    reminderShowOverDue: true,
+    reminderShowOverdue: true,
     reminderOrder: 'overdue-first',
     reminderTabNotification: true,
     reminderTreeIndicator: 'dynamic',
     reminderSectionStates: { overdue: true, today: true, upcoming: true, later: true },
     autoCollapseTree: false,
+    dateDisplayFormat: 'YYYY-MM-DD',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -257,6 +259,9 @@ export class SpacesSettingTab extends PluginSettingTab {
             if (oldVal !== value) {
                 this.plugin.settings.previousReminderProperty = oldVal
             }
+        }
+        if (key === 'reminderShowOverdue' || key === 'reminderOrder') {
+            this.plugin.refreshSidePortal('reminders');
         }
         // Default path: write the value, then run the plugin's saveSettings()
         // (which re-renders all open portal views).

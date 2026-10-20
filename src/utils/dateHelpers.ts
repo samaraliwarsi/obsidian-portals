@@ -48,9 +48,21 @@ export function getDaysDifference(targetDate: Date, baseDate: Date = new Date())
  * Formats a Date object into a YYYY-MM-DD string using local time.
  * Avoids the UTC shift bug of toISOString().
  */
-export function formatLocalDate(date: Date): string {
+export function formatLocalDate(date: Date,): string {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+}
+
+export function formatDisplayDate(date: Date, format: 'YYYY-MM-DD' | 'DD-MM-YYYY' | 'MM-DD-YYYY'): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+
+    switch (format) {
+        case 'DD-MM-YYYY': return `${dd}-${mm}-${yyyy}`;
+        case 'MM-DD-YYYY': return `${mm}-${dd}-${yyyy}`;
+        default: return `${yyyy}-${mm}-${dd}`;
+    }
 }

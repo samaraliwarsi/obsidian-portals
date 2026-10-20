@@ -217,15 +217,17 @@ p.fm-noFound-txt {
 }
 
 .fm-file-name {
-    flex: 1;
+    flex: 1 1 auto;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 9;
 }
 
 .fm-current-value {
     display: block;
+    flex-shrink: 0;
     margin-right: 4px;
     font-size: 0.55em;
     color: var(--text-faint);
