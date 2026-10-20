@@ -37,6 +37,9 @@ export default class PortalsPlugin extends Plugin {
         updatePortalCommands(this);
         registerAllCommands(this);
 
+        // perpetually staying migration for old reminder property to new reminder property, if user decides to change
+
+
         // migrate old clinicState to new multi-filter format
         const oldClinic = this.settings.clinicState as unknown as Record<string, unknown>;
         if (oldClinic && !oldClinic.filters) {
@@ -912,5 +915,44 @@ export default class PortalsPlugin extends Plugin {
             await this.saveSettings();
         }
         return orphaned;
+    }
+
+    async migrateReminderProperty(): Promise<number> {
+        const oldProp = this.settings.previousReminderProperty;
+        const newProp = this.settings.reminderProperty;
+
+        if (!oldProp) {
+            new Notice('No previous property found. Change property name first, then click Migrate.');
+            return 0;
+        }
+        if (oldProp === newProp) {
+            new Notice('Current and previous properties are the same. Nothing to migrate.');
+            return 0;
+        }
+        let count = 0;
+        const files = this.app.vault.getMarkdownFiles();
+
+        for (const file of files) {
+            const cache = this.app.metadataCache.getFileCache(file);
+            const oldValue = cache?.frontmatter?.[oldProp];
+            
+            if (oldValue !== undefined && oldValue !== null) {
+                await this.app.fileManager.processFrontMatter(file, (fm) => {
+                    if (fm[newProp] === undefined) {
+                        fm[newProp] = oldValue;
+                        delete fm[oldProp];
+                        count++
+                    }
+                });
+            }
+        }
+        this.settings.previousReminderProperty = '';
+        await this.saveSettings();
+        FrontmatterClinicRenderer.resetCache();
+        void FrontmatterClinicRenderer.buildCache(this.app);
+        if (count === 0) {
+            new Notice('No reminders found to migrate (or files already have the new property name.');
+        }
+        return count;
     }
 }

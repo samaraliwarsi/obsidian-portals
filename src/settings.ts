@@ -92,6 +92,7 @@ export interface SpacesSettings {
     alternateActiveTab: string; // active on right
     registerPortalsInCmdPalette: boolean;
     reminderProperty: string;
+    previousReminderProperty: string;
     reminderShowOverDue: boolean;
     reminderOrder: 'overdue-first' | 'future-first';
     reminderTabNotification: boolean;
@@ -187,6 +188,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     alternateActiveTab: '',
     registerPortalsInCmdPalette: true,
     reminderProperty: 'remind_at',
+    previousReminderProperty: '',
     reminderShowOverDue: true,
     reminderOrder: 'overdue-first',
     reminderTabNotification: true,
@@ -248,6 +250,13 @@ export class SpacesSettingTab extends PluginSettingTab {
         }
         if (key === 'enableContextNotes' && value === false) {
             this.plugin.settings.contextNoteFollowActive = 'off';
+        }
+
+        if (key === 'reminderProperty' && typeof value === 'string') {
+            const oldVal = this.plugin.settings.reminderProperty;
+            if (oldVal !== value) {
+                this.plugin.settings.previousReminderProperty = oldVal
+            }
         }
         // Default path: write the value, then run the plugin's saveSettings()
         // (which re-renders all open portal views).

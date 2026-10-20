@@ -1,19 +1,27 @@
-/**
- * Parses a YYYY-MM-DD string into a Date object in the user's LOCAL timezone.
- * This prevents the common bug where "2026-10-18" is interpreted as UTC midnight,
- * which might show up as October 17th for users in negative UTC offsets.
- */
+// Parses a YYYY-MM-DD string into a Date object in the user's LOCAL timezone.
 export function parseLocalDate(dateStr: string): Date | null {
     if (!dateStr) return null;
     
     // Handle strings like "2026-10-18"
     const parts = dateStr.split('-');
+    // Auto-detect fromat by checking which part has 4 digits (the year)
     if (parts.length === 3) {
-        const year = Number(parts[0]);
-        const month = Number(parts[1]) - 1;
-        const day = Number(parts[2]);
-        if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-            return new Date(year, month, day);
+        if (parts[0]?.length === 4) {
+            // Format: YYYY-MM-DD
+            const year = Number(parts[0]);
+            const month = Number(parts[1]) - 1;
+            const day = Number(parts[2]);
+            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+                return new Date(year, month, day);
+            }
+        } else if (parts[2]?.length === 4) {
+            // Format: DD-MM-YYYY
+            const day = Number(parts[0]);
+            const month = Number(parts[1]) - 1;
+            const year = Number(parts[2]);
+            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+                return new Date(year, month, day);
+            }
         }
     }
     

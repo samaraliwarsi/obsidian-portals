@@ -445,8 +445,31 @@ function buildSidePortalPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
             items: [
                 {
                     name: 'Reminder property',
-                    desc: 'The frontmatter property Portals uses to find reminders (e.g., remind_at, due, date) (default - remind_at).',
-                    control: { type: 'text', key: 'reminderProperty' }
+                    desc: 'The frontmatter property for reminders (default - remind_at). If you change this, click Migrate to move existing dates.',
+                    render: (setting) => {
+                        const constrolEl = setting.controlEl;
+                        constrolEl.empty();
+
+                        const textInput = constrolEl.createEl('input', {
+                            type: 'text',
+                            value: tab.plugin.settings.reminderProperty || 'remind_at',
+                            cls: 'portals-settings-inline-input'
+                        });
+
+                        const migrateBtn = constrolEl.createEl('button', { text: 'Migrate', cls: 'mod-warning' });
+                        
+                        migrateBtn.addEventListener('click', () => {
+                            void (async () => {
+                                await tab.setControlValue('reminderProperty', textInput.value.trim() || 'remind_at');
+
+                                const count = await tab.plugin.migrateReminderProperty();
+
+                                if (count > 0) {
+                                    new Notice(`Migrated ${count} reminder(s) to "${tab.plugin.settings.reminderProperty}".`);
+                                }
+                            })();
+                        });
+                    }
                 },
                 {
                     name: 'Show overdue',
