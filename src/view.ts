@@ -18,6 +18,7 @@ import { RemovePortalModal } from './modals/removePortalModal';
 import { SidePortalModal } from './modals/sidePortalModal';
 import { destroContextRenderer, getContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
+import { getFrontmatterTags } from './utils/tagHelpers';
 
 const MIN_EXPANDED_HEIGHT = 150;
 export const SIDE_TAB_ICONS: Record<string, string> = {
@@ -69,6 +70,66 @@ export class PortalsView extends ItemView {
     public activeGroupTag: string | null = null;
     public getTagGroupKey(mainTag: string, groupTag: string): string {
         return `tag:${mainTag}/group:${groupTag}`;
+    }
+
+    public updateFileElement(file: TFile) {
+        const fileEl = this.fileElementMap.get(file.path);
+        if (!fileEl || !fileEl.isConnected) return;
+
+        const previewEl = fileEl.querySelector('.portals-file-preview');
+        if (previewEl && this.plugin.settings.showFilePreview) {
+            void this.app.vault.cachedRead(file).then(content => {
+                const snippet = FileItemFactory.extractSnippet(content, 300);
+                previewEl.setText(snippet); 
+            });
+        }
+    }
+
+    public updateActiveFileDots(file: TFile | null): void {
+        const treeContainer = this.containerEl.querySelector('.portals-tree-container');
+        if (!treeContainer) return;
+
+        this.saveTreeScroll();
+
+        // 1. Remove all existing open dots
+        treeContainer.querySelectorAll('.open-dot').forEach(el => el.remove());
+
+        if (file) {
+            // 2. Add dot to the newly active file
+            const fileEl = treeContainer.querySelector(`.file-item[data-path="${file.path}"]`);
+            if (fileEl) fileEl.createSpan({ cls: 'open-dot' });
+
+            const space = this.plugin.settings.selectedSpace;
+
+            // 3. Folder Portals: Highlight ancestor folders
+            if (space?.type === 'folder') {
+                treeContainer.querySelectorAll<HTMLElement>('.folder-summary[data-path]').forEach(el => {
+                    const path = el.dataset.path;
+                    if (path && (path === '/' || file.path.startsWith(path + '/'))) {
+                        el.createSpan({ cls: 'open-dot' });
+                    }
+                });
+            } 
+            // 4. Tag Portals: Highlight tags that the active file possesses
+            else if (space?.type === 'tag') {
+                const cache = this.app.metadataCache.getFileCache(file);
+                const fileTags = [
+                    ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+                    ...getFrontmatterTags(cache)
+                ];
+
+                treeContainer.querySelectorAll<HTMLElement>('.folder-summary[data-tag-path]').forEach(el => {
+                    const tagPath = el.dataset.tagPath;
+                    if (tagPath && fileTags.some(t => t === tagPath || t.startsWith(tagPath + '/'))) {
+                        el.createSpan({ cls: 'open-dot' });
+                    }
+                });
+            }
+        }
+
+        window.requestAnimationFrame(() => {
+            this.restoreTreeScroll();
+        });
     }
 
     public async refreshJournalTab() {
@@ -1065,20 +1126,14 @@ export class PortalsView extends ItemView {
             }
         });
 
-        this.registerEvent(this.app.workspace.on('file-open', () => {
+        this.registerEvent(this.app.workspace.on('file-open', (file) => {
             if (!this.renaming) {
-                if (this.scrollToRestore === null) {
-                    const tree = this.containerEl.querySelector('.portals-tree-container');
-                    if (tree) {
-                        this.scrollToRestore = tree.scrollTop;
-                    }
-                }
-                this.renderContent();
+                this.updateActiveFileDots(file);
             }
         }));
         this.registerEvent(this.app.workspace.on('layout-change', () => {
             if (!this.renaming){
-                this.scheduleRender();
+                //this.scheduleRender();
                 this.refreshRecentTab();
             }
         }));
@@ -1095,7 +1150,6 @@ export class PortalsView extends ItemView {
             if (e.key !== 'Escape') return;
             if (this.renaming) return;
             if (this.selectedItems.size === 0) return;
-
             const activeEl = activeDocument.activeElement;
             if (activeEl instanceof HTMLElement &&
                 activeEl.closest('.modal-container, .modal, .prompt')
@@ -1118,11 +1172,8 @@ export class PortalsView extends ItemView {
 
         this.registerDomEvent(this.contentEl, 'toggle', (e: Event) => {
             const target = e.target as HTMLElement;
-
             if (!target.matches('.folder-details') || !(target as HTMLDetailsElement).open) return;
-
             if (!this.plugin.settings.autoCollapseTree) return;
-
             const openDetails = this.containerEl.querySelectorAll<HTMLDetailsElement>('.folder-details[open]');
             openDetails.forEach(details => {
                 if (details === target) return;
@@ -2036,9 +2087,9 @@ export class PortalsView extends ItemView {
             new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
         }
         this.restoreTreeScroll();
-        window.requestAnimationFrame(() => {
+        window.setTimeout(() => {
             treeContainer.removeClass('portals-is-rebuilding');
-        });
+        }, 120);
         this.reapplySelectionHighlights();
     }
 

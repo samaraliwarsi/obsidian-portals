@@ -188,7 +188,7 @@ export class FileItemFactory {
         return plugin.settings.enableFileExtensionNonMD ? file.basename : file.name;
     }
 
-    private static extractSnippet(content: string, maxLength: number): string {
+    public static extractSnippet(content: string, maxLength: number): string {
         // Remove YAML frontmatter
         let text = content.replace(/^---[\s\S]*?---\n?/, '');
 

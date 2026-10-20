@@ -30,6 +30,7 @@ export default class PortalsPlugin extends Plugin {
     private treeRefreshTimer: number | null = null;
     public registeredPortalCommandIds: string[] = [];
     private reminderRefreshTimer: number | null = null;
+    public fileTagCache = new Map<string, string>();
 
     async onload() {
         setPluginInstance(this);
@@ -121,24 +122,40 @@ export default class PortalsPlugin extends Plugin {
 
             FrontmatterClinicRenderer.updateFileCache(this.app, file);
 
-            // Tree refresh debounce (400ms)
-            if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
-            this.treeRefreshTimer = window.setTimeout(() => {
-                this.treeRefreshTimer = null;
-                this.refreshAllTreeContent();
-            }, 400);
+            const space = this.settings.selectedSpace;
+            const cache = this.app.metadataCache.getFileCache(file);
+            const currentTags = [
+                ...(cache?.tags?.map(t => t.tag) || []),
+                ...getFrontmatterTags(cache)
+            ].sort().join(',');
+
+            const oldTags = this.fileTagCache.get(file.path);
+            const tagsChanged = currentTags !== oldTags;
+            this.fileTagCache.set(file.path, currentTags);
+
+            // 1. SURGICAL UPDATE FOR FOLDER OR TAG PORTALS (if tags didn't change)
+            if (space?.type === 'folder' || (space?.type === 'tag' && !tagsChanged)) {
+                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                    if (leaf.view instanceof PortalsView) {
+                        leaf.view.updateFileElement(file);
+                    }
+                });
+            } else {
+                // 2. DEBOUNCED REBUILD FOR TAG PORTALS IF TAGS DID CHANGE
+                if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
+                this.treeRefreshTimer = window.setTimeout(() => {
+                    this.treeRefreshTimer = null;
+                    this.refreshAllTreeContent();
+                }, 400);
+            }
 
             // Reminders & Badge debounce (300ms)
             if (this.reminderRefreshTimer) window.clearTimeout(this.reminderRefreshTimer);
             this.reminderRefreshTimer = window.setTimeout(() => {
                 this.reminderRefreshTimer = null;
-
-                // refresh list content (only if tab is actually open)
                 if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
                     this.refreshSidePortal('reminders');
                 }
-
-                // always update the badge
                 this.updateReminderBadge();
             }, 300);          
         }));
