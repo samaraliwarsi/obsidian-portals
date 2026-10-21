@@ -1188,6 +1188,13 @@ export class PortalsView extends ItemView {
             this.renderTimer = null;
         }
 
+        if (this._activeOutsideClickListener) {
+            activeDocument.removeEventListener('mousedown', this._activeOutsideClickListener);
+            this._activeOutsideClickListener = null;
+        }
+        this.renaming = false;
+        this.containerEl.removeClass('.portals-renaming-active');
+
         if (this.tooltipEl) {
             this.tooltipEl.remove();
             this.tooltipEl = null;

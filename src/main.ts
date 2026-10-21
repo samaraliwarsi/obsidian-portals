@@ -34,6 +34,7 @@ export default class PortalsPlugin extends Plugin {
     private trashRefreshTimer: number | null = null;
     private journalRefreshTimer: number | null = null;
     public textSettingRenderTimer: number | null = null;
+    private backupInProgress = false;
 
     async onload() {
         setPluginInstance(this);
@@ -961,64 +962,70 @@ export default class PortalsPlugin extends Plugin {
     }
 
     async performAutoBackup(): Promise<void> {
-        const deviceEnabled = getLocalItem('portals-backup-device-enabled');
-        if (deviceEnabled === 'false') return;
-        
-        const srcPath = normalizePath(this.app.vault.configDir + '/plugins/portals/data.json');
-        if (!(await this.app.vault.adapter.exists(srcPath))) {
-            console.warn('Portals: data.json not found for backup');
-            return;
-        }
+        if (this.backupInProgress) return;
+        this.backupInProgress = true;
+        try {
+            const deviceEnabled = getLocalItem('portals-backup-device-enabled');
+            if (deviceEnabled === 'false') return;
+            
+            const srcPath = normalizePath(this.app.vault.configDir + '/plugins/portals/data.json');
+            if (!(await this.app.vault.adapter.exists(srcPath))) {
+                console.warn('Portals: data.json not found for backup');
+                return;
+            }
 
-        const folderPath = this.settings.backupFolderPath.trim() || '/';
-        const normalizedFolder = normalizePath(folderPath);
+            const folderPath = this.settings.backupFolderPath.trim() || '/';
+            const normalizedFolder = normalizePath(folderPath);
 
-        // Ensure folder exists – skip if already there
-        if (normalizedFolder !== '/') {
-            const folderExists = await this.app.vault.adapter.exists(normalizedFolder);
-            if (!folderExists) {
-                try {
-                    await this.app.vault.createFolder(normalizedFolder);
-                } catch {
-                    // Creation failed – maybe permissions, maybe race – continue anyway
+            // Ensure folder exists – skip if already there
+            if (normalizedFolder !== '/') {
+                const folderExists = await this.app.vault.adapter.exists(normalizedFolder);
+                if (!folderExists) {
+                    try {
+                        await this.app.vault.createFolder(normalizedFolder);
+                    } catch {
+                        // Creation failed – maybe permissions, maybe race – continue anyway
+                    }
                 }
             }
-        }
 
-        // 1. Create the new backup
-        const now = new Date();
-        const pad = (n: number) => String(n).padStart(2, '0');
-        const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-        const backupFileName = `portals-backup-${ts}.json`;
-        const destPath = normalizePath(`${normalizedFolder}/${backupFileName}`);
+            // 1. Create the new backup
+            const now = new Date();
+            const pad = (n: number) => String(n).padStart(2, '0');
+            const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+            const backupFileName = `portals-backup-${ts}.json`;
+            const destPath = normalizePath(`${normalizedFolder}/${backupFileName}`);
 
-        try {
-            const content = await this.app.vault.adapter.read(srcPath);
-            await this.app.vault.create(destPath, content);
-            console.debug(`Portals: settings backed up to ${destPath}`);
-        } catch (err) {
-            console.error('Portals: auto backup create failed', err);
-            new Notice('Portals: Auto backup failed – check console.');
-            return;
-        }
-
-        // 2. Rotate – keep only the last 3
-        try {
-            const { files } = await this.app.vault.adapter.list(normalizedFolder);
-            const backupFiles = files
-                .filter(f => f.endsWith('.json') && f.split('/').pop()?.startsWith('portals-backup-'))
-                .sort((a, b) => a.localeCompare(b));   // oldest first
-
-            while (backupFiles.length > 3) {
-                const oldest = backupFiles.shift()!;
-                try {
-                    await this.app.vault.adapter.remove(oldest);
-                } catch {
-                    // File might already be gone – ignore
-                }
+            try {
+                const content = await this.app.vault.adapter.read(srcPath);
+                await this.app.vault.create(destPath, content);
+                console.debug(`Portals: settings backed up to ${destPath}`);
+            } catch (err) {
+                console.error('Portals: auto backup create failed', err);
+                new Notice('Portals: Auto backup failed – check console.');
+                return;
             }
-        } catch (err) {
-            console.error('Portals: backup rotation failed', err);
+
+            // 2. Rotate – keep only the last 3
+            try {
+                const { files } = await this.app.vault.adapter.list(normalizedFolder);
+                const backupFiles = files
+                    .filter(f => f.endsWith('.json') && f.split('/').pop()?.startsWith('portals-backup-'))
+                    .sort((a, b) => a.localeCompare(b));   // oldest first
+
+                while (backupFiles.length > 3) {
+                    const oldest = backupFiles.shift()!;
+                    try {
+                        await this.app.vault.adapter.remove(oldest);
+                    } catch {
+                        // File might already be gone – ignore
+                    }
+                }
+            } catch (err) {
+                console.error('Portals: backup rotation failed', err);
+            }
+        } finally {
+            this.backupInProgress = false;
         }
     }
 
