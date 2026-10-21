@@ -1,4 +1,4 @@
-import { App, TFile, Notice, Menu, Platform } from 'obsidian';
+import { App, TFile, Notice, Menu, Platform, parseYaml } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { SearchPopover } from '../utils/searchPopover';
@@ -294,9 +294,14 @@ export class FrontmatterPopup {
 
             let newProps: Record<string, unknown>;
             try {
-                newProps = this.parseSimpleYaml(yamlText);
-            } catch {
-                new Notice('Invalid YAML. Check syntax.');
+                const parsed = parseYaml(yamlText);
+                if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                    new Notice('Invalid YAML. Please check that it starts with a property name (e.g., "status: active").');
+                    return;
+                }
+                newProps = parsed as Record<string, unknown>;
+            } catch  {
+                new Notice('Invalid YAML. Check the formatting and try again.');
                 return;
             }
 
@@ -601,62 +606,6 @@ export class FrontmatterPopup {
             }
         }
         return undefined;
-    }
-
-    private parseSimpleYaml(yaml: string): Record<string, unknown> {
-        const result: Record<string, unknown> = {};
-        const lines = yaml.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-            const line = (lines[i] ?? '').trimEnd();
-            if (line === '' || line.startsWith('#')) continue;
-
-            const keyMatch = /^([\w_-]+)\s*:\s*(.*)/.exec(line);
-            if (!keyMatch) continue;
-
-            const key = keyMatch[1];
-            if (!key) continue;
-
-            const valuePart = keyMatch[2] ?? '';
-            let value: string = valuePart.trim();
-
-            if (value === '') {
-                // look ahead for list items
-                const listItems: string[] = [];
-                while (i + 1 < lines.length) {
-                    const nextLine = (lines[i + 1] ?? '');
-                    const itemMatch = /^\s{2}-\s+(.+)/.exec(nextLine);
-                    if (!itemMatch) break;
-                    const item = itemMatch[1];
-                    if (item) listItems.push(item.trim());
-                    i++;
-                }
-                if (listItems.length > 0) {
-                    result[key] = listItems;
-                } else {
-                    // no inline value and no list → keep empty string
-                    result[key] = '';
-                }
-            } else {
-                // Remove surrounding quotes
-                if ((value.startsWith('"') && value.endsWith('"')) ||
-                    (value.startsWith("'") && value.endsWith("'"))) {
-                    value = value.slice(1, -1);
-                }
-                // Type conversions
-                if (value === 'true') {
-                    result[key] = true;
-                } else if (value === 'false') {
-                    result[key] = false;
-                } else if (/^-?\d+(\.\d+)?$/.test(value)) {
-                    result[key] = parseFloat(value);
-                } else if (value.startsWith('[') && value.endsWith(']')) {
-                    result[key] = value.slice(1, -1).split(',').map(s => s.trim());
-                } else {
-                    result[key] = value;
-                }
-            }
-        }
-        return result;
     }
 
     private async apply(op: 'add' | 'remove'): Promise<void> {
