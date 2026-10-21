@@ -39,7 +39,7 @@ export class RemindersRenderer {
 
         for (const file of files) {
             const cache = this.app.metadataCache.getFileCache(file);
-            const fm = cache?.frontmatter as Record<string, unknown> | undefined;
+            const fm = cache?.frontmatter as unknown as Record<string, unknown> | undefined;
             const rawDate = fm?.[propName];
             if (!rawDate) continue;
 

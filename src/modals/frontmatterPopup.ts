@@ -310,7 +310,7 @@ export class FrontmatterPopup {
                     new Notice('Invalid YAML. Please check that it starts with a property name (e.g., "status: active").');
                     return;
                 }
-                newProps = parsed as Record<string, unknown>;
+                newProps = parsed as unknown as Record<string, unknown>;
             } catch  {
                 new Notice('Invalid YAML. Check the formatting and try again.');
                 return;

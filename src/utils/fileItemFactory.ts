@@ -24,7 +24,7 @@ export class FileItemFactory {
         // reminder icon
         if (plugin.settings.reminderTreeIndicator !== 'off') {
             const prop = plugin.settings.reminderProperty || 'remind_at';
-            const fm = app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
+            const fm = app.metadataCache.getFileCache(file)?.frontmatter as unknown as Record<string, unknown> | undefined;
             const hasReminder = fm?.[prop];
             if (hasReminder) {
                 const clockSpan = fileEl.createSpan({ cls: 'portals-reminder-indicator' });
@@ -289,7 +289,7 @@ export class FileItemFactory {
                 let infoLine = `${wordCount} words · Modified: ${lastModified}`;
 
                 const prop = plugin.settings.reminderProperty || 'remind_at';
-                const fm = app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
+                const fm = app.metadataCache.getFileCache(file)?.frontmatter as unknown as Record<string, unknown> | undefined;
                 const rawDate = fm?.[prop];
                 if (rawDate) {
                     const dateObj = parseLocalDate(String(rawDate));

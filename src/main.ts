@@ -104,7 +104,7 @@ export default class PortalsPlugin extends Plugin {
                     let count = 0;
 
                     for (const file of this.app.vault.getMarkdownFiles()) {
-                        const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
+                        const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as unknown as Record<string, unknown> | undefined;
                         const rawDate = fm?.[propName];
                         if (rawDate) {
                             const dateObj = parseLocalDate(String(rawDate));
@@ -659,7 +659,7 @@ export default class PortalsPlugin extends Plugin {
         let hasDue = false;
         
         for (const f of this.app.vault.getMarkdownFiles()) {
-            const fm = this.app.metadataCache.getFileCache(f)?.frontmatter as Record<string, unknown> | undefined;
+            const fm = this.app.metadataCache.getFileCache(f)?.frontmatter as unknown as Record<string, unknown> | undefined;
             const d = fm?.[prop];
             if (d) {
                 // Use the helper!
@@ -1062,7 +1062,7 @@ export default class PortalsPlugin extends Plugin {
 
         for (const file of files) {
             const cache = this.app.metadataCache.getFileCache(file);
-            const fm = cache?.frontmatter as Record<string, unknown> | undefined;
+            const fm = cache?.frontmatter as unknown as Record<string, unknown> | undefined;
             const oldValue = fm?.[oldProp];
             
             if (oldValue !== undefined && oldValue !== null) {
