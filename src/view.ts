@@ -931,12 +931,6 @@ export class PortalsView extends ItemView {
         }
     }
 
-    private isFileInJournalFolder(file: TFile): boolean {
-        const folderPath = this.plugin.settings.journalFolderPath;
-        if (!folderPath) return false;
-        return file.path.startsWith(folderPath);
-    }
-
     public async hideItem(key: string, silent = false) {
         this.plugin.settings.hiddenItems[key] = true;
         await this.plugin.saveSettings();

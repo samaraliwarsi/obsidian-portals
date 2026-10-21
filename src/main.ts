@@ -117,6 +117,10 @@ export default class PortalsPlugin extends Plugin {
 
         this.registerEvent(this.app.vault.on('modify', (file) => {
             if (file instanceof TFile && file.extension === 'md') {
+                const folderPath = this.getJournalFolderPath();
+                if (folderPath && folderPath !== '/' && !file.path.startsWith(folderPath + '/')) {
+                    return
+                }
                 if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
                     if (this.journalRefreshTimer) window.clearTimeout(this.journalRefreshTimer);
                     this.journalRefreshTimer = window.setTimeout(() => {
@@ -386,6 +390,29 @@ export default class PortalsPlugin extends Plugin {
             }
         } 
         this.renderPluginIcon(element, stored);   
+    }
+
+    public getJournalFolderPath(): string | null {
+        let path = this.settings.journalFolderPath;
+        
+        if (!path) {
+            // Type-safe access to internal plugins without using 'any'
+            const appWithPlugins = this.app as unknown as {
+                internalPlugins?: {
+                    getPluginById(id: string): {
+                        enabled: boolean;
+                        instance?: { options?: { folder?: string } };
+                    } | undefined;
+                };
+            };
+            
+            const dailyNotesPlugin = appWithPlugins.internalPlugins?.getPluginById('daily-notes');
+            if (dailyNotesPlugin?.enabled && dailyNotesPlugin.instance?.options?.folder) {
+                path = dailyNotesPlugin.instance.options.folder;
+            }
+        }
+        
+        return path || null;
     }
 
     onunload() { 

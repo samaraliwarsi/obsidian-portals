@@ -106,7 +106,7 @@ export class JournalRenderer {
         this.stopRotation();
         this.container.empty();
 
-        const folderPath = this.plugin.settings.journalFolderPath;
+        const folderPath = this.plugin.getJournalFolderPath();
         if (folderPath) {
             const folder = this.app.vault.getAbstractFileByPath(folderPath);
             if (folder instanceof TFolder) {
@@ -120,18 +120,8 @@ export class JournalRenderer {
                     return;
                 }
             } else {
-                // Fallback to daily notes plugin's folder
-                // @ts-expect-error - internal plugin access
-                const dailyNotesPlugin = (this.app.internalPlugins as unknown as {
-                    getPluginById(id: string): { enabled: boolean; instance?: { options?: { folder?: string } } } | undefined;
-                })?.getPluginById('daily-notes');
-                if (dailyNotesPlugin?.enabled && dailyNotesPlugin.instance?.options?.folder) {
-                    const folder = this.app.vault.getAbstractFileByPath(dailyNotesPlugin.instance.options.folder);
-                    if (folder instanceof TFolder) {
-                        this.journalFolder = folder;
-                        this.notes = folder.children.filter((child): child is TFile => child instanceof TFile && child.extension === 'md');
-                    }
-                }
+                this.container.createEl('p', { text: 'No journal folder configured. Set one in settings or enable Daily Notes core plugin.' });
+                return;
             }
 
             // Check for filename format mismatches – show warning if any
