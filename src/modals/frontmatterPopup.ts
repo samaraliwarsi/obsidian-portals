@@ -305,7 +305,7 @@ export class FrontmatterPopup {
 
             let newProps: Record<string, unknown>;
             try {
-                const parsed = parseYaml(yamlText);
+                const parsed = parseYaml(yamlText) as Record<string, unknown>;
                 if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
                     new Notice('Invalid YAML. Please check that it starts with a property name (e.g., "status: active").');
                     return;

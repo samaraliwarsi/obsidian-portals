@@ -109,7 +109,8 @@ export function renderSidePanel(
             let hasDue = false;
             
             for (const f of app.vault.getMarkdownFiles()) {
-                const d = app.metadataCache.getFileCache(f)?.frontmatter?.[prop];
+                const fm = app.metadataCache.getFileCache(f)?.frontmatter as Record<string, unknown> | undefined;
+                const d = fm?.[prop];
                 if (d) {
                     const dateObj = parseLocalDate(String(d));
                     if (dateObj && getDaysDifference(dateObj)) {

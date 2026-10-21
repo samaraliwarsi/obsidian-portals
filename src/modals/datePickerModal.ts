@@ -22,7 +22,8 @@ export class DatePickerModal extends Modal {
         this.contentEl.addClass('portals-modal');
         const prop = this.plugin.settings.reminderProperty || 'remind_at';
         const cache = this.app.metadataCache.getFileCache(this.file);
-        const existingDate = cache?.frontmatter?.[prop];
+        const fm = cache?.frontmatter as Record<string, unknown> | undefined;
+        const existingDate = fm?.[prop];
 
         contentEl.createDiv({ text: `Reminder for ${this.file.basename}`, cls: 'portals-date-title' });
 
@@ -33,7 +34,7 @@ export class DatePickerModal extends Modal {
         
         const input = contentEl.createEl('input', { 
             type: 'date', 
-            value: existingDate || formatLocalDate(new Date()),
+            value: (existingDate as string) || formatLocalDate(new Date()),
             cls: 'portals-date-input'
         });
         

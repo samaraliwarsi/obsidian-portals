@@ -39,7 +39,8 @@ export class RemindersRenderer {
 
         for (const file of files) {
             const cache = this.app.metadataCache.getFileCache(file);
-            const rawDate = cache?.frontmatter?.[propName];
+            const fm = cache?.frontmatter as Record<string, unknown> | undefined;
+            const rawDate = fm?.[propName];
             if (!rawDate) continue;
 
             const dateObj = parseLocalDate(String(rawDate));

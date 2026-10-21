@@ -369,7 +369,7 @@ export class FrontmatterClinicRenderer {
                 if (viewName && this.plugin.settings.clinicState.savedViews[viewName]) {
                     const view = this.plugin.settings.clinicState.savedViews[viewName];
 
-                    this.plugin.settings.clinicState.filters = JSON.parse(JSON.stringify(view.filters));
+                    this.plugin.settings.clinicState.filters = JSON.parse(JSON.stringify(view.filters)) as { property: string; value: string }[];
                     this.plugin.settings.clinicState.groupBy = view.groupBy;
                     void this.plugin.saveSettings().then(() => this.render());
                 }
@@ -397,7 +397,7 @@ export class FrontmatterClinicRenderer {
             saveViewBtn.addEventListener('click', () => {
                 new SaveViewModal(this.app, activeViewName, (name) => {
                     this.plugin.settings.clinicState.savedViews[name] = {
-                        filters: JSON.parse(JSON.stringify(this.plugin.settings.clinicState.filters)),
+                        filters: JSON.parse(JSON.stringify(this.plugin.settings.clinicState.filters)) as { property: string; value: string }[],
                         groupBy: this.plugin.settings.clinicState.groupBy
                     };
                     void this.plugin.saveSettings().then(() => this.render());

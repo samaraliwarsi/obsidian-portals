@@ -105,7 +105,8 @@ export class ContextMenuFactory {
         if (file.extension === 'md') {
             menu.addSeparator();
             const prop = view.plugin.settings.reminderProperty || 'remind_at';
-            const hasReminder = view.app.metadataCache.getFileCache(file)?.frontmatter?.[prop];
+            const fm = view.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
+            const hasReminder = fm?.[prop];
 
             menu.addItem(item => item
                 .setTitle(hasReminder ? 'Change reminder' : 'Set reminder')
