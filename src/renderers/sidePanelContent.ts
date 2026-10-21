@@ -13,6 +13,7 @@ import { RemindersRenderer } from './remindersRenderer';
 
 const journalRenderers = new WeakMap<PortalsView | AltSidePanelView, JournalRenderer>();
 const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();
+const activeSidePanelRenderers = new WeakMap<HTMLElement, { destroy() : void }>();
 
 export function getContextRenderer(view: PortalsView): ContextNotesRenderer | undefined {
     return contextRenderers.get(view);
@@ -37,6 +38,18 @@ export async function renderSidePanelContent(
     tabId: string,
     mainView: PortalsView | null,
 ): Promise<void> {
+
+    const prev = activeSidePanelRenderers.get(contentEl);
+    if (prev) {
+        prev.destroy();
+        activeSidePanelRenderers.delete(contentEl);
+    }
+
+    if (mainView && tabId !== 'properties' && mainView.clinicRenderer) {
+        mainView.clinicRenderer.destroy();
+        mainView.clinicRenderer = null;
+    }
+
     contentEl.empty();
     contentEl.className = 'portals-split-content';
 
@@ -69,9 +82,7 @@ export async function renderSidePanelContent(
         }
         await renderer.render();
     } else if (tabId === 'bookmarks') {
-        // BookmarksRenderer expects (app, plugin, view, refreshCallback)
         const refresh = () => {
-            // Re-render the content area of the right panel on demand
             void renderSidePanelContent(app, plugin, contentEl, tabId, mainView);
         };
         const bmRenderer = new BookmarksRenderer(app, plugin, mainView!, refresh);
@@ -79,14 +90,12 @@ export async function renderSidePanelContent(
         bmRenderer.render();
     } else if (tabId === 'journal') {
         if (!mainView) return;
-        const existing = journalRenderers.get(mainView);
-        if (existing) {
-            existing.destroy();
-            journalRenderers.delete(mainView);
-        }
         const journalContainer = contentEl.createDiv();
         const journalRenderer = new JournalRenderer(app, plugin, journalContainer, mainView!);
         journalRenderers.set(mainView, journalRenderer);
+
+        activeSidePanelRenderers.set(contentEl, journalRenderer);
+
         await journalRenderer.render();
     } else if (tabId === 'hidden') {
         const hiddenRenderer = new HiddenItemsRenderer(app, plugin, mainView!);
@@ -94,11 +103,17 @@ export async function renderSidePanelContent(
         hiddenRenderer.render();
     } else if (tabId === 'properties') {
         contentEl.addClass('portals-frontmatter-clinic');
+
         const clinicRenderer = new FrontmatterClinicRenderer(app, plugin, contentEl, mainView!);
+        if (mainView) {
+            mainView.clinicRenderer = clinicRenderer;
+        }
+        activeSidePanelRenderers.set(contentEl, clinicRenderer);
         await clinicRenderer.render();
     } else if (tabId === 'trash') {
         contentEl.addClass('portals-trash-tab');
         const trashRenderer = new TrashRenderer(app, plugin, contentEl, mainView!);
+        activeSidePanelRenderers.set(contentEl, trashRenderer);
         await trashRenderer.render();
     } else if (tabId === 'reminders') {
         contentEl.addClass('portals-reminders-tab');

@@ -30,6 +30,10 @@ export class TrashRenderer {
 
     public destroy() {
         this.destroyed = true;
+        if (this.refreshTimer) {
+            window.clearTimeout(this.refreshTimer);
+            this.refreshTimer = null;
+        }
         this.container.empty();
     }
 
