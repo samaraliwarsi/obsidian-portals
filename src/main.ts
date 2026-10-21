@@ -98,23 +98,25 @@ export default class PortalsPlugin extends Plugin {
             }
             
             // Check for reminders on startup
-            window.setTimeout(() => {
-                const propName = this.settings.reminderProperty || 'remind_at';
-                let count = 0;
+            if (this.settings.reminderStartupNotification) {
+                window.setTimeout(() => {
+                    const propName = this.settings.reminderProperty || 'remind_at';
+                    let count = 0;
 
-                for (const file of this.app.vault.getMarkdownFiles()) {
-                    const rawDate = this.app.metadataCache.getFileCache(file)?.frontmatter?.[propName];
-                    if (rawDate) {
-                        const dateObj = parseLocalDate(String(rawDate));
-                        if (dateObj && getDaysDifference(dateObj) <= 0) {
-                            count++;
+                    for (const file of this.app.vault.getMarkdownFiles()) {
+                        const rawDate = this.app.metadataCache.getFileCache(file)?.frontmatter?.[propName];
+                        if (rawDate) {
+                            const dateObj = parseLocalDate(String(rawDate));
+                            if (dateObj && getDaysDifference(dateObj) <= 0) {
+                                count++;
+                            }
                         }
                     }
-                }
-                if (count >0) {
-                    new Notice(`Portals: You have ${count} reminders due today or overdue.`);
-                }
-            }, 1000);
+                    if (count >0) {
+                        new Notice(`Portals: You have ${count} reminders due today or overdue.`);
+                    }
+                }, 1000);
+            }
         });
 
         this.registerEvent(this.app.vault.on('modify', (file) => {
