@@ -234,7 +234,7 @@ export class TagTreeRenderer {
                             this.plugin.settings.expandedGroups[tagName] = cleaned;
                         }
                     }
-                    void this.plugin.saveSettings();
+                    void this.plugin.saveData(this.plugin.settings);
                 }
                 groupTags = liveGroupTags;
             }
