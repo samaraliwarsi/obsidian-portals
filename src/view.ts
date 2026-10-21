@@ -132,13 +132,6 @@ export class PortalsView extends ItemView {
         });
     }
 
-    public async refreshJournalTab() {
-        const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
-        if (!secondaryPanel) return;
-        if (this.plugin.settings.activeSplitTab !== 'journal') return;
-        await this.renderSplitTabContent(secondaryPanel as HTMLElement, 'journal');
-    }
-
     public async refreshTrashTab() {
         const secondaryPanel = this.containerEl.querySelector('.portals-secondary-panel');
         if (!secondaryPanel) return;
@@ -1129,14 +1122,6 @@ export class PortalsView extends ItemView {
 
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
             PortalsActions.handleRename(this.app, this.plugin, this, file, oldPath);
-        }));
-
-        this.registerEvent(this.app.vault.on('modify', (file) => {
-            if (file instanceof TFile && this.plugin.settings.activeSplitTab === 'journal') {
-                if (this.isFileInJournalFolder(file)) {
-                    void this.refreshJournalTab();
-                }
-            }
         }));
 
         this.registerDomEvent(activeDocument, 'keydown', (e: KeyboardEvent) => {

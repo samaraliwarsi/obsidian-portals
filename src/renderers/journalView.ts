@@ -6,6 +6,12 @@ interface HoverPreviewView {
     addHoverPreview(el: HTMLElement, filepath: string): void;
 }
 
+export const journalState = {
+    currentQuote: null as {text: string; date: Date; file: TFile} | null,
+    startTime: 0,
+    mode: 'random' as 'random' | 'marked' | 'onThisDay'
+};
+
 export class JournalRenderer {
     private app: App;
     private plugin: PortalsPlugin;
@@ -14,11 +20,10 @@ export class JournalRenderer {
     private notes: TFile[] = [];
     private quotesCache = new Map<string, { text: string; date: Date; file: TFile }[]>();
     private currentQuoteFile: TFile | null = null;
-    // add default journal tab setting
     private currentMode: 'random' | 'marked' | 'onThisDay' = 'random';
     private progressBar: HTMLElement | null = null;
     private progressInterval: number | null = null;
-    private _updateQuoteAndProgress: (() => Promise<void>) | null = null;
+    private _updateQuoteAndProgress: ((forceNew?: boolean) => Promise<void>) | null = null;
     private currentPeriod:  string = 'All files';
     private isTogglingMark: boolean = false;
     private cardsWrapper: HTMLElement | null = null;
@@ -36,7 +41,7 @@ export class JournalRenderer {
             window.clearInterval(this.progressInterval);
             this.progressInterval = null;
         }
-        const startTime = Date.now();
+        const startTime = journalState.startTime || Date.now();
         const updateProgress = () => {
             const elapsed = Date.now() - startTime;
             const percent = Math.min(100, (elapsed / 30000) * 100);
@@ -47,7 +52,7 @@ export class JournalRenderer {
                 window.clearInterval(this.progressInterval!);
                 this.progressInterval = null;
                 if (this._updateQuoteAndProgress) {
-                    this._updateQuoteAndProgress().catch(console.error);
+                    this._updateQuoteAndProgress(true).catch(console.error);
                 }
             }
         };
@@ -87,8 +92,13 @@ export class JournalRenderer {
         this.container = container;
         this.view = view;
         const defaultMode = plugin.settings.journalDefaultCurrentMode;
-        if (defaultMode === 'random' || defaultMode === 'marked' || defaultMode === 'onThisDay') {
-            this.currentMode = defaultMode;
+        if (!journalState.currentQuote) {
+            if (defaultMode === 'random' || defaultMode === 'marked' || defaultMode === 'onThisDay') {
+                this.currentMode = defaultMode;
+                journalState.mode = defaultMode;
+            }
+        } else {
+            this.currentMode = journalState.mode;
         }
     }
 
@@ -163,6 +173,13 @@ export class JournalRenderer {
             if (this.destroyed) return;
             this.filesWithQuotes = new Set(this.allQuotes.map(q => q.file.path));
 
+            if (this.allQuotes.length === 0 && this.filesWithWrongDelimiters.size > 0) {
+                const warningEl = this.container.createDiv({ cls: 'journal-warning' });
+                warningEl.createSpan({
+                    text: `⚠️ Quotes found, but not with your current delimiter (${this.plugin.settings.quoteDelimiter}). Check your settings.`
+                });
+            }
+
             const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
             const tabColorEnabled = this.plugin.settings.tabColorEnabled;
             const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
@@ -201,6 +218,29 @@ export class JournalRenderer {
         }
         this.filesWithWrongDelimiters.clear();
         this.wrongDelimiterChecked = undefined;
+    }
+
+    public removeFile(path: string) {
+        this.notes = this.notes.filter(n => n.path !== path);
+        this.allQuotes = this.allQuotes.filter(q => q.file.path !== path);
+        
+        const card = this.container.querySelector(`.journal-card[data-path="${path}"]`);
+        if (card) {
+            card.remove();
+        }
+
+        if (this.currentQuoteFile?.path === path || journalState.currentQuote?.file.path === path) {
+            this.currentQuoteFile = null;
+            journalState.currentQuote = null;
+            journalState.startTime = 0;
+
+            const quoteDisplay = this.container.querySelector('.journal-quote-display');
+
+            if (quoteDisplay) {
+                quoteDisplay.empty();
+                quoteDisplay.setText('Quote removed (file deleted).');
+            }
+        }
     }
 
     private sortNotesByDate() {
@@ -440,21 +480,34 @@ export class JournalRenderer {
         const quoteDisplay = quotesContainer.createDiv({ cls: 'journal-quote-display' });
 
         const showQuote = (quote: { text: string; date: Date; file: TFile }) => {
-            if (this.quoteAnimationTimout) {
-                window.clearTimeout(this.quoteAnimationTimout);
-                this.quoteAnimationTimout = null;
-            }
-            quoteDisplay.classList.add('animation');
-            this.quoteAnimationTimout = window.setTimeout(() => {
+            const isSameQuote = journalState.currentQuote?.text === quote.text && journalState.currentQuote?.file.path === quote.file.path;
+            journalState.currentQuote = quote;
+            if (!isSameQuote) {
+                journalState.startTime = Date.now();
+            
+                if (this.quoteAnimationTimout) {
+                    window.clearTimeout(this.quoteAnimationTimout);
+                    this.quoteAnimationTimout = null;
+                }
+                quoteDisplay.classList.add('animation');
+                this.quoteAnimationTimout = window.setTimeout(() => {
+                    quoteDisplay.empty();
+                    quoteDisplay.createEl('p', { text: quote.text, cls: 'journal-quote-text' });
+                    quoteDisplay.createEl('small', { text: `— ${quote.date.toLocaleDateString()}`, cls: 'journal-quote-date' });
+                    quoteDisplay.onclick = () => {
+                        void this.app.workspace.getLeaf().openFile(quote.file);
+                    };
+                    quoteDisplay.classList.remove('animation');
+                    this.quoteAnimationTimout = null;
+                }, 150);
+            } else {
                 quoteDisplay.empty();
                 quoteDisplay.createEl('p', { text: quote.text, cls: 'journal-quote-text' });
-                quoteDisplay.createEl('small', { text: `— ${quote.date.toLocaleDateString()}`, cls: 'journal-quote-date' });
+                quoteDisplay.createEl('small', { text: `-${quote.date.toLocaleDateString()}`, cls: 'journal-quote-date' });
                 quoteDisplay.onclick = () => {
                     void this.app.workspace.getLeaf().openFile(quote.file);
-                };
-                quoteDisplay.classList.remove('animation');
-                this.quoteAnimationTimout = null;
-            }, 150);
+                }
+            }
         };
 
         // Helper to get a random quote based on current mode
@@ -508,8 +561,16 @@ export class JournalRenderer {
         };
 
         // Update quote and reset progress bar
-        const updateQuoteAndProgress = async () => {
+        const updateQuoteAndProgress = async (forceNew = false) => {
             if (this.destroyed) return;
+
+            if (!forceNew && journalState.currentQuote && journalState.currentQuote.file) {      
+                showQuote(journalState.currentQuote);
+                this.startProgressTimer();
+                return;
+            }
+
+
             const quote = getNextQuote();
             if (!quote) {
                 if (this.currentMode === 'onThisDay' && this.allQuotes.length > 0) {
@@ -531,13 +592,16 @@ export class JournalRenderer {
 
         // Start rotation timer (30s)
         const startRotation = async () => {
-            await updateQuoteAndProgress();
+            await updateQuoteAndProgress(false);
         };
 
         // Switch mode, reset timer
         const setMode = async (mode: 'random' | 'marked' | 'onThisDay') => {
             if (this.currentMode === mode) return;
             this.currentMode = mode;
+            journalState.mode = mode;
+            journalState.currentQuote = null;
+            
             randomBtn.classList.toggle('active', mode === 'random');
             markedBtn.classList.toggle('active', mode === 'marked');
             onThisDayBtn.classList.toggle('active', mode === 'onThisDay');

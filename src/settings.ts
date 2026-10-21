@@ -4,6 +4,7 @@ import PortalsPlugin from './main';
 import { SpaceConfig, PortalStack } from './types';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { buildSettingDefinitions } from './utils/settingsRelated/settingDefinitions';
+import { journalState } from './renderers/journalView';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
@@ -273,6 +274,23 @@ export class SpacesSettingTab extends PluginSettingTab {
         // for reminder notification icon color change
         if (key === 'reminderTabNotification') {
             this.plugin.updateReminderBadge();
+        }
+
+        if (key === 'journalDefaultCurrentMode') {
+            journalState.currentQuote = null;
+        }
+        const journalKeys = [
+            'journalDateFormat',
+            'journalFolderPath',
+            'quoteDelimiter',
+            'journalDefaultCurrentMode',
+            'journalQuoteIndicator'
+        ];
+        if (journalKeys.includes(key)) {
+            journalState.currentQuote = null;
+            journalState.startTime = 0;
+            this.plugin.refreshSidePortal('journal');
+            this.plugin.refreshAltRightPanelContent('journal');
         }
     }
 }

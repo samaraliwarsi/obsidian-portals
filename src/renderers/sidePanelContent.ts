@@ -11,10 +11,15 @@ import { TrashRenderer } from '../renderers/trashRenderer';
 import { AltSidePanelView } from './RightSideView';
 import { RemindersRenderer } from './remindersRenderer';
 
+const journalRenderers = new WeakMap<PortalsView | AltSidePanelView, JournalRenderer>();
 const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();
 
 export function getContextRenderer(view: PortalsView): ContextNotesRenderer | undefined {
     return contextRenderers.get(view);
+}
+
+export function getJournalRenderer(view: PortalsView | AltSidePanelView): JournalRenderer | undefined {
+    return journalRenderers.get(view);
 }
 
 export function destroContextRenderer(view: PortalsView): void {
@@ -73,9 +78,15 @@ export async function renderSidePanelContent(
         bmRenderer.setContainer(contentEl);
         bmRenderer.render();
     } else if (tabId === 'journal') {
-        // JournalRenderer only needs (app, plugin, container)
+        if (!mainView) return;
+        const existing = journalRenderers.get(mainView);
+        if (existing) {
+            existing.destroy();
+            journalRenderers.delete(mainView);
+        }
         const journalContainer = contentEl.createDiv();
         const journalRenderer = new JournalRenderer(app, plugin, journalContainer, mainView!);
+        journalRenderers.set(mainView, journalRenderer);
         await journalRenderer.render();
     } else if (tabId === 'hidden') {
         const hiddenRenderer = new HiddenItemsRenderer(app, plugin, mainView!);

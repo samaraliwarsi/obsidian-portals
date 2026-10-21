@@ -11,7 +11,7 @@ import { setPluginInstance } from './utils/Proxies/pluginInstance';
 import { getLocalItem } from './utils/Proxies/storageProxy';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { InternalPluginsWithBookmarks, SpaceConfig } from './types';
-import { getContextRenderer } from './renderers/sidePanelContent';
+import { getContextRenderer, getJournalRenderer } from './renderers/sidePanelContent';
 import { EmojiIconProvider } from './icons/emojiIconProvider';
 import { DatePickerModal } from './modals/datePickerModal';
 import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
@@ -31,6 +31,8 @@ export default class PortalsPlugin extends Plugin {
     public registeredPortalCommandIds: string[] = [];
     private reminderRefreshTimer: number | null = null;
     public fileTagCache = new Map<string, string>();
+    private trashRefreshTimer: number | null = null;
+    private journalRefreshTimer: number | null = null;
 
     async onload() {
         setPluginInstance(this);
@@ -113,6 +115,19 @@ export default class PortalsPlugin extends Plugin {
             }, 1000);
         });
 
+        this.registerEvent(this.app.vault.on('modify', (file) => {
+            if (file instanceof TFile && file.extension === 'md') {
+                if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
+                    if (this.journalRefreshTimer) window.clearTimeout(this.journalRefreshTimer);
+                    this.journalRefreshTimer = window.setTimeout(() => {
+                        this.journalRefreshTimer = null;
+                        this.refreshSidePortal('journal');
+                        this.refreshAltRightPanelContent('journal');
+                    }, 2000);
+                }
+            }
+        }));
+
         // Forward frontmatter cache updates (no startup cost)
         this.registerEvent(this.app.metadataCache.on('changed', (file) => {
             if (!(file instanceof TFile) || file.extension !== 'md') return;
@@ -168,6 +183,10 @@ export default class PortalsPlugin extends Plugin {
             if (file instanceof TFile && file.extension === 'md') {
                 window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
                 debouncedTreeRefresh();
+                if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
+                    this.refreshSidePortal('journal');
+                    this.refreshAltRightPanelContent('journal');
+                }
             }
             void this.refreshTrashIfActive();
         }));
@@ -177,13 +196,19 @@ export default class PortalsPlugin extends Plugin {
                 debouncedTreeRefresh();
                 this.refreshSidePortal('properties');
                 this.refreshAltRightPanelContent('properties');
+                this.refreshSidePortal('journal');
+                this.refreshAltRightPanelContent('journal');
             }
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(file.path);
                 this.refreshSidePortal('properties');
                 this.refreshAltRightPanelContent('properties')
+                
                 this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
                     if (leaf.view instanceof PortalsView) {
+                        const journal = getJournalRenderer(leaf.view);
+                        if (journal) journal.removeFile(file.path);
+
                         const el = leaf.view.fileElementMap.get(file.path);
                         if (el && el.isConnected) {
                             el.remove();
@@ -191,6 +216,14 @@ export default class PortalsPlugin extends Plugin {
                         }
                     }
                 });
+                if (this.settings.alternateActiveTab === 'journal') {
+                    this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
+                        if (leaf.view instanceof AltSidePanelView) {
+                            const journal = getJournalRenderer(leaf.view);
+                            if (journal) journal.removeFile(file.path);
+                        } 
+                    });
+                }
                 if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
                 this.treeRefreshTimer = window.setTimeout(() => {
                     this.treeRefreshTimer = null;
@@ -203,6 +236,8 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
             if (file instanceof TFolder) {
                 debouncedTreeRefresh();
+                //this.refreshSidePortal('journal');
+                //this.refreshAltRightPanelContent('journal');
             }
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(oldPath);
@@ -217,6 +252,8 @@ export default class PortalsPlugin extends Plugin {
                 window.setTimeout(() => {
                     this.refreshSidePortal('properties');
                     this.refreshAltRightPanelContent('properties');
+                    //this.refreshSidePortal('journal');
+                    //this.refreshAltRightPanelContent('journal');
                 }, 150);
             }
             void this.refreshTrashIfActive();
@@ -234,7 +271,6 @@ export default class PortalsPlugin extends Plugin {
             }
         }));
 
-        // Ensure the selected space (if it's a folder) is in openFolders
         const selectedSpace = this.settings.spaces.find(s => 
             s.path === this.settings.selectedSpace?.path && 
             s.type === this.settings.selectedSpace?.type
@@ -421,9 +457,6 @@ export default class PortalsPlugin extends Plugin {
                     leaf.view.scrollToRestore = treeContainer.scrollTop;
                 }
                 leaf.view.render();
-                if (leaf.view.plugin.settings.activeSplitTab === 'journal') {
-                    void leaf.view.refreshJournalTab();
-                }
             }
         });
         this.refreshAltRightPanelContent();
@@ -490,22 +523,26 @@ export default class PortalsPlugin extends Plugin {
     }
 
     public async refreshTrashIfActive() {
-        const promises: Promise<void>[] = [];
-        // left
-        this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
-            if (leaf.view instanceof PortalsView && leaf.view.plugin.settings.activeSplitTab === 'trash') {
-                promises.push(leaf.view.refreshTrashTab());
-            }
-        });
-        // right
-        if (this.settings.alternateActiveTab === 'trash') {
-            this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
-                if (leaf.view instanceof AltSidePanelView) {
-                    promises.push(leaf.view.refreshContent());
+        if (this.trashRefreshTimer) window.clearTimeout(this.trashRefreshTimer);
+        this.trashRefreshTimer = window.setTimeout(() => {
+            this.trashRefreshTimer = null;
+            const promises: Promise<void>[] = [];
+            // left
+            this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                if (leaf.view instanceof PortalsView && leaf.view.plugin.settings.activeSplitTab === 'trash') {
+                    promises.push(leaf.view.refreshTrashTab());
                 }
             });
-        }
-        await Promise.all(promises);
+            // right
+            if (this.settings.alternateActiveTab === 'trash') {
+                this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
+                    if (leaf.view instanceof AltSidePanelView) {
+                        promises.push(leaf.view.refreshContent());
+                    }
+                });
+            }
+            void Promise.all(promises);
+        }, 150);
     }
 
     public refreshSidePortal(tabId: string): void {
