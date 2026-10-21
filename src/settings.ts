@@ -5,6 +5,7 @@ import { SpaceConfig, PortalStack } from './types';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { buildSettingDefinitions } from './utils/settingsRelated/settingDefinitions';
 import { journalState } from './renderers/journalView';
+import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
@@ -267,17 +268,29 @@ export class SpacesSettingTab extends PluginSettingTab {
         // Default path: write the value, then run the plugin's saveSettings()
         // (which re-renders all open portal views).
         (this.plugin.settings as unknown as Record<string, unknown>)[key] = value;
-        await this.plugin.saveSettings();
+
+        if (typeof value === 'string') {
+            await this.plugin.saveData(this.plugin.settings);
+            if (this.plugin.textSettingRenderTimer) window.clearTimeout(this.plugin.textSettingRenderTimer);
+            this.plugin.textSettingRenderTimer = window.setTimeout(() => {
+                this.plugin.textSettingRenderTimer = null;
+                this.plugin.refreshAltRightPanelContent();
+                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                    if (leaf.view instanceof PortalsView) {
+                        leaf.view.render();
+                    }
+                });
+            }, 500);
+        } else {
+            await this.plugin.saveSettings();
+        }
+        
         if (key === 'showCurrentPropertyValue' || key === 'hideFilteredCount') {
             this.plugin.refreshSidePortal('properties');
         }
         // for reminder notification icon color change
         if (key === 'reminderTabNotification') {
             this.plugin.updateReminderBadge();
-        }
-
-        if (key === 'journalDefaultCurrentMode') {
-            journalState.currentQuote = null;
         }
         const journalKeys = [
             'journalDateFormat',

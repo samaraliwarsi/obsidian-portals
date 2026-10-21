@@ -33,6 +33,7 @@ export default class PortalsPlugin extends Plugin {
     public fileTagCache = new Map<string, string>();
     private trashRefreshTimer: number | null = null;
     private journalRefreshTimer: number | null = null;
+    public textSettingRenderTimer: number | null = null;
 
     async onload() {
         setPluginInstance(this);

@@ -238,6 +238,7 @@ export class PortalsView extends ItemView {
                         treeEl.scrollTop = treeEl.scrollTop + newOffset - offset;    
                     });
                     this.scrollAnchor = null;
+                    this.scrollToRestore = null;
                     return;
                 }
             }
