@@ -1,6 +1,7 @@
 import { App, Modal, Notice, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import { formatLocalDate } from '../utils/dateHelpers';
+import { Frontmatter } from '../types';
 
 export class DatePickerModal extends Modal {
     private plugin: PortalsPlugin;
@@ -21,8 +22,7 @@ export class DatePickerModal extends Modal {
         this.contentEl.addClass('portals-date-modal');
         this.contentEl.addClass('portals-modal');
         const prop = this.plugin.settings.reminderProperty || 'remind_at';
-        const cache = this.app.metadataCache.getFileCache(this.file);
-        const fm = cache?.frontmatter as unknown as Record<string, unknown> | undefined;
+        const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(this.file)?.frontmatter;
         const existingDate = fm?.[prop];
 
         contentEl.createDiv({ text: `Reminder for ${this.file.basename}`, cls: 'portals-date-title' });

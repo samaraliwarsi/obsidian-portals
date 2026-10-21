@@ -3,6 +3,7 @@ import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { formatDisplayDate, getDaysDifference, parseLocalDate } from '../utils/dateHelpers';
+import { Frontmatter } from '../types';
 
 export class RemindersRenderer {
     private app: App;
@@ -39,7 +40,7 @@ export class RemindersRenderer {
 
         for (const file of files) {
             const cache = this.app.metadataCache.getFileCache(file);
-            const fm = cache?.frontmatter as unknown as Record<string, unknown> | undefined;
+            const fm: Frontmatter | undefined = cache?.frontmatter;
             const rawDate = fm?.[propName];
             if (!rawDate) continue;
 

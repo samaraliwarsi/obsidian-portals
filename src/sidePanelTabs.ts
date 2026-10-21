@@ -5,6 +5,7 @@ import type { PortalsView } from './view';
 import { Platform } from 'obsidian';
 import { renderSidePanelContent } from './renderers/sidePanelContent';
 import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
+import { Frontmatter } from './types';
 
 /** Icons used for side‑portal tabs (same as in the main view) */
 const SIDE_TAB_ICONS: Record<string, string> = {
@@ -109,7 +110,7 @@ export function renderSidePanel(
             let hasDue = false;
             
             for (const f of app.vault.getMarkdownFiles()) {
-                const fm = app.metadataCache.getFileCache(f)?.frontmatter as unknown as Record<string, unknown> | undefined;
+                const fm: Frontmatter | undefined = app.metadataCache.getFileCache(f)?.frontmatter;
                 const d = fm?.[prop];
                 if (d) {
                     const dateObj = parseLocalDate(String(d));

@@ -15,6 +15,7 @@ import { getContextRenderer, getJournalRenderer } from './renderers/sidePanelCon
 import { EmojiIconProvider } from './icons/emojiIconProvider';
 import { DatePickerModal } from './modals/datePickerModal';
 import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
+import type { Frontmatter } from './types';
 
 interface AppWithInternalPlugins extends App {
     internalPlugins: unknown;
@@ -104,7 +105,7 @@ export default class PortalsPlugin extends Plugin {
                     let count = 0;
 
                     for (const file of this.app.vault.getMarkdownFiles()) {
-                        const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as unknown as Record<string, unknown> | undefined;
+                        const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter;
                         const rawDate = fm?.[propName];
                         if (rawDate) {
                             const dateObj = parseLocalDate(String(rawDate));
@@ -659,7 +660,7 @@ export default class PortalsPlugin extends Plugin {
         let hasDue = false;
         
         for (const f of this.app.vault.getMarkdownFiles()) {
-            const fm = this.app.metadataCache.getFileCache(f)?.frontmatter as unknown as Record<string, unknown> | undefined;
+            const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(f)?.frontmatter;
             const d = fm?.[prop];
             if (d) {
                 // Use the helper!
@@ -1061,8 +1062,7 @@ export default class PortalsPlugin extends Plugin {
         const files = this.app.vault.getMarkdownFiles();
 
         for (const file of files) {
-            const cache = this.app.metadataCache.getFileCache(file);
-            const fm = cache?.frontmatter as unknown as Record<string, unknown> | undefined;
+            const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter;
             const oldValue = fm?.[oldProp];
             
             if (oldValue !== undefined && oldValue !== null) {

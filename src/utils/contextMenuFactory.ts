@@ -1,6 +1,6 @@
 import { Menu, TFile, TFolder, MenuItem, Notice } from 'obsidian';
 import type { PortalsView } from '../view';
-import type { SpaceConfig, PortalStack } from '../types';
+import type { SpaceConfig, PortalStack, Frontmatter } from '../types';
 import { IconPickerModal } from '../modals/iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
 import { SetQuickTabNumberModal } from '../modals/quickTabNumberModal';
@@ -105,7 +105,7 @@ export class ContextMenuFactory {
         if (file.extension === 'md') {
             menu.addSeparator();
             const prop = view.plugin.settings.reminderProperty || 'remind_at';
-            const fm = view.app.metadataCache.getFileCache(file)?.frontmatter as unknown as Record<string, unknown> | undefined;
+            const fm: Frontmatter | undefined = view.app.metadataCache.getFileCache(file)?.frontmatter;
             const hasReminder = fm?.[prop];
 
             menu.addItem(item => item

@@ -48,3 +48,5 @@ export interface PublicBookmarksAPI {
     remove?(id: string): void;
     items?: BookmarkItem[];
 }
+
+export type Frontmatter = Record<string, unknown>;

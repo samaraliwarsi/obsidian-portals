@@ -6,6 +6,7 @@ import { ContextMenuFactory } from './contextMenuFactory';
 import { getFrontmatterTags } from './tagHelpers';
 import { getPluginInstance } from './Proxies/pluginInstance';
 import { formatDisplayDate, getDaysDifference, parseLocalDate } from './dateHelpers';
+import { Frontmatter } from '../types';
 
 
 export class FileItemFactory {
@@ -24,7 +25,7 @@ export class FileItemFactory {
         // reminder icon
         if (plugin.settings.reminderTreeIndicator !== 'off') {
             const prop = plugin.settings.reminderProperty || 'remind_at';
-            const fm = app.metadataCache.getFileCache(file)?.frontmatter as unknown as Record<string, unknown> | undefined;
+            const fm: Frontmatter | undefined = app.metadataCache.getFileCache(file)?.frontmatter;
             const hasReminder = fm?.[prop];
             if (hasReminder) {
                 const clockSpan = fileEl.createSpan({ cls: 'portals-reminder-indicator' });
@@ -289,7 +290,7 @@ export class FileItemFactory {
                 let infoLine = `${wordCount} words · Modified: ${lastModified}`;
 
                 const prop = plugin.settings.reminderProperty || 'remind_at';
-                const fm = app.metadataCache.getFileCache(file)?.frontmatter as unknown as Record<string, unknown> | undefined;
+                const fm: Frontmatter | undefined = app.metadataCache.getFileCache(file)?.frontmatter;
                 const rawDate = fm?.[prop];
                 if (rawDate) {
                     const dateObj = parseLocalDate(String(rawDate));

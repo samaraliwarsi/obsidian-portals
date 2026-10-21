@@ -4,6 +4,7 @@ import type { PortalsView } from '../view';
 import { SearchPopover } from '../utils/searchPopover';
 import { ConfirmModal } from './confirmModal'; 
 import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
+import { Frontmatter } from '../types';
 
 declare module 'obsidian' {
     interface Menu {
@@ -305,12 +306,12 @@ export class FrontmatterPopup {
 
             let newProps: Record<string, unknown>;
             try {
-                const parsed = parseYaml(yamlText) as Record<string, unknown>;
+                const parsed: Frontmatter = parseYaml(yamlText);
                 if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
                     new Notice('Invalid YAML. Please check that it starts with a property name (e.g., "status: active").');
                     return;
                 }
-                newProps = parsed as unknown as Record<string, unknown>;
+                newProps = parsed;
             } catch  {
                 new Notice('Invalid YAML. Check the formatting and try again.');
                 return;
