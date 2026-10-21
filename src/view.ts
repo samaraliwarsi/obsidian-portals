@@ -770,6 +770,7 @@ export class PortalsView extends ItemView {
             this.attachTooltip(previewBtn, 'Toggle preview');
             this.plugin.renderPluginIcon(previewBtn, 'plus-minus')
             previewBtn.addEventListener('click', () => {
+                this.saveTreeScroll();
                 for (const path of this.selectedItems) {
                     FileItemFactory.toggleFilePreview(this.plugin, path);
                 }

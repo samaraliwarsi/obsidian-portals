@@ -92,16 +92,18 @@ export class FileItemFactory {
 
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                plugin.settings.previewExcludedFiles[file.path] = showPreview;
-                void plugin.saveSettings();
+                const newExcludedState = !plugin.settings.previewExcludedFiles[file.path];
+                plugin.settings.previewExcludedFiles[file.path] = newExcludedState;
+                void plugin.saveData(plugin.settings);
                 
-                const noShown = !showPreview;
+                const noShown = !newExcludedState;
                 if (previewEl) {
                     previewEl.classList.toggle('file-item-preview-hidden', !noShown);
                 }
                 if (infoBar) {
                     infoBar.classList.toggle('file-item-preview-hidden', !noShown);
                 }
+                plugin.renderPluginIcon(toggleBtn, noShown ? 'minus-circle' : 'plus-circle');
             });
             
             app.vault.cachedRead(file).then((content: string) => {
@@ -256,11 +258,10 @@ export class FileItemFactory {
     public static toggleFilePreview(plugin: PortalsPlugin, filePath: string, iconEl?: HTMLElement): boolean {
         const tempExcluded = plugin.settings.previewExcludedFiles[filePath] ?? false;
         plugin.settings.previewExcludedFiles[filePath] = !tempExcluded;
-        void plugin.saveSettings();
+        void plugin.saveData(plugin.settings);
         const newState = !tempExcluded;
         if (iconEl) {
-            iconEl.classList.remove('ph-plus-circle', 'ph-minus-circle');
-            iconEl.classList.add(newState ? 'ph-plus-circle' : 'ph-minus-circle');
+            plugin.renderPluginIcon(iconEl, newState ? 'plus-circle' : 'minus-circle');
         }
         return newState;
     }
