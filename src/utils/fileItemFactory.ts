@@ -10,6 +10,8 @@ import { formatDisplayDate, getDaysDifference, parseLocalDate } from './dateHelp
 
 export class FileItemFactory {
 
+    private static tooltipCache = new Map<string, { wordCount: number, mtime: number }>();
+
     static createFileItem(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, container: HTMLElement, openFiles: Set<string>): HTMLElement {
         const fileEl = container.createDiv({ cls: 'file-item' });
 
@@ -250,11 +252,23 @@ export class FileItemFactory {
     private static async fetchFileTooltip(file: TFile, app: App, nameSpan: HTMLElement, plugin: PortalsPlugin): Promise<string | null> {
         try {
             if (file.extension === 'md') {
-                const content = await app.vault.cachedRead(file);
-                const plainText = FileItemFactory.extractSnippet(content, Infinity);
+                let wordCount = 0;
+                const cached = FileItemFactory.tooltipCache.get(file.path);
 
-                const words = plainText.split(/\s+/).filter(w => w.length > 0);
-                const wordCount = words.length;
+                if (cached && cached.mtime === file.stat.mtime) {
+                    wordCount = cached.wordCount;
+                } else {
+                    const content = await app.vault.cachedRead(file);
+                    const plainText = FileItemFactory.extractSnippet(content, Infinity);
+
+                    const words = plainText.split(/\s+/).filter(w => w.length > 0);
+                    const wordCount = words.length;
+
+                    FileItemFactory.tooltipCache.set(file.path, {
+                        wordCount,
+                        mtime: file.stat.mtime
+                    });
+                }
 
                 const lastModifiedDate = new Date(file.stat.mtime);
                 const lastModified = formatDisplayDate(lastModifiedDate, plugin.settings.dateDisplayFormat);
