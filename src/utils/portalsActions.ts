@@ -210,10 +210,13 @@ export class PortalsActions {
     static async deleteSelectedItems(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
         const confirmMsg = `Delete ${view.selectedItems.size} item(s) permanently?`;
+
         const confirmed = await ConfirmModal.confirm(app, confirmMsg);
         if (!confirmed) return;
 
         view.cancelScheduledRender();
+        const paths = Array.from(view.selectedItems);
+
         const firstItem = view.selectedItems.values().next();
         if (firstItem.done) return;
         const firstItemPath = firstItem.value;
@@ -229,7 +232,7 @@ export class PortalsActions {
             view.saveTreeScroll();
         }
 
-        for (const path of view.selectedItems) {
+        for (const path of paths) {
             const item = app.vault.getAbstractFileByPath(path);
             if (!item) continue;
             try {
@@ -250,7 +253,7 @@ export class PortalsActions {
             }
         }
         await plugin.saveData(plugin.settings);
-        const deletedCount = view.selectedItems.size;
+        const deletedCount = paths.length;
         view.clearSelection();
         new Notice(`Deleted ${deletedCount} item(s)`);
     }
@@ -258,6 +261,7 @@ export class PortalsActions {
     static async moveSelectedItemsToFolder(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
         view.cancelScheduledRender();
+        const paths = Array.from(view.selectedItems);
         const firstItem = view.selectedItems.values().next();
         if (firstItem.done) return;
         const firstItemPath = firstItem.value;
@@ -275,7 +279,7 @@ export class PortalsActions {
         new SelectFolderModal(app, (targetFolder) => {
             void (async () => {
                 let movedCount = 0;
-                for (const path of view.selectedItems) {
+                for (const path of paths) {
                     const item = app.vault.getAbstractFileByPath(path);
                     if (!item) continue;
                     const newPath = `${targetFolder.path}/${item.name}`;
@@ -307,6 +311,7 @@ export class PortalsActions {
     static async createFolderFromSelected(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
         view.cancelScheduledRender();
+        const paths = Array.from(view.selectedItems);
         const firstItem = view.selectedItems.values().next();
         if (firstItem.done) return;
         const firstItemPath = firstItem.value; 
@@ -338,7 +343,7 @@ export class PortalsActions {
         try {
             await app.vault.createFolder(newFolderPath);
             let movedCount = 0;
-            for (const path of view.selectedItems) {
+            for (const path of paths) {
                 const item = app.vault.getAbstractFileByPath(path);
                 if (!item) continue;
                 const newPath = `${newFolderPath}/${item.name}`;

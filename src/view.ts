@@ -937,12 +937,12 @@ export class PortalsView extends ItemView {
         return file.path.startsWith(folderPath);
     }
 
-    public async hideItem(key: string) {
+    public async hideItem(key: string, silent = false) {
         this.plugin.settings.hiddenItems[key] = true;
         await this.plugin.saveSettings();
         this.render();
         this.plugin.refreshAltRightPanelContent('hidden');
-        new Notice('Item hidden');
+        if (!silent) new Notice('Item hidden');
     }
 
     public async unhideItem(key: string) {
@@ -962,11 +962,13 @@ export class PortalsView extends ItemView {
     }
 
     private async hideSelectedItems() {
-        for (const key of this.selectedItems) {
-            await this.hideItem(key);
+        const keys = Array.from(this.selectedItems);
+
+        for (const key of keys) {
+            await this.hideItem(key, true);
         }
         this.clearSelection();
-        new Notice(`Hidden ${this.selectedItems.size} item(s)`);
+        new Notice(`Hidden ${keys.length} item(s)`);
     }
 
     private isFileView(view: View): view is View & { file: TFile } {
@@ -2124,7 +2126,8 @@ export class PortalsView extends ItemView {
 
     private async resetColorsForSelected() {
         this.saveTreeScroll();
-        for (const key of this.selectedItems) {
+        const keys = Array.from(this.selectedItems);
+        for (const key of keys) {
             if (key.startsWith('tag:')) {
                 delete this.plugin.settings.tagColors[key];
             } else {
@@ -2132,7 +2135,7 @@ export class PortalsView extends ItemView {
             }
             // Files have no color settings; tag groups are not in multi‑select.
         }
-        await this.plugin.saveSettings();
+        await this.plugin.saveData(this.plugin.settings);
         this.clearSelection();
         this.render();
         new Notice('Colors reset for selected items');
@@ -2140,10 +2143,11 @@ export class PortalsView extends ItemView {
 
     private async resetIconsForSelected() {
         this.saveTreeScroll();
-        for (const key of this.selectedItems) {
+        const keys = Array.from(this.selectedItems);
+        for (const key of keys) {
             delete this.plugin.settings.customIcons[key]; 
         }
-        await this.plugin.saveSettings();
+        await this.plugin.saveData(this.plugin.settings);
         this.clearSelection();
         this.render();
         new Notice('Icons reset for selected items');

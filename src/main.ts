@@ -278,7 +278,7 @@ export default class PortalsPlugin extends Plugin {
         if (selectedSpace && selectedSpace.type === 'folder') {
             if (!this.settings.openFolders.includes(selectedSpace.path)) {
                 this.settings.openFolders.push(selectedSpace.path);
-                await this.saveData(this.saveSettings);
+                await this.saveData(this.settings);
             }
         }
 
