@@ -293,7 +293,6 @@ export class FrontmatterClinicRenderer {
     async render() {
         this.destroyed = false;
 
-        this.clinicSelectedPaths.clear();
         if (this.clinicToolbar) {
             this.clinicToolbar.remove();
             this.clinicToolbar = null;
@@ -327,6 +326,12 @@ export class FrontmatterClinicRenderer {
         const tooltipDir: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
         try {
             this.filterFiles();
+            const validPaths = new Set(this.filteredFiles.map(f => f.path));
+            for (const path of Array.from(this.clinicSelectedPaths)) {
+                if (!validPaths.has(path)) {
+                    this.clinicSelectedPaths.delete(path);
+                }
+            }
 
             const controlDetails = this.container.createEl('details', { cls: 'fm-clinic-controls' });
             controlDetails.open = this.plugin.settings.clinicState.controlsOpen ?? true;
@@ -707,6 +712,10 @@ export class FrontmatterClinicRenderer {
     private renderFileItem(file: TFile, container: HTMLElement) {
         const fileRow = container.createDiv({ cls: 'file-item fm-file-item' });
         fileRow.dataset.path = file.path;
+
+        if (this.clinicSelectedPaths.has(file.path)) {
+            fileRow.addClass('is-selected');
+        }
         this.view.addHoverPreview(fileRow, file.path);
 
         const nameSpan = fileRow.createSpan({ text: file.basename, cls: 'fm-file-name' });
