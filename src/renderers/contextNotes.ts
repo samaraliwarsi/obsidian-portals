@@ -507,8 +507,8 @@ export class ContextNotesRenderer {
         if (space) {
             if (space.type === 'folder') {
                 const folder = this.app.vault.getAbstractFileByPath(space.path);
-                if (folder instanceof TFile === false && folder) {
-                    portalNote = getContextNote(this.app, this.plugin, space.path) ?? null;
+                if (folder instanceof TFolder) {
+                    portalNote = getContextNote(this.app, this.plugin, folder) ?? null;
                 }
             } else {
                 portalNote = getContextNote(this.app, this.plugin, space.path) ?? null;
