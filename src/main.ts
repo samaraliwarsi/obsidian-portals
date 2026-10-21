@@ -832,6 +832,8 @@ export default class PortalsPlugin extends Plugin {
 
         const tags = Object.keys(this.getTags());
         const beforeCount = this.settings.spaces.length;
+        let changed = false;
+
         this.settings.spaces = this.settings.spaces.filter(space => {
             if (space.type === 'folder') {
                 return existingFolders.includes(space.path);
@@ -840,8 +842,11 @@ export default class PortalsPlugin extends Plugin {
             }
             return false;
         });
+        if (beforeCount !== this.settings.spaces.length) changed = true;
 
+        const beforeFoldersCount = this.settings.openFolders.length;
         this.settings.openFolders = this.settings.openFolders.filter(path => existingFolders.includes(path));
+        if (beforeFoldersCount !== this.settings.openFolders.length) changed = true;
 
         if (this.settings.selectedSpace) {
             const stillExists = this.settings.spaces.some(s => 
@@ -852,6 +857,7 @@ export default class PortalsPlugin extends Plugin {
                 this.settings.selectedSpace = this.settings.spaces[0] 
                     ? { path: this.settings.spaces[0].path, type: this.settings.spaces[0].type }
                     : null;
+                changed = true;
             }
         }
 
@@ -859,23 +865,26 @@ export default class PortalsPlugin extends Plugin {
         for (const tagPath in this.settings.expandedGroups) {
             if (!existingTagPaths.has(tagPath)) {
                 delete this.settings.expandedGroups[tagPath];
+                changed = true;
             }
         }
 
         for (const key of Object.keys(this.settings.customIcons)) {
-            if (key.startsWith('tag:') && key.includes('/groups:')) {
-                const parts = key.split('/')
+            if (key.startsWith('tag:') && key.includes('/group:')) {
+                const parts = key.split('/');
                 if (parts.length < 2) continue;
                 const mainTagPart = parts[0];
                 if (!mainTagPart?.startsWith('tag:')) continue;
                 const mainTag = mainTagPart.slice(4);
+                
                 if (!existingTagPaths.has(mainTag)) {
                     delete this.settings.customIcons[key];
+                    changed = true;
                 }
             }
         }
 
-        if (beforeCount !== this.settings.spaces.length) {
+        if (changed) {
             await this.saveSettings();
         }
         return beforeCount - this.settings.spaces.length;
