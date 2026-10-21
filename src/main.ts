@@ -240,37 +240,45 @@ export default class PortalsPlugin extends Plugin {
         }));
 
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
+
+            // 1. Tree & clinic logic 
             if (file instanceof TFolder) {
                 debouncedTreeRefresh();
-                //this.refreshSidePortal('journal');
-                //this.refreshAltRightPanelContent('journal');
             }
-            if (file instanceof TFile && file.extension === 'md') {
-                FrontmatterClinicRenderer.removeFileCache(oldPath);
-                FrontmatterClinicRenderer.updateFileCache(this.app, file);
-                
-                if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
-                this.treeRefreshTimer = window.setTimeout(() => {
-                    this.treeRefreshTimer = null;
-                    this.refreshAllTreeContent();
-                }, 600);
+            if (file instanceof TFile) {
+                if (file.extension === 'md') {
+                    FrontmatterClinicRenderer.removeFileCache(oldPath);
+                    FrontmatterClinicRenderer.updateFileCache(this.app, file);
+                    
+                    if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
+                    this.treeRefreshTimer = window.setTimeout(() => {
+                        this.treeRefreshTimer = null;
+                        this.refreshAllTreeContent();
+                    }, 600);
 
-                window.setTimeout(() => {
-                    this.refreshSidePortal('properties');
-                    this.refreshAltRightPanelContent('properties');
-                    //this.refreshSidePortal('journal');
-                    //this.refreshAltRightPanelContent('journal');
-                }, 150);
+                    window.setTimeout(() => {
+                        this.refreshSidePortal('properties');
+                        this.refreshAltRightPanelContent('properties');
+                    }, 150);
+                }
+
+                // 2. Recent files & journal marks logic (moved from separated block)
+                void this.updateRecentFilesOnRename(oldPath, file.path);
+                if (this.settings.journalFolderPath && file.path.startsWith(this.settings.journalFolderPath)) {
+                    const marks = this.settings.markedJournalNotes;
+                    const index = marks.indexOf(oldPath);
+                    if (index !== -1) {
+                        marks[index] = file.path;
+                        void this.saveData(this.settings);
+                    }
+                }
             }
+
+            //3. Trash logic
             void this.refreshTrashIfActive();
 
+            // 4. Hidden items logic (file and folder)
             if (this.settings.hiddenItems[oldPath]) {
-                this.settings.hiddenItems[file.path] = true;
-                delete this.settings.hiddenItems[oldPath];
-                void this.saveData(this.settings);
-            }
-
-            if (file instanceof TFolder && this.settings.hiddenItems[oldPath]) {
                 this.settings.hiddenItems[file.path] = true;
                 delete this.settings.hiddenItems[oldPath];
                 void this.saveData(this.settings);
@@ -323,26 +331,6 @@ export default class PortalsPlugin extends Plugin {
                     }
                 }
                 this.refreshAltRightPanelContent('context-notes');
-            }
-        }));
-
-        // Track file rename
-        this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
-            if (file instanceof TFile) {
-                void this.updateRecentFilesOnRename(oldPath, file.path);
-                if (this.settings.journalFolderPath && file.path.startsWith(this.settings.journalFolderPath)) {
-                    const marks = this.settings.markedJournalNotes;
-                    const index = marks.indexOf(oldPath);
-                    if (index !== -1) {
-                        marks[index] = file.path;
-                        void this.saveData(this.saveSettings);
-                    }
-                }
-                if (this.settings.hiddenItems[oldPath]) {
-                    this.settings.hiddenItems[file.path] = true;
-                    delete this.settings.hiddenItems[oldPath];
-                    void this.saveData(this.saveSettings);
-                }
             }
         }));
 
