@@ -524,11 +524,6 @@ export class PortalsActions {
     private static setRenamingActive(view: PortalsView, active: boolean) {
         // In setRenamingActive
         view.containerEl.classList.toggle('portals-renaming-active', active);
-        if (active) {
-            view.containerEl.addClass('portals-renaming-active');
-        } else {
-            view.containerEl.removeClass('portals-renaming-active');
-        }
     }
 
     static startRenameFile(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, fileEl: HTMLElement): void {

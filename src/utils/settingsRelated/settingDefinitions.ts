@@ -524,6 +524,7 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     name: 'Export settings',
                     desc: 'Export your current portals configuration as a JSON file.',
                     render: (setting) => {
+                        setting.controlEl.empty();
                         const btn = setting.controlEl.createEl('button', { text: 'Export' });
                         btn.addEventListener('click', () => { void exportSettings(tab); });
                     }
@@ -532,6 +533,7 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     name: 'Import settings',
                     desc: 'Load settings from a JSON file. This will replace your current configuration.',
                     render: (setting) => {
+                        setting.controlEl.empty();
                         const btn = setting.controlEl.createEl('button', { text: 'Import' });
                         btn.addEventListener('click', () => importSettings(tab));
                     }
@@ -558,6 +560,7 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     name: 'Clean up dead portals',
                     desc: 'Remove portal tabs for folders or tags that no longer exist. This cannot be undone.',
                     render: (setting) => {
+                        setting.controlEl.empty();
                         const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
                         btn.addEventListener('click', () => {
                             void (async () => {
@@ -571,6 +574,7 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     name: 'Clean up dead hidden keys',
                     desc: 'Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically.',
                     render: (setting) => {
+                        setting.controlEl.empty();
                         const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
                         btn.addEventListener('click', () => {
                             void (async () => {
@@ -584,6 +588,7 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     name: 'Reset all preview preferences',
                     desc: 'Clears all per-file preview expand/collapse choices accumulated overtime. Useful for a fresh start with floating preview button.',
                     render: (setting) => {
+                        setting.controlEl.empty();
                         const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
                         btn.addEventListener('click', () => {
                             void (async () => {
@@ -597,6 +602,7 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     name: 'Clean up orphaned settings fields',
                     desc: 'Removes stale data.json fields left over from older plugin versions. Harmless to run — it only touches fields the current version no longer uses.',
                     render: (setting) => {
+                        setting.controlEl.empty();
                         const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
                         btn.addEventListener('click', () => {
                             void (async () => {
@@ -653,6 +659,7 @@ function buildUtilitiesSection(_tab: SpacesSettingTab): SettingGroupItem[] {
             name: 'User guide',
             desc: 'Open the full documentation, the guide covers everything about the plugin.',
             render: (setting) => {
+                setting.controlEl.empty();
                 const btn = setting.controlEl.createEl('button', { text: 'Open guide' });
                 btn.addEventListener('click', () => window.open(getGuideUrl(), '_blank'));
             }
@@ -661,6 +668,7 @@ function buildUtilitiesSection(_tab: SpacesSettingTab): SettingGroupItem[] {
             name: 'Release notes',
             desc: 'See the release notes, stay up to date on the latest changes made to the plugin.',
             render: (setting) => {
+                setting.controlEl.empty();
                 const btn = setting.controlEl.createEl('button', { text: 'Release notes' });
                 btn.addEventListener('click', () => window.open(getReleaseNotesUrl(), '_blank'));
             }
