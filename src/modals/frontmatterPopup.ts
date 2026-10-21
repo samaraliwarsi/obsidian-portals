@@ -306,12 +306,12 @@ export class FrontmatterPopup {
 
             let newProps: Record<string, unknown>;
             try {
-                const parsed: Frontmatter = parseYaml(yamlText);
+                const parsed: unknown = parseYaml(yamlText);
                 if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
                     new Notice('Invalid YAML. Please check that it starts with a property name (e.g., "status: active").');
                     return;
                 }
-                newProps = parsed;
+                newProps = parsed as Frontmatter;
             } catch  {
                 new Notice('Invalid YAML. Check the formatting and try again.');
                 return;
