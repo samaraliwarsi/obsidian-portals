@@ -935,10 +935,11 @@ export class FrontmatterClinicRenderer {
             
                 if (filter.value === '') {
                     // All values for this property
-                    if (propValue === undefined || propValue === null || (Array.isArray(propValue) && propValue.length === 0)) return false;
+                    if (propValue === undefined || propValue === null || propValue === '' || (Array.isArray(propValue) && propValue.length === 0)) return false;
                 } else if (filter.value === '__none__') {
                     // "None" for this property
-                    if (propValue !== undefined && propValue !== null && (!Array.isArray(propValue) || propValue.length > 0)) return false;
+                    const isNone = propValue === undefined || propValue === null || propValue === '' || (Array.isArray(propValue) && propValue.length === 0);
+                    if (!isNone) return false;
                 } else {
                     if (propValue === undefined) return false;
                     if (Array.isArray(propValue)) {
