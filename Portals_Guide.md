@@ -1,6 +1,6 @@
 # PORTALS PLUGIN USER GUIDE
 
-Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customisable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.4.3**
+Welcome to **Portals** – an Obsidian plugin to enhance user file navigation. This plugin enables users to pin any folder or tag as a customisable tab, a Portal into user selected folder/ tag trees. This guide covers every feature, from obvious buttons to hidden shortcuts. The guide is updated to **Version 1.5.0**
 
 ---
 ## INSTALLATION
@@ -116,6 +116,9 @@ The portal view can be customised in many ways, here we will explain each of the
 To make portals the default explorer when opening Obsidian, use the `Replace explorer in sidebar` setting inside the **Explorer** page in `Settings → Portals`. This will ensure portals remains the focused view every time Obsidian reloads. The default Obsidian explorer will still be available via Obsidian tabs. 
 ### Compact tree view
 Compact tree view can help reduce the spacing between folders and file items. To enable, go to `Settings → Portals`, in the **Explorer** page, find `Compact tree view`, turn it on/ off based on personal preferences. 
+
+### Auto collapse trees
+A setting enables automatic folding and unfolding of folder and tag trees in the Portals explorer. This is a tree-level collapse behavior, distinct from the existing “Collapse/fold” floating action button that collapses subfolders.
 
 ### Styles
 Portals offers several visual styles for the file/tag tree. Choose a style in `Settings → Portals`, go to **Explorer** page to open the dropdown options in `Styles`. The options are, 
@@ -297,25 +300,47 @@ Choose which Journal tab opens by default (All, Random, On this day, Marked) in 
 
 ---
 ### Properties
- **Properties** is a side portal to browse and sort Markdown files by properties. The main features are as follows:
- 
-#### Dropdowns
- - The Property filter dropdown contains a list of all available frontmatter properties in Markdown files of the vault. It can also display files with no front matter. 
-- The Value filter dropdown can help further narrow down to sort by specific values of properties selected. Value button needs some property to be selected. 
 
-#### Search Mode
-- Both property filters have a search mode. To enable search, use `Right-click` on either dropdown buttons and type your input to reveal suggested entries from all the available ones. 
-
+**Properties** is a side portal that functions as a database view for Markdown files. It allows users to browse, filter, group, and sort files by their frontmatter properties, with support for multi-property queries, saved views, and inline editing. The main features are as follows:
+#### Filtering
+- The **Status** (property) filter dropdown contains a list of all available frontmatter properties found in the Markdown files of the vault. It also offers an option to display files with no frontmatter.
+- The **Filter** (value) filter dropdown narrows the results down to specific values of the selected property or properties. A value filter requires at least one property to be selected first.
+- Multiple property filters can be applied simultaneously, allowing users to build compound queries across several frontmatter fields at once.
+- Both the **Status** and **Filter** buttons support a search mode. To enable search, users `Right-click` on either dropdown button and type their input to reveal suggested entries from all available options.
+#### Grouping
+- Files can be grouped by any frontmatter property, with each group rendered as a collapsible section in the list.
+- Groups can be collapsed or expanded independently, making it easier to navigate large result sets without losing the active filter context.
+- Grouping respects the current filter and sort order, so grouped results remain consistent with the query in use.
+#### Sorting
+- Sort order is now controlled separately from the filtered count badge. The sort control is independent of the query badge, so changing the sort does not require interacting with the count. Files can be sorted by property value (A→Z or Z→A) or by file count.
+#### Saved custom views
+- Configured filter, grouping, and sort setups can be saved as named custom views for quick recall. Saved views allow users to switch between frequently used database configurations without rebuilding the query each time.
+#### Controls panel
+- The entire controls panel (filters, search, grouping, and related options) can be collapsed, giving more vertical space to the file list when the query is already configured
+#### Inline editing
+- Value badges displayed on files in the list can be edited inline, directly within the Properties panel, without opening the frontmatter editor.
 #### Preferences & options
-- User preference to show the count of files queried and the option to show the value badge on files in the list. 
-- Click the filtered count badge (if `Hide filtered count` is off) to open a sorting menu. Sort by property value (A→Z, Z→A) or by file count.
-- This side panel supports multi-select using `Alt+click` or `Swipe-right` on mobile. For range select, use `Alt+Shift+Click`, Multi-select options are done using multi-select toolbar for portal which has the option for bulk editing front matter properties or reset colours. Future updates will have more multi-select options available here. 
-- Property panel pauses updates while **Frontmatter editing** modal is open so that all updates can be bulk rendered in one go. This helps performance when editing large number of files. Once modal closes, the panel renders to show updated state.
-- **Cache** - Property browser works on a cache system so it lazy-loads its data listening to actual changes in file frontmatter, file create, delete, rename etc functions. 
 
----
+- A user preference controls whether the count of queried files is shown (`Hide filtered count`), and another controls whether the value badge is displayed on files in the list (`Show current value`).
+- The global date display setting (`YYYY-MM-DD`, `DD-MM-YYYY`, `MM-DD-YYYY`) applies to how date values are rendered in this panel. This is a display-only format; files continue to store dates as `YYYY-MM-DD`. The Journal side portal retains its own separate date settings.
+- This side panel supports multi-select using `Alt+click` or `Swipe-right` on mobile. For range selection, users can use `Alt+Shift+Click`. Multi-select actions are performed via the portal's multi-select toolbar, which includes options for bulk editing frontmatter properties or resetting colours. Future updates will add more multi-select options here.
+- The Properties panel pauses updates while the **Frontmatter editing** modal is open, so that all changes can be bulk rendered in one go. This improves performance when editing a large number of files. Once the modal closes, the panel renders to show the updated state.
+- **Cache** – The Property browser works on a cache system, so it lazy-loads its data while listening for actual changes in file frontmatter, as well as file create, delete, and rename operations.
 ### Trash
  The trash side portal is for files and folders that are sent to Obsidian's native trash folder, the `.trash/` folder at root of your vault. Trash side portal works if the `Deleted files` setting in Obsidian is set to `Move to obsidian trash`. Users can manage trash items - delete/ restore individually or Empty all/ Restore all. An easy way to manage trash without leaving Obsidian app. 
+
+---
+
+### Reminders
+A side portal for tracking due dates attached to file front matter. 
+- Right click on any file to set edit or remove reminders. 
+- Bell icon on files in Portals folder or tag tree can display which files hold reminders. The icon can be set to greyscale, colored based on time remaining or turned off. 
+- Optional startup notifications for overdue or due-today can be turned on from settings. 
+- Property based reminders are set to work with `remind_at` property by default, which can be changed in the settings. 
+- Bulk reminders can be added via the bulk front matter edit modal if the property already exists on any file.
+- Reminder dates appear in file tooltips when tooltips are enabled.
+- Reminder tab lists all the files based on due dates. Its arrangement can be reversed in the settings.
+- **Global Date Display:** The new global date format setting (`YYYY-MM-DD`, `DD-MM-YYYY`, `MM-DD-YYYY`) affects how reminder dates are displayed. This also affects other places where dates are mentioned but not the Journal. 
 
 ---
 ## MORE FEATURES
@@ -328,9 +353,8 @@ Choose which Journal tab opens by default (All, Random, On this day, Marked) in 
 > - Custom colours do not apply when the style is `Portals` and the setting `Tab colours` is turned on. Tab colours applies the colour of the portal space to the folder, tag or group summaries in a space. 
 
 ---
-### Custom Icons
-
-Portals comes with both Phosphor and Lucide icon sets. Phosphor icon set is embedded into the code, Lucide icon set is called using Obsidian. Both work completely offline. Users can assign any icon to files, folders, tags, group tags, subtags, stacks and portal tabs. User preferences are saved based on library and icon name.
+### Custom Icons & Emojis
+Portals comes with Phosphor and Lucide icon sets. Phosphor icon set is embedded into the code, Lucide icon set is called using Obsidian. Apart from this there are 300+ device based emojis embedded into the code. All three work completely offline. Users can assign any icon to files, folders, tags, group tags, subtags, stacks and portal tabs. User preferences are saved based on library and icon name.
 #### How to set/remove an icon
 - `Right‑click` on the item → **Set custom icon** → choose an icon from the picker.
 - If an icon is already set, the context menu shows **Remove custom icon**.
@@ -338,6 +362,7 @@ Portals comes with both Phosphor and Lucide icon sets. Phosphor icon set is embe
 > 1. Since there are no icons in the styles `Shades` or `Minimal`, the context menu options for icon change in those are muted. This doesn't change user set preferences of icons per folder/ file/ tag group/ subtag. 
 > 2. For plugin hardcoded icons, use the `Plugin icon library setting` in **Utilities** page to switch between Phosphor and Lucide. This doesn't affect custom icons for user, both sets can be used simultaneously for that. 
 > 3. Icon modal contains a **favourites** tab. Users can add to that from both libraries for quicker access to their preferred icons. 
+> 4. Custom paste field allows users to paste any emoji outside the Portal set directly into the icon picker modal. 
 
 ---
 ### Active Dot
@@ -367,7 +392,8 @@ Users can select the values from the list of dropdown, search using `Right-click
 In this part users can directly apply YAML to the Markdown files. Simply press `Copy from file` to load the YAML into the text area, copy it using keyboard shortcuts or context menu. Then select the file or list of files you want to apply the same YAML to, Paste the copied YAML into the text area and press `Paste to files` button. 
 
 **Important points**
-- Please note that the YAML parser supports **only flat key-value pairs and simple, one-level lists**. For nested YAML, the frontmatter editor may fail and give errors so it is ideal to use Obsidian's built-in editor for those. 
+- Please note that the YAML parser may face issues in nested YAML, the front matter editor may fail and give errors so it is ideal to use Obsidian's built-in editor source mode for those. 
+- YAML blocks can be pasted with or without the `---` markers.
 - YAML editing works through `Copy from file`, `Paste to files` buttons only. The buttons at the bottom, i.e. for `Save` and `Remove` are for properties selected through dropdown or for custom properties. 
 - The `Clear all` button inside YAML section can be used to clear every frontmatter property from the files selected. 
 - For individual files use the frontmatter editor from context menu. For multiple files, make sure to use the frontmatter editor from multi-select toolbar. 
@@ -435,22 +461,22 @@ Multi-select is available for files, folders and tags. This feature works throug
 ### Command palette actions
 The actions available with command palette are as follows:
 
-| Commands                        | Effect                                                                                                                                               |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Open explorer                   | Enables portals view. Important for loading the plugin post first install or after disabling portals view.                                           |
-| Add portal tabs                 | Opens the Add portal modal, used for configuring portal tabs from folders, tabs or subfolders.                                                       |
-| Remove portal tabs              | Helps remove existing portal tabs from view.                                                                                                         |
-| Configure side portals          | Opens the side portal modal, used to configure side portal tabs.                                                                                     |
-| Reorder folders/ tags           | Opens reorder modal to rearrange summary items (not files) on portal level. For subfolders, call the same from context menu.                         |
-| Bulk frontmatter edit           | Needs at least one file selected using multi-select. Opens the frontmatter editor modal.                                                             |
-| Open guide                      | Opens this guide in a web viewer page on GitHub.                                                                                                     |
-| Toggle sections                 | Enables or disables sections in explorer.                                                                                                            |
-| Toggle file previews            | Enables or disables file previews in explorer.                                                                                                       |
-| Switch root vault portal tab    | Switches to the root folder portal (pinned root from settings), if enabled.                                                                          |
-| Stack all unstacked portal tabs | Stacks all unstacked portal tabs into a new stack.                                                                                                   |
-| Switch to previous portal       | Switches back to the last open portal.                                                                                                               |
-| Open Portal {n}                 | Works with quick switch tabs. 10 portals can be assigned here, making it 10 commands, and called using hotkeys. Allows quick switching between tabs. |
-| Open {side portal name}         | Open any side portal directly from commands. Plugin packs seven individual commands to cover all existing side portals.                              |
+| Commands                        | Effect                                                                                                                                                                                     |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Open explorer                   | Enables portals view. Important for loading the plugin post first install or after disabling portals view.                                                                                 |
+| Add portal tabs                 | Opens the Add portal modal, used for configuring portal tabs from folders, tabs or subfolders.                                                                                             |
+| Remove portal tabs              | Helps remove existing portal tabs from view.                                                                                                                                               |
+| Configure side portals          | Opens the side portal modal, used to configure side portal tabs.                                                                                                                           |
+| Reorder folders/ tags           | Opens reorder modal to rearrange summary items (not files) on portal level. For subfolders, call the same from context menu.                                                               |
+| Bulk frontmatter edit           | Needs at least one file selected using multi-select. Opens the frontmatter editor modal.                                                                                                   |
+| Open guide                      | Opens this guide in a web viewer page on GitHub.                                                                                                                                           |
+| Toggle sections                 | Enables or disables sections in explorer.                                                                                                                                                  |
+| Toggle file previews            | Enables or disables file previews in explorer.                                                                                                                                             |
+| Switch root vault portal tab    | Switches to the root folder portal (pinned root from settings), if enabled.                                                                                                                |
+| Stack all unstacked portal tabs | Stacks all unstacked portal tabs into a new stack.                                                                                                                                         |
+| Switch to previous portal       | Switches back to the last open portal.                                                                                                                                                     |
+| Open Portal {n}                 | Dynamically connects every portal to a separate command on Obsidian load. 10 portals can be assigned from portal tab context menu for visual display. Allows quick switching between tabs. |
+| Open {side portal name}         | Open any side portal directly from commands. Plugin packs eight individual commands to cover all existing side portals.                                                                    |
 
 ---
 ## IMPORTANT POINTS
@@ -474,21 +500,21 @@ Tag trees can be added using the same method as folder trees via `Settings → P
 ---
 ## SHORTCUTS & QUICK ACTIONS
 
-| **Shortcut**         | **Target**        | **Action**                                                                                                          |
-| -------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `Cmd/Ctrl+Click`     | File              | Opens a file in a new tab.                                                                                          |
-| `Cmd/Ctrl+Click`     | Folder/ Tag       | Opens the context note of a folder or a tag in a new tab, if it exists.                                             |
-| `Shift+Click`        | File              | Opens a file in a vertical split tab.                                                                               |
-| `Shift+Click`        | Folder/ Tag       | Opens the context note of a folder or a tag in the same tab.                                                        |
-| `Mouse middle-click` | File              | Opens the file in a new tab.                                                                                        |
-| `Alt-click`          | File/ Folder/ Tag | Toggles multi-select on, renders the multi-select toolbar.                                                          |
-| `Alt+Shift+click`    | File/ Folder/ Tag | Selects all items between the range of two mouse clicks, toggles multi-select on, renders the multi-select toolbar. |
-| `Swipe-right`        | File/ Folder/ Tag | Mobile devices. Toggles multi-select on or off, renders the multi-select toolbar.                                   |
-| `Cmd/Ctrl+Hover`     | File              | Page preview, if Obsidian core plugin Page Preview is on.                                                           |
+| **Shortcut**         | **Target**        | **Action**                                                                                                          |     |
+| -------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------- | --- |
+| `Cmd/Ctrl+Click`     | File              | Opens a file in a new tab.                                                                                          |     |
+| `Cmd/Ctrl+Click`     | Folder/ Tag       | Opens the context note of a folder or a tag in a new tab, if it exists.                                             |     |
+| `Shift+Click`        | File              | Opens a file in a vertical split tab.                                                                               |     |
+| `Shift+Click`        | Folder/ Tag       | Opens the context note of a folder or a tag in the same tab.                                                        |     |
+| `Mouse middle-click` | File              | Opens the file in a new tab.                                                                                        |     |
+| `Alt-click`          | File/ Folder/ Tag | Toggles multi-select on, renders the multi-select toolbar.                                                          |     |
+| `Alt+Shift+click`    | File/ Folder/ Tag | Selects all items between the range of two mouse clicks, toggles multi-select on, renders the multi-select toolbar. |     |
+| `Swipe-right`        | File/ Folder/ Tag | Mobile devices. Toggles multi-select on or off, renders the multi-select toolbar.                                   |     |
+| `Cmd/Ctrl+Hover`     | File              | Page preview, if Obsidian core plugin Page Preview is on.                                                           |     |
 
 ---
 ## SETTINGS OVERVIEW
-The setting page from 1.4.3 is redesigned to support Obsidian's native searchable setting. Each item on the docket is a searchable entry directly accessible from Obsidian setting's search. The setting page is broken down into groups and sections, 
+The setting page supports Obsidian's native searchable settings. Each item on the docket is a searchable entry directly accessible from Obsidian setting's search. The setting page is broken down into groups and sections, 
 
 ### Configuration
 The first group is Configuration which includes several pages
@@ -498,8 +524,9 @@ The first group is Configuration which includes several pages
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Replace file explorer                  | Opens Portals in the left sidebar on startup.                                                                        |
 | Compact tree view                      | Reduces spacing to show more items.                                                                                  |
+| Auto collapse tree                     | Automatically fold/unfold folder and tag trees                                                                       |
 | Styles                                 | Choose tree visual theme.                                                                                            |
-| Background colour style                | How tab colours are applied to the file area (Gradient/Solid/None).                                                   |
+| Background colour style                | How tab colours are applied to the file area (Gradient/Solid/None).                                                  |
 | Bold folder names                      | Makes folder names bold.                                                                                             |
 | Show extensions for non‑Markdown files | Displays a badge (e.g., `.PDF`) instead of a dot.                                                                    |
 | Quick add icons                        | Choose how to display quick add icons on folder/ tag summaries in file tree.                                         |
@@ -568,6 +595,16 @@ The first group is Configuration which includes several pages
 | ------------------- | -------------------------------------------------------- |
 | Show current value  | Show property value on listed files after sorting.       |
 | Hide filtered count | Hide the count of total filtered items before file list. |
+###### Reminders
+| Setting                   | Description                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------------ |
+| Reminder property         | Set to `remind_at` by default, can be changed.                                             |
+| Show overdue              | Display past-due reminders in the side portal.                                             |
+| Order                     | Set sorting order of Reminders side portal                                                 |
+| Tab notification          | Show a red colored reminder side portal tab when notifications of today or overdue.        |
+| Reminder indicator        | Show bell icon next to files with reminders. Can be dynamically colored, greyscale or off. |
+| Show startup notification | Show a notification on obsidian start if there are reminders of due today or overdue.      |
+
 #### Maintenance
 ###### Backup & restore
 
@@ -579,20 +616,23 @@ The first group is Configuration which includes several pages
 | Auto backup folder | Folder where auto backups are stored (default: vault root).                                                    |
 ###### Force cleanup
 
-| Settings                     | Description                                                                                                                                                 |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Clean up dead portals        | Remove tabs for folders/tags that no longer exist. Hard reset for dead items.                                                                               |
-| Clean up dead hidden keys    | Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically. |
-| Clean up preview preferences | Clears all per-file preview expand/collapse choices accumulated overtime. Useful for a fresh start with floating preview button.                            |
+| Settings                         | Description                                                                                                                                                 |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Clean up dead portals            | Remove tabs for folders/tags that no longer exist. Hard reset for dead items.                                                                               |
+| Clean up dead hidden keys        | Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically. |
+| Reset preview preferences        | Clears saved data about previews for a fresh start.                                                                                                         |
+| Clean up orphaned setting fields | Removes stale data.json fields left over from older plugin versions.                                                                                        |
 
 ### Utilities
 The second group is Utilities, displayed on the main settings page, these include,
 
-| Settings            | Description                                                                                     |
-| ------------------- | ----------------------------------------------------------------------------------------------- |
-| Plugin icon library | Switch plugin hardcoded icons between Lucide and Phosphor library. Does not affect custom icons |
-| User Guide          | Opens this user guide on GitHub                                                                 |
-| Release notes       | Opens release notes on GitHub                                                                   |
+| Settings                    | Description                                                                                     |
+| --------------------------- | ----------------------------------------------------------------------------------------------- |
+| Plugin icon library         | Switch plugin hardcoded icons between Lucide and Phosphor library. Does not affect custom icons |
+| Register dynamic commands   | Registers all portals as commands on obsidian load                                              |
+| Global date display setting | Date setting for display dates. Files are saved with year first format.                         |
+| User Guide                  | Opens this user guide on GitHub                                                                 |
+| Release notes               | Opens release notes on GitHub                                                                   |
 
 ---
 ## TROUBLESHOOTING TIPS

@@ -509,7 +509,7 @@ function buildSidePortalPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     }
                 },
                 {
-                    name: 'Show startup notificsation',
+                    name: 'Show startup notification',
                     desc: 'Display a notice on Obsidian startup if there are reminders due today or overdue.',
                     control: { type: 'toggle', key: 'reminderStartupNotification' }
                 }

@@ -17,26 +17,28 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 - **Pin folders & tags** as tabs at the top of the file pane.
 - **Stacks** – group multiple tabs into collapsible stacks.
-- **Custom icons & colours** – Use Phosphor or Lucide; picker includes favourites. Use custom icons for tabs, folders, files, tag groups.
+- **Custom icons, colours & emojis** – Use Phosphor, Lucide, or native emojis; picker includes favourites and a custom paste field.
+- **Auto collapse folders** - Automatically fold and unfold folders or tag summaries that are in use.
 - **File preview** – Show content snippets below filenames; toggle per file or globally.
 - **Sections** – Organise folders or tags into collapsible section breaks (by property or extension).
-- **Quick tab switcher** – Assign numbers 1–10 to portals and switch instantly via hotkeys.
+- **Dynamic commands** – Every portal tab (folder or tag) is registered as its own command in the command palette for quick switching without leaving the keyboard.
 - **Auto backups** – Automatically save `data.json` on Obsidian reload.
 - **Six visual styles** + compact tree view + bold folder names.
 - **Tag grouping & subtag support** for tag portals.
 - **Multi‑select** files, folders, and tags with `Alt+Click` or `Swipe right`. Use multi-select toolbar for actions. 
-- **Command palette** support includes a many commands that can enhance workflow, specially when coupled with hotkeys. 
-- **Foldable floating action buttons** for  note/ folder creation, tag grouping, sections, collapse and sort. 
-- **Quick-add buttons** for folders, tags to quickly create new items in target items.
+- **Command palette** support includes many commands that can enhance workflow, especially when coupled with hotkeys. 
+- **Foldable floating action buttons** for note/ folder creation, tag grouping, sections, collapse and sort. 
+- **Quick-add buttons** for folders, tags to quickly create new items inside the target folder or tag.
 - **Custom display names** for tabs, stacks. 
-- **Side Portal** - A modular, collapsible, resizable view containing, **Bookmarks**, **Recent Files**, **Context notes**, **Hidden**, **Properties** and **Journal**. 
+- **Side Portal** - A modular, collapsible, resizable view containing, **Bookmarks**, **Recent Files**, **Context notes**, **Hidden**, **Reminders**, **Properties** and **Journal**. 
 	- **Context Notes** - an expansion to the older Folder notes feature. Context notes apply to folder as well as tags. 
 	- **Recents** - Shows recent files list from across the vault. 
 	- **Bookmarks** - Shows bookmarked files, folders or web links.
 	- **Journal** - A viewing and marking tool for Daily Notes with a quote display feature. 
 	- **Hidden** - Place to show files, tags and folders hidden from the main view. 
-	- **Properties** - A viewing tool for Markdown files, based on their properties. 
+	- **Properties** - a full database view with multi-property filtering, saved views, grouped lists and much more for property based querying. 
 	- **Trash** - A trash explorer for notes and folders based on Obsidian's `.trash` folder at vault root. 
+	- **Reminders** - A side portal view for tracking due dates on notes.
 - **Drag & drop** reordering for portal tabs and stacks (desktop).
 - **Mobile friendly** – Responsive design that works on small screens. Tested on Android (more platforms coming).
 - **Export/Import settings** – Backup your tab configuration or transfer it to another vault using json files from `Settings`.
@@ -45,11 +47,11 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 
 > [!Note]
 > - Please back up your data file after preferences setup, colour & icon choices. Copy the file `.obsidian/plugins/portals/data.json` to a safe location. You can also export the same via `Settings` and later import it. Make sure to backup before any plugin updates. 
-> - Portals version 1.4.3 release onwards requires Obsidian 1.13.0 or later. If you're on an older version, update Obsidian please.
+> - Portals requires Obsidian 1.13.0 or later. If you're on an older version, update Obsidian please.
 > - For best results,
 > 	- On mobile: Works best with Baseline Theme as the theme renders vault on the top side. On other themes, turn off floating navigation in settings, i.e. Settings > Appearance > Floating Navigation. 
 > 	- On desktop, you may need to turn off vault hiding if your theme hides the vault selector on the lower side. 
-> 	- **Auto backups** – Enable in Utilities page to save your configuration automatically on Obsidian reload.
+> 	- **Auto backups** – Enable in settings to save your configuration automatically on Obsidian reload.
 
 ## ⚙️ Installation
 	
@@ -75,24 +77,12 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - Add portal tabs using settings or command palette. 
 - Add existing portals to stacks using `Right-click` context menu on tabs.
 - Drag tabs left/right to reorder.
-- Add **Side Portals** using settings, command palette .
+- Add **Side Portals** using settings, command palette.
 - **Side Portal** can be turned off for mobile devices.
 - Customise tags, stacks and folders. 
 
 > For detailed walkthroughs and tips, read the **[Portals Guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md)**.
 
-## ⚙️ Settings Overview (split into pages)
-
-- **Explorer** – Replace file explorer, compact tree, styles, background colour, bold folders, extension badge, quick-add icons, file preview, file tooltips, enable sections.
-- **Portal tabs** – Compact tabs, tab name display, tab icon position, show quick tab badge, tab colours, pin vault root, add/remove portals.
-- **Stacks** – Hide stack names, stack icon position, show stack count, coloured stack icon, auto‑collapse stacks.
-- **Side Portal** – Enable/disable, choose which tabs appear, disable on mobile.
-- **Context Notes** – Enable, tag notes folder, show in file tree, highlight type, open from icon, show closest context note.
-- **Journal** – Date format, journal folder, quote delimiter, quote indicator, default quote tab.
-- **Properties** – Show current value, hide filtered count.
-- **Utilities** – Plugin icon library (Phosphor/Lucide), export/import, auto backups (folder & max copies), clean up dead portals.
-
->See the [Portals Guide](https://github.com/samaraliwarsi/obsidian-portals/blob/main/Portals_Guide.md) for every setting and its description.
 ## 🧑‍💻 Development
 
 Clone the repository, install dependencies, and build:
