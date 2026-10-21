@@ -237,6 +237,22 @@ export class FileItemFactory {
         return text.slice(0, maxLength) + (text.length > maxLength ? '…' : '');
     }
 
+    private static countWords(content: string): number {
+        // 1. Remove YAML
+        let text = content.replace(/^---[\s\S]*?---/, '');
+        // 2. Remove code blocks
+        text = text.replace(/```[\s\S]*?```/g, '');
+        // 3. Remove wiki links
+        text = text.replace(/\[\[.*?\]\]/g, '');
+        // 4. Remove markdown links
+        text = text.replace(/\[.*?\]\(.*?\)/g, '');
+        // 5. Remove markdown syntax (*, _, #, >)
+        text = text.replace(/[*_~>#-]/g, '');
+        // 6. Count words
+        const words = text.match(/\b\w+\b/g);
+        return words ? words.length : 0;
+    }
+
     public static toggleFilePreview(plugin: PortalsPlugin, filePath: string, iconEl?: HTMLElement): boolean {
         const tempExcluded = plugin.settings.previewExcludedFiles[filePath] ?? false;
         plugin.settings.previewExcludedFiles[filePath] = !tempExcluded;
@@ -259,11 +275,7 @@ export class FileItemFactory {
                     wordCount = cached.wordCount;
                 } else {
                     const content = await app.vault.cachedRead(file);
-                    const plainText = FileItemFactory.extractSnippet(content, Infinity);
-
-                    const words = plainText.split(/\s+/).filter(w => w.length > 0);
-                    const wordCount = words.length;
-
+                    wordCount = FileItemFactory.countWords(content);
                     FileItemFactory.tooltipCache.set(file.path, {
                         wordCount,
                         mtime: file.stat.mtime
