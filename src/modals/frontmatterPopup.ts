@@ -241,7 +241,7 @@ export class FrontmatterPopup {
         this.yamlTextarea.rows = 4;
 
         yamlContent.createEl('p', {
-            text: 'Use "paste to files" to apply YAML input, not "save".',
+            text: 'Paste with or without "---" markers. Use "Paste" to apply, not "Save".',
             cls: 'portals-fm-modal-select-status',
         });
         if (!Platform.isMobile) {
@@ -289,8 +289,19 @@ export class FrontmatterPopup {
 
         // Paste action
         this.pasteYamlBtn.addEventListener('click', () => {
-            const yamlText = this.yamlTextarea.value.trim();
+            let yamlText = this.yamlTextarea.value.trim();
             if (!yamlText) { new Notice('Please paste YAML first.'); return; }
+
+            if (yamlText.startsWith('---')) {
+                yamlText = yamlText.substring(3).trim();
+            }
+            if (yamlText.endsWith('---')) {
+                yamlText = yamlText.substring(0, yamlText.length - 3).trim();
+            }
+            if (!yamlText) {
+                new Notice('Invalid YAML. The block is empty.');
+                return;
+            }
 
             let newProps: Record<string, unknown>;
             try {
