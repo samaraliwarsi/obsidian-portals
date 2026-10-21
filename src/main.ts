@@ -103,7 +103,7 @@ export default class PortalsPlugin extends Plugin {
                 for (const file of this.app.vault.getMarkdownFiles()) {
                     const rawDate = this.app.metadataCache.getFileCache(file)?.frontmatter?.[propName];
                     if (rawDate) {
-                        const dateObj = parseLocalDate(rawDate);
+                        const dateObj = parseLocalDate(String(rawDate));
                         if (dateObj && getDaysDifference(dateObj) <= 0) {
                             count++;
                         }
