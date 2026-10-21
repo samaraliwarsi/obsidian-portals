@@ -785,7 +785,7 @@ export class FrontmatterClinicRenderer {
                     this.showSearchPopoverForClinic(valueSpan, displayValues, displayValue, (selected) => {
                         const newValue = selected === 'none' ? 'none' : (displayToRaw.get(selected) || selected);
                         void (async () => {
-                            await this.app.fileManager.processFrontMatter(file, (fm) => {
+                            await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
                                 if (newValue === 'none') {
                                     delete fm[badgeProperty];
                                 } else {

@@ -545,9 +545,10 @@ export class PortalsActions {
             view.renaming = false;
             PortalsActions.setRenamingActive(view, false);
             if (input.isConnected && input.parentElement) {
-                const nameSpan = activeDocument.createElement('span');
-                nameSpan.className = 'portals-item-name';
-                nameSpan.textContent = file.basename;
+                const nameSpan = createSpan({
+                    cls: 'portals-item-name',
+                    text: file.basename
+                });
                 input.replaceWith(nameSpan);
             }
         };
@@ -606,9 +607,10 @@ export class PortalsActions {
             view.renaming = false;
             PortalsActions.setRenamingActive(view, false);
             if (input.isConnected && input.parentElement) {
-                const newNameSpan = activeDocument.createElement('span');
-                newNameSpan.className = 'portals-item-name';
-                newNameSpan.textContent = folder.name; // Uses the updated folder name
+                const newNameSpan = createSpan({
+                    cls: 'portals-item-name',
+                    text: folder.name
+                });
                 input.replaceWith(newNameSpan);
             }
         };

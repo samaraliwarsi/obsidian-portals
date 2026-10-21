@@ -490,8 +490,8 @@ function buildSidePortalPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     }
                 },
                 {
-                    name: 'Tab nofitication badge',
-                    desc: 'Show a red badge on the reminders tab if you have overdue or today\'s reminders.',
+                    name: 'Tab notification',
+                    desc: 'Show a red highlight on the reminders side portal tab if you have overdue or today\'s reminders.',
                     control: { type: 'toggle', key: 'reminderTabNotification' }
                 },
                 {

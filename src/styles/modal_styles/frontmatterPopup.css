@@ -23,7 +23,6 @@
     width: auto;
     max-width: var(--dialog-width);
     min-width: 320px;
-    max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
 }

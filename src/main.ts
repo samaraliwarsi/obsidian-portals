@@ -1063,7 +1063,7 @@ export default class PortalsPlugin extends Plugin {
             const oldValue = cache?.frontmatter?.[oldProp];
             
             if (oldValue !== undefined && oldValue !== null) {
-                await this.app.fileManager.processFrontMatter(file, (fm) => {
+                await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
                     if (fm[newProp] === undefined) {
                         fm[newProp] = oldValue;
                         count++

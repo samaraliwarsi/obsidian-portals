@@ -86,7 +86,7 @@ export async function renderSidePanelContent(
     } else if (tabId === 'journal') {
         if (!mainView) return;
         const journalContainer = contentEl.createDiv();
-        const journalRenderer = new JournalRenderer(app, plugin, journalContainer, mainView!);
+        const journalRenderer = new JournalRenderer(app, plugin, journalContainer, mainView);
         journalRenderers.set(mainView, journalRenderer);
 
         activeSidePanelRenderers.set(contentEl, journalRenderer);

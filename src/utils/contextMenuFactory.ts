@@ -118,7 +118,7 @@ export class ContextMenuFactory {
                     .setIcon('bell-off')
                     .onClick(() => {
                         void (async () => {
-                            await view.app.fileManager.processFrontMatter(file, (fm) => {
+                            await view.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
                                 delete fm[prop];
                             });
                             new Notice('Reminder removed');

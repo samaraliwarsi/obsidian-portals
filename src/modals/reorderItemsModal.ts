@@ -20,7 +20,7 @@ export class ReorderItemsModal extends Modal {
         this.sourceEl = sourceEl ?? null;
         this.detailsEl = sourceEl?.closest('.folder-details') as HTMLElement ?? null;
 
-        if (this.detailsEl instanceof HTMLDetailsElement) {
+        if (this.detailsEl?.instanceOf(HTMLDetailsElement)) {
             this.detailsHighlightClass = this.detailsEl.open
                 ? 'portals-reordering-details-open-active'
                 : 'portals-reordering-details-closed-active';

@@ -48,7 +48,7 @@ export class DatePickerModal extends Modal {
 
             void (async () => {
                 try {
-                    await this.app.fileManager.processFrontMatter(this.file, (fm) => {
+                    await this.app.fileManager.processFrontMatter(this.file, (fm: Record<string, unknown>) => {
                         fm[prop] = dateStr;
                     });
                     new Notice(`Reminder set for ${dateStr}`);
@@ -71,7 +71,7 @@ export class DatePickerModal extends Modal {
             this.close(); // Instant close
             void (async () => {
                 try {
-                    await this.app.fileManager.processFrontMatter(this.file, (fm) => {
+                    await this.app.fileManager.processFrontMatter(this.file, (fm: Record<string, unknown>) => {
                         delete fm[prop];
                     });
                     new Notice('Reminder removed');
