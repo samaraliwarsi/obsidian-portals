@@ -2032,6 +2032,8 @@ export class PortalsView extends ItemView {
         const container = this.containerEl.children[1] as HTMLElement;
         const treeContainer = container.querySelector('.portals-tree-container');
         if (!treeContainer) return;
+
+        treeContainer.addClass('portals-is-rebuilding');
         treeContainer.empty();
 
         this.fileElementMap.clear();
@@ -2071,6 +2073,9 @@ export class PortalsView extends ItemView {
             new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
         }
         this.restoreTreeScroll();
+        
+        treeContainer.removeClass('portals-is-rebuilding');
+        
         this.reapplySelectionHighlights();
     }
 
