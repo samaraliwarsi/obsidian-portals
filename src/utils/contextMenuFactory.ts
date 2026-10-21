@@ -102,27 +102,29 @@ export class ContextMenuFactory {
                 .onClick(() => PortalsActions.resetCustomColorForFile(view.app, view.plugin, view, file)));
         }
 
-        menu.addSeparator();
-        const prop = view.plugin.settings.reminderProperty || 'remind_at';
-        const hasReminder = view.app.metadataCache.getFileCache(file)?.frontmatter?.[prop];
+        if (file.extension === 'md') {
+            menu.addSeparator();
+            const prop = view.plugin.settings.reminderProperty || 'remind_at';
+            const hasReminder = view.app.metadataCache.getFileCache(file)?.frontmatter?.[prop];
 
-        menu.addItem(item => item
-            .setTitle(hasReminder ? 'Change reminder' : 'Set reminder')
-            .setIcon('bell')
-            .onClick(() => view.plugin.promptForReminder(file)));
-
-        if (hasReminder) {
             menu.addItem(item => item
-                .setTitle('Remove reminder')
-                .setIcon('bell-off')
-                .onClick(() => {
-                    void (async () => {
-                        await view.app.fileManager.processFrontMatter(file, (fm) => {
-                            delete fm[prop];
-                        });
-                        new Notice('Reminder removed');
-                    })();
-                }));
+                .setTitle(hasReminder ? 'Change reminder' : 'Set reminder')
+                .setIcon('bell')
+                .onClick(() => view.plugin.promptForReminder(file)));
+
+            if (hasReminder) {
+                menu.addItem(item => item
+                    .setTitle('Remove reminder')
+                    .setIcon('bell-off')
+                    .onClick(() => {
+                        void (async () => {
+                            await view.app.fileManager.processFrontMatter(file, (fm) => {
+                                delete fm[prop];
+                            });
+                            new Notice('Reminder removed');
+                        })();
+                    }));
+            }
         }
 
         menu.addSeparator();
