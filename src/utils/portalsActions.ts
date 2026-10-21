@@ -714,14 +714,6 @@ export class PortalsActions {
         element.dataset.path = file.path;
         view.fileElementMap.delete(oldPath);
         view.fileElementMap.set(file.path, element);
-
-       const order = plugin.settings.customTreeOrder;
-        if (file instanceof TFolder) {
-            if (order[oldPath] !== undefined) {
-                order[file.path] = order[oldPath];
-                delete order[oldPath];
-            }
-        } 
     }
 
     static async setFileAsContextNote(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile): Promise<void> {
