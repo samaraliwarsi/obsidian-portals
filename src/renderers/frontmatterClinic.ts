@@ -40,6 +40,7 @@ export class FrontmatterClinicRenderer {
     private fmModalOpen = false;
     private deferredRefresh = false;
     private _escapeHandler: ((e: KeyboardEvent) => void) | null = null;
+    private destroyed = false;
 
     static async buildCache(app: App) {
         if (clinicCache.ready) return;
@@ -290,6 +291,8 @@ export class FrontmatterClinicRenderer {
     }
 
     async render() {
+        this.destroyed = false;
+
         this.clinicSelectedPaths.clear();
         if (this.clinicToolbar) {
             this.clinicToolbar.remove();
@@ -307,6 +310,7 @@ export class FrontmatterClinicRenderer {
                 cls: 'fm-noFound-txt' 
             });
             await FrontmatterClinicRenderer.buildCache(this.app);
+            if (this.destroyed) return;
             loadingEl.remove();
         }
 
@@ -321,381 +325,382 @@ export class FrontmatterClinicRenderer {
 
         const isRightSidebar = this.container.closest('.mod-right-split') !== null;
         const tooltipDir: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
+        try {
+            this.filterFiles();
 
-        this.filterFiles();
+            const controlDetails = this.container.createEl('details', { cls: 'fm-clinic-controls' });
+            controlDetails.open = this.plugin.settings.clinicState.controlsOpen ?? true;
 
-        const controlDetails = this.container.createEl('details', { cls: 'fm-clinic-controls' });
-        controlDetails.open = this.plugin.settings.clinicState.controlsOpen ?? true;
+            const controlSummary = controlDetails.createEl('summary', { cls: 'fm-clinic-controls-summary' });
+            controlSummary.createSpan({ text: 'Controls' });
 
-        const controlSummary = controlDetails.createEl('summary', { cls: 'fm-clinic-controls-summary' });
-        controlSummary.createSpan({ text: 'Controls' });
-
-        controlDetails.addEventListener('toggle', () => {
-            this.plugin.settings.clinicState.controlsOpen = controlDetails.open;
-            void this.plugin.saveData(this.plugin.settings);
-        });
-
-        const controlsContent = controlDetails.createDiv({ cls: 'fm-clinic-controls-content' });
-
-        // --- SAVED VIEWS ROW ---
-        const viewsRow = controlsContent.createDiv({ cls: 'fm-clinic-views-row' });
-        const viewSelect = viewsRow.createEl('select', { cls: 'portals-reset-dropD dropdown' });
-        viewSelect.createEl('option', { value: '', text: 'custom view' });
-
-        let activeViewName = '';
-        const currentFilterStr = JSON.stringify(this.plugin.settings.clinicState.filters);
-        
-        for (const viewName of Object.keys(this.plugin.settings.clinicState.savedViews)) {
-            const opt = viewSelect.createEl('option', { value: viewName, text: viewName });
-            const savedView = this.plugin.settings.clinicState.savedViews[viewName];
-
-            if (savedView && JSON.stringify(savedView.filters) === currentFilterStr && savedView.groupBy === this.plugin.settings.clinicState.groupBy) {
-                opt.selected = true;
-                activeViewName = viewName;
-            }
-        }
-
-        viewSelect.addEventListener('change', () => {
-            const viewName = viewSelect.value;
-            if (viewName && this.plugin.settings.clinicState.savedViews[viewName]) {
-                const view = this.plugin.settings.clinicState.savedViews[viewName];
-
-                this.plugin.settings.clinicState.filters = JSON.parse(JSON.stringify(view.filters));
-                this.plugin.settings.clinicState.groupBy = view.groupBy;
-                void this.plugin.saveSettings().then(() => this.render());
-            }
-        });
-
-        if (activeViewName) {
-            const deleteViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon fm-view-icon' });
-            this.plugin.renderPluginIcon(deleteViewBtn, 'trash');
-            if (!Platform.isMobile) {
-                this.view.attachTooltip(deleteViewBtn, 'Delete view', 300, tooltipDir);
-            }
-            deleteViewBtn.addEventListener('click', () => {
-                delete this.plugin.settings.clinicState.savedViews[activeViewName];
-                this.plugin.settings.clinicState.filters = [{ property: '', value: ''}];
-                this.plugin.settings.clinicState.groupBy = '';
-                void this.plugin.saveSettings().then(() => this.render());
+            controlDetails.addEventListener('toggle', () => {
+                this.plugin.settings.clinicState.controlsOpen = controlDetails.open;
+                void this.plugin.saveData(this.plugin.settings);
             });
-        }
 
-        const saveViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon fm-view-icon' });
-        this.plugin.renderPluginIcon(saveViewBtn, 'save');
-        if (!Platform.isMobile) {
-            this.view.attachTooltip(saveViewBtn, activeViewName ? 'Update view' : 'Save as new view', 300, tooltipDir);
-        }
-        saveViewBtn.addEventListener('click', () => {
-            new SaveViewModal(this.app, activeViewName, (name) => {
-                this.plugin.settings.clinicState.savedViews[name] = {
-                    filters: JSON.parse(JSON.stringify(this.plugin.settings.clinicState.filters)),
-                    groupBy: this.plugin.settings.clinicState.groupBy
-                };
-                void this.plugin.saveSettings().then(() => this.render());
-            }).open();
-        });
+            const controlsContent = controlDetails.createDiv({ cls: 'fm-clinic-controls-content' });
 
-        // --- GROUPING ROW ---
-        const groupRow = controlsContent.createDiv({ cls: 'fm-clinic-views-row' });
+            // --- SAVED VIEWS ROW ---
+            const viewsRow = controlsContent.createDiv({ cls: 'fm-clinic-views-row' });
+            const viewSelect = viewsRow.createEl('select', { cls: 'portals-reset-dropD dropdown' });
+            viewSelect.createEl('option', { value: '', text: 'custom view' });
 
-        const groupSelect = groupRow.createEl('select', { cls: 'portals-reset-dropD dropdown' });
-        groupSelect.createEl('option', { value: '', text: 'none (flat list)' });
-
-        const groupIcon = groupRow.createSpan({ cls: 'clickable-icon fm-group-icon' });
-        this.plugin.renderPluginIcon(groupIcon, 'rows');
-        if (!Platform.isMobile) {
-            this.view.attachTooltip(groupIcon, 'Group by', 300, tooltipDir);
-        }
-        
-        const allProps = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort();
-        for (const prop of allProps) {
-            const opt = groupSelect.createEl('option', { value: prop, text: prop });
-            if (this.plugin.settings.clinicState.groupBy === prop) {
-                opt.selected = true;
-            }
-        }
-
-        groupSelect.addEventListener('change', () => {
-            this.plugin.settings.clinicState.groupBy = groupSelect.value;
-            void this.plugin.saveSettings().then(() => this.render());
-        });
-
-        // --- FILTER ROWS ---
-        const filtersContainer = controlsContent.createDiv({ cls: 'fm-clinic-filters-container' });
-        
-        this.plugin.settings.clinicState.filters.forEach((filter, index) => {
-            const headerRow = filtersContainer.createDiv({ cls: 'fm-clinic-header' });
+            let activeViewName = '';
+            const currentFilterStr = JSON.stringify(this.plugin.settings.clinicState.filters);
             
-            // Property Button
-            const propBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-property-btn' });
-            this.plugin.renderPluginIcon(propBtn, 'funnel');
-            propBtn.createSpan({ text: filter.property || 'Select property', cls: 'fm-btn-text' });
+            for (const viewName of Object.keys(this.plugin.settings.clinicState.savedViews)) {
+                const opt = viewSelect.createEl('option', { value: viewName, text: viewName });
+                const savedView = this.plugin.settings.clinicState.savedViews[viewName];
 
-            propBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const menu = new Menu();
-                menu.addItem(item => item.setTitle('None').onClick(() => {
-                    filter.property = '';
-                    filter.value = '';
-                    void this.plugin.saveSettings().then(() => this.render());
-                }));
-                menu.addItem(item => item.setTitle('No frontmatter').onClick(() => {
-                    filter.property = 'No frontmatter';
-                    filter.value = '';
-                    void this.plugin.saveSettings().then(() => this.render());
-                }));
-                menu.addSeparator();
-                for (const prop of FrontmatterClinicRenderer.getProperties().keys()) {
-                    menu.addItem(item => item.setTitle(prop).onClick(() => {
-                        filter.property = prop;
-                        filter.value = '';
-                        void this.plugin.saveSettings().then(() => this.render());
-                    }));
+                if (savedView && JSON.stringify(savedView.filters) === currentFilterStr && savedView.groupBy === this.plugin.settings.clinicState.groupBy) {
+                    opt.selected = true;
+                    activeViewName = viewName;
                 }
-                const rect = propBtn.getBoundingClientRect();
-                menu.showAtPosition({ x: rect.left, y: rect.bottom });
-            });
-
-            // Value Button
-            const valueBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-value-btn' });
-            this.plugin.renderPluginIcon(valueBtn, 'funnel-simple');
-
-            let displayFilterValue = filter.value;
-            if (displayFilterValue && displayFilterValue !== '__none__' && /^\d{4}-\d{2}-\d{2}$/.test(displayFilterValue)) {
-                const d = parseLocalDate(displayFilterValue);
-                if (d) displayFilterValue = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
             }
 
-            valueBtn.createSpan({ 
-                text: filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : filter.value, 
-                cls: 'fm-btn-text' 
+            viewSelect.addEventListener('change', () => {
+                const viewName = viewSelect.value;
+                if (viewName && this.plugin.settings.clinicState.savedViews[viewName]) {
+                    const view = this.plugin.settings.clinicState.savedViews[viewName];
+
+                    this.plugin.settings.clinicState.filters = JSON.parse(JSON.stringify(view.filters));
+                    this.plugin.settings.clinicState.groupBy = view.groupBy;
+                    void this.plugin.saveSettings().then(() => this.render());
+                }
             });
 
-            if (filter.property === 'No frontmatter') {
-                valueBtn.disabled = true;
-            } else {
-                valueBtn.addEventListener('click', (e) => {
+            if (activeViewName) {
+                const deleteViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon fm-view-icon' });
+                this.plugin.renderPluginIcon(deleteViewBtn, 'trash');
+                if (!Platform.isMobile) {
+                    this.view.attachTooltip(deleteViewBtn, 'Delete view', 300, tooltipDir);
+                }
+                deleteViewBtn.addEventListener('click', () => {
+                    delete this.plugin.settings.clinicState.savedViews[activeViewName];
+                    this.plugin.settings.clinicState.filters = [{ property: '', value: ''}];
+                    this.plugin.settings.clinicState.groupBy = '';
+                    void this.plugin.saveSettings().then(() => this.render());
+                });
+            }
+
+            const saveViewBtn = viewsRow.createEl('button', { cls: 'clickable-icon fm-view-icon' });
+            this.plugin.renderPluginIcon(saveViewBtn, 'save');
+            if (!Platform.isMobile) {
+                this.view.attachTooltip(saveViewBtn, activeViewName ? 'Update view' : 'Save as new view', 300, tooltipDir);
+            }
+            saveViewBtn.addEventListener('click', () => {
+                new SaveViewModal(this.app, activeViewName, (name) => {
+                    this.plugin.settings.clinicState.savedViews[name] = {
+                        filters: JSON.parse(JSON.stringify(this.plugin.settings.clinicState.filters)),
+                        groupBy: this.plugin.settings.clinicState.groupBy
+                    };
+                    void this.plugin.saveSettings().then(() => this.render());
+                }).open();
+            });
+
+            // --- GROUPING ROW ---
+            const groupRow = controlsContent.createDiv({ cls: 'fm-clinic-views-row' });
+
+            const groupSelect = groupRow.createEl('select', { cls: 'portals-reset-dropD dropdown' });
+            groupSelect.createEl('option', { value: '', text: 'none (flat list)' });
+
+            const groupIcon = groupRow.createSpan({ cls: 'clickable-icon fm-group-icon' });
+            this.plugin.renderPluginIcon(groupIcon, 'rows');
+            if (!Platform.isMobile) {
+                this.view.attachTooltip(groupIcon, 'Group by', 300, tooltipDir);
+            }
+
+            const sortIcon = groupRow.createSpan({ cls: 'clickable-icon fm-group-icon' });
+            this.plugin.renderPluginIcon(sortIcon, 'caret-circle-up-down');
+            if (!Platform.isMobile) {
+                this.view.attachTooltip(sortIcon, 'Sort files', 300, tooltipDir);
+            }
+            this.sortClinicFiles(sortIcon);
+            
+            const allProps = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort();
+            for (const prop of allProps) {
+                const opt = groupSelect.createEl('option', { value: prop, text: prop });
+                if (this.plugin.settings.clinicState.groupBy === prop) {
+                    opt.selected = true;
+                }
+            }
+
+            groupSelect.addEventListener('change', () => {
+                this.plugin.settings.clinicState.groupBy = groupSelect.value;
+                void this.plugin.saveSettings().then(() => this.render());
+            });
+
+            // --- FILTER ROWS ---
+            const filtersContainer = controlsContent.createDiv({ cls: 'fm-clinic-filters-container' });
+            
+            this.plugin.settings.clinicState.filters.forEach((filter, index) => {
+                const headerRow = filtersContainer.createDiv({ cls: 'fm-clinic-header' });
+                
+                // Property Button
+                const propBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-property-btn' });
+                this.plugin.renderPluginIcon(propBtn, 'funnel');
+                propBtn.createSpan({ text: filter.property || 'Select property', cls: 'fm-btn-text' });
+
+                propBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (!filter.property) return;
                     const menu = new Menu();
-                    menu.addItem(item => item.setTitle('All values').onClick(() => {
+                    menu.addItem(item => item.setTitle('None').onClick(() => {
+                        filter.property = '';
                         filter.value = '';
                         void this.plugin.saveSettings().then(() => this.render());
                     }));
-                    menu.addItem(item => item.setTitle('None').onClick(() => {
-                        filter.value = '__none__';
+                    menu.addItem(item => item.setTitle('No frontmatter').onClick(() => {
+                        filter.property = 'No frontmatter';
+                        filter.value = '';
                         void this.plugin.saveSettings().then(() => this.render());
                     }));
                     menu.addSeparator();
-                    const values = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set();
-                    for (const val of Array.from(values).sort()) {
-                        let displayVal = val;
-
-                        // Format for display
-                        if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-                            const d = parseLocalDate(val);
-                            if (d) displayVal = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
-                        }
-
-                        menu.addItem(item => item.setTitle(displayVal).onClick(() => {
-                            filter.value = val;
+                    for (const prop of FrontmatterClinicRenderer.getProperties().keys()) {
+                        menu.addItem(item => item.setTitle(prop).onClick(() => {
+                            filter.property = prop;
+                            filter.value = '';
                             void this.plugin.saveSettings().then(() => this.render());
                         }));
                     }
-                    const rect = valueBtn.getBoundingClientRect();
+                    const rect = propBtn.getBoundingClientRect();
                     menu.showAtPosition({ x: rect.left, y: rect.bottom });
                 });
-            }
 
-            if (!Platform.isMobile) {
-                this.view.attachTooltip(propBtn, 'Right-click: find');
-                this.view.attachTooltip(valueBtn, 'Right-click: find');
+                // Value Button
+                const valueBtn = headerRow.createEl('button', { cls: 'portals-reset-btn fm-value-btn' });
+                this.plugin.renderPluginIcon(valueBtn, 'funnel-simple');
 
-                // Right-click Property (SearchPopover)
-                propBtn.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys());
-                    properties.unshift('No frontmatter');
-                    
-                    this.showSearchPopoverForClinic(propBtn, properties, filter.property, (selected) => {
-                        if (selected === 'No frontmatter') {
-                            filter.property = 'No frontmatter';
+                let displayFilterValue = filter.value;
+                if (displayFilterValue && displayFilterValue !== '__none__' && /^\d{4}-\d{2}-\d{2}$/.test(displayFilterValue)) {
+                    const d = parseLocalDate(displayFilterValue);
+                    if (d) displayFilterValue = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
+                }
+
+                valueBtn.createSpan({ 
+                    text: filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : displayFilterValue, 
+                    cls: 'fm-btn-text' 
+                });
+
+                if (filter.property === 'No frontmatter') {
+                    valueBtn.disabled = true;
+                } else {
+                    valueBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!filter.property) return;
+                        const menu = new Menu();
+                        menu.addItem(item => item.setTitle('All values').onClick(() => {
                             filter.value = '';
-                        } else {
-                            filter.property = selected;
-                            filter.value = '';
+                            void this.plugin.saveSettings().then(() => this.render());
+                        }));
+                        menu.addItem(item => item.setTitle('None').onClick(() => {
+                            filter.value = '__none__';
+                            void this.plugin.saveSettings().then(() => this.render());
+                        }));
+                        menu.addSeparator();
+                        const values = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set();
+                        for (const val of Array.from(values).sort()) {
+                            let displayVal = val;
+
+                            // Format for display
+                            if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                                const d = parseLocalDate(val);
+                                if (d) displayVal = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
+                            }
+
+                            menu.addItem(item => item.setTitle(displayVal).onClick(() => {
+                                filter.value = val;
+                                void this.plugin.saveSettings().then(() => this.render());
+                            }));
+                        }
+                        const rect = valueBtn.getBoundingClientRect();
+                        menu.showAtPosition({ x: rect.left, y: rect.bottom });
+                    });
+                }
+
+                if (!Platform.isMobile) {
+                    this.view.attachTooltip(propBtn, 'Right-click: find');
+                    this.view.attachTooltip(valueBtn, 'Right-click: find');
+
+                    // Right-click Property (SearchPopover)
+                    propBtn.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys());
+                        properties.unshift('No frontmatter');
+                        
+                        this.showSearchPopoverForClinic(propBtn, properties, filter.property, (selected) => {
+                            if (selected === 'No frontmatter') {
+                                filter.property = 'No frontmatter';
+                                filter.value = '';
+                            } else {
+                                filter.property = selected;
+                                filter.value = '';
+                            }
+                            void this.plugin.saveSettings().then(() => this.render());
+                        });
+                    });
+
+                    // Right-click Value (SearchPopover)
+                    valueBtn.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!filter.property || filter.property === 'No frontmatter') return;
+                        
+                        const valuesSet = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set<string>();
+                        const values = ['All values', 'None', ...Array.from(valuesSet).sort()];
+                        
+                        this.showSearchPopoverForClinic(valueBtn, values,
+                            filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : filter.value, 
+                            (selected) => {
+                                switch (selected) {
+                                    case 'All values': filter.value = ''; break;
+                                    case 'None': filter.value = '__none__'; break;
+                                    default: filter.value = selected; break;
+                                }
+                                void this.plugin.saveSettings().then(() => this.render());
+                            }
+                        );
+                    });
+                }
+
+                // Remove Filter Button
+                if (index > 0 || this.plugin.settings.clinicState.filters.length > 1) {
+                    const removeBtn = headerRow.createEl('button', { cls: 'clickable-icon fm-remove-filter-btn' });
+                    this.plugin.renderPluginIcon(removeBtn, 'x');
+                    if (!Platform.isMobile) {
+                        this.view.attachTooltip(removeBtn, 'Remove filter', 300, tooltipDir);
+                    }
+                    removeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.plugin.settings.clinicState.filters.splice(index, 1);
+                        if (this.plugin.settings.clinicState.filters.length === 0) {
+                            this.plugin.settings.clinicState.filters.push({ property: '', value: '' });
                         }
                         void this.plugin.saveSettings().then(() => this.render());
                     });
-                });
+                }
+            });
 
-                // Right-click Value (SearchPopover)
-                valueBtn.addEventListener('contextmenu', (e) => {
+            // Add Filter Button
+            const addFilterRow = filtersContainer.createDiv({ cls: 'fm-clinic-add-filter-row' });
+            const addFilterBtn = addFilterRow.createEl('button', { cls: 'portals-reset-btn' });
+            this.plugin.renderPluginIcon(addFilterBtn, 'plus');
+            addFilterBtn.createSpan({ text: 'Add filter', cls: 'fm-btn-text' });
+            addFilterBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.plugin.settings.clinicState.filters.push({ property: '', value: '' });
+                void this.plugin.saveSettings().then(() => this.render());
+            });
+
+            const hasFiles = this.filteredFiles.length > 0;
+
+            if (!this.plugin.settings.hideFilteredCount && hasFiles) {
+                const countRow = this.container.createDiv({ cls: 'fm-count-row' });
+                countRow.createSpan({ cls: 'fm-file-count', text: `${this.filteredFiles.length} results` });
+            }
+
+            // File list container
+            const listContainer = this.container.createDiv({ cls: 'fm-clinic-file-list' });
+            
+            if (!hasFiles) {
+                const hasActiveFilters = this.plugin.settings.clinicState.filters.some(f => f.property !== '');
+                const msg = hasActiveFilters
+                    ? 'No files match the current filters.'
+                    : 'Select a property to filter files.'
+                listContainer.createEl('p', { cls: 'fm-noFound-txt', text: msg });
+                return;
+            }
+
+            const groupBy = this.plugin.settings.clinicState.groupBy;
+            if (!groupBy) {
+                for (const file of this.filteredFiles) {
+                    this.renderFileItem(file, listContainer);
+                }
+            } else {
+                const groups: Record<string, TFile[]> = {};
+                
+                for (const file of this.filteredFiles) {
+                    const cache = this.app.metadataCache.getFileCache(file);
+                    const fm = cache?.frontmatter;
+                    const val = getFrontmatterProperty(fm, groupBy);
+
+                    let groupName = 'None';
+                    if (val !== undefined && val !== null) {
+                        groupName = Array.isArray(val) ? val.join(', ') : String(val);
+
+                        if (/^\d{4}-\d{2}-\d{2}$/.test(groupName)) {
+                            const d = parseLocalDate(groupName);
+                            if (d) groupName = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
+                        }
+                    }
+                    if (!groups[groupName]) groups[groupName] = [];
+                    groups[groupName]?.push(file);
+                }
+                
+                const sortedGroupNames = Object.keys(groups).sort((a, b) => {
+                    if (a === 'None') return 1;
+                    if (b === 'None') return -1;
+                    return a.localeCompare(b);
+                });
+                
+                for (const groupName of sortedGroupNames) {
+                    const groupFiles = groups[groupName];
+                    if (!groupFiles) continue;
+
+                    const details = listContainer.createEl('details', { cls : 'fm-clinic-group' });
+                    details.open = this.plugin.settings.clinicState.groupStates?.[groupName] ?? true;
+
+                    details.addEventListener('toggle', () => {
+                        if (!this.plugin.settings.clinicState.groupStates) {
+                            this.plugin.settings.clinicState.groupStates = {};
+                        }
+                        this.plugin.settings.clinicState.groupStates[groupName] = details.open;
+                        void this.plugin.saveData(this.plugin.settings);
+                    })
+
+                    const summary = details.createEl('summary', { cls: 'fm-clinic-group-header' });
+                    summary.createSpan({ text: groupName });
+                    summary.createSpan({ text: `${groupFiles.length}`, cls: 'fm-file-count' });
+                    const groupContent = details.createDiv({ cls: 'fm-clinic-group-content' });
+
+                    for (const file of groupFiles) {
+                        this.renderFileItem(file, groupContent);
+                    }
+                }
+            }
+            
+            this.updateClinicToolbar();
+            if (this.destroyed) return;
+
+            if (!this.frontmatterChangedRef) {
+                this.frontmatterChangedRef = this.app.metadataCache.on('changed', (file) => {
+                    if (file instanceof TFile && file.extension === 'md') {
+                        if (this.plugin.settings.activeSplitTab === 'properties' || this.plugin.settings.alternateActiveTab === 'properties') {
+                            void this.scheduleClinicRefresh();
+                        }
+                    }
+                });
+            }
+            if (!this._escapeHandler) {
+                this._escapeHandler = (e: KeyboardEvent) => {
+                    if (e.key !== 'Escape') return;
+                    if (this.clinicSelectedPaths.size === 0) return;
+                    const activeEl = activeDocument.activeElement;
+                    if (activeEl instanceof HTMLElement &&
+                        activeEl.closest('.modal-container, .modal, .prompt')
+                    ) return;
                     e.preventDefault();
                     e.stopPropagation();
-                    if (!filter.property || filter.property === 'No frontmatter') return;
-                    
-                    const valuesSet = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set<string>();
-                    const values = ['All values', 'None', ...Array.from(valuesSet).sort()];
-                    
-                    this.showSearchPopoverForClinic(valueBtn, values,
-                        filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : filter.value, 
-                        (selected) => {
-                            switch (selected) {
-                                case 'All values': filter.value = ''; break;
-                                case 'None': filter.value = '__none__'; break;
-                                default: filter.value = selected; break;
-                            }
-                            void this.plugin.saveSettings().then(() => this.render());
-                        }
-                    );
-                });
+                    this.clinicSelectedPaths.clear();
+                    this.container.querySelectorAll('.fm-file-item.is-selected').forEach(el => el.classList.remove('is-selected'));
+                    this.view.rangeSelectionAnchor = null;
+                    this.updateClinicToolbar();
+                };
+                activeDocument.addEventListener('keydown', this._escapeHandler);
             }
-
-            // Remove Filter Button
-            if (index > 0 || this.plugin.settings.clinicState.filters.length > 1) {
-                const removeBtn = headerRow.createEl('button', { cls: 'clickable-icon fm-remove-filter-btn' });
-                this.plugin.renderPluginIcon(removeBtn, 'x');
-                if (!Platform.isMobile) {
-                    this.view.attachTooltip(removeBtn, 'Remove filter', 300, tooltipDir);
-                }
-                removeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.plugin.settings.clinicState.filters.splice(index, 1);
-                    if (this.plugin.settings.clinicState.filters.length === 0) {
-                        this.plugin.settings.clinicState.filters.push({ property: '', value: '' });
-                    }
-                    void this.plugin.saveSettings().then(() => this.render());
-                });
-            }
-        });
-
-        // Add Filter Button
-        const addFilterRow = filtersContainer.createDiv({ cls: 'fm-clinic-add-filter-row' });
-        const addFilterBtn = addFilterRow.createEl('button', { cls: 'portals-reset-btn' });
-        this.plugin.renderPluginIcon(addFilterBtn, 'plus');
-        addFilterBtn.createSpan({ text: 'Add filter', cls: 'fm-btn-text' });
-        addFilterBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.plugin.settings.clinicState.filters.push({ property: '', value: '' });
-            void this.plugin.saveSettings().then(() => this.render());
-        });
-
-        const hasFiles = this.filteredFiles.length > 0;
-
-        if (!this.plugin.settings.hideFilteredCount && hasFiles) {
-            const countRow = this.container.createDiv({ cls: 'fm-count-row' });
-            const countBadge = countRow.createSpan({ cls: 'fm-file-count', text: `${this.filteredFiles.length} results` });
-            this.sortClinicFiles(countBadge);
-            if (!Platform.isMobile) {
-                const isRightSidebar = this.container.closest('.mod-right-split') !== null;
-                const preferred: 'left' | 'right' = isRightSidebar ? 'left' : 'right';
-                countBadge.addEventListener('mouseenter', () => {
-                    this.view.showTooltip('Sort files', countBadge, 300, preferred);
-                });
-                countBadge.addEventListener('mouseleave', () => this.view.hideTooltip(100));
-                
-            }
-        }
-
-        // File list container
-        const listContainer = this.container.createDiv({ cls: 'fm-clinic-file-list' });
-        
-        if (!hasFiles) {
-            const hasActiveFilters = this.plugin.settings.clinicState.filters.some(f => f.property !== '');
-            const msg = hasActiveFilters
-                ? 'No files match the current filters.'
-                : 'Select a property to filter files.'
-            listContainer.createEl('p', { cls: 'fm-noFound-txt', text: msg });
-            return;
-        }
-
-        const groupBy = this.plugin.settings.clinicState.groupBy;
-        if (!groupBy) {
-            for (const file of this.filteredFiles) {
-                this.renderFileItem(file, listContainer);
-            }
-        } else {
-            const groups: Record<string, TFile[]> = {};
-            
-            for (const file of this.filteredFiles) {
-                const cache = this.app.metadataCache.getFileCache(file);
-                const fm = cache?.frontmatter;
-                const val = getFrontmatterProperty(fm, groupBy);
-
-                let groupName = 'None';
-                if (val !== undefined && val !== null) {
-                    groupName = Array.isArray(val) ? val.join(', ') : String(val);
-
-                    if (/^\d{4}-\d{2}-\d{2}$/.test(groupName)) {
-                        const d = parseLocalDate(groupName);
-                        if (d) groupName = formatDisplayDate(d, this.plugin.settings.dateDisplayFormat);
-                    }
-                }
-                if (!groups[groupName]) groups[groupName] = [];
-                groups[groupName]?.push(file);
-            }
-            
-            const sortedGroupNames = Object.keys(groups).sort((a, b) => {
-                if (a === 'None') return 1;
-                if (b === 'None') return -1;
-                return a.localeCompare(b);
-            });
-            
-            for (const groupName of sortedGroupNames) {
-                const groupFiles = groups[groupName];
-                if (!groupFiles) continue;
-
-                const details = listContainer.createEl('details', { cls : 'fm-clinic-group' });
-                details.open = this.plugin.settings.clinicState.groupStates?.[groupName] ?? true;
-
-                details.addEventListener('toggle', () => {
-                    if (!this.plugin.settings.clinicState.groupStates) {
-                        this.plugin.settings.clinicState.groupStates = {};
-                    }
-                    this.plugin.settings.clinicState.groupStates[groupName] = details.open;
-                    void this.plugin.saveData(this.plugin.settings);
-                })
-
-                const summary = details.createEl('summary', { cls: 'fm-clinic-group-header' });
-                summary.createSpan({ text: groupName });
-                summary.createSpan({ text: `${groupFiles.length}`, cls: 'fm-file-count' });
-                const groupContent = details.createDiv({ cls: 'fm-clinic-group-content' });
-
-                for (const file of groupFiles) {
-                    this.renderFileItem(file, groupContent);
-                }
-            }
-        }
-        
-        this.updateClinicToolbar();
-
-        if (!this.frontmatterChangedRef) {
-            this.frontmatterChangedRef = this.app.metadataCache.on('changed', (file) => {
-                if (file instanceof TFile && file.extension === 'md') {
-                    if (this.plugin.settings.activeSplitTab === 'properties' || this.plugin.settings.alternateActiveTab === 'properties') {
-                        void this.scheduleClinicRefresh();
-                    }
-                }
-            });
-        }
-        if (!this._escapeHandler) {
-            this._escapeHandler = (e: KeyboardEvent) => {
-                if (e.key !== 'Escape') return;
-                if (this.clinicSelectedPaths.size === 0) return;
-                const activeEl = activeDocument.activeElement;
-                if (activeEl instanceof HTMLElement &&
-                    activeEl.closest('.modal-container, .modal, .prompt')
-                ) return;
-                e.preventDefault();
-                e.stopPropagation();
-                this.clinicSelectedPaths.clear();
-                this.container.querySelectorAll('.fm-file-item.is-selected').forEach(el => el.classList.remove('is-selected'));
-                this.view.rangeSelectionAnchor = null;
-                this.updateClinicToolbar();
-            };
-            activeDocument.addEventListener('keydown', this._escapeHandler);
+        } catch (err) {
+            console.error('[Clinic] render() CRASHED:', err);
         }
     }
 
@@ -1003,11 +1008,11 @@ export class FrontmatterClinicRenderer {
     }
 
     public destroy() {
+        this.destroyed = true;
         if (this.clinicRenderTimeout) {
             window.clearTimeout(this.clinicRenderTimeout);
             this.clinicRenderTimeout = null;
         }
-        this.container.empty();
         this.clinicSelectedPaths.clear();
         if (this.clinicToolbar) {
             this.clinicToolbar.remove();

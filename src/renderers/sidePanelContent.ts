@@ -45,11 +45,6 @@ export async function renderSidePanelContent(
         activeSidePanelRenderers.delete(contentEl);
     }
 
-    if (mainView && tabId !== 'properties' && mainView.clinicRenderer) {
-        mainView.clinicRenderer.destroy();
-        mainView.clinicRenderer = null;
-    }
-
     contentEl.empty();
     contentEl.className = 'portals-split-content';
 
@@ -105,9 +100,6 @@ export async function renderSidePanelContent(
         contentEl.addClass('portals-frontmatter-clinic');
 
         const clinicRenderer = new FrontmatterClinicRenderer(app, plugin, contentEl, mainView!);
-        if (mainView) {
-            mainView.clinicRenderer = clinicRenderer;
-        }
         activeSidePanelRenderers.set(contentEl, clinicRenderer);
         await clinicRenderer.render();
     } else if (tabId === 'trash') {

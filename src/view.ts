@@ -2033,7 +2033,7 @@ export class PortalsView extends ItemView {
         const treeContainer = container.querySelector('.portals-tree-container');
         if (!treeContainer) return;
 
-        treeContainer.addClass('portals-is-rebuilding');
+        treeContainer.addClass('portals-is-rebuilding'); // class to mute flickers
         treeContainer.empty();
 
         this.fileElementMap.clear();
