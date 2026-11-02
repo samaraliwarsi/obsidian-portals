@@ -264,14 +264,20 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.plugin.settings.previousReminderProperty = oldVal
             }
         }
-        if (key === 'reminderShowOverdue' || key === 'reminderOrder') {
-            this.plugin.refreshSidePortal('reminders');
-        }
-        // Default path: write the value, then run the plugin's saveSettings()
-        // (which re-renders all open portal views).
+        // write the value to settings first
         (this.plugin.settings as unknown as Record<string, unknown>)[key] = value;
 
-        if (typeof value === 'string') {
+        if (key === 'pinVaultRoot') {
+            await this.plugin.saveData(this.plugin.settings);
+            window.setTimeout(() => {
+                this.plugin.refreshAltRightPanelContent();
+                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                    if (leaf.view instanceof PortalsView) {
+                        leaf.view.render();
+                    }
+                });
+            }, 100);
+        } else if (typeof value === 'string') {
             await this.plugin.saveData(this.plugin.settings);
             if (this.plugin.textSettingRenderTimer) window.clearTimeout(this.plugin.textSettingRenderTimer);
             this.plugin.textSettingRenderTimer = window.setTimeout(() => {
@@ -286,11 +292,13 @@ export class SpacesSettingTab extends PluginSettingTab {
         } else {
             await this.plugin.saveSettings();
         }
-        
+
+        if (key === 'reminderShowOverdue' || key === 'reminderOrder') {
+            this.plugin.refreshSidePortal('reminders');
+        }
         if (key === 'showCurrentPropertyValue' || key === 'hideFilteredCount') {
             this.plugin.refreshSidePortal('properties');
         }
-        // for reminder notification icon color change
         if (key === 'reminderTabNotification') {
             this.plugin.updateReminderBadge();
         }

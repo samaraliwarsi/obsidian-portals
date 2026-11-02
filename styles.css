@@ -4870,7 +4870,8 @@ select.dropdown.portals-reset-dropD {
 .portals-qtn-modal .modal-button-container button.mod-cta:hover,
 .portals-rename-modal .modal-button-container button.mod-cta:hover,
 .portals-saveview-modal .modal-button-container button.mod-cta:hover, 
-.portals-date-modal .modal-button-container button.mod-cta:hover {
+.portals-date-modal .modal-button-container button.mod-cta:hover,
+.portals-reminder-startup-modal .modal-button-container .button.mod-cta:hover {
   background-color: var(--interactive-accent-hover);
   color: var(--text-on-accent);
 }
@@ -4884,7 +4885,8 @@ select.dropdown.portals-reset-dropD {
 .portals-qtn-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-rename-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-date-modal .modal-button-container button.mod-cta:focus-visible,
-.portals-saveview-modal .modal-button-container button.mod-cta:focus-visible {
+.portals-saveview-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-reminder-startup-modal .modal-button-container .button.mod-cta:focus-visible {
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);
   color: var(--text-on-accent);
 }
@@ -4899,7 +4901,8 @@ select.dropdown.portals-reset-dropD {
   .portals-qtn-modal .modal-button-container button.mod-cta:hover,
   .portals-rename-modal .modal-button-container button.mod-cta:hover,
   .portals-date-modal .modal-button-container button.mod-cta:hover,
-  .portals-saveview-modal .modal-button-container button.mod-cta:hover {
+  .portals-saveview-modal .modal-button-container button.mod-cta:hover,
+  .portals-reminder-startup-modal .modal-button-container .button.mod-cta:hover {
     background-color: var(--interactive-accent-hover);
     color: var(--text-on-accent);
   }

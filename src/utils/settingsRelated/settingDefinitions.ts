@@ -698,8 +698,8 @@ function renderPinnedVaultAppearance(setting: Setting, tab: SpacesSettingTab): v
     controlEl.empty();
     controlEl.addClass('portals-portal-controls');
 
-    const rootSpace = plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
-    if (!rootSpace) return;
+    const actualRootSpace = plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+    const rootSpace = actualRootSpace || { path: '/', type: 'folder', icon: 'folder-simple', color: 'transparent' };
     
     const colorRow = controlEl.createDiv({ cls: 'portals-color-row' });
 
@@ -757,9 +757,13 @@ function renderPinnedVaultAppearance(setting: Setting, tab: SpacesSettingTab): v
         const r = parseInt(hex.slice(1, 3), 16);
         const g = parseInt(hex.slice(3, 5), 16);
         const b = parseInt(hex.slice(5, 7), 16);
-        rootSpace.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
-        customSwatch.setCssProps({ '--swatch-bg': hex });
-        void plugin.saveSettings();
+
+        const realSpace = plugin.settings.spaces.find(s => s.path === 'folder');
+        if (realSpace) {
+            realSpace.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+            customSwatch.setCssProps({ '--swatch-bg': hex });
+            void plugin.saveSettings();
+        }
     };
 
     customSwatch.addEventListener('click', () => hiddenColorInput.click());
