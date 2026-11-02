@@ -120,7 +120,10 @@ export class TreeEventHelpers {
             } else {
                 void view.app.workspace.getLeaf().openFile(file);
             }
-            view.updateMultiSelectToolbar();
+            // Consider if needed animation frame
+            window.requestAnimationFrame(() => {
+                view.updateMultiSelectToolbar();
+            });
         });
     }
 

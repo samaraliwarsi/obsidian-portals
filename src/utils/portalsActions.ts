@@ -131,6 +131,12 @@ export class PortalsActions {
             await app.vault.copy(file, newPath);
             new Notice(`Duplicated to ${newName}`);
             view.scrollToRestore = savedScroll;
+            // consider if needed the whole block that encapsulates renderContent()
+            window.setTimeout(() => {
+                if (!view.fileElementMap.has(newPath)) {
+                    view.renderContent();
+                }
+            }, 300);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Duplicate failed: ${message}`);
