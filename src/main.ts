@@ -16,6 +16,7 @@ import { EmojiIconProvider } from './icons/emojiIconProvider';
 import { DatePickerModal } from './modals/datePickerModal';
 import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
 import type { Frontmatter } from './types';
+import { RemindersStartupModal } from './modals/remindersStartupModal';
 
 interface AppWithInternalPlugins extends App {
     internalPlugins: unknown;
@@ -99,7 +100,7 @@ export default class PortalsPlugin extends Plugin {
             }
             
             // Check for reminders on startup
-            if (this.settings.reminderStartupNotification) {
+            if (this.settings.reminderStartupNotification !== 'none') {
                 window.setTimeout(() => {
                     const propName = this.settings.reminderProperty || 'remind_at';
                     let count = 0;
@@ -115,9 +116,13 @@ export default class PortalsPlugin extends Plugin {
                         }
                     }
                     if (count >0) {
-                        new Notice(`Portals: You have ${count} reminders due today or overdue.`);
+                        if (this.settings.reminderStartupNotification === 'modal') {
+                            new RemindersStartupModal(this.app, this).open();
+                        } else {
+                            new Notice(`Portals: You have ${count} reminders due today or overdue.`);
+                        }
                     }
-                }, 1000);
+                }, 2500);
             }
         });
 

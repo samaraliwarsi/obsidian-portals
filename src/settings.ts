@@ -100,7 +100,7 @@ export interface SpacesSettings {
     reminderTabNotification: boolean;
     reminderTreeIndicator: 'off' | 'simple' | 'dynamic';
     reminderSectionStates: Record<string, boolean>;
-    reminderStartupNotification: boolean;
+    reminderStartupNotification: 'none' | 'notice' | 'modal';
     autoCollapseTree: boolean;
     dateDisplayFormat: 'YYYY-MM-DD' | 'DD-MM-YYYY' | 'MM-DD-YYYY';
 }
@@ -198,7 +198,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     reminderTabNotification: true,
     reminderTreeIndicator: 'dynamic',
     reminderSectionStates: { overdue: true, today: true, upcoming: true, later: true },
-    reminderStartupNotification: true,
+    reminderStartupNotification: 'notice',
     autoCollapseTree: false,
     dateDisplayFormat: 'YYYY-MM-DD',
 };

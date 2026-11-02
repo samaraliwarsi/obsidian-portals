@@ -1,0 +1,78 @@
+.portals-reminder-startup-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+}
+
+.portals-reminder-startup-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 16px 0;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 6px;
+    background: var(--background-secondary);
+}
+
+.portals-reminder-startup-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 12px;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.portals-reminder-startup-row:last-child {
+    border-bottom: none;
+}
+
+.portals-reminder-startup-name {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    color: var(--text-accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.portals-reminder-startup-name:hover {
+    text-decoration: underline;
+}
+
+.portals-reminder-startup-date {
+    font-size: 0.7em;
+    color: var(--text-muted);
+    margin: 0 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.portals-reminder-startup-row button.clickable-icon {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 2px 4px;
+    color: var(--text-faint);
+    height: 24px;
+    box-shadow: inset 0 0 0 1px rgba(100, 100, 100, 0.1);
+    border: 1px solid var(--background-modifier-border);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.portals-reminder-startup-row .clickable-icon:hover {
+    color: var(--text-error);
+    opacity: 1;
+}
+
+.portals-reminder-startup-row button.clickable-icon i.ph {
+    font-size: 0.75em;
+}
+
+.portals-reminder-startup-row button.clickable-icon .svg-icon {
+    font-size: 0.75em;
+    width: 1em;
+    height: 1em;
+}
