@@ -1,6 +1,7 @@
 import { App, Modal, TFile, Notice } from 'obsidian';
 import type PortalsPlugin from '../main';
 import { getDaysDifference, parseLocalDate, formatDisplayDate } from '../utils/dateHelpers';
+import { Frontmatter } from '../types';
 
 export class RemindersStartupModal extends Modal {
     private plugin: PortalsPlugin;
@@ -23,7 +24,7 @@ export class RemindersStartupModal extends Modal {
         const allFiles = this.app.vault.getMarkdownFiles();
 
         for (const file of allFiles) {
-            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
+            const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter;
             const rawDate = fm?.[prop];
             if (rawDate) {
                 const dateObj = parseLocalDate(String(rawDate));
@@ -51,7 +52,7 @@ export class RemindersStartupModal extends Modal {
         const listContainer = contentEl.createDiv({ cls: 'portals-reminder-startup-list' });
 
         for (const file of this.files) {
-            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
+            const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter;
             const rawDate = fm?.[prop];
             const dateObj = parseLocalDate(String(rawDate));
             const dateStr = dateObj ? formatDisplayDate(dateObj, this.plugin.settings.dateDisplayFormat) : '';
