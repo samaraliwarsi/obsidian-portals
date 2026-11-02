@@ -1113,7 +1113,6 @@ export class PortalsView extends ItemView {
         }));
         this.registerEvent(this.app.workspace.on('layout-change', () => {
             if (!this.renaming){
-                //this.scheduleRender();
                 this.refreshRecentTab();
             }
         }));

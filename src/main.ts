@@ -190,7 +190,9 @@ export default class PortalsPlugin extends Plugin {
                 this.refreshAllTreeContent();
             }, 50);
         }
-
+        // =================================================
+        // CREATE LISTENER
+        // =================================================
         this.registerEvent(this.app.vault.on('create', (file) => {
             if (file instanceof TFolder) {
                 debouncedTreeRefresh();
@@ -198,26 +200,62 @@ export default class PortalsPlugin extends Plugin {
             if (file instanceof TFile && file.extension === 'md') {
                 window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
                 debouncedTreeRefresh();
+
+                // Journal, Context notes and reminders update
                 if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
                     this.refreshSidePortal('journal');
                     this.refreshAltRightPanelContent('journal');
+                }
+                if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
+                    this.refreshSidePortal('context-notes');
+                    this.refreshAltRightPanelContent('context-notes');
+                }
+                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                    this.refreshSidePortal('reminders');
+                    this.refreshAltRightPanelContent('reminders');
                 }
             }
             void this.refreshTrashIfActive();
         }));
 
+        // ==========================================
+        // 2. DELETE LISTENER
+        // ==========================================
         this.registerEvent(this.app.vault.on('delete', (file) => {
             if (file instanceof TFolder) {
                 debouncedTreeRefresh();
-                this.refreshSidePortal('properties');
-                this.refreshAltRightPanelContent('properties');
-                this.refreshSidePortal('journal');
-                this.refreshAltRightPanelContent('journal');
+                if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
+                    this.refreshSidePortal('properties');
+                    this.refreshAltRightPanelContent('properties');
+                }
+                if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
+                    this.refreshSidePortal('journal');
+                    this.refreshAltRightPanelContent('journal');
+                }
+                if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
+                    this.refreshSidePortal('context-notes');
+                    this.refreshAltRightPanelContent('context-notes');
+                }
+                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                    this.refreshSidePortal('reminders');
+                    this.refreshAltRightPanelContent('reminders');
+                }
             }
             if (file instanceof TFile && file.extension === 'md') {
                 FrontmatterClinicRenderer.removeFileCache(file.path);
-                this.refreshSidePortal('properties');
-                this.refreshAltRightPanelContent('properties')
+                if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
+                    this.refreshSidePortal('properties');
+                    this.refreshAltRightPanelContent('properties')
+                }
+                if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
+                    this.refreshSidePortal('context-notes');
+                    this.refreshAltRightPanelContent('context-notes');
+                }
+                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                    this.refreshSidePortal('reminders');
+                    this.refreshAltRightPanelContent('reminders');
+                }
+
                 
                 this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
                     if (leaf.view instanceof PortalsView) {
@@ -246,13 +284,40 @@ export default class PortalsPlugin extends Plugin {
                 }, 600);
             }
             void this.refreshTrashIfActive();
+
+            if (file instanceof TFile) {
+                void this.removeRecentFile(file.path);
+                const marks = this.settings.markedJournalNotes;
+                const index = marks.indexOf(file.path);
+                if (index !== -1) {
+                    marks.splice(index, 1);
+                    void this.saveData(this.settings);
+                }
+            }
         }));
 
+        // ==========================================
+        // 3. RENAME LISTENER
+        // ==========================================
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
-
-            // 1. Tree & clinic logic 
             if (file instanceof TFolder) {
                 debouncedTreeRefresh();
+                if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
+                    this.refreshSidePortal('properties');
+                    this.refreshAltRightPanelContent('properties');
+                }
+                if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
+                    this.refreshSidePortal('journal');
+                    this.refreshAltRightPanelContent('journal');
+                }
+                if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
+                    this.refreshSidePortal('context-notes');
+                    this.refreshAltRightPanelContent('context-notes');
+                }
+                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                    this.refreshSidePortal('reminders');
+                    this.refreshAltRightPanelContent('reminders');
+                }
             }
             if (file instanceof TFile) {
                 if (file.extension === 'md') {
@@ -266,8 +331,22 @@ export default class PortalsPlugin extends Plugin {
                     }, 600);
 
                     window.setTimeout(() => {
-                        this.refreshSidePortal('properties');
-                        this.refreshAltRightPanelContent('properties');
+                        if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
+                            this.refreshSidePortal('properties');
+                            this.refreshAltRightPanelContent('properties');
+                        }
+                        if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
+                            this.refreshSidePortal('journal');
+                            this.refreshAltRightPanelContent('journal');
+                        }
+                        if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
+                            this.refreshSidePortal('context-notes');
+                            this.refreshAltRightPanelContent('context-notes');
+                        }
+                        if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                            this.refreshSidePortal('reminders');
+                            this.refreshAltRightPanelContent('reminders');
+                        }
                     }, 150);
                 }
 
@@ -340,19 +419,6 @@ export default class PortalsPlugin extends Plugin {
                     }
                 }
                 this.refreshAltRightPanelContent('context-notes');
-            }
-        }));
-
-        // Track file delete
-        this.registerEvent(this.app.vault.on('delete', (file) => {
-            if (file instanceof TFile) {
-                void this.removeRecentFile(file.path);
-                const marks = this.settings.markedJournalNotes;
-                const index = marks.indexOf(file.path);
-                if (index !== -1) {
-                    marks.splice(index, 1);
-                    void this.saveSettings();
-                }
             }
         }));
     }
