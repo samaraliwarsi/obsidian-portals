@@ -3,6 +3,21 @@
     width: 1em;
     height: 1em;
 }*/
+
+.is-phone .portals-adp-container, 
+.is-phone .portals-fm-modal,
+.portals-cm-modal,
+.portals-confirm-container,
+.portals-qtn-modal,
+.portals-remP-container,
+.portals-rename-modal,
+.portals-sp-container {
+  width: calc(100vw - 32px);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  margin: 0 auto;
+}
+
 /*=============================== BUTTON RESET CLASS===================================*/
 
 button.portals-reset-btn {

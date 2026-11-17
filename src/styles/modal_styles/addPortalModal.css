@@ -7,7 +7,7 @@
     z-index: 45;
 }
 
-.portals-adp-container {
+.portals-adp-container {  /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -20,12 +20,12 @@
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 400px;
+    width: var(--dialog-width, 400px);
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
 }
+
 
 .portals-adp-modal .portals-adp-title {
     font-size: 1.2em;

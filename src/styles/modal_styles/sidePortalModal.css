@@ -6,7 +6,7 @@
     z-index: 45;
 }
 
-.portals-sp-container {
+.portals-sp-container { /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -19,8 +19,7 @@
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 350px;
+    width: var(--dialog-width, 500);
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;

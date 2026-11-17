@@ -4753,6 +4753,21 @@
     width: 1em;
     height: 1em;
 }*/
+
+.is-phone .portals-adp-container, 
+.is-phone .portals-fm-modal,
+.portals-cm-modal,
+.portals-confirm-container,
+.portals-qtn-modal,
+.portals-remP-container,
+.portals-rename-modal,
+.portals-sp-container {
+  width: calc(100vw - 32px);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  margin: 0 auto;
+}
+
 /*=============================== BUTTON RESET CLASS===================================*/
 
 button.portals-reset-btn {
@@ -8519,7 +8534,7 @@ button.portals-portal-list-delete {
     z-index: 45;
 }
 
-.portals-adp-container {
+.portals-adp-container {  /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -8532,12 +8547,12 @@ button.portals-portal-list-delete {
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 400px;
+    width: var(--dialog-width, 400px);
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
 }
+
 
 .portals-adp-modal .portals-adp-title {
     font-size: 1.2em;
@@ -8661,7 +8676,7 @@ button.portals-portal-list-delete {
     z-index: 45;
 }
 
-.portals-remP-container {
+.portals-remP-container { /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -8674,8 +8689,7 @@ button.portals-portal-list-delete {
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 350px;
+    width: var(--dialog-width, 500);
     max-width: var(--dialog-max-width);
     min-height: 100px;
     max-height: 400px;
@@ -8727,7 +8741,7 @@ button.portals-portal-list-delete {
     z-index: 45;
 }
 
-.portals-sp-container {
+.portals-sp-container { /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -8740,8 +8754,7 @@ button.portals-portal-list-delete {
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 350px;
+    width: var(--dialog-width, 500);
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
@@ -8830,7 +8843,7 @@ button.portals-portal-list-delete {
 }
 
 
-.portals-rename-modal {
+.portals-rename-modal { /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -8843,8 +8856,7 @@ button.portals-portal-list-delete {
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 320px;
+    width: var(--dialog-width, 500);
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
@@ -8926,7 +8938,7 @@ input.portals-rename-input {
     z-index: 45;
 }
 
-.portals-cm-modal {
+.portals-cm-modal { /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -8939,8 +8951,7 @@ input.portals-rename-input {
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 320px;
+    width: var(--dialog-width, 500);
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
@@ -9125,19 +9136,20 @@ input.cm-opacity-slider {
     z-index: 45;
 }
 
-.portals-qtn-modal {
+.portals-qtn-modal { /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: var(--layer-modal);
     background-color: var(--background-primary);
+    backdrop-filter: blur(var(--ui-blur, 10px));
+    --webkit-backdrop-filter: blur(var(--ui-blur, 10px));
     border: var(--modal-border-width) solid var(--modal-border-color);
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 320px;
+    width: var(--dialog-width, 500);
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
@@ -9375,7 +9387,7 @@ input.cm-opacity-slider {
     z-index: 45;
 }
 
-.portals-fm-modal {
+.portals-fm-modal {  /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -9767,7 +9779,7 @@ input.cm-opacity-slider {
     z-index: 45;
 }
 
-.portals-confirm-container {
+.portals-confirm-container { /* Check utilities.css for phone size fix*/
     position: fixed;
     top: 50%;
     left: 50%;
@@ -9780,8 +9792,7 @@ input.cm-opacity-slider {
     border-radius: var(--modal-radius);
     box-shadow: var(--shadow-l);
     padding: var(--size-4-4);
-    width: auto, var(--dialog-width);
-    min-width: 320px;
+    width: var(--dialog-width);
     max-width: var(--dialog-max-width);
     max-height: var(--dialog-max-height);
     overflow-y: auto;
