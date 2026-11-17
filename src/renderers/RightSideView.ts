@@ -35,6 +35,16 @@ export class AltSidePanelView extends ItemView {
         const mainLeaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
         this.mainView = mainLeaf?.view instanceof PortalsView ? mainLeaf.view : null;
 
+        // Listen for the main view to appear (fixes the startup race)
+        this.registerEvent(this.app.workspace.on('layout-change', () => {
+            if (!this.mainView) {
+                const newMainLeaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0]; // <-- Fixed this line
+                if (newMainLeaf?.view instanceof PortalsView) {
+                    this.refresh();
+                }
+            }
+        }));
+
         if (!this.mainView) {
             this.contentEl.createEl('p', {
                 text: 'Open the main Portals view first.',

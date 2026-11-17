@@ -958,15 +958,15 @@ export default class PortalsPlugin extends Plugin {
         const isOnlyRight = rightTabs.includes(tabId) && !leftTabs.includes(tabId);
 
         if (isOnlyRight) {
-            const rightSplit = this.app.workspace.rightSplit;
-            if (rightSplit?.collapsed) rightSplit.expand();
-
             this.settings.alternateActiveTab = tabId;
             void this.saveSettings();
 
             void (async () => {
-                let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).find(l => l.getRoot() === rightSplit);
+                let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL)[0];
                 if (!leaf) {
+                    const rightSplit = this.app.workspace.rightSplit;
+                    if (rightSplit?.collapsed) rightSplit.expand();
+                    
                     let newLeaf = this.app.workspace.getRightLeaf(false);
                     if (!newLeaf) newLeaf = this.app.workspace.getRightLeaf(true);
                     if (!newLeaf) return;
