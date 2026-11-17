@@ -526,48 +526,49 @@ export class FrontmatterClinicRenderer {
                 if (!Platform.isMobile) {
                     this.view.attachTooltip(propBtn, 'Right-click: find');
                     this.view.attachTooltip(valueBtn, 'Right-click: find');
+                }
 
-                    // Right-click Property (SearchPopover)
-                    propBtn.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys());
-                        properties.unshift('No frontmatter');
-                        
-                        this.showSearchPopoverForClinic(propBtn, properties, filter.property, (selected) => {
-                            if (selected === 'No frontmatter') {
-                                filter.property = 'No frontmatter';
-                                filter.value = '';
-                            } else {
-                                filter.property = selected;
-                                filter.value = '';
+                // Right-click Property (SearchPopover)
+                propBtn.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys());
+                    properties.unshift('No frontmatter');
+                    
+                    this.showSearchPopoverForClinic(propBtn, properties, filter.property, (selected) => {
+                        if (selected === 'No frontmatter') {
+                            filter.property = 'No frontmatter';
+                            filter.value = '';
+                        } else {
+                            filter.property = selected;
+                            filter.value = '';
+                        }
+                        void this.plugin.saveSettings().then(() => this.render());
+                    });
+                });
+
+                // Right-click Value (SearchPopover)
+                valueBtn.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!filter.property || filter.property === 'No frontmatter') return;
+                    
+                    const valuesSet = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set<string>();
+                    const values = ['All values', 'None', ...Array.from(valuesSet).sort()];
+                    
+                    this.showSearchPopoverForClinic(valueBtn, values,
+                        filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : filter.value, 
+                        (selected) => {
+                            switch (selected) {
+                                case 'All values': filter.value = ''; break;
+                                case 'None': filter.value = '__none__'; break;
+                                default: filter.value = selected; break;
                             }
                             void this.plugin.saveSettings().then(() => this.render());
-                        });
-                    });
-
-                    // Right-click Value (SearchPopover)
-                    valueBtn.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (!filter.property || filter.property === 'No frontmatter') return;
-                        
-                        const valuesSet = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set<string>();
-                        const values = ['All values', 'None', ...Array.from(valuesSet).sort()];
-                        
-                        this.showSearchPopoverForClinic(valueBtn, values,
-                            filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : filter.value, 
-                            (selected) => {
-                                switch (selected) {
-                                    case 'All values': filter.value = ''; break;
-                                    case 'None': filter.value = '__none__'; break;
-                                    default: filter.value = selected; break;
-                                }
-                                void this.plugin.saveSettings().then(() => this.render());
-                            }
-                        );
-                    });
-                }
+                        }
+                    );
+                });
+                
 
                 // Remove Filter Button
                 if (index > 0 || this.plugin.settings.clinicState.filters.length > 1) {

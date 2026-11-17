@@ -8459,6 +8459,10 @@ button.portals-portal-list-delete {
     overflow: hidden;
 }
 
+.is-phone .portals-search-popover {
+  max-height: 140px;
+}
+
 .portals-search-popover .portals-search-input {
     margin-bottom: 0;
     width: 100%;
@@ -8482,6 +8486,7 @@ button.portals-portal-list-delete {
     overflow-y: auto;
     background: var(--background-primary);
     box-shadow: var(--shadow-s);
+    -webkit-overflow-scrolling: touch; 
 }
 
 .portals-results-container:empty {

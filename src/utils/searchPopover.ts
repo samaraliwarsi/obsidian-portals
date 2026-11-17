@@ -7,6 +7,7 @@ interface SearchPopoverOptions {
 }
 
 export class SearchPopover {
+    private static activePopover: SearchPopover | null = null;
     private popover: HTMLElement;
     private input: HTMLInputElement;
     private list: HTMLElement;
@@ -16,6 +17,11 @@ export class SearchPopover {
         private anchor: HTMLElement,
         private options: SearchPopoverOptions
     ) {
+        if (SearchPopover.activePopover) {
+            SearchPopover.activePopover.destroy();
+        }
+        SearchPopover.activePopover = this;
+
         this.popover = activeDocument.body.createDiv('portals-search-popover');
 
         this.input = this.popover.createEl('input', {
@@ -101,5 +107,8 @@ export class SearchPopover {
     destroy() {
         activeDocument.removeEventListener('click', this.clickOutsideHandler, { capture: true });
         this.popover.remove();
+        if (SearchPopover.activePopover === this) {
+            SearchPopover.activePopover = null;
+        }
     }
 }
