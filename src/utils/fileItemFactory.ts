@@ -92,7 +92,7 @@ export class FileItemFactory {
                         infoBar = fileEl.createDiv({ cls: 'portals-file-info-bar' });
                         const portalType = plugin.settings.selectedSpace?.type;
                         if (portalType === 'folder') {
-                           FileItemFactory.applyFileInfoBarTags(infoBar!, file, app);         
+                           FileItemFactory.applyFileInfoBarTags(infoBar, file, app);         
                         } else if (portalType === 'tag') {
                             const parentFolder = file.parent;
                             if (parentFolder && parentFolder.path !== '/') {

@@ -202,7 +202,7 @@ export default class PortalsPlugin extends Plugin {
                 this.reminderRefreshTimer = null;
                 // incremental cache update
                 const prop = this.settings.reminderProperty || 'remind_at';
-                const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+                const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter
                 const raw = fm?.[prop];
                 if (raw) {
                     this.reminderDates.set(file.path, String(raw));
@@ -686,7 +686,7 @@ export default class PortalsPlugin extends Plugin {
         this.reminderDates.clear();
         const prop = this.settings.reminderProperty || 'remind_at';
         for (const f of this.app.vault.getMarkdownFiles()) {
-            const fm = this.app.metadataCache.getFileCache(f)?.frontmatter;
+            const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(f)?.frontmatter;
             const raw = fm?.[prop];
             if (raw) this.reminderDates.set(f.path, String(raw));
         }
