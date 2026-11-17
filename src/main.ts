@@ -505,9 +505,30 @@ export default class PortalsPlugin extends Plugin {
     onunload() { 
         setPluginInstance(null);
         FrontmatterClinicRenderer.resetCache();
+
         if (this.previewRefreshTimer) {
             window.clearTimeout(this.previewRefreshTimer);
             this.previewRefreshTimer = null;
+        }
+        if (this.reminderRefreshTimer) {
+            window.clearTimeout(this.reminderRefreshTimer);
+            this.reminderRefreshTimer = null;
+        }
+        if (this.journalRefreshTimer) {
+            window.clearTimeout(this.journalRefreshTimer);
+            this.journalRefreshTimer = null;
+        }
+        if (this.trashRefreshTimer) {
+            window.clearTimeout(this.trashRefreshTimer);
+            this.trashRefreshTimer = null;
+        }
+        if (this.refreshAltRightPanelTimeout) {
+            window.clearTimeout(this.refreshAltRightPanelTimeout);
+            this.refreshAltRightPanelTimeout = null;
+        }
+        if (this.textSettingRenderTimer) {
+            window.clearTimeout(this.textSettingRenderTimer);
+            this.textSettingRenderTimer = null;
         }
         if (this.bookmarksListenerRef) {
             const internalPlugins = (this.app as AppWithInternalPlugins).internalPlugins as InternalPluginsWithBookmarks;
