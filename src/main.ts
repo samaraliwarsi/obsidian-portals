@@ -1,4 +1,4 @@
-import { Plugin, TFolder, TFile, Notice, normalizePath, App } from 'obsidian';
+import { Plugin, TFolder, TFile, Notice, normalizePath, App, WorkspaceLeaf } from 'obsidian';
 import { PortalsView, VIEW_TYPE_PORTALS } from './view';
 import { SpacesSettings, DEFAULT_SETTINGS, SpacesSettingTab } from './settings';
 import { FrontmatterClinicRenderer } from './renderers/frontmatterClinic';
@@ -93,6 +93,7 @@ export default class PortalsPlugin extends Plugin {
         }
 
         this.app.workspace.onLayoutReady(() => {
+            window.setTimeout(() => { void this.setupPortalsSidebar(); }, 0);
             // auto backup
             if (this.settings.enableAutoBackup) {
                 window.setTimeout(() => {
@@ -447,12 +448,10 @@ export default class PortalsPlugin extends Plugin {
 
         this.addSettingTab(new SpacesSettingTab(this.app, this));
 
-        // If replaceFileExplorer is enabled, set up the left sidebar
+        /* If replaceFileExplorer is enabled, set up the left sidebar
         if (this.settings.replaceFileExplorer) {
-            this.app.workspace.onLayoutReady(() => {
-                void this.setupLeftSidebar();
-            });
-        }
+            window.setTimeout(() => { void this.setupPortalsSidebar(); }, 50);
+        }*/
 
         // Track recent files
         this.registerEvent(this.app.workspace.on('file-open', (file) => {
@@ -651,34 +650,58 @@ export default class PortalsPlugin extends Plugin {
         void workspace.revealLeaf(leaf);
     }
 
-    async setupLeftSidebar() {
+    async setupPortalsSidebar() {
         const { workspace } = this.app;
-        const leftSplit = workspace.leftSplit;
-        if (!leftSplit) return;
 
-        // Make sure the left sidebar is expanded so Portals is visible
-        if (leftSplit.collapsed) leftSplit.expand();
-
-        // Look for an existing Portals leaf in the left sidebar
-        const existingLeaf = workspace.getLeavesOfType(VIEW_TYPE_PORTALS).find(
-            leaf => leaf.getRoot() === leftSplit
-        );
-
-        if (existingLeaf) {
-            if (existingLeaf.isDeferred) {
-                await existingLeaf.loadIfDeferred();
+        // Load deferred leaves so getRoot() is reliable (fixes 1.15.1 race)
+        const candidates = workspace.getLeavesOfType(VIEW_TYPE_PORTALS);
+        for (const leaf of candidates) {
+            if (leaf.isDeferred) {
+                try {
+                    await leaf.loadIfDeferred();
+                } catch (e) {
+                    console.error(`[Portals]: loadIfDeferred failed`, e);
+                }
             }
-            await workspace.revealLeaf(existingLeaf);
+        }
+
+        // Clean up duplicates unconditionally (left or right)
+        const allPortals: WorkspaceLeaf[] = workspace.getLeavesOfType(VIEW_TYPE_PORTALS);
+        if (allPortals.length > 1) {
+            const keep = allPortals[0];
+            if (keep) {
+                console.debug(`[Portals] Detaching ${allPortals.length - 1} duplicate Portal leaf(s)`);
+                for (const leaf of allPortals) {
+                    if (leaf !== keep) {
+                        try {
+                            await leaf.detach();
+                        } catch (e) {
+                            console.error(`[Portals]: detach failed`, e);
+                        }
+                    }
+                }
+            }
+        }
+        const existing = workspace.getLeavesOfType(VIEW_TYPE_PORTALS);
+        if (existing.length > 0) {
+            const leaf = existing[0];
+            if (leaf) {
+                await workspace.revealLeaf(leaf);
+            }
             return;
         }
+        // create new (only if on left
+        const leftSplit = workspace.leftSplit;
+        if (!leftSplit) return;
+        if (leftSplit.collapsed) leftSplit.expand();
 
-        // No Portals leaf yet — create one
         const newLeaf = workspace.getLeftLeaf(false);
-        if (!newLeaf) return;
-        await newLeaf.setViewState({ type: VIEW_TYPE_PORTALS, active: true });
-        if (newLeaf.isDeferred) {
-            await newLeaf.loadIfDeferred();
+        if (!newLeaf) {
+            console.error('[Portals] getLeftLeaf returned null - sidebar not ready at setup time');
+            return;
         }
+        await newLeaf.setViewState({ type: VIEW_TYPE_PORTALS, active: true });
+        if (newLeaf.isDeferred) await newLeaf.loadIfDeferred();
         await workspace.revealLeaf(newLeaf);
     }
 
