@@ -37,6 +37,8 @@ export default class PortalsPlugin extends Plugin {
     private journalRefreshTimer: number | null = null;
     public textSettingRenderTimer: number | null = null;
     private backupInProgress = false;
+    public fileSectionCache = new Map<string, string>();
+    private previewRefreshTimer: number | null = null;
 
     async onload() {
         setPluginInstance(this);
@@ -127,19 +129,29 @@ export default class PortalsPlugin extends Plugin {
         });
 
         this.registerEvent(this.app.vault.on('modify', (file) => {
-            if (file instanceof TFile && file.extension === 'md') {
-                const folderPath = this.getJournalFolderPath();
-                if (folderPath && folderPath !== '/' && !file.path.startsWith(folderPath + '/')) {
-                    return
-                }
-                if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
-                    if (this.journalRefreshTimer) window.clearTimeout(this.journalRefreshTimer);
-                    this.journalRefreshTimer = window.setTimeout(() => {
-                        this.journalRefreshTimer = null;
-                        this.refreshSidePortal('journal');
-                        this.refreshAltRightPanelContent('journal');
-                    }, 2000);
-                }
+            if (!(file instanceof TFile) || file.extension !== 'md') return;
+            // Preview safety net - ensures previews appear for files that were empty on creation
+            if (this.settings.showFilePreview) {
+                if (this.previewRefreshTimer) window.clearTimeout(this.previewRefreshTimer);
+                this.previewRefreshTimer = window.setTimeout(() => {
+                    this.previewRefreshTimer = null;
+                    this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                        if (leaf.view instanceof PortalsView) {
+                            leaf.view.updateFileElement(file);
+                        }
+                    });
+                }, 500);
+            }
+            // Journal refresh
+            const folderPath = this.getJournalFolderPath();
+            if (folderPath && folderPath !== '/' && !file.path.startsWith(folderPath + '/')) return;
+            if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
+                if (this.journalRefreshTimer) window.clearTimeout(this.journalRefreshTimer);
+                this.journalRefreshTimer = window.setTimeout(() => {
+                    this.journalRefreshTimer = null;
+                    this.refreshSidePortal('journal');
+                    this.refreshAltRightPanelContent('journal');
+                }, 2000);
             }
         }));
 
@@ -160,15 +172,25 @@ export default class PortalsPlugin extends Plugin {
             const tagsChanged = currentTags !== oldTags;
             this.fileTagCache.set(file.path, currentTags);
 
-            // 1. SURGICAL UPDATE FOR FOLDER OR TAG PORTALS (if tags didn't change)
-            if (space?.type === 'folder' || (space?.type === 'tag' && !tagsChanged)) {
+            // Detect structural changes (property criterion).
+            let sectionChanged = false;
+            const newSectionKey = this.getSectionKeyForFile(file);
+            if (newSectionKey !== null) {
+                const oldSectionKey = this.fileSectionCache.get(file.path);
+                if (oldSectionKey !== newSectionKey) {
+                    sectionChanged = true;
+                }
+                this.fileSectionCache.set(file.path, newSectionKey);
+            }
+            // Surgical update
+            if (!sectionChanged && (space?.type === 'folder' || (space?.type === 'tag' && tagsChanged))) {
                 this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
                     if (leaf.view instanceof PortalsView) {
                         leaf.view.updateFileElement(file);
                     }
                 });
             } else {
-                // 2. DEBOUNCED REBUILD FOR TAG PORTALS IF TAGS DID CHANGE
+                // Debounced rebuild - required for when tags change or sections move
                 debouncedTreeRefresh();
             }
 
@@ -180,7 +202,7 @@ export default class PortalsPlugin extends Plugin {
                     this.refreshSidePortal('reminders');
                 }
                 this.updateReminderBadge();
-            }, 300);          
+            }, 300);
         }));
 
         const debouncedTreeRefresh = () => {
@@ -483,6 +505,10 @@ export default class PortalsPlugin extends Plugin {
     onunload() { 
         setPluginInstance(null);
         FrontmatterClinicRenderer.resetCache();
+        if (this.previewRefreshTimer) {
+            window.clearTimeout(this.previewRefreshTimer);
+            this.previewRefreshTimer = null;
+        }
         if (this.bookmarksListenerRef) {
             const internalPlugins = (this.app as AppWithInternalPlugins).internalPlugins as InternalPluginsWithBookmarks;
             const bookmarksPlugin = internalPlugins?.getPluginById('bookmarks');
@@ -756,6 +782,29 @@ export default class PortalsPlugin extends Plugin {
 
     private getTags(): Record<string, number> {
         return (this.app.metadataCache as unknown as { getTags(): Record<string, number> }).getTags();
+    }
+
+    private getSectionKeyForFile(file: TFile): string | null {
+        if (!this.settings.enableSections) return null;
+        const space = this.settings.selectedSpace;
+        if (!space) return null;
+
+        const compositeKey = `${space.type}:${space.path}`;
+        const prefs = this.settings.spaceSectionPrefs[compositeKey];
+        const criterion = prefs?.criterion ?? this.settings.sectionCriterion;
+
+        if (criterion === 'extension') return file.extension || 'none';
+        if (criterion === 'property') {
+            const propName = prefs?.propertyName ?? this.settings.sectionPropertyName;
+            if (!propName) return null;
+
+            const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+            const val = fm && typeof fm === 'object' && !Array.isArray(fm) ? (fm as Record<string, unknown>)[propName] : undefined;
+            if (val === undefined || val === null) return 'none';
+            if (Array.isArray(val)) return val.join(', ');
+            return String(val);
+        }
+        return null;
     }
 
     async migrateTagNotes(): Promise<{ moved: number; skipped: number; errors: string[] }> {

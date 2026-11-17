@@ -2,7 +2,7 @@ import { ItemView, WorkspaceLeaf } from 'obsidian';
 import PortalsPlugin from '../main';
 import { renderSidePanel } from '../sidePanelTabs';
 import { PortalsView, VIEW_TYPE_PORTALS } from '../view';
-import { getContextRenderer, renderSidePanelContent } from './sidePanelContent';
+import { destroySidePanelRenderer, getContextRenderer, renderSidePanelContent } from './sidePanelContent';
 
 
 export const VIEW_TYPE_ALT_SIDE_PANEL = 'portals-alt-side-panel';
@@ -93,6 +93,7 @@ export class AltSidePanelView extends ItemView {
     }
 
     async onClose() {
+        destroySidePanelRenderer(this);
         this.contentEl.empty();
     }
 }

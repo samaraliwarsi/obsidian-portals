@@ -23,33 +23,7 @@ export class FileItemFactory {
         nameSpan.addClass('portals-item-name');
         fileEl.dataset.path = file.path;
         // reminder icon
-        if (plugin.settings.reminderTreeIndicator !== 'off') {
-            const prop = plugin.settings.reminderProperty || 'remind_at';
-            const fm: Frontmatter | undefined = app.metadataCache.getFileCache(file)?.frontmatter;
-            const hasReminder = fm?.[prop];
-            if (hasReminder) {
-                const clockSpan = fileEl.createSpan({ cls: 'portals-reminder-indicator' });
-
-                if (plugin.settings.reminderTreeIndicator === 'dynamic') {
-                    const dateObj = parseLocalDate(String(hasReminder)); // Added String()
-
-                    if (dateObj) {
-                        const diffDays = getDaysDifference(dateObj);
-
-                        if (diffDays < 0) {
-                            clockSpan.addClass('is-overdue');
-                        } else if (diffDays === 0) {
-                            clockSpan.addClass('is-today');
-                        } else if (diffDays <= 7) {
-                            clockSpan.addClass('is-upcoming'); // Fixed typo here
-                        } else {
-                            clockSpan.addClass('is-later');
-                        }
-                    }
-                }
-                plugin.renderPluginIcon(clockSpan, 'bell');
-            }
-        }
+        FileItemFactory.applyReminderIndicator(fileEl, file, app, plugin);
 
         const savedColor = plugin.settings.customColors[file.path];
         const icon = fileEl.querySelector('.file-icon i');
@@ -118,15 +92,7 @@ export class FileItemFactory {
                         infoBar = fileEl.createDiv({ cls: 'portals-file-info-bar' });
                         const portalType = plugin.settings.selectedSpace?.type;
                         if (portalType === 'folder') {
-                            const cache = app.metadataCache.getFileCache(file);
-                            const tags = [
-                                ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
-                                ...getFrontmatterTags(cache)
-                            ];
-                            const uniqueTags = [...new Set(tags.map(t => t.toLowerCase()))].sort();
-                            uniqueTags.forEach(tag => {
-                                infoBar!.createSpan({ cls: 'portals-file-info-bar-text', text: '#' + tag });
-                            });         
+                           FileItemFactory.applyFileInfoBarTags(infoBar!, file, app);         
                         } else if (portalType === 'tag') {
                             const parentFolder = file.parent;
                             if (parentFolder && parentFolder.path !== '/') {
@@ -187,6 +153,50 @@ export class FileItemFactory {
         view.fileElementMap.set(file.path, fileEl);
 
         return fileEl;
+    }
+
+    public static applyFileInfoBarTags( infoBar: HTMLElement, file: TFile, app: App): void {
+        infoBar.empty();
+        const cache = app.metadataCache.getFileCache(file);
+        const tags = [
+            ...(cache?.tags?.map(t => t.tag.slice(1)) || []),
+            ...getFrontmatterTags(cache)
+        ];
+        const uniqueTags = [...new Set(tags.map(t => t.toLowerCase()))].sort();
+        uniqueTags.forEach(tag => {
+            infoBar.createSpan({ cls: 'portals-file-info-bar-text', text: '#' + tag });
+        });
+    }
+
+    public static applyReminderIndicator( fileEl: HTMLElement, file: TFile, app: App, plugin: PortalsPlugin): void {
+        fileEl.querySelectorAll(':scope > .portals-reminder-indicator').forEach(el => el.remove());
+        if (plugin.settings.reminderTreeIndicator === 'off') return;
+        const prop = plugin.settings.reminderProperty || 'remind_at';
+        const fm: Frontmatter | undefined = app.metadataCache.getFileCache(file)?.frontmatter;
+        const hasReminder = fm?.[prop];
+        if (!hasReminder) return;
+        const clockSpan = fileEl.createSpan({ cls: 'portals-reminder-indicator' });
+
+        if (plugin.settings.reminderTreeIndicator === 'dynamic') {
+            const dateObj = parseLocalDate(String(hasReminder));
+            if (dateObj) {
+                const diffDays = getDaysDifference(dateObj);
+                if (diffDays < 0) {
+                    clockSpan.addClass('is-overdue');
+                } else if (diffDays === 0) {
+                    clockSpan.addClass('is-today');
+                } else if (diffDays <= 7) {
+                    clockSpan.addClass('is-upcoming');
+                } else {
+                    clockSpan.addClass('is-later');
+                }
+            }
+        }
+        plugin.renderPluginIcon(clockSpan, 'bell');
+        const nameSpan = fileEl.querySelector<HTMLElement>(':scope > .portals-item-name');
+        if (nameSpan) {
+            nameSpan.insertAdjacentElement('afterend', clockSpan);
+        }
     }
 
     private static getDisplayName(file: TFile, plugin: PortalsPlugin): string {

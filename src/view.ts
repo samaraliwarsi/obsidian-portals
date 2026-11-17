@@ -16,7 +16,7 @@ import { FileItemFactory } from './utils/fileItemFactory';
 import { RenamePortalModal } from './modals/renamePortalModal';
 import { RemovePortalModal } from './modals/removePortalModal';
 import { SidePortalModal } from './modals/sidePortalModal';
-import { destroContextRenderer, getContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
+import { destroContextRenderer, destroySidePanelRenderer, getContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { getFrontmatterTags } from './utils/tagHelpers';
 
@@ -76,13 +76,37 @@ export class PortalsView extends ItemView {
         const fileEl = this.fileElementMap.get(file.path);
         if (!fileEl || !fileEl.isConnected) return;
 
-        const previewEl = fileEl.querySelector('.portals-file-preview');
-        if (previewEl && this.plugin.settings.showFilePreview) {
+        // 1. preview text + presence (create if missing, update if present, remove if emptied)
+        if (this.plugin.settings.showFilePreview && file.extension === 'md') {
+            const existing = fileEl.querySelector('.portals-file-preview');
             void this.app.vault.cachedRead(file).then(content => {
                 const snippet = FileItemFactory.extractSnippet(content, 300);
-                previewEl.setText(snippet); 
+                if (snippet.length === 0) {
+                    existing?.remove();
+                    return;
+                }
+                if (existing instanceof HTMLElement) {
+                    existing.setText(snippet);
+                } else {
+                    const previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
+                    previewEl.setText(snippet);
+                    const explicit = this.plugin.settings.previewExcludedFiles[file.path];
+                    const collapsed = this.previewsCollapsed;
+                    const showPreview = collapsed ? explicit === false : explicit !== true;
+                    if (!showPreview) previewEl.addClass('file-item-preview-hidden');
+                    fileEl.addClass('file-item-has-preview');
+                }
             });
         }
+        
+        // 2. Info bar tags - folder portals only, and only if the bar exists
+        if (this.plugin.settings.showFileInfoBar && this.plugin.settings.selectedSpace?.type == 'folder') {
+            const infoBar = fileEl.querySelector('.portals-file-info-bar');
+            if (infoBar instanceof HTMLElement) {
+                FileItemFactory.applyFileInfoBarTags(infoBar, file, this.app);
+            }
+        }
+        FileItemFactory.applyReminderIndicator(fileEl, file, this.app, this.plugin);
     }
 
     public updateActiveFileDots(file: TFile | null): void {
@@ -1192,7 +1216,7 @@ export class PortalsView extends ItemView {
             this._activeOutsideClickListener = null;
         }
         this.renaming = false;
-        this.containerEl.removeClass('.portals-renaming-active');
+        this.containerEl.removeClass('portals-renaming-active');
 
         if (this.tooltipEl) {
             this.tooltipEl.remove();
@@ -1221,7 +1245,9 @@ export class PortalsView extends ItemView {
         this.scrollToRestore = null;
 
         this.fileElementMap.clear();
-
+        destroySidePanelRenderer(this);
+        this.clinicRenderer?.destroy();
+        this.clinicRenderer = null;
         destroContextRenderer(this);
 
         await Promise.resolve();

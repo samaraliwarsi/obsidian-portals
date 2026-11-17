@@ -31,6 +31,22 @@ export function destroContextRenderer(view: PortalsView): void {
     }
 }
 
+export function destroySidePanelRenderer(view: PortalsView | AltSidePanelView): void {
+    // destroy whatever renderer is active on sidepanel
+    const splitContent = view.containerEl.querySelector('.portals-split-content');
+    if (splitContent instanceof HTMLElement) {
+        const renderer = activeSidePanelRenderers.get(splitContent);
+        renderer?.destroy();
+        activeSidePanelRenderers.delete(splitContent);
+    }
+    // also destroy journal renderer - it may still be in weakmap from prior visit
+    const journal = journalRenderers.get(view);
+    if (journal) {
+        journal.destroy();
+        journalRenderers.delete(view);
+    }
+}
+
 export async function renderSidePanelContent(
     app: App,
     plugin: PortalsPlugin,

@@ -34,6 +34,12 @@ export class SectionRenderer {
 
         // Build sections based on the active criterion
         const sections = this.buildSections(app, plugin, files);
+
+        for (const section of sections) {
+            for (const f of section.files) {
+                plugin.fileSectionCache.set(f.path, section.key);
+            }
+        }
         if (sections.length <= 1) return false;   // nothing to section
 
         // Restore saved order (if any)
