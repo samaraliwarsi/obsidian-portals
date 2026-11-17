@@ -3,7 +3,6 @@ import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { formatDisplayDate, getDaysDifference, parseLocalDate } from '../utils/dateHelpers';
-import { Frontmatter } from '../types';
 
 export class RemindersRenderer {
     private app: App;
@@ -25,11 +24,8 @@ export class RemindersRenderer {
         if (!this.container) return;
         this.container.empty();
 
-        const propName = this.plugin.settings.reminderProperty || 'remind_at';
-
         const showOverdue = this.plugin.settings.reminderShowOverdue;
         const order = this.plugin.settings.reminderOrder;
-        const files = this.app.vault.getMarkdownFiles();
 
         const today = new Date();
 
@@ -38,11 +34,9 @@ export class RemindersRenderer {
         const upcoming: {file: TFile, date: Date}[] = [];
         const later: {file: TFile, date: Date}[] = [];
 
-        for (const file of files) {
-            const cache = this.app.metadataCache.getFileCache(file);
-            const fm: Frontmatter | undefined = cache?.frontmatter;
-            const rawDate = fm?.[propName];
-            if (!rawDate) continue;
+        for (const [path, rawDate] of this.plugin.reminderDates) {
+            const abstract = this.app.vault.getAbstractFileByPath(path);
+            if (!(abstract instanceof TFile)) continue;
 
             const dateObj = parseLocalDate(String(rawDate));
             if (!dateObj) continue;
@@ -50,13 +44,13 @@ export class RemindersRenderer {
             const diffDays = getDaysDifference(dateObj, today);
 
             if (diffDays < 0) {
-                overdue.push({ file, date: dateObj });
+                overdue.push({ file: abstract, date: dateObj });
             } else if (diffDays === 0) {
-                todayList.push({ file, date: dateObj });
+                todayList.push({ file: abstract, date: dateObj });
             } else if (diffDays <= 7) {
-                upcoming.push({ file, date: dateObj });
+                upcoming.push({ file: abstract, date: dateObj });
             } else {
-                later.push({ file, date: dateObj });
+                later.push({ file: abstract, date: dateObj });
             }
         }
 

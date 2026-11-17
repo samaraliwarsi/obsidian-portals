@@ -39,12 +39,14 @@ export default class PortalsPlugin extends Plugin {
     private backupInProgress = false;
     public fileSectionCache = new Map<string, string>();
     private previewRefreshTimer: number | null = null;
+    public reminderDates = new Map<string, string>();
 
     async onload() {
         setPluginInstance(this);
         await this.loadSettings();
         updatePortalCommands(this);
         registerAllCommands(this);
+        this.rebuildReminderDatesCache();
 
         // migrate old clinicState to new multi-filter format
         const oldClinic = this.settings.clinicState as unknown as Record<string, unknown>;
@@ -198,6 +200,16 @@ export default class PortalsPlugin extends Plugin {
             if (this.reminderRefreshTimer) window.clearTimeout(this.reminderRefreshTimer);
             this.reminderRefreshTimer = window.setTimeout(() => {
                 this.reminderRefreshTimer = null;
+                // incremental cache update
+                const prop = this.settings.reminderProperty || 'remind_at';
+                const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+                const raw = fm?.[prop];
+                if (raw) {
+                    this.reminderDates.set(file.path, String(raw));
+                } else {
+                    this.reminderDates.delete(file.path);
+                }
+
                 if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
                     this.refreshSidePortal('reminders');
                 }
@@ -212,6 +224,13 @@ export default class PortalsPlugin extends Plugin {
                 this.refreshAllTreeContent();
             }, 50);
         }
+        // =================================================
+        // FOCUS LISTENER
+        // =================================================
+        this.registerDomEvent(activeWindow, 'focus', () => {
+            this.updateReminderBadge();
+        });
+
         // =================================================
         // CREATE LISTENER
         // =================================================
@@ -264,6 +283,7 @@ export default class PortalsPlugin extends Plugin {
                 }
             }
             if (file instanceof TFile && file.extension === 'md') {
+                this.reminderDates.delete(file.path);
                 FrontmatterClinicRenderer.removeFileCache(file.path);
                 if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
                     this.refreshSidePortal('properties');
@@ -343,6 +363,11 @@ export default class PortalsPlugin extends Plugin {
             }
             if (file instanceof TFile) {
                 if (file.extension === 'md') {
+                    const rawReminder = this.reminderDates.get(oldPath);
+                    if (rawReminder !== undefined) {
+                        this.reminderDates.delete(oldPath);
+                        this.reminderDates.set(file.path, rawReminder);
+                    }
                     FrontmatterClinicRenderer.removeFileCache(oldPath);
                     FrontmatterClinicRenderer.updateFileCache(this.app, file);
                     
@@ -587,7 +612,12 @@ export default class PortalsPlugin extends Plugin {
     }
 
     async saveSettings() {
-        await this.saveData(this.settings);
+        try {
+            await this.saveData(this.settings);
+        } catch (err) {
+            console.error('Portals: failed to persist settings', err);
+            new Notice('Portals: Failed to save settings. Changes may not persist after restart.');
+        }
         updatePortalCommands(this);
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {
@@ -650,6 +680,16 @@ export default class PortalsPlugin extends Plugin {
             await newLeaf.loadIfDeferred();
         }
         await workspace.revealLeaf(newLeaf);
+    }
+
+    public rebuildReminderDatesCache(): void {
+        this.reminderDates.clear();
+        const prop = this.settings.reminderProperty || 'remind_at';
+        for (const f of this.app.vault.getMarkdownFiles()) {
+            const fm = this.app.metadataCache.getFileCache(f)?.frontmatter;
+            const raw = fm?.[prop];
+            if (raw) this.reminderDates.set(f.path, String(raw));
+        }
     }
 
     private refreshAllRecentTabs() {
@@ -774,23 +814,14 @@ export default class PortalsPlugin extends Plugin {
     }
 
     public updateReminderBadge(): void {
-        const prop = this.settings.reminderProperty || 'remind_at';
         let hasDue = false;
-        
-        for (const f of this.app.vault.getMarkdownFiles()) {
-            const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(f)?.frontmatter;
-            const d = fm?.[prop];
-            if (d) {
-                // Use the helper!
-                const dateObj = parseLocalDate(String(d));
-                if (dateObj && getDaysDifference(dateObj) <= 0) {
-                    hasDue = true;
-                    break;
-                }
+        for (const raw of this.reminderDates.values()) {
+            const dateObj = parseLocalDate(raw);
+            if (dateObj && getDaysDifference(dateObj) <= 0) {
+                hasDue = true;
+                break;
             }
         }
-
-        // Find the reminders tab in the DOM and toggle the class
         const tabBtns = activeDocument.querySelectorAll('.portals-split-tab[data-tab-id="reminders"]');
         tabBtns.forEach(btn => {
             if (hasDue && this.settings.reminderTabNotification) {

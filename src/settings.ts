@@ -264,6 +264,7 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.plugin.settings.previousReminderProperty = oldVal
             }
         }
+        
         // write the value to settings first
         (this.plugin.settings as unknown as Record<string, unknown>)[key] = value;
 
@@ -294,6 +295,11 @@ export class SpacesSettingTab extends PluginSettingTab {
         }
 
         if (key === 'reminderShowOverdue' || key === 'reminderOrder') {
+            this.plugin.refreshSidePortal('reminders');
+        }
+        if (key === 'reminderProperty') {
+            this.plugin.rebuildReminderDatesCache();
+            this.plugin.updateReminderBadge();
             this.plugin.refreshSidePortal('reminders');
         }
         if (key === 'showCurrentPropertyValue' || key === 'hideFilteredCount') {
