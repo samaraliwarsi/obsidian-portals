@@ -674,7 +674,7 @@ export default class PortalsPlugin extends Plugin {
                 for (const leaf of allPortals) {
                     if (leaf !== keep) {
                         try {
-                            await leaf.detach();
+                            leaf.detach();
                         } catch (e) {
                             console.error(`[Portals]: detach failed`, e);
                         }
@@ -966,7 +966,7 @@ export default class PortalsPlugin extends Plugin {
                 if (!leaf) {
                     const rightSplit = this.app.workspace.rightSplit;
                     if (rightSplit?.collapsed) rightSplit.expand();
-                    
+
                     let newLeaf = this.app.workspace.getRightLeaf(false);
                     if (!newLeaf) newLeaf = this.app.workspace.getRightLeaf(true);
                     if (!newLeaf) return;
