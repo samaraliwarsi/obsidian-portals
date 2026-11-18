@@ -76,6 +76,23 @@ export class PortalsView extends ItemView {
         const fileEl = this.fileElementMap.get(file.path);
         if (!fileEl || !fileEl.isConnected) return;
 
+        const appearance = this.plugin.getFileAppearahce(file);
+        const iconSpan = fileEl?.querySelector('.file-icon');
+        if (iconSpan instanceof HTMLElement) {
+            iconSpan.empty();
+            this.plugin.renderIconString(iconSpan, appearance.icon, 'file');
+        }
+
+        if (appearance.color) {
+            fileEl.classList.add('has-file-color');
+            fileEl.setCssProps({ '--file-color': appearance.color });
+            const icon = fileEl.querySelector('.file-icon i');
+            if (icon) icon.addClass('has-file-color');
+        } else {
+            fileEl.classList.remove('has-file-color');
+            fileEl.setCssProps({ '--file-color': '' });
+        }
+
         // 1. preview text + presence (create if missing, update if present, remove if emptied)
         if (this.plugin.settings.showFilePreview && file.extension === 'md') {
             const existing = fileEl.querySelector('.portals-file-preview');

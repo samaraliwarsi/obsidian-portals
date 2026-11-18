@@ -4,6 +4,7 @@ interface SearchPopoverOptions {
     currentSelected: string;
     onSelect: (item: string) => void;
     placeholder?: string;
+    parent?: HTMLElement;
 }
 
 export class SearchPopover {
@@ -21,8 +22,8 @@ export class SearchPopover {
             SearchPopover.activePopover.destroy();
         }
         SearchPopover.activePopover = this;
-
-        this.popover = activeDocument.body.createDiv('portals-search-popover');
+        const parent = options.parent || activeDocument.body;
+        this.popover = parent.createDiv('portals-search-popover');
 
         this.input = this.popover.createEl('input', {
             type: 'text',
@@ -34,11 +35,32 @@ export class SearchPopover {
 
         // Position relative to anchor
         const rect = anchor.getBoundingClientRect();
-        this.popover.setCssProps({ 
-            position: 'absolute',
-            bottom: `${window.innerHeight - rect.top + 2}px`,
-            left: `${rect.left}px`,
-        });    
+        if (options.parent) {
+            // Used inside native Modal class. Open upwards inside the container
+            if (getComputedStyle(parent).position === 'static') {
+                parent.setCssStyles({ position: 'relative' })
+            }
+            const parentRect = parent.getBoundingClientRect();
+            
+            this.popover.setCssProps({ 
+                position: 'absolute',
+                top: `${rect.top - parentRect.top + parent.scrollTop}px`,
+                left: `${rect.left - parentRect.left + parent.scrollLeft}px`,
+                transform: 'translateY(calc(-100% - 4px))',
+                zIndex: 'var(--layer-menu)'
+            });    
+        } else {
+            this.popover.setCssProps({ 
+                position: 'absolute',
+                bottom: `${window.innerHeight - rect.top + 2}px`,
+                left: `${rect.left}px`,
+                zIndex: 'var(--layer-menu)' // Added to ensure it stays above other UI
+            });
+        }
+        // to ensure it doesn't lose focus
+        this.popover.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+        });
 
         this.input.addEventListener('input', () => this.renderFiltered(this.input.value));
         this.input.addEventListener('keydown', (e) => this.handleKeyboard(e));

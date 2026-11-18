@@ -15,9 +15,9 @@ export class FileItemFactory {
 
     static createFileItem(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, container: HTMLElement, openFiles: Set<string>): HTMLElement {
         const fileEl = container.createDiv({ cls: 'file-item' });
-
+        const appearance = plugin.getFileAppearahce(file);
         const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-        getPluginInstance()?.renderCustomIcon(iconSpan, file.path, 'file');
+        getPluginInstance()?.renderIconString(iconSpan, appearance.icon, 'file');
 
         const nameSpan = fileEl.createSpan({ text: FileItemFactory.getDisplayName(file, plugin) });
         nameSpan.addClass('portals-item-name');
@@ -25,11 +25,11 @@ export class FileItemFactory {
         // reminder icon
         FileItemFactory.applyReminderIndicator(fileEl, file, app, plugin);
 
-        const savedColor = plugin.settings.customColors[file.path];
-        const icon = fileEl.querySelector('.file-icon i');
+        const savedColor = appearance.color;
         if (savedColor) {
             fileEl.classList.add('has-file-color');
             fileEl.setCssProps({ '--file-color': savedColor });
+            const icon = fileEl.querySelector('.file-icon i');
             if (icon) icon.addClass('has-file-color');
         } else {
             fileEl.classList.remove('has-file-color');

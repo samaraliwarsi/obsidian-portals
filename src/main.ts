@@ -503,6 +503,24 @@ export default class PortalsPlugin extends Plugin {
         this.renderPluginIcon(element, stored);   
     }
 
+    public renderIconString(element: HTMLElement, iconKey: string, fallback: string = 'file'): void {
+        if (!iconKey) {
+            this.renderPluginIcon(element, fallback);
+            return;
+        }
+        const colonIndex = iconKey.indexOf(':');
+        if (colonIndex > 0) {
+            const library = iconKey.substring(0, colonIndex);
+            const iconName = iconKey.substring(colonIndex + 1);
+            if (library === 'phosphor' || library === 'lucide' || library === 'emoji') {
+                const provider = this.getProviderForLibrary(library as 'phosphor' | 'lucide' | 'emoji');
+                provider.renderIcon(element, iconName);
+                return;
+            }
+        }
+        this.renderPluginIcon(element, iconKey);
+    }
+
     public getJournalFolderPath(): string | null {
         let path = this.settings.journalFolderPath;
         
@@ -713,6 +731,33 @@ export default class PortalsPlugin extends Plugin {
             const raw = fm?.[prop];
             if (raw) this.reminderDates.set(f.path, String(raw));
         }
+    }
+
+    public getFileAppearahce(file: TFile): {icon: string, color: string | undefined} {
+        const customIcon = this.settings.customIcons[file.path];
+        const customColor = this.settings.customColors[file.path]
+        if (customIcon || customColor) { // relook this condition
+            return { icon: customIcon || 'file', color: customColor };
+        }
+
+        const fm = this.app.metadataCache.getFileCache(file)?.frontmatter; // consider using one of the caches to avoid constant checks over session
+        if (fm && this.settings.appearanceRules) {
+            for (const rule of this.settings.appearanceRules) {
+                const rawVal = fm[rule.property]
+                if (rawVal === undefined || rawVal === null) continue;
+
+                let matches = false;
+                if (Array.isArray(rawVal)) {
+                    matches = rawVal.map(String).includes(rule.value);
+                } else {
+                    matches = String(rawVal) === rule.value;
+                }
+                if (matches) {
+                    return { icon: rule.icon || 'file', color: rule.color || undefined };
+                }
+            }
+        }
+        return { icon: 'file', color: undefined };
     }
 
     private refreshAllRecentTabs() {

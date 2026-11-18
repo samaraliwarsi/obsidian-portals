@@ -8,6 +8,7 @@ import { SelectFolderModal } from "../../modals/selectFolderModal";
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from "../../renderers/RightSideView";
 import { getGuideUrl, getReleaseNotesUrl } from "../Proxies/urls";
 import { makeSyncButton } from "../syncButton";
+import { AppearanceRulesModal } from "../../modals/appearanceRulesModal";
 
 export function buildSettingDefinitions(tab: SpacesSettingTab): SettingDefinitionItem[] {
     return [
@@ -649,6 +650,18 @@ function buildUtilitiesSection(_tab: SpacesSettingTab): SettingGroupItem[] {
                     'lucide': 'Lucide'
                 }
             }
+        },
+        {
+            name: 'Appearance rules',
+            desc: "Automatically assign icons & colors based on frontmatter properties.",
+            render: (setting) => {
+                        const controlEl = setting.controlEl;
+                        controlEl.empty();
+                        const btn = controlEl.createEl('button', { text: 'Rules', cls: 'mod-cta' });
+                        btn.addEventListener('click', () => {
+                            new AppearanceRulesModal(_tab.app, _tab.plugin).open();
+                        });
+                    }
         },
         {
             name: 'Register portals in Obsidian command palette',

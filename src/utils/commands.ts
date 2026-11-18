@@ -3,6 +3,7 @@ import PortalsPlugin from "../main";
 import { PortalsView, VIEW_TYPE_PORTALS } from "../view";
 import { getGuideUrl } from "./Proxies/urls";
 import { VIEW_TYPE_ALT_SIDE_PANEL } from "../renderers/RightSideView";
+import { AppearanceRulesModal } from "../modals/appearanceRulesModal";
 
 export function registerAllCommands (plugin: PortalsPlugin) {
     plugin.addCommand({
@@ -185,6 +186,14 @@ export function registerAllCommands (plugin: PortalsPlugin) {
             });
             void plugin.app.workspace.revealLeaf(leaf);
         },
+    });
+
+    plugin.addCommand({
+        id: 'appearance-rules',
+        name: 'Open appearance rules',
+        callback: () => {
+            new AppearanceRulesModal(plugin.app, plugin).open();
+        }
     });
 
     plugin.addCommand({

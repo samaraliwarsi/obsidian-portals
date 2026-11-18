@@ -1,7 +1,7 @@
 import { App, PluginSettingTab } from 'obsidian';
 import type { SettingDefinitionItem } from 'obsidian';
 import PortalsPlugin from './main';
-import { SpaceConfig, PortalStack } from './types';
+import { SpaceConfig, PortalStack, AppearanceRule } from './types';
 import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { buildSettingDefinitions } from './utils/settingsRelated/settingDefinitions';
 import { journalState } from './renderers/journalView';
@@ -103,6 +103,7 @@ export interface SpacesSettings {
     reminderStartupNotification: 'none' | 'notice' | 'modal';
     autoCollapseTree: boolean;
     dateDisplayFormat: 'YYYY-MM-DD' | 'DD-MM-YYYY' | 'MM-DD-YYYY';
+    appearanceRules: AppearanceRule[];
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -201,6 +202,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     reminderStartupNotification: 'notice',
     autoCollapseTree: false,
     dateDisplayFormat: 'YYYY-MM-DD',
+    appearanceRules: [],
 };
 
 export class SpacesSettingTab extends PluginSettingTab {

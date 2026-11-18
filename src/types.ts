@@ -50,3 +50,11 @@ export interface PublicBookmarksAPI {
 }
 
 export type Frontmatter = Record<string, unknown>;
+
+export interface AppearanceRule {
+    id: string;
+    property: string;
+    value: string;
+    icon: string;
+    color: string;
+}

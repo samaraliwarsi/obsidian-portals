@@ -506,3 +506,36 @@ input.portals-inline-rename:hover {
     pointer-events: none;
     contain: strict;
 }
+
+
+.portals-rules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+.portals-rule-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+    background: var(--background-secondary);
+    border-radius: var(--radius-m);
+}
+.portals-rule-btn {
+    min-width: 100px;
+    text-align: left;
+}
+.portals-rule-icon-btn, .portals-rule-color-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+.portals-rule-del-btn {
+    margin-left: auto;
+    color: var(--text-error);
+}
