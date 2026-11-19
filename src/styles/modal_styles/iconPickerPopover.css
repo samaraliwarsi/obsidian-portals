@@ -9,20 +9,18 @@
     display: flex;
     flex-direction: column;
     padding: 8px;
-    gap: 8px;
     z-index: calc(var(--layer-modal) + 1);
 }
 
-.portals-inline-icon-tabs {
+.portals-icopop-tabs {
     display: flex;
     gap: 4px;
     border-bottom: 1px solid var(--background-modifier-border);
     padding-bottom: 6px;
     flex-shrink: 0;
-    margin-bottom: 8px;
 }
 
-.portals-inline-icon-tab {
+.portals-icopop-tab {
     padding: 2px 6px;
     border-radius: var(--radius-s);
     cursor: pointer;
@@ -31,17 +29,24 @@
     user-select: none;
 }
 
-.portals-inline-icon-tab:hover {
+.portals-icopop-tab:hover {
     background: var(--background-modifier-hover);
     color: var(--text-muted);
 }
 
-.portals-inline-icon-tab.is-active {
+.portals-icopop-tab.is-active {
     background: var(--background-primary);
     color: var(--text-normal);
 }
 
-.portals-inline-icon-search {
+.portals-icopop .portals-icopop-input-div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 4px;
+}
+
+input.portals-icopop-search {
     width: 100%;
     padding: 4px 8px;
     height: var(--line-height-tight);
@@ -51,7 +56,7 @@
     font-size: var(--font-ui-small);
 }
 
-.portals-inline-icon-grid {
+.portals-icopop-grid {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     gap: 2px;
@@ -60,7 +65,7 @@
     padding: 2px;
 }
 
-.portals-inline-icon-item {
+.portals-icopop-item {
     width: 32px;
     height: 32px;
     display: flex;
@@ -72,11 +77,11 @@
     color: var(--text-normal);
 }
 
-.portals-inline-icon-item:hover {
+.portals-icopop-item:hover {
     background: var(--background-modifier-hover);
 }
 
-.portals-inline-icon-empty {
+.portals-icopop-empty {
     grid-column: span 8;
     text-align: center;
     color: var(--text-muted);
@@ -85,7 +90,7 @@
     line-height: 1.4;
 }
 
-.portals-inline-icon-loadmore {
+.portals-icopop-loadmore {
     grid-column: span 8;
     text-align: center;
     cursor: pointer;
@@ -94,6 +99,6 @@
     font-size: var(--font-ui-small);
 }
 
-.portals-inline-icon-loadmore:hover {
+.portals-icopop-loadmore:hover {
     background: var(--background-modifier-hover);
 }

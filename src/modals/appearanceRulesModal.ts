@@ -35,7 +35,8 @@ export class AppearanceRulesModal extends Modal {
         contentEl.addClass('portals-ar-modal');
         contentEl.createDiv({ text: 'Appearance Rules', cls: 'portals-ar-modal-title' });
         contentEl.createDiv({ 
-            text: 'Rules priority is top-to-bottom. Manual file overrides take highest priority.',
+            text: 'Drag items higher for higher priority. Manual file override is top priority.',
+            //text: 'Rules priority is top-to-bottom. Manual file overrides take highest priority.',
             cls: 'portals-ar-modal-subtext'
         });
 
@@ -51,7 +52,7 @@ export class AppearanceRulesModal extends Modal {
         this.renderList();
 
         // Add button
-        const addBtn = contentEl.createEl('button', { text: '+ Add New Rule', cls: 'portals-reset-btn portals-ar-add-btn' });
+        const addBtn = contentEl.createEl('button', { text: '+ New Rule', cls: 'portals-reset-btn portals-ar-add-btn' });
         addBtn.addEventListener('click', () => {
             this.rules.push({
                 id: `rule-${Date.now()}`,
@@ -90,7 +91,7 @@ export class AppearanceRulesModal extends Modal {
 
             // 1. Drag Handle
             const decisionWrap = row.createDiv({ cls: 'portals-ar-rule-row-div' });
-            const handle = decisionWrap.createSpan({ cls: 'portals-reorder-handle' });
+            const handle = decisionWrap.createSpan({ cls: 'portals-ar-reorder-handle' });
             this.plugin.renderPluginIcon(handle, 'dots-six-vertical');
 
             // 2. Property Button
@@ -189,7 +190,7 @@ export class AppearanceRulesModal extends Modal {
         // Initialize Sortable
         new Sortable(this.listEl, {
             animation: 150,
-            handle: '.portals-reorder-handle',
+            handle: '.portals-ar-reorder-handle',
             draggable: '.portals-rule-row',
             onEnd: () => {
                 const newOrderIds = Array.from(this.listEl.querySelectorAll('.portals-rule-row'))

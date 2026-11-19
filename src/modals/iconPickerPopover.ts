@@ -11,7 +11,8 @@ export class IconPickerPopover {
     private filter = '';
     private displayCount = 60;
     private destroyed = false;
-
+    private resizeObserver!: ResizeObserver;
+    private resizeHandler!: () => void;
     private clickOutsideHandler!: (e: MouseEvent) => void;
     private keyHandler!: (e: KeyboardEvent) => void;
     private scrollHandler!: (e: Event) => void;
@@ -24,6 +25,7 @@ export class IconPickerPopover {
         private onSelect: (iconKey: string) => void
     ) {
         this.popover = activeDocument.body.createDiv('portals-inline-icon-popover');
+        this.popover.addClass('portals-icopop');
         this.buildUI();
         this.position();
         this.attachListeners();
@@ -36,7 +38,7 @@ export class IconPickerPopover {
     }
 
     private buildUI() {
-        this.tabContainer = this.popover.createDiv({ cls: 'portals-inline-icon-tabs' });
+        this.tabContainer = this.popover.createDiv({ cls: 'portals-icopop-tabs' });
         const tabs: { key: 'favorites' | 'phosphor' | 'lucide' | 'emoji'; label: string }[] = [
             { key: 'favorites', label: '★' },
             { key: 'phosphor', label: 'Phosphor' },
@@ -44,7 +46,7 @@ export class IconPickerPopover {
             { key: 'emoji', label: 'Emoji' },
         ];
         for (const t of tabs) {
-            const tab = this.tabContainer.createDiv({ cls: 'portals-inline-icon-tab', text: t.label });
+            const tab = this.tabContainer.createDiv({ cls: 'portals-icopop-tab', text: t.label });
             tab.dataset.tab = t.key;
             tab.addEventListener('click', () => {
                 this.currentLibrary = t.key;
@@ -56,10 +58,10 @@ export class IconPickerPopover {
                 this.input.focus();
             });
         }
-
-        this.input = this.popover.createEl('input', {
+        const inputDiv = this.popover.createDiv({ cls: 'portals-icopop-input-div' });
+        this.input = inputDiv.createEl('input', {
             type: 'text',
-            cls: 'portals-inline-icon-search',
+            cls: 'portals-icopop-search',
             placeholder: 'Search icons...'
         });
         this.input.addEventListener('input', () => {
@@ -67,11 +69,11 @@ export class IconPickerPopover {
             this.renderGrid();
         });
 
-        this.grid = this.popover.createDiv({ cls: 'portals-inline-icon-grid' });
+        this.grid = this.popover.createDiv({ cls: 'portals-icopop-grid' });
     }
 
     private updateTabStates() {
-        this.tabContainer.querySelectorAll<HTMLElement>('.portals-inline-icon-tab').forEach(tab => {
+        this.tabContainer.querySelectorAll<HTMLElement>('.portals-icopop-tab').forEach(tab => {
             tab.toggleClass('is-active', tab.dataset.tab === this.currentLibrary);
         });
     }
@@ -104,7 +106,7 @@ export class IconPickerPopover {
 
         const frag = createFragment();
         for (const name of toRender) {
-            const iconEl = createDiv({ cls: 'portals-inline-icon-item' });
+            const iconEl = createDiv({ cls: 'portals-icopop-item' });
             provider.renderIcon(iconEl, name);
             iconEl.setAttribute('title', name);
             iconEl.addEventListener('click', (e) => {
@@ -145,7 +147,7 @@ export class IconPickerPopover {
 
         const frag = createFragment();
         for (const fav of filtered) {
-            const iconEl = createDiv({ cls: 'portals-inline-icon-item' });
+            const iconEl = createDiv({ cls: 'portals-icopop-item' });
             if (fav.library === 'emoji') {
                 iconEl.setText(fav.name);
                 iconEl.addClass('portals-emoji-icon');
@@ -178,7 +180,7 @@ export class IconPickerPopover {
 
         const frag = createFragment();
         for (const entry of toRender) {
-            const iconEl = createDiv({ cls: 'portals-inline-icon-item portals-emoji-icon', text: entry.char });
+            const iconEl = createDiv({ cls: 'portals-icopop-item portals-emoji-icon', text: entry.char });
             iconEl.setAttribute('title', entry.name);
             iconEl.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -202,53 +204,57 @@ export class IconPickerPopover {
     }
 
     private position() {
-    const anchorRect = this.anchor.getBoundingClientRect();
-    const parentRect = this.parent.getBoundingClientRect();
+        if (this.destroyed) return;
 
-    // 1. Temporarily hide to measure
-    this.popover.setCssStyles({
-        position: 'fixed',
-        top: '0px',
-        left: '0px',
-        visibility: 'hidden',
-        display: 'block', 
-        zIndex: '9999'
-    });
-    const popoverRect = this.popover.getBoundingClientRect();
+        const anchorRect = this.anchor.getBoundingClientRect();
+        const parentRect = this.parent.getBoundingClientRect();
 
-    let top = 0;
-    let left = 0;
+        this.popover.setCssStyles({
+            position: 'fixed',
+            top: '0px',
+            left: '0px',
+            visibility: 'hidden',
+            display: 'block'
+        });
+        const popoverRect = this.popover.getBoundingClientRect();
 
-    if (Platform.isMobile) {
-        // MOBILE: Explicitly center it on the screen
-        top = (window.innerHeight - popoverRect.height) / 2;
-        left = (window.innerWidth - popoverRect.width) / 2;
-    } else {
-        // DESKTOP: Align to the left of the button, with failsafes
-        const parentCenterY = parentRect.top + (parentRect.height / 2);
-        top = parentCenterY - (popoverRect.height / 2);
-        top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
+        // USE VISUAL VIEWPORT (Accounts for mobile keyboard)
+        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
 
-        const gap = 8;
-        left = anchorRect.left - popoverRect.width - gap;
+        let top = 0;
+        let left = 0;
 
-        // Failsafe: If it goes off the left edge, open to the right
-        if (left < 10) {
-            left = anchorRect.right + gap;
-            // If it still goes off the right edge, clamp it
-            if (left + popoverRect.width > window.innerWidth - 10) {
-                left = window.innerWidth - popoverRect.width - 10;
+        if (Platform.isMobile) {
+            // Center on the *visible* screen (above keyboard)
+            top = (viewportHeight - popoverRect.height) / 2;
+            left = (viewportWidth - popoverRect.width) / 2;
+        } else {
+            // Desktop: Center vertically on the modal, stick to the left of the button
+            const parentCenterY = parentRect.top + (parentRect.height / 2);
+            top = parentCenterY - (popoverRect.height / 2);
+            
+            const gap = 8;
+            left = anchorRect.left - popoverRect.width - gap;
+
+            // Failsafes
+            if (left < 10) {
+                left = anchorRect.right + gap;
+                if (left + popoverRect.width > viewportWidth - 10) {
+                    left = viewportWidth - popoverRect.width - 10;
+                }
             }
         }
-    }
 
-    // 5. Apply final position
-    this.popover.setCssStyles({
-        top: `${top}px`,
-        left: `${left}px`,
-        visibility: 'visible'
-    });
-}
+        // Clamp vertically so it NEVER goes behind the keyboard or off-screen
+        top = Math.max(10, Math.min(top, viewportHeight - popoverRect.height - 10));
+
+        this.popover.setCssStyles({
+            top: `${top}px`,
+            left: `${left}px`,
+            visibility: 'visible'
+        });
+    }
 
     private attachListeners() {
         // This prevents Obsidian from knowing you clicked the popover
@@ -258,6 +264,8 @@ export class IconPickerPopover {
         };
         
         // Bind to multiple events to ensure macOS/Windows/Linux all catch it
+        this.popover.addEventListener('focusin', stopEvent);
+        this.popover.addEventListener('focusout', stopEvent);
         this.popover.addEventListener('mousedown', stopEvent);
         this.popover.addEventListener('click', stopEvent);
         this.popover.addEventListener('pointerdown', stopEvent);
@@ -286,16 +294,35 @@ export class IconPickerPopover {
             }
         };
         this.parent.addEventListener('scroll', this.scrollHandler, { capture: true });
+        
+        // Listen for window resizes
+        this.resizeHandler = () => this.position();
+        window.addEventListener('resize', this.resizeHandler);
+        // listen for mobile keyboard open and close
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', this.resizeHandler);
+        }
+        this.resizeObserver = new ResizeObserver(() => this.position());
+        this.resizeObserver.observe(this.anchor);
+        this.resizeObserver.observe(this.parent);
+
     }
 
     public destroy() {
         if (this.destroyed) return;
         this.destroyed = true;
-        console.log(`[Popover Log] destroy() called. Stack trace:`, new Error().stack); // This will tell us EXACTLY who closed it
         
         activeDocument.removeEventListener('mousedown', this.clickOutsideHandler, { capture: true });
         activeDocument.removeEventListener('keydown', this.keyHandler);
         this.parent.removeEventListener('scroll', this.scrollHandler, { capture: true });
+
+        window.removeEventListener('resize', this.resizeHandler);
+        if (window.visualViewport) {
+            window.visualViewport.removeEventListener('resize', this.resizeHandler);
+        }
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
         
         this.popover.remove();
     }

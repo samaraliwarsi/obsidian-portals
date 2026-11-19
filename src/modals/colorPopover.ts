@@ -5,7 +5,8 @@ import { DEFAULT_PORTALS_PALETTE } from './colorModal';
 export class ColorPickerPopover {
     private popover: HTMLElement;
     private destroyed = false;
-
+    private resizeObserver!: ResizeObserver;
+    private resizeHandler!: () => void;
     private clickOutsideHandler!: (e: MouseEvent) => void;
     private keyHandler!: (e: KeyboardEvent) => void;
     private scrollHandler!: (e: Event) => void;
@@ -86,53 +87,57 @@ export class ColorPickerPopover {
     }
 
     private position() {
-    const anchorRect = this.anchor.getBoundingClientRect();
-    const parentRect = this.parent.getBoundingClientRect();
+        if (this.destroyed) return;
 
-    // 1. Temporarily hide to measure
-    this.popover.setCssStyles({
-        position: 'fixed',
-        top: '0px',
-        left: '0px',
-        visibility: 'hidden',
-        display: 'block', 
-        zIndex: '9999'
-    });
-    const popoverRect = this.popover.getBoundingClientRect();
+        const anchorRect = this.anchor.getBoundingClientRect();
+        const parentRect = this.parent.getBoundingClientRect();
 
-    let top = 0;
-    let left = 0;
+        this.popover.setCssStyles({
+            position: 'fixed',
+            top: '0px',
+            left: '0px',
+            visibility: 'hidden',
+            display: 'block'
+        });
+        const popoverRect = this.popover.getBoundingClientRect();
 
-    if (Platform.isMobile) {
-        // MOBILE: Explicitly center it on the screen
-        top = (window.innerHeight - popoverRect.height) / 2;
-        left = (window.innerWidth - popoverRect.width) / 2;
-    } else {
-        // DESKTOP: Align to the left of the button, with failsafes
-        const parentCenterY = parentRect.top + (parentRect.height / 2);
-        top = parentCenterY - (popoverRect.height / 2);
-        top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
+        // USE VISUAL VIEWPORT (Accounts for mobile keyboard)
+        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
 
-        const gap = 8;
-        left = anchorRect.left - popoverRect.width - gap;
+        let top = 0;
+        let left = 0;
 
-        // Failsafe: If it goes off the left edge, open to the right
-        if (left < 10) {
-            left = anchorRect.right + gap;
-            // If it still goes off the right edge, clamp it
-            if (left + popoverRect.width > window.innerWidth - 10) {
-                left = window.innerWidth - popoverRect.width - 10;
+        if (Platform.isMobile) {
+            // Center on the *visible* screen (above keyboard)
+            top = (viewportHeight - popoverRect.height) / 2;
+            left = (viewportWidth - popoverRect.width) / 2;
+        } else {
+            // Desktop: Center vertically on the modal, stick to the left of the button
+            const parentCenterY = parentRect.top + (parentRect.height / 2);
+            top = parentCenterY - (popoverRect.height / 2);
+            
+            const gap = 8;
+            left = anchorRect.left - popoverRect.width - gap;
+
+            // Failsafes
+            if (left < 10) {
+                left = anchorRect.right + gap;
+                if (left + popoverRect.width > viewportWidth - 10) {
+                    left = viewportWidth - popoverRect.width - 10;
+                }
             }
         }
-    }
 
-    // 5. Apply final position
-    this.popover.setCssStyles({
-        top: `${top}px`,
-        left: `${left}px`,
-        visibility: 'visible'
-    });
-}
+        // Clamp vertically so it NEVER goes behind the keyboard or off-screen
+        top = Math.max(10, Math.min(top, viewportHeight - popoverRect.height - 10));
+
+        this.popover.setCssStyles({
+            top: `${top}px`,
+            left: `${left}px`,
+            visibility: 'visible'
+        });
+    }
 
     private attachListeners() {
         // This prevents Obsidian from knowing you clicked the popover
@@ -142,6 +147,8 @@ export class ColorPickerPopover {
         };
         
         // Bind to multiple events to ensure macOS/Windows/Linux all catch it
+        this.popover.addEventListener('focusin', stopEvent);
+        this.popover.addEventListener('focusout', stopEvent);
         this.popover.addEventListener('mousedown', stopEvent);
         this.popover.addEventListener('click', stopEvent);
         this.popover.addEventListener('pointerdown', stopEvent);
@@ -170,6 +177,17 @@ export class ColorPickerPopover {
             }
         };
         this.parent.addEventListener('scroll', this.scrollHandler, { capture: true });
+
+        // Listen for window resizes
+        this.resizeHandler = () => this.position();
+        window.addEventListener('resize', this.resizeHandler);
+        // listen for mobile keyboard open and close
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', this.resizeHandler);
+        }
+        this.resizeObserver = new ResizeObserver(() => this.position());
+        this.resizeObserver.observe(this.anchor);
+        this.resizeObserver.observe(this.parent);
     }
 
     public destroy() {
@@ -180,12 +198,71 @@ export class ColorPickerPopover {
         activeDocument.removeEventListener('mousedown', this.clickOutsideHandler, { capture: true });
         activeDocument.removeEventListener('keydown', this.keyHandler);
         this.parent.removeEventListener('scroll', this.scrollHandler, { capture: true });
+
+        window.removeEventListener('resize', this.resizeHandler);
+        if (window.visualViewport) {
+            window.visualViewport.removeEventListener('resize', this.resizeHandler);
+        }
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
         
         this.popover.remove();
     }
 }
 
 /*
+
+// the one with mobile and desktop if else 
+
+private position() {
+        const anchorRect = this.anchor.getBoundingClientRect();
+        const parentRect = this.parent.getBoundingClientRect();
+
+        // 1. Temporarily hide to measure
+        this.popover.setCssStyles({
+            position: 'fixed',
+            top: '0px',
+            left: '0px',
+            visibility: 'hidden',
+            display: 'block'
+        });
+        const popoverRect = this.popover.getBoundingClientRect();
+
+        let top = 0;
+        let left = 0;
+
+        if (Platform.isMobile) {
+            // MOBILE: Explicitly center it on the screen
+            top = (window.innerHeight - popoverRect.height) / 2;
+            left = (window.innerWidth - popoverRect.width) / 2;
+        } else {
+            // DESKTOP: Align to the left of the button, with failsafes
+            const parentCenterY = parentRect.top + (parentRect.height / 2);
+            top = parentCenterY - (popoverRect.height / 2);
+            top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
+
+            const gap = 8;
+            left = anchorRect.left - popoverRect.width - gap;
+
+            // Failsafe: If it goes off the left edge, open to the right
+            if (left < 10) {
+                left = anchorRect.right + gap;
+                // If it still goes off the right edge, clamp it
+                if (left + popoverRect.width > window.innerWidth - 10) {
+                    left = window.innerWidth - popoverRect.width - 10;
+                }
+            }
+        }
+
+        // 5. Apply final position
+        this.popover.setCssStyles({
+            top: `${top}px`,
+            left: `${left}px`,
+            visibility: 'visible'
+        });
+    }    
+
 // the one with gap, 
 private position() {
         const anchorRect = this.anchor.getBoundingClientRect();

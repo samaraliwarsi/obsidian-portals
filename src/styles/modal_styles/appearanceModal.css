@@ -18,15 +18,14 @@
     font-weight: bold;
     margin: 8px 0;
     color: var(--text-faint);
-    padding-bottom: 8px;
 }
 
 .portals-ar-modal-subtext {
   font-size: x-small;
   color: var(--text-faint);
   font-style: italic;
-  padding: 5px 0;
-  margin: 5px 0;
+  padding: 6px 0;
+  margin: 4px 0;
   border-top: 1px dashed var(--background-modifier-hover);
   border-bottom: 1px dashed var(--background-modifier-hover);
 }
@@ -34,6 +33,7 @@
 .portals-ar-empty-state {
   font-size: small;
   color: var(--text-faint);
+  height: var(--line-height-tight);
 }
 
 
@@ -57,7 +57,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding: 6px 8px;
+    padding: 2px 8px;
     border-bottom: 1px solid var(--background-modifier-border);
     cursor: grab;
     background: var(--background-primary);
@@ -66,7 +66,8 @@
 
 .portals-ar-modal .portals-ar-rule-row-div {
     display: flex;
-    gap: 6px;
+    gap: 4px;
+    justify-content: center;
 }
 
 /* Add rule, Prop and Value buttons */
@@ -75,38 +76,44 @@ button.portals-reset-btn.portals-ar-prop-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    height: var(--input-height-tight);
+    height: 24px;
     color: var(--text-muted);
     border: 1px solid var(--background-modifier-border);
-    border-radius: 10px;
-    background: var(--background-primary);
+    border-radius: 8px;
+    background: var(--background-primary-alt);
     cursor: pointer;
     box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
     font-size: var(--font-ui-small);
-    padding: 2px 8px;
+    padding: 1px 8px;
 }
 
-.portals-ar-modal .portals-reorder-handle:hover {
+.portals-ar-modal .portals-ar-reorder-handle {
+    opacity: 0.5;
+    margin-right: 4px;
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+}
+
+.portals-ar-modal .portals-ar-reorder-handle:hover {
     color: var(--interactive-accent);
 }
 
 /* Icon and color buttons*/
 button.portals-reset-btn.portals-ar-icon-btn,
-button.portals-reset-btn.portals-ar-color-btn,
 button.portals-reset-btn.portals-ar-del-btn {
     margin-left: auto;
-    background: none;
+    background: var(--background-primary-alt);
     border-radius: 8px;
     cursor: pointer;
     color: var(--text-muted);
-    padding: 2px 4px;
+    padding: 1px 4px;
     align-items: center;
     justify-content: center;
     height: 24px;
-    box-shadow: inset 0 0 0 1px rgba(100, 100, 100, 0.1);
-    border: 1px solid var(--background-modifier-border);
+
 }
+
 /* All button hover */
 button.portals-reset-btn.portals-ar-add-btn:hover,
 button.portals-reset-btn.portals-ar-prop-btn:hover,
@@ -116,12 +123,24 @@ button.portals-reset-btn.portals-ar-del-btn:hover {
     background: var(--background-modifier-hover);
 }
 
+button.portals-reset-btn.portals-ar-del-btn:hover {
+    color: var(--text-error);
+}
+
 
 /* Color Swatch inside the button */
 .portals-appearance-rules-modal .cm-color-swatch {
-    width: 20px;
     height: 20px;
-    border-radius: 50%;
+    aspect-ratio: 1/1;
+    border-radius: 8px;
     background: var(--swatch-bg, transparent);
-    border: 1px solid var(--background-modifier-border);
+}
+
+button.portals-reset-btn.portals-ar-color-btn {
+    background: var(--background-primary-alt);
+    border-radius: 8px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
 }
