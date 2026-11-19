@@ -9965,7 +9965,7 @@ input.cm-opacity-slider {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: space-between;
     gap: 8px;
     padding: 6px 8px;
     border-bottom: 1px solid var(--background-modifier-border);
@@ -9974,17 +9974,14 @@ input.cm-opacity-slider {
     border-radius: var(--radius-s);
 }
 
-.portals-ar-modal .portals-rule-row:hover {
-    background: var(--background-modifier-hover);
+.portals-ar-modal .portals-ar-rule-row-div {
+    display: flex;
+    gap: 6px;
 }
 
-/* Flex buttons to divide the space evenly */
-.portals-ar-modal .portals-rule-flex-btn {
-    flex: 1 1 0;
-    min-width: 0; /* Crucial for text-overflow: ellipsis to work in flex items */
-    text-align: left;
-    display: block;
-}
+/*.portals-ar-modal .portals-rule-row:hover {
+    background: var(--background-modifier-hover);
+}*/
 
 /* Add rule, Prop and Value buttons 
 Optional classes for these, 
@@ -10007,9 +10004,8 @@ button.portals-reset-btn.portals-ar-prop-btn {
     padding: 2px 8px;
 }
 
-button.portals-reset-btn.portals-ar-add-btn,
-button.portals-reset-btn.portals-ar-prop-btn {
-    background: var(--background-modifier-hover);
+.portals-ar-modal .portals-reorder-handle:hover {
+    color: var(--interactive-accent);
 }
 
 /* Icon and color buttons*/
@@ -10028,6 +10024,15 @@ button.portals-reset-btn.portals-ar-del-btn {
     box-shadow: inset 0 0 0 1px rgba(100, 100, 100, 0.1);
     border: 1px solid var(--background-modifier-border);
 }
+/* All button hover */
+button.portals-reset-btn.portals-ar-add-btn:hover,
+button.portals-reset-btn.portals-ar-prop-btn:hover,
+button.portals-reset-btn.portals-ar-icon-btn:hover,
+button.portals-reset-btn.portals-ar-color-btn:hover,
+button.portals-reset-btn.portals-ar-del-btn:hover {
+    background: var(--background-modifier-hover);
+}
+
 
 /* Color Swatch inside the button */
 .portals-appearance-rules-modal .cm-color-swatch {

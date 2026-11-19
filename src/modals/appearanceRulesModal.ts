@@ -89,11 +89,12 @@ export class AppearanceRulesModal extends Modal {
             row.dataset.id = rule.id;
 
             // 1. Drag Handle
-            const handle = row.createSpan({ cls: 'portals-reorder-handle' });
+            const decisionWrap = row.createDiv({ cls: 'portals-ar-rule-row-div' });
+            const handle = decisionWrap.createSpan({ cls: 'portals-reorder-handle' });
             this.plugin.renderPluginIcon(handle, 'dots-six-vertical');
 
             // 2. Property Button
-            const propBtn = row.createEl('button', { 
+            const propBtn = decisionWrap.createEl('button', { 
                 cls: 'portals-reset-btn portals-ar-prop-btn',
                 text: rule.property || 'Property' 
             });
@@ -111,13 +112,12 @@ export class AppearanceRulesModal extends Modal {
             });
 
             // 3. Value Button
-            const valBtn = row.createEl('button', {
+            const valBtn = decisionWrap.createEl('button', {
                 cls: 'portals-reset-btn portals-ar-prop-btn', 
                 text: rule.value || 'Value' 
             });
             valBtn.addEventListener('click', () => {
                 if (!rule.property) return;
-                // Gather values for this property
                 const vals = new Set<string>();
                 for (const f of this.app.vault.getMarkdownFiles()) {
                     const raw = this.app.metadataCache.getFileCache(f)?.frontmatter?.[rule.property];
@@ -139,7 +139,8 @@ export class AppearanceRulesModal extends Modal {
             });
 
             // 4. Icon Button
-            const iconBtn = row.createEl('button', { 
+            const controlWrap = row.createDiv({ cls: 'portals-ar-rule-row-div' });
+            const iconBtn = controlWrap.createEl('button', { 
                 cls: 'portals-reset-btn portals-ar-icon-btn' 
             });
             this.plugin.renderIconString(iconBtn, rule.icon, 'file');
@@ -156,7 +157,7 @@ export class AppearanceRulesModal extends Modal {
             });
 
             // 5. Color Button
-            const colorBtn = row.createEl('button', { cls: 'portals-reset-btn portals-ar-color-btn' });
+            const colorBtn = controlWrap.createEl('button', { cls: 'portals-reset-btn portals-ar-color-btn' });
             const swatch = colorBtn.createDiv({ cls: 'cm-color-swatch' });
             swatch.setCssProps({ '--swatch-bg': rule.color || 'transparent' });
             colorBtn.addEventListener('click', () => {
@@ -174,7 +175,7 @@ export class AppearanceRulesModal extends Modal {
             });
 
             // 6. Delete Button
-            const delBtn = row.createEl('button', { cls: 'portals-reset-btn portals-ar-del-btn clickable-icon' });
+            const delBtn = controlWrap.createEl('button', { cls: 'portals-reset-btn portals-ar-del-btn clickable-icon' });
             this.plugin.renderPluginIcon(delBtn, 'trash');
             delBtn.addEventListener('click', () => {
                 this.rules = this.rules.filter(r => r.id !== rule.id);
