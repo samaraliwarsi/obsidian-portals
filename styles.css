@@ -10054,6 +10054,7 @@ button.portals-reset-btn.portals-ar-del-btn:hover {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    z-index: calc(var(--layer-modal) + 1);
 }
 
 .portals-inline-color-swatches {
@@ -10135,6 +10136,7 @@ button.portals-reset-btn.portals-ar-del-btn:hover {
     flex-direction: column;
     padding: 8px;
     gap: 8px;
+    z-index: calc(var(--layer-modal) + 1);
 }
 
 .portals-inline-icon-tabs {

@@ -144,7 +144,8 @@ export class AppearanceRulesModal extends Modal {
                 cls: 'portals-reset-btn portals-ar-icon-btn' 
             });
             this.plugin.renderIconString(iconBtn, rule.icon, 'file');
-            iconBtn.addEventListener('click', () => {
+            iconBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 this.closeActivePopover();
                 this.activePopover = new IconPickerPopover(
                     this.app, this.plugin, iconBtn, this.modalEl,
@@ -154,13 +155,15 @@ export class AppearanceRulesModal extends Modal {
                         this.plugin.renderIconString(iconBtn, iconKey, 'file');
                     }
                 );
+                console.log('Popover created:', this.activePopover);
             });
 
             // 5. Color Button
             const colorBtn = controlWrap.createEl('button', { cls: 'portals-reset-btn portals-ar-color-btn' });
             const swatch = colorBtn.createDiv({ cls: 'cm-color-swatch' });
             swatch.setCssProps({ '--swatch-bg': rule.color || 'transparent' });
-            colorBtn.addEventListener('click', () => {
+            colorBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 this.closeActivePopover();
                 this.activePopover = new ColorPickerPopover(
                     this.plugin,

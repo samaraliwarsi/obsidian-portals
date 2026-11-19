@@ -7,7 +7,7 @@ export class ColorPickerPopover {
 
     private clickOutsideHandler!: (e: MouseEvent) => void;
     private keyHandler!: (e: KeyboardEvent) => void;
-    private scrollHandler!: () => void;
+    private scrollHandler!: (e: Event) => void;
 
     constructor(
         private plugin: PortalsPlugin,
@@ -16,11 +16,12 @@ export class ColorPickerPopover {
         private onSelect: (color: string) => void,
         currentColor?: string
     ) {
+        /*
         if (getComputedStyle(parent).position === 'static') {
             parent.setCssStyles({ position: 'relative' });
-        }
+        }*/
 
-        this.popover = parent.createDiv('portals-inline-color-popover');
+        this.popover = activeDocument.body.createDiv('portals-inline-color-popover');
         this.buildUI(currentColor);
         this.position();
         this.attachListeners();
@@ -87,38 +88,59 @@ export class ColorPickerPopover {
         const anchorRect = this.anchor.getBoundingClientRect();
         const parentRect = this.parent.getBoundingClientRect();
         this.popover.setCssProps({
-            position: 'absolute',
+            position: 'fixed',
             top: `${anchorRect.bottom - parentRect.top + 4}px`,
             left: `${anchorRect.left - parentRect.left}px`,
-            zIndex: 'var(--layer-popover, 30)'
         });
     }
 
     private attachListeners() {
-        this.popover.addEventListener('mousedown', (e) => e.stopPropagation());
+        // This prevents Obsidian from knowing you clicked the popover
+        const stopEvent = (e: Event) => {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        };
+        
+        // Bind to multiple events to ensure macOS/Windows/Linux all catch it
+        this.popover.addEventListener('mousedown', stopEvent);
+        this.popover.addEventListener('click', stopEvent);
+        this.popover.addEventListener('pointerdown', stopEvent);
 
         this.clickOutsideHandler = (e: MouseEvent) => {
             if (!this.popover.contains(e.target as Node) && !this.anchor.contains(e.target as Node)) {
                 this.destroy();
             }
         };
-        activeDocument.addEventListener('click', this.clickOutsideHandler, { capture: true });
+        
+        // 10ms delay prevents the CURRENT click from instantly closing the popover
+        setTimeout(() => {
+            if (!this.destroyed) {
+                activeDocument.addEventListener('mousedown', this.clickOutsideHandler, { capture: true });
+            }
+        }, 10);
 
         this.keyHandler = (e: KeyboardEvent) => {
             if (e.key === 'Escape') this.destroy();
         };
         activeDocument.addEventListener('keydown', this.keyHandler);
 
-        this.scrollHandler = () => this.destroy();
+        this.scrollHandler = (e: Event) => {
+            if (e.target === this.parent) {
+                this.destroy();
+            }
+        };
         this.parent.addEventListener('scroll', this.scrollHandler, { capture: true });
     }
 
     public destroy() {
         if (this.destroyed) return;
         this.destroyed = true;
-        activeDocument.removeEventListener('click', this.clickOutsideHandler, { capture: true });
+        console.log(`[Popover Log] destroy() called. Stack trace:`, new Error().stack); // This will tell us EXACTLY who closed it
+        
+        activeDocument.removeEventListener('mousedown', this.clickOutsideHandler, { capture: true });
         activeDocument.removeEventListener('keydown', this.keyHandler);
         this.parent.removeEventListener('scroll', this.scrollHandler, { capture: true });
+        
         this.popover.remove();
     }
 }

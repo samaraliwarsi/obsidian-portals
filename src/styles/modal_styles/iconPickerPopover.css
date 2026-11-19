@@ -10,6 +10,7 @@
     flex-direction: column;
     padding: 8px;
     gap: 8px;
+    z-index: calc(var(--layer-modal) + 1);
 }
 
 .portals-inline-icon-tabs {

@@ -14,7 +14,7 @@ export class IconPickerPopover {
 
     private clickOutsideHandler!: (e: MouseEvent) => void;
     private keyHandler!: (e: KeyboardEvent) => void;
-    private scrollHandler!: () => void;
+    private scrollHandler!: (e: Event) => void;
 
     constructor(
         private app: App,
@@ -23,12 +23,12 @@ export class IconPickerPopover {
         private parent: HTMLElement,
         private onSelect: (iconKey: string) => void
     ) {
-        // Ensure parent is a positioning context
+        /* Ensure parent is a positioning context
         if (getComputedStyle(parent).position === 'static') {
             parent.setCssStyles({ position: 'relative' });
-        }
+        }*/
 
-        this.popover = parent.createDiv('portals-inline-icon-popover');
+        this.popover = activeDocument.body.createDiv('portals-inline-icon-popover');
         this.buildUI();
         this.position();
         this.attachListeners();
@@ -37,7 +37,7 @@ export class IconPickerPopover {
         this.currentLibrary = this.plugin.settings.iconFavorites.length > 0 ? 'favorites' : 'phosphor';
         this.updateTabStates();
         this.renderGrid();
-        this.input.focus();
+        this.input.focus({ preventScroll: true });
     }
 
     private buildUI() {
@@ -210,39 +210,60 @@ export class IconPickerPopover {
         const anchorRect = this.anchor.getBoundingClientRect();
         const parentRect = this.parent.getBoundingClientRect();
         this.popover.setCssProps({
-            position: 'absolute',
+            position: 'fixed',
             top: `${anchorRect.bottom - parentRect.top + 4}px`,
             left: `${anchorRect.left - parentRect.left}px`,
-            zIndex: 'var(--layer-popover, 30)'
+            zIndex: '9999'
         });
     }
 
     private attachListeners() {
-        this.popover.addEventListener('mousedown', (e) => e.stopPropagation());
+        // This prevents Obsidian from knowing you clicked the popover
+        const stopEvent = (e: Event) => {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        };
+        
+        // Bind to multiple events to ensure macOS/Windows/Linux all catch it
+        this.popover.addEventListener('mousedown', stopEvent);
+        this.popover.addEventListener('click', stopEvent);
+        this.popover.addEventListener('pointerdown', stopEvent);
 
         this.clickOutsideHandler = (e: MouseEvent) => {
             if (!this.popover.contains(e.target as Node) && !this.anchor.contains(e.target as Node)) {
                 this.destroy();
             }
         };
-        activeDocument.addEventListener('click', this.clickOutsideHandler, { capture: true });
+        
+        // 10ms delay prevents the CURRENT click from instantly closing the popover
+        setTimeout(() => {
+            if (!this.destroyed) {
+                activeDocument.addEventListener('mousedown', this.clickOutsideHandler, { capture: true });
+            }
+        }, 10);
 
         this.keyHandler = (e: KeyboardEvent) => {
             if (e.key === 'Escape') this.destroy();
         };
         activeDocument.addEventListener('keydown', this.keyHandler);
 
-        // Close on modal scroll so the popover doesn't detach visually
-        this.scrollHandler = () => this.destroy();
+        this.scrollHandler = (e: Event) => {
+            if (e.target === this.parent) {
+                this.destroy();
+            }
+        };
         this.parent.addEventListener('scroll', this.scrollHandler, { capture: true });
     }
 
     public destroy() {
         if (this.destroyed) return;
         this.destroyed = true;
-        activeDocument.removeEventListener('click', this.clickOutsideHandler, { capture: true });
+        console.log(`[Popover Log] destroy() called. Stack trace:`, new Error().stack); // This will tell us EXACTLY who closed it
+        
+        activeDocument.removeEventListener('mousedown', this.clickOutsideHandler, { capture: true });
         activeDocument.removeEventListener('keydown', this.keyHandler);
         this.parent.removeEventListener('scroll', this.scrollHandler, { capture: true });
+        
         this.popover.remove();
     }
 }
