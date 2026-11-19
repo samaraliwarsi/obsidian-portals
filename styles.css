@@ -4754,6 +4754,8 @@
     height: 1em;
 }*/
 
+/*=============================== COMMON MOBILE CLASSES FOR CUSTOM MODALS===================================*/
+
 .is-phone .portals-adp-container, 
 .is-phone .portals-fm-modal,
 .portals-cm-modal,
@@ -4818,7 +4820,8 @@ select.dropdown.portals-reset-dropD {
 .portals-cnf-modal .modal-button-container,
 .portals-date-modal .modal-button-container,
 .portals-saveview-modal .modal-button-container,
-.portals-reminder-startup-modal .modal-button-container {
+.portals-reminder-startup-modal .modal-button-container,
+.portals-ar-modal .modal-button-container {
   margin-top: 1.2em;
   display: flex;
   justify-content: flex-end;
@@ -4840,7 +4843,8 @@ select.dropdown.portals-reset-dropD {
 .portals-rename-modal button,
 .portals-cnf-modal button,
 .portals-date-modal button,
-.portals-saveview-modal button {
+.portals-saveview-modal button,
+.portals-ar-modal .modal-button-container button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4871,7 +4875,8 @@ select.dropdown.portals-reset-dropD {
 .portals-rename-modal .modal-button-container button.mod-cta,
 .portals-date-modal .modal-button-container button.mod-cta,
 .portals-saveview-modal .modal-button-container button.mod-cta,
-.portals-reminder-startup-modal .modal-button-container .button.mod-cta {
+.portals-reminder-startup-modal .modal-button-container button.mod-cta,
+.portals-ar-modal .modal-button-container button.mod-cta {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
 }
@@ -4886,7 +4891,8 @@ select.dropdown.portals-reset-dropD {
 .portals-rename-modal .modal-button-container button.mod-cta:hover,
 .portals-saveview-modal .modal-button-container button.mod-cta:hover, 
 .portals-date-modal .modal-button-container button.mod-cta:hover,
-.portals-reminder-startup-modal .modal-button-container .button.mod-cta:hover {
+.portals-reminder-startup-modal .modal-button-container button.mod-cta:hover,
+.portals-ar-modal .modal-button-container button.mod-cta:hover {
   background-color: var(--interactive-accent-hover);
   color: var(--text-on-accent);
 }
@@ -4901,7 +4907,8 @@ select.dropdown.portals-reset-dropD {
 .portals-rename-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-date-modal .modal-button-container button.mod-cta:focus-visible,
 .portals-saveview-modal .modal-button-container button.mod-cta:focus-visible,
-.portals-reminder-startup-modal .modal-button-container .button.mod-cta:focus-visible {
+.portals-reminder-startup-modal .modal-button-container button.mod-cta:focus-visible,
+.portals-ar-modal .modal-button-container button.mod-cta:focus-visible {
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);
   color: var(--text-on-accent);
 }
@@ -4917,7 +4924,8 @@ select.dropdown.portals-reset-dropD {
   .portals-rename-modal .modal-button-container button.mod-cta:hover,
   .portals-date-modal .modal-button-container button.mod-cta:hover,
   .portals-saveview-modal .modal-button-container button.mod-cta:hover,
-  .portals-reminder-startup-modal .modal-button-container .button.mod-cta:hover {
+  .portals-reminder-startup-modal .modal-button-container button.mod-cta:hover,
+  .portals-ar-modal .modal-button-container button.mod-cta:hover {
     background-color: var(--interactive-accent-hover);
     color: var(--text-on-accent);
   }
@@ -4962,7 +4970,8 @@ select.dropdown.portals-reset-dropD {
 .portals-rename-modal .modal-button-container button,
 .portals-cnf-modal .modal-button-container button,
 .portals-date-modal .modal-button-container button,
-.portals-saveview-modal .modal-button-container button {
+.portals-saveview-modal .modal-button-container button,
+.portals-ar-modal .modal-button-container button {
   color: var(--text-color);
   background-color: var(--interactive-normal);
 }
@@ -4976,7 +4985,8 @@ select.dropdown.portals-reset-dropD {
 .portals-rename-modal .modal-button-container button:hover,
 .portals-cnf-modal .modal-button-container button:hover,
 .portals-date-modal .modal-button-container button:hover,
-.portals-saveview-modal .modal-button-container button:hover {
+.portals-saveview-modal .modal-button-container button:hover,
+.portals-ar-modal .modal-button-container button:hover {
   color: var(--text-color);
   background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
 }
@@ -4990,7 +5000,8 @@ select.dropdown.portals-reset-dropD {
 .portals-rename-modal .modal-button-container button:focus-visible,
 .portals-cnf-modal .modal-button-container button:focus-visible,
 .portals-date-modal .modal-button-container button:focus-visible,
-.portals-saveview-modal .modal-button-container button:focus-visible {
+.portals-saveview-modal .modal-button-container button:focus-visible,
+.portals-ar-modal .modal-button-container button:focus-visible {
   color: var(--text-color);
   box-shadow: 0 0 0 3px var(--background-modifier-border-focus);;
 }
@@ -5005,7 +5016,8 @@ select.dropdown.portals-reset-dropD {
   .portals-rename-modal .modal-button-container button:hover,
   .portals-cnf-modal .modal-button-container button:hover,
   .portals-date-modal .modal-button-container button:hover,
-  .portals-saveview-modal .modal-button-container button:hover {
+  .portals-saveview-modal .modal-button-container button:hover,
+  .portals-ar-modal .modal-button-container button:hover {
     color: var(--text-color);
     background-color: color-mix(in srgb, var(--interactive-normal) 90%, var(--text-color) 10%);
   }  
@@ -5255,39 +5267,6 @@ input.portals-inline-rename:hover {
     visibility: hidden;
     pointer-events: none;
     contain: strict;
-}
-
-
-.portals-rules-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 400px;
-    overflow-y: auto;
-}
-.portals-rule-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px;
-    background: var(--background-secondary);
-    border-radius: var(--radius-m);
-}
-.portals-rule-btn {
-    min-width: 100px;
-    text-align: left;
-}
-.portals-rule-icon-btn, .portals-rule-color-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-}
-.portals-rule-del-btn {
-    margin-left: auto;
-    color: var(--text-error);
 }
 /*===============================SCROLL BARS PLUGIN WIDE=======================*/
 /* ----------Tab bar and Tabs ---------*/
@@ -9931,4 +9910,305 @@ input.cm-opacity-slider {
     font-size: 0.75em;
     width: 1em;
     height: 1em;
+}
+/* ============ Appearance Rules Modal ============ */
+
+.portals-ar-modal {
+    height: var(--dialog-height);
+    max-height: var(--dialog-max-height);
+}
+
+.portals-ar-modal .modal-content {
+    height: var(--dialog-height);
+    max-height: var(--dialog-max-height);
+    display: flex;
+    flex-direction: column;
+}
+
+.portals-ar-modal .portals-ar-modal-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 8px 0;
+    color: var(--text-faint);
+    padding-bottom: 8px;
+}
+
+.portals-ar-modal-subtext {
+  font-size: x-small;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: 5px 0;
+  margin: 5px 0;
+  border-top: 1px dashed var(--background-modifier-hover);
+  border-bottom: 1px dashed var(--background-modifier-hover);
+}
+
+.portals-ar-empty-state {
+  font-size: small;
+  color: var(--text-faint);
+}
+
+
+.portals-ar-modal .portals-ar-sortable-list {
+    flex-grow: 1;
+    max-height: 45vh;
+    margin: 1em 0;
+    border-radius: 6px;
+    background: var(--background-secondary);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.portals-ar-modal .portals-rule-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 8px;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: grab;
+    background: var(--background-primary);
+    border-radius: var(--radius-s);
+}
+
+.portals-ar-modal .portals-rule-row:hover {
+    background: var(--background-modifier-hover);
+}
+
+/* Flex buttons to divide the space evenly */
+.portals-ar-modal .portals-rule-flex-btn {
+    flex: 1 1 0;
+    min-width: 0; /* Crucial for text-overflow: ellipsis to work in flex items */
+    text-align: left;
+    display: block;
+}
+
+/* Add rule, Prop and Value buttons 
+Optional classes for these, 
+.portals-ar-modal .portals-ar-add-btn,
+.portals-ar-modal .portals-ar-prop-btn */
+button.portals-reset-btn.portals-ar-add-btn,
+button.portals-reset-btn.portals-ar-prop-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: var(--input-height-tight);
+    color: var(--text-muted);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-primary);
+    cursor: pointer;
+    box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+    font-size: var(--font-ui-small);
+    padding: 2px 8px;
+}
+
+button.portals-reset-btn.portals-ar-add-btn,
+button.portals-reset-btn.portals-ar-prop-btn {
+    background: var(--background-modifier-hover);
+}
+
+/* Icon and color buttons*/
+button.portals-reset-btn.portals-ar-icon-btn,
+button.portals-reset-btn.portals-ar-color-btn,
+button.portals-reset-btn.portals-ar-del-btn {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 2px 4px;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    box-shadow: inset 0 0 0 1px rgba(100, 100, 100, 0.1);
+    border: 1px solid var(--background-modifier-border);
+}
+
+/* Color Swatch inside the button */
+.portals-appearance-rules-modal .cm-color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--swatch-bg, transparent);
+    border: 1px solid var(--background-modifier-border);
+}
+
+/* ============ Inline Color Picker Popover ============ */
+.portals-inline-color-popover {
+    width: 240px;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-l);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.portals-inline-color-swatches {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.portals-inline-color-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--swatch-bg, transparent);
+    cursor: pointer;
+    border: 1px solid var(--background-modifier-border);
+    transition: transform 100ms ease;
+}
+
+.portals-inline-color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.portals-inline-color-custom-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+.portals-inline-color-label {
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+}
+
+.portals-inline-color-custom-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--swatch-bg, transparent);
+    cursor: pointer;
+    border: 1px solid var(--background-modifier-border);
+}
+
+.portals-inline-color-picker-hidden {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.portals-inline-color-clear-btn {
+    width: 100%;
+    text-align: center;
+    padding: 4px;
+    background: transparent;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: var(--font-ui-small);
+}
+
+.portals-inline-color-clear-btn:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-error);
+}
+
+/* ============ Inline Icon Picker Popover ============ */
+.portals-inline-icon-popover {
+    width: min(340px, calc(100vw - 40px));
+    max-height: 400px;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-l);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+}
+
+.portals-inline-icon-tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    padding-bottom: 6px;
+}
+
+.portals-inline-icon-tab {
+    padding: 4px 10px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+    user-select: none;
+}
+
+.portals-inline-icon-tab:hover {
+    background: var(--background-modifier-hover);
+}
+
+.portals-inline-icon-tab.is-active {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.portals-inline-icon-search {
+    width: 100%;
+    padding: 4px 8px;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-secondary);
+    font-size: var(--font-ui-small);
+}
+
+.portals-inline-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+    overflow-y: auto;
+    max-height: 280px;
+    padding: 2px;
+}
+
+.portals-inline-icon-item {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--text-normal);
+}
+
+.portals-inline-icon-item:hover {
+    background: var(--background-modifier-hover);
+}
+
+.portals-inline-icon-empty {
+    grid-column: span 8;
+    text-align: center;
+    color: var(--text-muted);
+    padding: 16px 8px;
+    font-size: var(--font-ui-small);
+    line-height: 1.4;
+}
+
+.portals-inline-icon-loadmore {
+    grid-column: span 8;
+    text-align: center;
+    cursor: pointer;
+    padding: 8px;
+    color: var(--interactive-accent);
+    font-size: var(--font-ui-small);
+}
+
+.portals-inline-icon-loadmore:hover {
+    background: var(--background-modifier-hover);
 }

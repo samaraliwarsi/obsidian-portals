@@ -1,0 +1,79 @@
+/* ============ Inline Color Picker Popover ============ */
+.portals-inline-color-popover {
+    width: 240px;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-l);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.portals-inline-color-swatches {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.portals-inline-color-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--swatch-bg, transparent);
+    cursor: pointer;
+    border: 1px solid var(--background-modifier-border);
+    transition: transform 100ms ease;
+}
+
+.portals-inline-color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.portals-inline-color-custom-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+.portals-inline-color-label {
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+}
+
+.portals-inline-color-custom-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--swatch-bg, transparent);
+    cursor: pointer;
+    border: 1px solid var(--background-modifier-border);
+}
+
+.portals-inline-color-picker-hidden {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.portals-inline-color-clear-btn {
+    width: 100%;
+    text-align: center;
+    padding: 4px;
+    background: transparent;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: var(--font-ui-small);
+}
+
+.portals-inline-color-clear-btn:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-error);
+}

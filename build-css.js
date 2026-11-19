@@ -38,6 +38,10 @@ const files = [
   'src/styles/modal_styles/confirmModal.css',
   'src/styles/modal_styles/datepicker-saveview.css',
   'src/styles/modal_styles/reminderStartupModal.css',
+  'src/styles/modal_styles/appearanceModal.css',
+  'src/styles/modal_styles/colorPopover.css',
+  'src/styles/modal_styles/iconPickerPopover.css',
+  
   // Future modules:
   // 'src/styles/icons.css',
 ];

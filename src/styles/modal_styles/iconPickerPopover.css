@@ -1,0 +1,94 @@
+/* ============ Inline Icon Picker Popover ============ */
+.portals-inline-icon-popover {
+    width: min(340px, calc(100vw - 40px));
+    max-height: 400px;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-l);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+}
+
+.portals-inline-icon-tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    padding-bottom: 6px;
+}
+
+.portals-inline-icon-tab {
+    padding: 4px 10px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+    user-select: none;
+}
+
+.portals-inline-icon-tab:hover {
+    background: var(--background-modifier-hover);
+}
+
+.portals-inline-icon-tab.is-active {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.portals-inline-icon-search {
+    width: 100%;
+    padding: 4px 8px;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-secondary);
+    font-size: var(--font-ui-small);
+}
+
+.portals-inline-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+    overflow-y: auto;
+    max-height: 280px;
+    padding: 2px;
+}
+
+.portals-inline-icon-item {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--text-normal);
+}
+
+.portals-inline-icon-item:hover {
+    background: var(--background-modifier-hover);
+}
+
+.portals-inline-icon-empty {
+    grid-column: span 8;
+    text-align: center;
+    color: var(--text-muted);
+    padding: 16px 8px;
+    font-size: var(--font-ui-small);
+    line-height: 1.4;
+}
+
+.portals-inline-icon-loadmore {
+    grid-column: span 8;
+    text-align: center;
+    cursor: pointer;
+    padding: 8px;
+    color: var(--interactive-accent);
+    font-size: var(--font-ui-small);
+}
+
+.portals-inline-icon-loadmore:hover {
+    background: var(--background-modifier-hover);
+}

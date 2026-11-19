@@ -1,0 +1,105 @@
+.portals-rm-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--background-modifier-cover);
+    z-index: 45;
+}
+
+.portals-rm-modal {  /* Check utilities.css for phone size fix*/
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--layer-modal);
+    background-color: var(--modal-background);
+    backdrop-filter: blur(var(--ui-blur, 10px));
+    --webkit-backdrop-filter: blur(var(--ui-blur, 10px));
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-l);
+    padding: var(--size-4-4);
+    width: auto;
+    max-width: var(--dialog-width);
+    min-width: 320px;
+    max-height: var(--dialog-max-height);
+    overflow-y: auto;
+}
+
+.portals-rm-modal .rm-popup-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 0;
+    color: var(--text-faint);
+}
+
+.portals-rm-modal-select-status {
+  font-size: x-small;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: 5px 0;
+  margin: 5px 0;
+  border-top: 1px dashed var(--background-modifier-hover);
+  border-bottom: 1px dashed var(--background-modifier-hover);
+  text-align: right;
+}
+
+.rm-add-rule-wrapper {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.portals-rm-modal .rm-wrapper-text {
+  font-size: 1em;
+  color: var(--text-muted);
+  font-weight: bold;
+  margin: 4px 0;
+}
+
+.rm-input-btn {
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary);
+  border-radius: 10px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  line-height: var(--input-height-tight);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: var(--input-height);
+  box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.portals-rm-modal .portals-rm-sortable-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    margin: 1em 0;
+    border-radius: 6px;
+    background: var(--background-secondary);
+}
+
+.portals-rm-modal .portals-rm-sortable-item {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em 1em;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: grab;
+    transition: background 0.15s;
+    font-size: small;
+    pointer-events: auto;
+    user-select: auto;
+}

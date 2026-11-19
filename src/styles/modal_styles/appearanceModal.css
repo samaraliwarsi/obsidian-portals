@@ -1,0 +1,126 @@
+/* ============ Appearance Rules Modal ============ */
+
+.portals-ar-modal {
+    height: var(--dialog-height);
+    max-height: var(--dialog-max-height);
+}
+
+.portals-ar-modal .modal-content {
+    height: var(--dialog-height);
+    max-height: var(--dialog-max-height);
+    display: flex;
+    flex-direction: column;
+}
+
+.portals-ar-modal .portals-ar-modal-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 8px 0;
+    color: var(--text-faint);
+    padding-bottom: 8px;
+}
+
+.portals-ar-modal-subtext {
+  font-size: x-small;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: 5px 0;
+  margin: 5px 0;
+  border-top: 1px dashed var(--background-modifier-hover);
+  border-bottom: 1px dashed var(--background-modifier-hover);
+}
+
+.portals-ar-empty-state {
+  font-size: small;
+  color: var(--text-faint);
+}
+
+
+.portals-ar-modal .portals-ar-sortable-list {
+    flex-grow: 1;
+    max-height: 45vh;
+    margin: 1em 0;
+    border-radius: 6px;
+    background: var(--background-secondary);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.portals-ar-modal .portals-rule-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 8px;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: grab;
+    background: var(--background-primary);
+    border-radius: var(--radius-s);
+}
+
+.portals-ar-modal .portals-rule-row:hover {
+    background: var(--background-modifier-hover);
+}
+
+/* Flex buttons to divide the space evenly */
+.portals-ar-modal .portals-rule-flex-btn {
+    flex: 1 1 0;
+    min-width: 0; /* Crucial for text-overflow: ellipsis to work in flex items */
+    text-align: left;
+    display: block;
+}
+
+/* Add rule, Prop and Value buttons 
+Optional classes for these, 
+.portals-ar-modal .portals-ar-add-btn,
+.portals-ar-modal .portals-ar-prop-btn */
+button.portals-reset-btn.portals-ar-add-btn,
+button.portals-reset-btn.portals-ar-prop-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: var(--input-height-tight);
+    color: var(--text-muted);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 10px;
+    background: var(--background-primary);
+    cursor: pointer;
+    box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+    font-size: var(--font-ui-small);
+    padding: 2px 8px;
+}
+
+button.portals-reset-btn.portals-ar-add-btn,
+button.portals-reset-btn.portals-ar-prop-btn {
+    background: var(--background-modifier-hover);
+}
+
+/* Icon and color buttons*/
+button.portals-reset-btn.portals-ar-icon-btn,
+button.portals-reset-btn.portals-ar-color-btn,
+button.portals-reset-btn.portals-ar-del-btn {
+    margin-left: auto;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 2px 4px;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    box-shadow: inset 0 0 0 1px rgba(100, 100, 100, 0.1);
+    border: 1px solid var(--background-modifier-border);
+}
+
+/* Color Swatch inside the button */
+.portals-appearance-rules-modal .cm-color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--swatch-bg, transparent);
+    border: 1px solid var(--background-modifier-border);
+}
