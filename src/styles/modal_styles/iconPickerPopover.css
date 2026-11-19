@@ -15,32 +15,36 @@
 
 .portals-inline-icon-tabs {
     display: flex;
-    gap: 2px;
+    gap: 4px;
     border-bottom: 1px solid var(--background-modifier-border);
     padding-bottom: 6px;
+    flex-shrink: 0;
+    margin-bottom: 8px;
 }
 
 .portals-inline-icon-tab {
-    padding: 4px 10px;
+    padding: 2px 6px;
     border-radius: var(--radius-s);
     cursor: pointer;
     font-size: var(--font-ui-small);
-    color: var(--text-muted);
+    color: var(--text-faint);
     user-select: none;
 }
 
 .portals-inline-icon-tab:hover {
     background: var(--background-modifier-hover);
+    color: var(--text-muted);
 }
 
 .portals-inline-icon-tab.is-active {
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
+    background: var(--background-primary);
+    color: var(--text-normal);
 }
 
 .portals-inline-icon-search {
     width: 100%;
     padding: 4px 8px;
+    height: var(--line-height-tight);
     border-radius: var(--radius-s);
     border: 1px solid var(--background-modifier-border);
     background: var(--background-secondary);

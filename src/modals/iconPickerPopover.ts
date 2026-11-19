@@ -1,4 +1,4 @@
-import { App } from 'obsidian';
+import { App, Platform } from 'obsidian';
 import PortalsPlugin from '../main';
 import { EMOJI_LIST } from '../icons/emojiList';
 
@@ -23,11 +23,6 @@ export class IconPickerPopover {
         private parent: HTMLElement,
         private onSelect: (iconKey: string) => void
     ) {
-        /* Ensure parent is a positioning context
-        if (getComputedStyle(parent).position === 'static') {
-            parent.setCssStyles({ position: 'relative' });
-        }*/
-
         this.popover = activeDocument.body.createDiv('portals-inline-icon-popover');
         this.buildUI();
         this.position();
@@ -207,15 +202,53 @@ export class IconPickerPopover {
     }
 
     private position() {
-        const anchorRect = this.anchor.getBoundingClientRect();
-        const parentRect = this.parent.getBoundingClientRect();
-        this.popover.setCssProps({
-            position: 'fixed',
-            top: `${anchorRect.bottom - parentRect.top + 4}px`,
-            left: `${anchorRect.left - parentRect.left}px`,
-            zIndex: '9999'
-        });
+    const anchorRect = this.anchor.getBoundingClientRect();
+    const parentRect = this.parent.getBoundingClientRect();
+
+    // 1. Temporarily hide to measure
+    this.popover.setCssStyles({
+        position: 'fixed',
+        top: '0px',
+        left: '0px',
+        visibility: 'hidden',
+        display: 'block', 
+        zIndex: '9999'
+    });
+    const popoverRect = this.popover.getBoundingClientRect();
+
+    let top = 0;
+    let left = 0;
+
+    if (Platform.isMobile) {
+        // MOBILE: Explicitly center it on the screen
+        top = (window.innerHeight - popoverRect.height) / 2;
+        left = (window.innerWidth - popoverRect.width) / 2;
+    } else {
+        // DESKTOP: Align to the left of the button, with failsafes
+        const parentCenterY = parentRect.top + (parentRect.height / 2);
+        top = parentCenterY - (popoverRect.height / 2);
+        top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
+
+        const gap = 8;
+        left = anchorRect.left - popoverRect.width - gap;
+
+        // Failsafe: If it goes off the left edge, open to the right
+        if (left < 10) {
+            left = anchorRect.right + gap;
+            // If it still goes off the right edge, clamp it
+            if (left + popoverRect.width > window.innerWidth - 10) {
+                left = window.innerWidth - popoverRect.width - 10;
+            }
+        }
     }
+
+    // 5. Apply final position
+    this.popover.setCssStyles({
+        top: `${top}px`,
+        left: `${left}px`,
+        visibility: 'visible'
+    });
+}
 
     private attachListeners() {
         // This prevents Obsidian from knowing you clicked the popover
@@ -248,7 +281,7 @@ export class IconPickerPopover {
         activeDocument.addEventListener('keydown', this.keyHandler);
 
         this.scrollHandler = (e: Event) => {
-            if (e.target === this.parent) {
+            if (!this.popover.contains(e.target as Node)) {
                 this.destroy();
             }
         };

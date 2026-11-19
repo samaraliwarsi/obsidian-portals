@@ -10,6 +10,7 @@
     max-height: var(--dialog-max-height);
     display: flex;
     flex-direction: column;
+    max-height: 60vh;
 }
 
 .portals-ar-modal .portals-ar-modal-title {
@@ -40,12 +41,14 @@
     flex-grow: 1;
     max-height: 45vh;
     margin: 1em 0;
-    border-radius: 6px;
+    border-radius: var(--radius-s);
     background: var(--background-secondary);
-    padding: 4px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
 }
 
 .portals-ar-modal .portals-rule-row {
@@ -66,14 +69,7 @@
     gap: 6px;
 }
 
-/*.portals-ar-modal .portals-rule-row:hover {
-    background: var(--background-modifier-hover);
-}*/
-
-/* Add rule, Prop and Value buttons 
-Optional classes for these, 
-.portals-ar-modal .portals-ar-add-btn,
-.portals-ar-modal .portals-ar-prop-btn */
+/* Add rule, Prop and Value buttons */
 button.portals-reset-btn.portals-ar-add-btn,
 button.portals-reset-btn.portals-ar-prop-btn {
     display: flex;

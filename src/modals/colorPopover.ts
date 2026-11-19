@@ -1,3 +1,4 @@
+import { Platform } from 'obsidian';
 import PortalsPlugin from '../main';
 import { DEFAULT_PORTALS_PALETTE } from './colorModal';
 
@@ -85,14 +86,53 @@ export class ColorPickerPopover {
     }
 
     private position() {
-        const anchorRect = this.anchor.getBoundingClientRect();
-        const parentRect = this.parent.getBoundingClientRect();
-        this.popover.setCssProps({
-            position: 'fixed',
-            top: `${anchorRect.bottom - parentRect.top + 4}px`,
-            left: `${anchorRect.left - parentRect.left}px`,
-        });
+    const anchorRect = this.anchor.getBoundingClientRect();
+    const parentRect = this.parent.getBoundingClientRect();
+
+    // 1. Temporarily hide to measure
+    this.popover.setCssStyles({
+        position: 'fixed',
+        top: '0px',
+        left: '0px',
+        visibility: 'hidden',
+        display: 'block', 
+        zIndex: '9999'
+    });
+    const popoverRect = this.popover.getBoundingClientRect();
+
+    let top = 0;
+    let left = 0;
+
+    if (Platform.isMobile) {
+        // MOBILE: Explicitly center it on the screen
+        top = (window.innerHeight - popoverRect.height) / 2;
+        left = (window.innerWidth - popoverRect.width) / 2;
+    } else {
+        // DESKTOP: Align to the left of the button, with failsafes
+        const parentCenterY = parentRect.top + (parentRect.height / 2);
+        top = parentCenterY - (popoverRect.height / 2);
+        top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
+
+        const gap = 8;
+        left = anchorRect.left - popoverRect.width - gap;
+
+        // Failsafe: If it goes off the left edge, open to the right
+        if (left < 10) {
+            left = anchorRect.right + gap;
+            // If it still goes off the right edge, clamp it
+            if (left + popoverRect.width > window.innerWidth - 10) {
+                left = window.innerWidth - popoverRect.width - 10;
+            }
+        }
     }
+
+    // 5. Apply final position
+    this.popover.setCssStyles({
+        top: `${top}px`,
+        left: `${left}px`,
+        visibility: 'visible'
+    });
+}
 
     private attachListeners() {
         // This prevents Obsidian from knowing you clicked the popover
@@ -125,7 +165,7 @@ export class ColorPickerPopover {
         activeDocument.addEventListener('keydown', this.keyHandler);
 
         this.scrollHandler = (e: Event) => {
-            if (e.target === this.parent) {
+            if (!this.popover.contains(e.target as Node)) {
                 this.destroy();
             }
         };
@@ -144,3 +184,92 @@ export class ColorPickerPopover {
         this.popover.remove();
     }
 }
+
+/*
+// the one with gap, 
+private position() {
+        const anchorRect = this.anchor.getBoundingClientRect();
+        const parentRect = this.parent.getBoundingClientRect();
+        this.popover.setCssProps({
+            position: 'fixed',
+            top: '0px',
+            left: '0px',
+            visibility: 'hidden',
+            display: 'block'
+        });
+        const popoverRect = this.popover.getBoundingClientRect();
+        // Vertical center relative to modal
+        const parentCenterY = parentRect.top + (parentRect.height / 2);
+        let top = parentCenterY - (popoverRect.height / 2);
+
+        // safety clamps to keep on screen, prevent going off top or bottom
+        top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
+        
+        // Right edge of pop = left edge of button
+        const gap = 8;
+        let left = anchorRect.right - popoverRect.width - gap;
+
+        // safety flip - if goes off the left side, open to right instead
+        if (left < 10) {
+            left = anchorRect.right + gap;
+            // If it still goes off the right edge, just clamp it to the screen edge
+            if (left + popoverRect.width > window.innerWidth - 10) {
+                left = window.innerWidth - popoverRect.width - 10;
+            }
+        }
+
+        this.popover.setCssStyles({
+            top: `${top}px`,
+            left: `${left}px`,
+            visibility: 'visible'
+        });
+    }
+
+
+private position() {
+    const anchorRect = this.anchor.getBoundingClientRect();
+    // We use this.parent (the modal) as the reference for vertical centering
+    const parentRect = this.parent.getBoundingClientRect();
+
+    // 1. Temporarily hide the popover to measure its true size
+    this.popover.setCssStyles({
+        position: 'fixed',
+        top: '0px',
+        left: '0px',
+        visibility: 'hidden',
+        display: 'block',
+        zIndex: '9999'
+    });
+    const popoverRect = this.popover.getBoundingClientRect();
+
+    // 2. Calculate Vertical Center (relative to the modal)
+    const parentCenterY = parentRect.top + (parentRect.height / 2);
+    let top = parentCenterY - (popoverRect.height / 2);
+
+    // 3. Calculate Right-Alignment (align popover's right edge to button's right edge)
+    let left = anchorRect.right - popoverRect.width;
+
+    // 4. Safety Clamps (Keep it on screen)
+    // Prevent going off the top or bottom of the viewport
+    top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
+    // Prevent going off the left side of the viewport
+    left = Math.max(10, left);
+
+    // 5. Apply final position and make visible
+    this.popover.setCssStyles({
+        top: `${top}px`,
+        left: `${left}px`,
+        visibility: 'visible'
+    });
+}
+
+private position() {
+        const anchorRect = this.anchor.getBoundingClientRect();
+        const parentRect = this.parent.getBoundingClientRect();
+        this.popover.setCssProps({
+            position: 'fixed',
+            top: `${anchorRect.bottom - parentRect.top + 4}px`,
+            left: `${anchorRect.left - parentRect.left}px`,
+        });
+    }
+    */

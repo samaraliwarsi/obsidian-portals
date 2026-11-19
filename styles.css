@@ -9923,6 +9923,7 @@ input.cm-opacity-slider {
     max-height: var(--dialog-max-height);
     display: flex;
     flex-direction: column;
+    max-height: 60vh;
 }
 
 .portals-ar-modal .portals-ar-modal-title {
@@ -9953,12 +9954,14 @@ input.cm-opacity-slider {
     flex-grow: 1;
     max-height: 45vh;
     margin: 1em 0;
-    border-radius: 6px;
+    border-radius: var(--radius-s);
     background: var(--background-secondary);
-    padding: 4px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    overflow-y: auto;
+    border: 1px solid var(--background-modifier-border);
 }
 
 .portals-ar-modal .portals-rule-row {
@@ -9979,14 +9982,7 @@ input.cm-opacity-slider {
     gap: 6px;
 }
 
-/*.portals-ar-modal .portals-rule-row:hover {
-    background: var(--background-modifier-hover);
-}*/
-
-/* Add rule, Prop and Value buttons 
-Optional classes for these, 
-.portals-ar-modal .portals-ar-add-btn,
-.portals-ar-modal .portals-ar-prop-btn */
+/* Add rule, Prop and Value buttons */
 button.portals-reset-btn.portals-ar-add-btn,
 button.portals-reset-btn.portals-ar-prop-btn {
     display: flex;
@@ -10141,32 +10137,36 @@ button.portals-reset-btn.portals-ar-del-btn:hover {
 
 .portals-inline-icon-tabs {
     display: flex;
-    gap: 2px;
+    gap: 4px;
     border-bottom: 1px solid var(--background-modifier-border);
     padding-bottom: 6px;
+    flex-shrink: 0;
+    margin-bottom: 8px;
 }
 
 .portals-inline-icon-tab {
-    padding: 4px 10px;
+    padding: 2px 6px;
     border-radius: var(--radius-s);
     cursor: pointer;
     font-size: var(--font-ui-small);
-    color: var(--text-muted);
+    color: var(--text-faint);
     user-select: none;
 }
 
 .portals-inline-icon-tab:hover {
     background: var(--background-modifier-hover);
+    color: var(--text-muted);
 }
 
 .portals-inline-icon-tab.is-active {
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
+    background: var(--background-primary);
+    color: var(--text-normal);
 }
 
 .portals-inline-icon-search {
     width: 100%;
     padding: 4px 8px;
+    height: var(--line-height-tight);
     border-radius: var(--radius-s);
     border: 1px solid var(--background-modifier-border);
     background: var(--background-secondary);
