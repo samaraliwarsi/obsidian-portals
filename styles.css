@@ -4936,7 +4936,8 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button.mod-warning,
 .portals-remP-modal button.mod-warning,
 .portals-cnf-modal .modal-button-container button.mod-warning,
-.portals-date-modal .modal-button-container button.mod-warning {
+.portals-date-modal .modal-button-container button.mod-warning,
+.portals-ar-modal .modal-button-container button.mod-warning {
   background-color: var(--background-modifier-error);
   color: var(--text-on-accent);
 }
@@ -4944,7 +4945,8 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button.mod-warning:hover,
 .portals-remP-modal button.mod-warning:hover,
 .portals-cnf-modal .modal-button-container button.mod-warning:hover,
-.portals-date-modal .modal-button-container button.mod-warning:hover {
+.portals-date-modal .modal-button-container button.mod-warning:hover,
+.portals-ar-modal .modal-button-container button.mod-warning:hover {
   background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
   color: var(--text-color);
 }
@@ -4953,7 +4955,8 @@ select.dropdown.portals-reset-dropD {
   .portals-fm-modal .modal-button-container button.mod-warning:hover,
   .portals-remP-modal button.mod-warning:hover,
   .portals-cnf-modal .modal-button-container button.mod-warning:hover,
-  .portals-date-modal .modal-button-container button.mod-warning:hover {
+  .portals-date-modal .modal-button-container button.mod-warning:hover,
+  .portals-ar-modal .modal-button-container button.mod-warning:hover {
     background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
     color: var(--text-color);
   }
@@ -9972,7 +9975,6 @@ input.cm-opacity-slider {
     gap: 8px;
     padding: 2px 8px;
     border-bottom: 1px solid var(--background-modifier-border);
-    cursor: grab;
     background: var(--background-primary);
     border-radius: var(--radius-s);
 }
@@ -10006,9 +10008,16 @@ button.portals-reset-btn.portals-ar-prop-btn {
     display: flex;
     align-items: center;
     font-size: 1em;
+    cursor: grab;
 }
 
+.portals-ar-modal .portals-ar-reorder-handle:active {
+    cursor: grabbing;
+}
+
+
 .portals-ar-modal .portals-ar-reorder-handle:hover {
+    color: var(--text-error);
     color: var(--interactive-accent);
 }
 
@@ -10080,8 +10089,7 @@ button.portals-reset-btn.portals-ar-color-btn {
 .portals-colpop-title,
 .portals-colpop-label {
     width: 100%;
-    font-size: x-small;
-    font-weight: bold;
+    font-size: var(--font-ui-small);
     color: var(--text-muted);
 }
 

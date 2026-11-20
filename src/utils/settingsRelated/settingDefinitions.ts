@@ -10,6 +10,7 @@ import { getGuideUrl, getReleaseNotesUrl } from "../Proxies/urls";
 import { makeSyncButton } from "../syncButton";
 import { AppearanceRulesModal } from "../../modals/appearanceRulesModal";
 import { ConfirmModal } from "../../modals/confirmModal";
+import { PortalsView, VIEW_TYPE_PORTALS } from "../../view";
 
 export function buildSettingDefinitions(tab: SpacesSettingTab): SettingDefinitionItem[] {
     return [
@@ -679,7 +680,9 @@ function buildUtilitiesSection(_tab: SpacesSettingTab): SettingGroupItem[] {
                         controlEl.empty();
                         const btn = controlEl.createEl('button', { text: 'Rules', cls: 'mod-cta' });
                         btn.addEventListener('click', () => {
-                            new AppearanceRulesModal(_tab.app, _tab.plugin).open();
+                            const leaf = _tab.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+                            const view = leaf?.view instanceof PortalsView ? leaf.view : null;
+                            new AppearanceRulesModal(_tab.app, _tab.plugin, view).open();
                         });
                     }
         },

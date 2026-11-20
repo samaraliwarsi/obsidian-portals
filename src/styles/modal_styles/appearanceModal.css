@@ -59,7 +59,6 @@
     gap: 8px;
     padding: 2px 8px;
     border-bottom: 1px solid var(--background-modifier-border);
-    cursor: grab;
     background: var(--background-primary);
     border-radius: var(--radius-s);
 }
@@ -93,9 +92,16 @@ button.portals-reset-btn.portals-ar-prop-btn {
     display: flex;
     align-items: center;
     font-size: 1em;
+    cursor: grab;
 }
 
+.portals-ar-modal .portals-ar-reorder-handle:active {
+    cursor: grabbing;
+}
+
+
 .portals-ar-modal .portals-ar-reorder-handle:hover {
+    color: var(--text-error);
     color: var(--interactive-accent);
 }
 

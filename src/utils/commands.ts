@@ -192,7 +192,9 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         id: 'appearance-rules',
         name: 'Open appearance rules',
         callback: () => {
-            new AppearanceRulesModal(plugin.app, plugin).open();
+            const leaf = plugin.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
+            const view = leaf?.view instanceof PortalsView ? leaf.view : null;
+            new AppearanceRulesModal(plugin.app, plugin, view).open();
         }
     });
 

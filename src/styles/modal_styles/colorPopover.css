@@ -21,8 +21,7 @@
 .portals-colpop-title,
 .portals-colpop-label {
     width: 100%;
-    font-size: x-small;
-    font-weight: bold;
+    font-size: var(--font-ui-small);
     color: var(--text-muted);
 }
 

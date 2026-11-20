@@ -186,7 +186,8 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button.mod-warning,
 .portals-remP-modal button.mod-warning,
 .portals-cnf-modal .modal-button-container button.mod-warning,
-.portals-date-modal .modal-button-container button.mod-warning {
+.portals-date-modal .modal-button-container button.mod-warning,
+.portals-ar-modal .modal-button-container button.mod-warning {
   background-color: var(--background-modifier-error);
   color: var(--text-on-accent);
 }
@@ -194,7 +195,8 @@ select.dropdown.portals-reset-dropD {
 .portals-fm-modal .modal-button-container button.mod-warning:hover,
 .portals-remP-modal button.mod-warning:hover,
 .portals-cnf-modal .modal-button-container button.mod-warning:hover,
-.portals-date-modal .modal-button-container button.mod-warning:hover {
+.portals-date-modal .modal-button-container button.mod-warning:hover,
+.portals-ar-modal .modal-button-container button.mod-warning:hover {
   background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
   color: var(--text-color);
 }
@@ -203,7 +205,8 @@ select.dropdown.portals-reset-dropD {
   .portals-fm-modal .modal-button-container button.mod-warning:hover,
   .portals-remP-modal button.mod-warning:hover,
   .portals-cnf-modal .modal-button-container button.mod-warning:hover,
-  .portals-date-modal .modal-button-container button.mod-warning:hover {
+  .portals-date-modal .modal-button-container button.mod-warning:hover,
+  .portals-ar-modal .modal-button-container button.mod-warning:hover {
     background-color: color-mix(in srgb, var(--background-modifier-error) 90%, var(--text-color) 10%);
     color: var(--text-color);
   }

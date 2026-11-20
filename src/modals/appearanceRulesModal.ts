@@ -1,4 +1,4 @@
-import { App, Menu, Modal, Notice } from 'obsidian';
+import { App, Menu, Modal, Notice, Platform } from 'obsidian';
 import PortalsPlugin from '../main';
 import { AppearanceRule } from '../types';
 import Sortable from 'sortablejs';
@@ -6,17 +6,20 @@ import { SearchPopover } from '../utils/searchPopover';
 import { IconPickerPopover } from './iconPickerPopover';
 import { ColorPickerPopover } from './colorPopover';
 import { PortalsView, VIEW_TYPE_PORTALS } from '../view';
+import { ConfirmModal } from './confirmModal';
 
 export class AppearanceRulesModal extends Modal {
     private plugin: PortalsPlugin;
+    private view: PortalsView | null;
     private rules: AppearanceRule[];
     private listEl!: HTMLElement;
     private allProperties: string[] = [];
     private activePopover: { destroy(): void } | null = null;
 
-    constructor(app: App, plugin: PortalsPlugin) {
+    constructor(app: App, plugin: PortalsPlugin, view: PortalsView | null) {
         super(app);
         this.plugin = plugin;
+        this.view = view || null;
         // Clone to avoid mutating settings until Save is clicked
         this.rules = JSON.parse(JSON.stringify(plugin.settings.appearanceRules || []));
     }
@@ -67,6 +70,36 @@ export class AppearanceRulesModal extends Modal {
 
         // Footer
         const btnDiv = contentEl.createDiv({ cls: 'modal-button-container' });
+        btnDiv.createEl('button', { text: 'Clear All', cls: 'mod-warning' })
+            .addEventListener('click', () => {
+                void (async () => {
+                    if (this.rules.length === 0) {
+                        new Notice('No rules to clear.');
+                        return;
+                    }
+                    const confirmed = await ConfirmModal.confirm(
+                        this.app,
+                        'Are you sure you want to delete all rules? This cannot be undone.'
+                    );
+                    if (!confirmed) return;
+
+                    this.rules = [];
+                    this.plugin.settings.appearanceRules = [];
+                    await this.plugin.saveData(this.plugin.settings);
+
+                    // Surgical refresh
+                    this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                        if (leaf.view instanceof PortalsView) {
+                            leaf.view.refreshFileAppearances();
+                        }
+                    });
+                    this.plugin.refreshAltRightPanelContent();
+
+                    new Notice('All appearance rules cleared.');
+                    this.renderList();
+                })();
+        });
+
         btnDiv.createEl('button', { text: 'Close' })
             .addEventListener('click', () => this.close());
         btnDiv.createEl('button', { text: 'Save Rules', cls: 'mod-cta' })
@@ -79,11 +112,12 @@ export class AppearanceRulesModal extends Modal {
                     }
                 });
                 this.plugin.refreshAltRightPanelContent();
-            });
+        });
     }
 
     private renderList() {
         this.listEl.empty();
+
         if (this.rules.length === 0) {
             this.listEl.createDiv({ text: 'No rules defined yet. Click "Add New Rule" to start.', cls: 'portals-ar-empty-state' });
             return;
@@ -103,6 +137,14 @@ export class AppearanceRulesModal extends Modal {
                 cls: 'portals-reset-btn portals-ar-prop-btn',
                 text: rule.property || 'Property' 
             });
+
+            if (!Platform.isMobile) {
+                if (this.view) {
+                    this.view.attachTooltip(propBtn, 'Right-click: find', 300, 'left');
+                } else {
+                    propBtn.setAttribute('aria-label', 'Right-click to search');
+                }
+            }
             // left click
             propBtn.addEventListener('click', () => {
                 this.closeActivePopover();
@@ -119,6 +161,7 @@ export class AppearanceRulesModal extends Modal {
                 menu.showAtPosition({ x: rect.left, y: rect.bottom });
             });
 
+            
             // right click
             propBtn.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
@@ -141,6 +184,14 @@ export class AppearanceRulesModal extends Modal {
                 text: rule.value || 'Value' 
             });
 
+            if (!Platform.isMobile) {
+                if (this.view) {
+                    this.view.attachTooltip(valBtn, 'Right-click: find', 300, 'right');
+                } else {
+                    propBtn.setAttribute('aria-label', 'Right-click to search');
+                }
+            }
+
             // left click
             valBtn.addEventListener('click', () => {
                 if (!rule.property) return;
@@ -161,7 +212,10 @@ export class AppearanceRulesModal extends Modal {
 
             // rightclik search
             valBtn.addEventListener('contextmenu', (e) => {
-                if (!rule.property) return;
+                if (!rule.property) {
+                    new Notice('Select a property first.');
+                    return;
+                }
                 e.preventDefault();
                 e.stopPropagation();
                 this.closeActivePopover();
