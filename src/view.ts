@@ -72,6 +72,15 @@ export class PortalsView extends ItemView {
         return `tag:${mainTag}/group:${groupTag}`;
     }
 
+    public refreshFileAppearances() {
+        this.fileElementMap.forEach((_el, path) => {
+            const file = this.app.vault.getAbstractFileByPath(path);
+            if (file instanceof TFile) {
+                this.updateFileElement(file);
+            }
+        });
+    }
+
     public updateFileElement(file: TFile) {
         const fileEl = this.fileElementMap.get(file.path);
         if (!fileEl || !fileEl.isConnected) return;
@@ -1527,6 +1536,7 @@ export class PortalsView extends ItemView {
             dateDisplayFormat: s.dateDisplayFormat,
             reminderProperty: s.reminderProperty,
             reminderTreeIndicator: s.reminderTreeIndicator,
+            appearanceRules: JSON.stringify(s.appearanceRules),
             
             portalStacks: s.portalStacks.map(st =>
                 `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),

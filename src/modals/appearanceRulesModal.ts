@@ -1,10 +1,11 @@
-import { App, Modal } from 'obsidian';
+import { App, Menu, Modal, Notice } from 'obsidian';
 import PortalsPlugin from '../main';
 import { AppearanceRule } from '../types';
 import Sortable from 'sortablejs';
 import { SearchPopover } from '../utils/searchPopover';
 import { IconPickerPopover } from './iconPickerPopover';
 import { ColorPickerPopover } from './colorPopover';
+import { PortalsView, VIEW_TYPE_PORTALS } from '../view';
 
 export class AppearanceRulesModal extends Modal {
     private plugin: PortalsPlugin;
@@ -66,15 +67,18 @@ export class AppearanceRulesModal extends Modal {
 
         // Footer
         const btnDiv = contentEl.createDiv({ cls: 'modal-button-container' });
-        btnDiv.createEl('button', { text: 'Cancel' })
+        btnDiv.createEl('button', { text: 'Close' })
             .addEventListener('click', () => this.close());
         btnDiv.createEl('button', { text: 'Save Rules', cls: 'mod-cta' })
             .addEventListener('click', () => {
+                new Notice('Appearance rules saved.');
                 this.plugin.settings.appearanceRules = this.rules;
-                void this.plugin.saveSettings().then(() => {
-                    this.plugin.refreshAllViews(); // Force update
-                    this.close();
+                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                    if (leaf.view instanceof PortalsView) {
+                        leaf.view.refreshFileAppearances();
+                    }
                 });
+                this.plugin.refreshAltRightPanelContent();
             });
     }
 
@@ -99,7 +103,26 @@ export class AppearanceRulesModal extends Modal {
                 cls: 'portals-reset-btn portals-ar-prop-btn',
                 text: rule.property || 'Property' 
             });
+            // left click
             propBtn.addEventListener('click', () => {
+                this.closeActivePopover();
+                const menu = new Menu();
+                this.allProperties.forEach(p => {
+                    menu.addItem(item => item
+                        .setTitle(p)
+                        .onClick(() => {
+                            rule.property = p;
+                            propBtn.setText(p);
+                        }));
+                });
+                const rect = propBtn.getBoundingClientRect();
+                menu.showAtPosition({ x: rect.left, y: rect.bottom });
+            });
+
+            // right click
+            propBtn.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 this.closeActivePopover();
                 this.activePopover = new SearchPopover(propBtn, {
                     items: this.allProperties,
@@ -117,17 +140,32 @@ export class AppearanceRulesModal extends Modal {
                 cls: 'portals-reset-btn portals-ar-prop-btn', 
                 text: rule.value || 'Value' 
             });
+
+            // left click
             valBtn.addEventListener('click', () => {
                 if (!rule.property) return;
-                const vals = new Set<string>();
-                for (const f of this.app.vault.getMarkdownFiles()) {
-                    const raw = this.app.metadataCache.getFileCache(f)?.frontmatter?.[rule.property];
-                    if (raw !== undefined) {
-                        if (Array.isArray(raw)) raw.forEach(x => vals.add(String(x)));
-                        else vals.add(String(raw));
-                    }
-                }
                 this.closeActivePopover();
+                const vals = this.getValuesForProperty(rule.property);
+                const menu = new Menu();
+                vals.forEach(v => {
+                    menu.addItem(item => item
+                        .setTitle(v)
+                        .onClick(() => {
+                            rule.value = v;
+                            valBtn.setText(v);
+                        }));
+                });
+                const rect = valBtn.getBoundingClientRect();
+                menu.showAtPosition({ x: rect.left, y: rect.bottom });
+            });
+
+            // rightclik search
+            valBtn.addEventListener('contextmenu', (e) => {
+                if (!rule.property) return;
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeActivePopover();
+                const vals = this.getValuesForProperty(rule.property);                
                 this.activePopover = new SearchPopover(valBtn, {
                     items: Array.from(vals).sort(),
                     currentSelected: rule.value,
@@ -200,6 +238,21 @@ export class AppearanceRulesModal extends Modal {
                 this.rules.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
             }
         });
+    }
+
+    private getValuesForProperty(prop: string): string[] {
+        const vals = new Set<string>();
+        for (const f of this.app.vault.getMarkdownFiles()) {
+            const raw = this.app.metadataCache.getFileCache(f)?.frontmatter?.[prop];
+            if (raw !== undefined && raw !== null) {
+                if (Array.isArray(raw)) {
+                    raw.forEach(x => vals.add(String(x)));
+                } else {
+                    vals.add(String(raw));
+                }
+            }
+        }
+        return Array.from(vals).sort();
     }
 
     onClose() {
