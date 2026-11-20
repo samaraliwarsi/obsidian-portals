@@ -771,6 +771,40 @@ export default class PortalsPlugin extends Plugin {
         return { icon: finalIcon, color: finalColor };
     }
 
+    public async clearCustomFileOverrides(): Promise<number> {
+        let count = 0;
+        const isFileKey = (key: string) => {
+            if (key.startsWith('tag:') || key.startsWith('stack:') || key.startsWith('folder:')) return false;
+
+            // if it exists in vault, verify it's a file 
+            const abstract = this.app.vault.getAbstractFileByPath(key);
+            if (abstract instanceof TFile) return true;
+            if (abstract instanceof TFolder) return false;
+
+            // if it's orphaned key (deleted file) guess by checking for an extension 
+            const basename = key.split('/').pop() || '';
+            return basename.includes('.');
+        };
+
+        for (const key of Object.keys(this.settings.customIcons)) {
+            if (isFileKey(key)) {
+                delete this.settings.customIcons[key];
+                count++
+            }
+        }
+        for (const key of Object.keys(this.settings.customColors)) {
+            if (isFileKey(key)) {
+                delete this.settings.customColors[key];
+                count++
+            }
+        }
+        if (count > 0) {
+            await this.saveSettings();
+            this.refreshAllViews();
+        }
+        return count;       
+    }
+
     private refreshAllRecentTabs() {
         this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
             if (leaf.view instanceof PortalsView) {

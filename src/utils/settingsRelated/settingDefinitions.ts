@@ -9,6 +9,7 @@ import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from "../../renderers/Righ
 import { getGuideUrl, getReleaseNotesUrl } from "../Proxies/urls";
 import { makeSyncButton } from "../syncButton";
 import { AppearanceRulesModal } from "../../modals/appearanceRulesModal";
+import { ConfirmModal } from "../../modals/confirmModal";
 
 export function buildSettingDefinitions(tab: SpacesSettingTab): SettingDefinitionItem[] {
     return [
@@ -627,6 +628,25 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                                 } else {
                                     new Notice('No orphaned fields found.');
                                 }
+                            })();
+                        });
+                    }
+                },
+                {
+                    name: 'Clear custom icons, colors from files',
+                    desc: 'Remove manual assignments. This will not affect colors and icons on portal tabs, folder or tag headers.',
+                    render: (setting) => {
+                        setting.controlEl.empty();
+                        const btn = setting.controlEl.createEl('button', { text: 'Clear now', cls: 'mod-warning' });
+                        btn.addEventListener('click', () => {
+                            void (async () => {
+                                const confirmed = await ConfirmModal.confirm(
+                                tab.app, 
+                                "Clear all manual icons and colors for files? This cannot be undone."
+                                );
+                                if (!confirmed) return;
+                                const count = await tab.plugin.clearCustomFileOverrides();
+                                new Notice(`Cleared ${count} file override(s).`);
                             })();
                         });
                     }
