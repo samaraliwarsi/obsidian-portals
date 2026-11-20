@@ -733,14 +733,17 @@ export default class PortalsPlugin extends Plugin {
         }
     }
 
-    public getFileAppearahce(file: TFile): {icon: string, color: string | undefined} {
+    public getFileAppearance(file: TFile): {icon: string, color: string | undefined} {
+        // get manual overrides if they exist
         const customIcon = this.settings.customIcons[file.path];
         const customColor = this.settings.customColors[file.path]
-        if (customIcon || customColor) { // relook this condition
-            return { icon: customIcon || 'file', color: customColor };
-        }
 
-        const fm = this.app.metadataCache.getFileCache(file)?.frontmatter; // consider using one of the caches to avoid constant checks over session
+        // Find the matching rule if any
+        let ruleIcon: string | undefined;
+        let ruleColor: string | undefined;
+        
+
+        const fm = this.app.metadataCache.getFileCache(file)?.frontmatter; 
         if (fm && this.settings.appearanceRules) {
             for (const rule of this.settings.appearanceRules) {
                 const rawVal = fm[rule.property]
@@ -753,11 +756,19 @@ export default class PortalsPlugin extends Plugin {
                     matches = String(rawVal) === rule.value;
                 }
                 if (matches) {
-                    return { icon: rule.icon || 'file', color: rule.color || undefined };
+                    ruleIcon = rule.icon || undefined;
+                    ruleColor = rule.color || undefined;
+                    break;
                 }
             }
         }
-        return { icon: 'file', color: undefined };
+        // resolve icon: Custom > Rule > default
+        const finalIcon = customIcon || ruleIcon || 'file';
+
+        // resolve color: custom > rule > undefined
+        const finalColor = customColor !== undefined ? customColor : ruleColor;
+
+        return { icon: finalIcon, color: finalColor };
     }
 
     private refreshAllRecentTabs() {

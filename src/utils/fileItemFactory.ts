@@ -15,7 +15,7 @@ export class FileItemFactory {
 
     static createFileItem(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, container: HTMLElement, openFiles: Set<string>): HTMLElement {
         const fileEl = container.createDiv({ cls: 'file-item' });
-        const appearance = plugin.getFileAppearahce(file);
+        const appearance = plugin.getFileAppearance(file);
         const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
         getPluginInstance()?.renderIconString(iconSpan, appearance.icon, 'file');
 

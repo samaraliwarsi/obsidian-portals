@@ -76,7 +76,7 @@ export class PortalsView extends ItemView {
         const fileEl = this.fileElementMap.get(file.path);
         if (!fileEl || !fileEl.isConnected) return;
 
-        const appearance = this.plugin.getFileAppearahce(file);
+        const appearance = this.plugin.getFileAppearance(file);
         const iconSpan = fileEl?.querySelector('.file-icon');
         if (iconSpan instanceof HTMLElement) {
             iconSpan.empty();
