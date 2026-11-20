@@ -162,20 +162,23 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.metadataCache.on('changed', (file) => {
             if (!(file instanceof TFile) || file.extension !== 'md') return;
 
+            const cache = this.app.metadataCache.getFileCache(file);
+            if (!cache) return;
+
             FrontmatterClinicRenderer.updateFileCache(this.app, file);
 
             const space = this.settings.selectedSpace;
-            const cache = this.app.metadataCache.getFileCache(file);
             const currentTags = [
                 ...(cache?.tags?.map(t => t.tag) || []),
                 ...getFrontmatterTags(cache)
             ].sort().join(',');
 
             const oldTags = this.fileTagCache.get(file.path);
-            const tagsChanged = currentTags !== oldTags;
+
+            const tagsChanged = oldTags !== undefined && currentTags !== oldTags;
             this.fileTagCache.set(file.path, currentTags);
 
-            // Detect structural changes (property criterion).
+            // --- Sections Logic (Preserved from your old code) ---
             let sectionChanged = false;
             const newSectionKey = this.getSectionKeyForFile(file);
             if (newSectionKey !== null) {
@@ -185,25 +188,41 @@ export default class PortalsPlugin extends Plugin {
                 }
                 this.fileSectionCache.set(file.path, newSectionKey);
             }
-            // Surgical update
-            if (!sectionChanged && (space?.type === 'folder' || (space?.type === 'tag' && tagsChanged))) {
+
+            // --- Routing Logic ---
+            let needsRebuild = sectionChanged; // Sections moving always requires rebuild
+
+            if (space?.type === 'tag' && tagsChanged) {
+                // FIX 3: Only rebuild if the file enters or leaves THIS specific tag portal
+                const portalTag = space.path;
+                const oldSet = (oldTags || '').split(',').filter(Boolean).map(t => t.replace(/^#/, ''));
+                const newSet = currentTags.split(',').filter(Boolean).map(t => t.replace(/^#/, ''));
+
+                const belongsBefore = oldSet.some(t => t === portalTag || t.startsWith(portalTag + '/'));
+                const belongsAfter = newSet.some(t => t === portalTag || t.startsWith(portalTag + '/'));
+
+                if (belongsBefore || belongsAfter) {
+                    needsRebuild = true;
+                }
+            }
+
+            if (needsRebuild) {
+                debouncedTreeRefresh();
+            } else {
                 this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
                     if (leaf.view instanceof PortalsView) {
                         leaf.view.updateFileElement(file);
                     }
                 });
-            } else {
-                // Debounced rebuild - required for when tags change or sections move
-                debouncedTreeRefresh();
             }
 
-            // Reminders & Badge debounce (300ms)
+            // --- Reminders & Badge Logic (Preserved from your old code) ---
             if (this.reminderRefreshTimer) window.clearTimeout(this.reminderRefreshTimer);
             this.reminderRefreshTimer = window.setTimeout(() => {
                 this.reminderRefreshTimer = null;
-                // incremental cache update
+                
                 const prop = this.settings.reminderProperty || 'remind_at';
-                const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter
+                const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter;
                 const raw = fm?.[prop];
                 if (raw) {
                     this.reminderDates.set(file.path, String(raw));
