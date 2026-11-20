@@ -24,38 +24,103 @@ export class ColorPickerPopover {
         }*/
 
         this.popover = activeDocument.body.createDiv('portals-inline-color-popover');
+        this.popover.addClass('portals-colpop')
         this.buildUI(currentColor);
         this.position();
         this.attachListeners();
     }
 
     private buildUI(currentColor?: string) {
-        // 10 palette swatches in a 5x2 grid
-        const palette = this.plugin.settings.userPalette ?? DEFAULT_PORTALS_PALETTE;
-        const swatchGrid = this.popover.createDiv({ cls: 'portals-inline-color-swatches' });
+        const textGrid = this.popover.createDiv({ cls: 'portals-colpop-text-div' });
+        textGrid.createSpan({
+            cls: 'portals-colpop-title',
+            text: 'Color Palettes'
+        });
 
-        for (const color of palette) {
-            const swatch = swatchGrid.createDiv({ cls: 'portals-inline-color-swatch' });
+        textGrid.createSpan({
+            cls: 'portals-colpop-desc',
+            text: 'Click: apply, double-click: edit, right-click: reset'
+        });
+
+        const palette = this.plugin.settings.userPalette ?? DEFAULT_PORTALS_PALETTE;
+        const swatchGrid = this.popover.createDiv({ cls: 'portals-colpop-swatches' });
+
+        // Create ONE hidden picker for all swatches to share
+        const hiddenPalettePicker = this.popover.createEl('input', {
+            type: 'color',
+            cls: 'portals-inline-color-picker-hidden'
+        });
+
+        // Handle the double-click edit result
+        hiddenPalettePicker.addEventListener('change', () => {
+            const index = parseInt(hiddenPalettePicker.dataset.index || '-1', 10);
+            if (index >= 0 && index < palette.length) {
+                const newColor = hiddenPalettePicker.value;
+                palette[index] = newColor;
+                
+                // Update the UI swatch immediately
+                const swatch = swatchGrid.children[index] as HTMLElement;
+                if (swatch) swatch.setCssProps({ '--swatch-bg': newColor });
+                
+                // Save to settings (this syncs the modal instantly)
+                this.plugin.settings.userPalette = [...palette];
+                void this.plugin.saveSettings();
+            }
+        });
+
+        for (let i = 0; i < palette.length; i++) {
+            const color = palette[i]!;
+            const swatch = swatchGrid.createDiv({ cls: 'portals-colpop-swatch' });
             swatch.setCssProps({ '--swatch-bg': color });
             swatch.setAttribute('title', color);
+
+            let clickTimeout: number | null = null;
+
+            // 1. SINGLE CLICK: Apply color & close
             swatch.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.onSelect(color);
-                this.destroy();
+                if (clickTimeout) window.clearTimeout(clickTimeout);
+                clickTimeout = window.setTimeout(() => {
+                    this.onSelect(color);
+                    this.destroy();
+                }, 200);
+            });
+
+            // 2. DOUBLE CLICK: Open hidden picker to edit
+            swatch.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (clickTimeout) window.clearTimeout(clickTimeout); // Cancel the single-click apply
+                
+                hiddenPalettePicker.dataset.index = String(i);
+                hiddenPalettePicker.value = color;
+                hiddenPalettePicker.click();
+            });
+
+            // 3. RIGHT CLICK: Reset to default
+            swatch.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const defaultColor = DEFAULT_PORTALS_PALETTE[i] || '#000000';
+                palette[i] = defaultColor;
+                swatch.setCssProps({ '--swatch-bg': defaultColor });
+                
+                this.plugin.settings.userPalette = [...palette];
+                void this.plugin.saveSettings();
             });
         }
 
-        // Custom color row
-        const customRow = this.popover.createDiv({ cls: 'portals-inline-color-custom-row' });
-        customRow.createSpan({ text: 'Custom', cls: 'portals-inline-color-label' });
+        // --- Keep the Custom color row from before ---
+        const titleRow = this.popover.createDiv({ cls: 'portals-colpop-custom-title-row' });
+        titleRow.createSpan({ text: 'Custom', cls: 'portals-colpop-label' });
 
-        const customSwatch = customRow.createDiv({ cls: 'portals-inline-color-custom-swatch' });
+        const customRow = this.popover.createDiv({ cls: 'portals-colpop-control-row' });
+        const customSwatch = customRow.createDiv({ cls: 'portals-colpop-custom-swatch' });
         const picker = customSwatch.createEl('input', {
             type: 'color',
             cls: 'portals-inline-color-picker-hidden'
         });
 
-        // Seed custom picker with current color if it's a hex value
         const seed = currentColor && currentColor.startsWith('#') ? currentColor : '#328cec';
         picker.value = seed;
         customSwatch.setCssProps({ '--swatch-bg': seed });
@@ -72,11 +137,10 @@ export class ColorPickerPopover {
             this.destroy();
         });
 
-        // Clear option
         if (currentColor) {
-            const clearBtn = this.popover.createEl('button', {
+            const clearBtn = customRow.createEl('button', {
                 text: 'Remove color',
-                cls: 'portals-inline-color-clear-btn'
+                cls: 'portals-reset-btn portals-colpop-clear'
             });
             clearBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -210,143 +274,3 @@ export class ColorPickerPopover {
         this.popover.remove();
     }
 }
-
-/*
-
-// the one with mobile and desktop if else 
-
-private position() {
-        const anchorRect = this.anchor.getBoundingClientRect();
-        const parentRect = this.parent.getBoundingClientRect();
-
-        // 1. Temporarily hide to measure
-        this.popover.setCssStyles({
-            position: 'fixed',
-            top: '0px',
-            left: '0px',
-            visibility: 'hidden',
-            display: 'block'
-        });
-        const popoverRect = this.popover.getBoundingClientRect();
-
-        let top = 0;
-        let left = 0;
-
-        if (Platform.isMobile) {
-            // MOBILE: Explicitly center it on the screen
-            top = (window.innerHeight - popoverRect.height) / 2;
-            left = (window.innerWidth - popoverRect.width) / 2;
-        } else {
-            // DESKTOP: Align to the left of the button, with failsafes
-            const parentCenterY = parentRect.top + (parentRect.height / 2);
-            top = parentCenterY - (popoverRect.height / 2);
-            top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
-
-            const gap = 8;
-            left = anchorRect.left - popoverRect.width - gap;
-
-            // Failsafe: If it goes off the left edge, open to the right
-            if (left < 10) {
-                left = anchorRect.right + gap;
-                // If it still goes off the right edge, clamp it
-                if (left + popoverRect.width > window.innerWidth - 10) {
-                    left = window.innerWidth - popoverRect.width - 10;
-                }
-            }
-        }
-
-        // 5. Apply final position
-        this.popover.setCssStyles({
-            top: `${top}px`,
-            left: `${left}px`,
-            visibility: 'visible'
-        });
-    }    
-
-// the one with gap, 
-private position() {
-        const anchorRect = this.anchor.getBoundingClientRect();
-        const parentRect = this.parent.getBoundingClientRect();
-        this.popover.setCssProps({
-            position: 'fixed',
-            top: '0px',
-            left: '0px',
-            visibility: 'hidden',
-            display: 'block'
-        });
-        const popoverRect = this.popover.getBoundingClientRect();
-        // Vertical center relative to modal
-        const parentCenterY = parentRect.top + (parentRect.height / 2);
-        let top = parentCenterY - (popoverRect.height / 2);
-
-        // safety clamps to keep on screen, prevent going off top or bottom
-        top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
-        
-        // Right edge of pop = left edge of button
-        const gap = 8;
-        let left = anchorRect.right - popoverRect.width - gap;
-
-        // safety flip - if goes off the left side, open to right instead
-        if (left < 10) {
-            left = anchorRect.right + gap;
-            // If it still goes off the right edge, just clamp it to the screen edge
-            if (left + popoverRect.width > window.innerWidth - 10) {
-                left = window.innerWidth - popoverRect.width - 10;
-            }
-        }
-
-        this.popover.setCssStyles({
-            top: `${top}px`,
-            left: `${left}px`,
-            visibility: 'visible'
-        });
-    }
-
-
-private position() {
-    const anchorRect = this.anchor.getBoundingClientRect();
-    // We use this.parent (the modal) as the reference for vertical centering
-    const parentRect = this.parent.getBoundingClientRect();
-
-    // 1. Temporarily hide the popover to measure its true size
-    this.popover.setCssStyles({
-        position: 'fixed',
-        top: '0px',
-        left: '0px',
-        visibility: 'hidden',
-        display: 'block',
-        zIndex: '9999'
-    });
-    const popoverRect = this.popover.getBoundingClientRect();
-
-    // 2. Calculate Vertical Center (relative to the modal)
-    const parentCenterY = parentRect.top + (parentRect.height / 2);
-    let top = parentCenterY - (popoverRect.height / 2);
-
-    // 3. Calculate Right-Alignment (align popover's right edge to button's right edge)
-    let left = anchorRect.right - popoverRect.width;
-
-    // 4. Safety Clamps (Keep it on screen)
-    // Prevent going off the top or bottom of the viewport
-    top = Math.max(10, Math.min(top, window.innerHeight - popoverRect.height - 10));
-    // Prevent going off the left side of the viewport
-    left = Math.max(10, left);
-
-    // 5. Apply final position and make visible
-    this.popover.setCssStyles({
-        top: `${top}px`,
-        left: `${left}px`,
-        visibility: 'visible'
-    });
-}
-
-private position() {
-        const anchorRect = this.anchor.getBoundingClientRect();
-        const parentRect = this.parent.getBoundingClientRect();
-        this.popover.setCssProps({
-            position: 'fixed',
-            top: `${anchorRect.bottom - parentRect.top + 4}px`,
-            left: `${anchorRect.left - parentRect.left}px`,
-        });
-    }
-    */

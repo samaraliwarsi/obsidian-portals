@@ -1,5 +1,5 @@
 /* ============ Inline Icon Picker Popover ============ */
-.portals-inline-icon-popover {
+.portals-icopop {
     width: min(340px, calc(100vw - 40px));
     max-height: 400px;
     background: var(--background-primary);
@@ -43,7 +43,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 4px;
+    padding: 8px 4px;
 }
 
 input.portals-icopop-search {
@@ -56,13 +56,23 @@ input.portals-icopop-search {
     font-size: var(--font-ui-small);
 }
 
+.portals-icopop-grid-div {
+    display: block;
+    justify-content: center;
+    width: 100%;
+}
+
 .portals-icopop-grid {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(auto-fill, 30px);
     gap: 2px;
+    width: 100%;
     overflow-y: auto;
-    max-height: 280px;
+    max-height: 200px;
     padding: 2px;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
 }
 
 .portals-icopop-item {
@@ -75,6 +85,21 @@ input.portals-icopop-search {
     cursor: pointer;
     font-size: 20px;
     color: var(--text-normal);
+}
+/* Make sure SVGs (Lucide/Phosphor) don't have weird margins */
+.portals-icopop-item svg {
+    width: 20px;
+    height: 20px;
+    margin: 0 auto;
+}
+
+/* Make sure Emojis center perfectly */
+.portals-icopop-item.portals-emoji-icon {
+    font-size: 22px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .portals-icopop-item:hover {
@@ -90,15 +115,18 @@ input.portals-icopop-search {
     line-height: 1.4;
 }
 
-.portals-icopop-loadmore {
-    grid-column: span 8;
+div.portals-icopop-loadmore {
+    grid-column: 1 / -1;
     text-align: center;
     cursor: pointer;
-    padding: 8px;
-    color: var(--interactive-accent);
+    padding: 4px;
+    color: var(--text-muted);
     font-size: var(--font-ui-small);
+    border-radius: 8px;
+    border: 1px solid var(--background-modifier-border);
 }
 
-.portals-icopop-loadmore:hover {
+div.portals-icopop-loadmore:hover {
     background: var(--background-modifier-hover);
+    color: var(--interactive-accent);
 }

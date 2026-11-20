@@ -9,7 +9,7 @@ export class IconPickerPopover {
     private tabContainer!: HTMLElement;
     private currentLibrary: 'favorites' | 'phosphor' | 'lucide' | 'emoji' = 'phosphor';
     private filter = '';
-    private displayCount = 60;
+    private displayCount = 40;
     private destroyed = false;
     private resizeObserver!: ResizeObserver;
     private resizeHandler!: () => void;
@@ -24,8 +24,8 @@ export class IconPickerPopover {
         private parent: HTMLElement,
         private onSelect: (iconKey: string) => void
     ) {
-        this.popover = activeDocument.body.createDiv('portals-inline-icon-popover');
-        this.popover.addClass('portals-icopop');
+        this.popover = activeDocument.body.createDiv('portals-icopop');
+        this.popover.addClass('portals-inline-icon-popover');
         this.buildUI();
         this.position();
         this.attachListeners();
@@ -52,7 +52,7 @@ export class IconPickerPopover {
                 this.currentLibrary = t.key;
                 this.filter = '';
                 this.input.value = '';
-                this.displayCount = 60;
+                this.displayCount = 40;
                 this.updateTabStates();
                 this.renderGrid();
                 this.input.focus();
@@ -68,8 +68,8 @@ export class IconPickerPopover {
             this.filter = this.input.value;
             this.renderGrid();
         });
-
-        this.grid = this.popover.createDiv({ cls: 'portals-icopop-grid' });
+        const gridDiv = this.popover.createDiv({ cls: 'portals-icopop-grid-div' });
+        this.grid = gridDiv.createDiv({ cls: 'portals-icopop-grid' });
     }
 
     private updateTabStates() {
@@ -100,7 +100,7 @@ export class IconPickerPopover {
         const toRender = this.filter ? filtered : filtered.slice(0, this.displayCount);
 
         if (toRender.length === 0) {
-            this.grid.createDiv({ text: 'No icons found', cls: 'portals-inline-icon-empty' });
+            this.grid.createDiv({ text: 'No icons found', cls: 'portals-icopop-empty' });
             return;
         }
 
@@ -120,11 +120,11 @@ export class IconPickerPopover {
 
         if (!this.filter && this.displayCount < filtered.length) {
             const more = this.grid.createDiv({
-                cls: 'portals-inline-icon-loadmore',
+                cls: 'portals-icopop-loadmore',
                 text: `Load more (${filtered.length - this.displayCount} remaining)`
             });
             more.addEventListener('click', () => {
-                this.displayCount += 60;
+                this.displayCount += 40;
                 this.renderGrid();
             });
         }
@@ -133,7 +133,7 @@ export class IconPickerPopover {
     private renderFavoritesGrid() {
         const favs = this.plugin.settings.iconFavorites;
         if (favs.length === 0) {
-            this.grid.createDiv({ text: 'No favorites yet. Star any icon in the tree’s full picker to add one.', cls: 'portals-inline-icon-empty' });
+            this.grid.createDiv({ text: 'No favorites yet. Star any icon in the tree’s full picker to add one.', cls: 'portals-icopop-empty' });
             return;
         }
 
@@ -141,7 +141,7 @@ export class IconPickerPopover {
         const filtered = filter ? favs.filter(f => f.name.toLowerCase().includes(filter)) : favs;
 
         if (filtered.length === 0) {
-            this.grid.createDiv({ text: 'No matching favorites', cls: 'portals-inline-icon-empty' });
+            this.grid.createDiv({ text: 'No matching favorites', cls: 'portals-icopop-empty' });
             return;
         }
 
@@ -174,7 +174,7 @@ export class IconPickerPopover {
         const toRender = filter ? list : list.slice(0, this.displayCount);
 
         if (toRender.length === 0) {
-            this.grid.createDiv({ text: 'No emojis found', cls: 'portals-inline-icon-empty' });
+            this.grid.createDiv({ text: 'No emojis found', cls: 'portals-icopop-empty' });
             return;
         }
 
@@ -193,11 +193,11 @@ export class IconPickerPopover {
 
         if (!filter && this.displayCount < list.length) {
             const more = this.grid.createDiv({
-                cls: 'portals-inline-icon-loadmore',
+                cls: 'portals-icopop-loadmore',
                 text: `Load more (${list.length - this.displayCount} remaining)`
             });
             more.addEventListener('click', () => {
-                this.displayCount += 60;
+                this.displayCount += 40;
                 this.renderGrid();
             });
         }

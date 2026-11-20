@@ -5,53 +5,83 @@
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-l);
-    padding: 12px;
+    padding: 8px;
+    z-index: calc(var(--layer-modal) + 1);
+    --swatch-size: 36px;
+}
+
+.portals-colpop-text-div {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    z-index: calc(var(--layer-modal) + 1);
+    border-bottom: 1px solid var(--background-modifier-border);
+    margin-bottom: 4px;
+    padding-bottom: 4px;
 }
 
-.portals-inline-color-swatches {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-}
-
-.portals-inline-color-swatch {
+.portals-colpop-title,
+.portals-colpop-label {
     width: 100%;
-    aspect-ratio: 1;
-    border-radius: 50%;
+    font-size: x-small;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+.portals-colpop-desc {
+    width: 100%;
+    font-size: x-small;
+    color: var(--text-faint);
+    font-style: italic;
+}
+
+.portals-colpop-swatches {
+    display: grid;
+    grid-template-columns: repeat(5, var(--swatch-size));
+    gap: 8px;
+    padding: 4px;
+    margin-bottom: 4px;
+    justify-content: center;
+}
+
+.portals-colpop-swatch {
+    width: var(--swatch-size);
+    height: var(--swatch-size);
+    border-radius: 8px;
     background: var(--swatch-bg, transparent);
     cursor: pointer;
-    border: 1px solid var(--background-modifier-border);
     transition: transform 100ms ease;
 }
 
-.portals-inline-color-swatch:hover {
-    transform: scale(1.1);
+.portals-colpop-swatch:hover {
+    transform: scale(1.05);
 }
 
-.portals-inline-color-custom-row {
+.portals-colpop-custom-title-row {
     display: flex;
+    border-top: 1px solid var(--background-modifier-border);
+    margin-bottom: 4px;
+    padding-top: 4px;
+}
+
+.portals-colpop-control-row {
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding-top: 8px;
     border-top: 1px solid var(--background-modifier-border);
 }
 
-.portals-inline-color-label {
-    font-size: var(--font-ui-small);
-    color: var(--text-muted);
-}
-
-.portals-inline-color-custom-swatch {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+.portals-colpop-custom-swatch {
+    width: var(--swatch-size);
+    height: var(--swatch-size);
+    border-radius: 8px;
     background: var(--swatch-bg, transparent);
     cursor: pointer;
-    border: 1px solid var(--background-modifier-border);
+    flex-shrink: 0;
+    transition: transform 100ms ease;
+}
+.portals-colpop-custom-swatch:hover {
+    scale: 1.05;
 }
 
 .portals-inline-color-picker-hidden {
@@ -62,19 +92,25 @@
     pointer-events: none;
 }
 
-.portals-inline-color-clear-btn {
-    width: 100%;
-    text-align: center;
-    padding: 4px;
-    background: transparent;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-s);
+button.portals-reset-btn.portals-colpop-clear {
+    flex: 1;
+    display: flex;
     cursor: pointer;
     color: var(--text-muted);
     font-size: var(--font-ui-small);
+    background: var(--background-primary-alt);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 1px 4px;
+    align-items: center;
+    justify-content: center;
+    height: var(--swatch-size);
+    box-shadow: inset 0 0 1px 0 rgba(0, 0, 0, 0.1);
+    padding: 1px 8px;
 }
 
-.portals-inline-color-clear-btn:hover {
+button.portals-reset-btn.portals-colpop-clear:hover {
     background: var(--background-modifier-hover);
     color: var(--text-error);
 }
