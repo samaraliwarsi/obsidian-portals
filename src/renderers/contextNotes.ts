@@ -605,6 +605,16 @@ export class ContextNotesRenderer {
                 await MarkdownRenderer.render(this.app, content, embedContainer, targetFile.path, childComponent);
                 await this.processEmbeds(embedContainer, childComponent, targetFile.path, depth + 1);
                 embed.replaceWith(embedContainer);
+            } else if (targetFile.extension === 'base') {
+                const baseEmbedContainer = container.createDiv({ cls: 'portals-base-embed' });
+                await MarkdownRenderer.render(
+                    this.app,
+                    `![[${targetFile.path}]]`,
+                    baseEmbedContainer,
+                    sourcePath,
+                    component
+                );
+                embed.replaceWith(baseEmbedContainer);
             } else {
                 const linkContainer = container.createDiv({ cls: 'portals-embed-link' });
                 const link = linkContainer.createEl('a', { href: '#' });
