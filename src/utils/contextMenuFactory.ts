@@ -97,7 +97,7 @@ export class ContextMenuFactory {
             .onClick(() => PortalsActions.setCustomColorForFile(view.app, view.plugin, view, file, fileEl)));
         if (view.plugin.settings.customColors[file.path]) {
             menu.addItem(item => item
-                .setTitle('Reset folder color')
+                .setTitle('Reset color')
                 .setIcon('undo')
                 .onClick(() => PortalsActions.resetCustomColorForFile(view.app, view.plugin, view, file)));
         }
@@ -244,7 +244,7 @@ export class ContextMenuFactory {
                 .onClick(() => PortalsActions.setCustomColor(view.app, view.plugin, view, folder, summaryEl.parentElement!)));
             if (view.plugin.settings.customColors[folder.path]) {
                 menu.addItem(item => item
-                    .setTitle('Reset folder color')
+                    .setTitle('Reset color')
                     .setIcon('undo')
                     .onClick(() => PortalsActions.resetCustomColor(view.app, view.plugin, view, folder)));
             }

@@ -455,8 +455,8 @@ export class PortalsActions {
     static async removeCustomIconForTagGroup(_app: App, plugin: PortalsPlugin, view: PortalsView, groupKey: string): Promise<void> {
         view.saveTreeScroll();
         delete plugin.settings.customIcons[groupKey];
-        await plugin.saveSettings();
-        view.render();
+        await plugin.saveData(plugin.settings);
+        view.renderContent();
         new Notice('Custom icon removed');
     }
 
@@ -502,7 +502,7 @@ export class PortalsActions {
             plugin.settings.tagColors[key] = color;
             void plugin.saveData(plugin.settings).then(() => view.renderContent());
         }, () => {
-            view.render();
+            view.renderContent();
         }, currentColor).open();
     }
 

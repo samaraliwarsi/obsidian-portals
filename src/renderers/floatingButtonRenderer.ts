@@ -231,6 +231,7 @@ export class FloatingButtonsRenderer {
                                 entry.propertyName = selected;
                                 entry.criterion = 'property';
                                 this.plugin.settings.spaceSectionPrefs[compositeKey] = entry;
+                                this.view.saveTreeScroll();
                                 void this.plugin.saveSettings().then(() => this.view.render())
                             },
                             placeholder: 'Property name...'

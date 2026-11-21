@@ -190,7 +190,7 @@ export class SectionRenderer {
 
             // Save new order
             this.saveSectionOrder(plugin, parentPath, sections);
-
+            view.saveTreeScroll();
             // Re‑render the whole tree
             view.renderContent();
         });
@@ -213,7 +213,7 @@ export class SectionRenderer {
         const order = sections.map(s => s.key);
         const orderKey = this.getOrderKey(plugin, parentPath);
         plugin.settings.sectionOrders[orderKey] = order;
-        void plugin.saveSettings();
+        void plugin.saveData(plugin.settings);
     }
 
     private static getOrderKey(plugin: PortalsPlugin, parentPath: string): string {

@@ -79,7 +79,7 @@ export class JournalRenderer {
             } else {
                 marks.splice(index, 1);
             }
-            await this.plugin.saveSettings();
+            await this.plugin.saveData(this.plugin.settings);
             this.updateCards(this.currentPeriod);
         } finally {
             this.isTogglingMark = false;
