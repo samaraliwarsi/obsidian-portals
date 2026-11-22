@@ -542,7 +542,9 @@ export class PortalsActions {
 
     static setCustomColorForFile(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, fileEl: HTMLElement): void {
         const currentColor = plugin.settings.customColors[file.path];
+        let saved = false;
         new ColorPickerModal(app, plugin, fileEl, (color) => {
+            saved = true;
             plugin.settings.customColors[file.path] = color;
             void plugin.saveData(plugin.settings).then(() => {
                 view.updateFileElement(file);
@@ -550,7 +552,7 @@ export class PortalsActions {
                 plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
             });
         }, () => {
-            view.updateFileElement(file);
+            if (!saved) view.updateFileElement(file);
         }, currentColor).open();
     }
 

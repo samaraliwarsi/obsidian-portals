@@ -121,6 +121,22 @@ function buildExplorerPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
             control: { type: 'toggle', key: 'showFileInfoBar' }
         },
         {
+            name: 'Show task progress',
+            desc: 'Show a task progress indicator under file previews. Hides when tasks completed. Requires "File Previews" turned on.',
+            visible: () => tab.plugin.settings.showFilePreview,
+            control: {
+                type: 'dropdown',
+                key: 'showTaskProgress',
+                defaultValue: 'off',
+                options: {
+                    'off': 'Off',
+                    'number': 'Numbers only',
+                    'ring': 'Progress ring',
+                    'bar': 'Progress bar'
+                }
+            }
+        },
+        {
             name: 'Enable sections',
             desc: 'Show sections within each folder or tag to organise sub items into separated sections.',
             control: { type: 'toggle', key: 'enableSections' }

@@ -104,6 +104,7 @@ export interface SpacesSettings {
     autoCollapseTree: boolean;
     dateDisplayFormat: 'YYYY-MM-DD' | 'DD-MM-YYYY' | 'MM-DD-YYYY';
     appearanceRules: AppearanceRule[];
+    showTaskProgress: 'off' | 'number' | 'ring' | 'bar';
 }
 
 export const DEFAULT_SETTINGS: SpacesSettings = {
@@ -203,6 +204,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     autoCollapseTree: false,
     dateDisplayFormat: 'YYYY-MM-DD',
     appearanceRules: [],
+    showTaskProgress: 'off',
 };
 
 export class SpacesSettingTab extends PluginSettingTab {
@@ -309,6 +311,13 @@ export class SpacesSettingTab extends PluginSettingTab {
         }
         if (key === 'reminderTabNotification') {
             this.plugin.updateReminderBadge();
+        }
+        if (key === 'showTaskProgress') {
+            this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                if (leaf.view instanceof PortalsView) {
+                    leaf.view.refreshFileAppearances();
+                }
+            })
         }
         const journalKeys = [
             'journalDateFormat',

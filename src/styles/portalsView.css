@@ -403,34 +403,6 @@ border-left: 1px dashed var(--background-modifier-border);
 background-color: var(--background-modifier-hover);
 }
 
-.file-item-has-preview {
-  flex-wrap: wrap;
-}
-
-.portals-file-preview {
-  flex-basis: 100%;
-  order: 1;
-  font-size: 0.75em;
-  color: var(--text-faint);
-  max-height: 3.9em;
-  overflow: hidden;
-  overflow-wrap: break-word;
-  white-space: normal;
-  line-height: 1.3em;
-}
-
-.portals-compact-tree .portals-file-preview {
-  max-height: 2.6em;
-  font-size: 0.7em;
-}
-.portals-file-info-bar.file-item-preview-hidden {
-  display: none;
-}
-
-.file-item-preview-hidden {
-  display: none;
-}
-
 .portals-file-action-icons {
   display: none;
   align-items: center;
@@ -480,37 +452,6 @@ background-color: var(--background-modifier-hover);
 }
 .portals-compact-tree .portals-file-action-icons i.ph {
     font-size: 0.85em;
-}
-
-.portals-file-preview.has-file-color {
-  color: color-mix(in srgb, var(--file-color) 30%, var(--text-faint) 70%);
-}
-
-.portals-file-info-bar {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    flex-basis: 100%;
-    order: 2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-bottom: 2px;
-    justify-content: right;
-}
-
-.portals-file-info-bar-text {
-  --file-color-blend: color-mix(in srgb, var(--file-color) 30%, var(--text-faint) 70%);
-  border: 1px solid rgba(128, 128, 128, 0.2);
-  padding: 0 4px;
-  border-radius: 6px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-  font-size: 0.7em;
-  color: var(--file-color-blend, var(--text-faint));
-}
-
-.portals-compact-tree .portals-file-info-bar-text {
-  font-size: 0.65em;
 }
 
 /* File and folder names – now using dedicated class */
@@ -772,8 +713,6 @@ body.portals-dragging {
     min-width: 0;
     scrollbar-width: auto;
 }
-
-
 
 .portals-split-tab {
   display: flex;

@@ -130,6 +130,7 @@ export class PortalsView extends ItemView {
     }
 
     public updateFileElement(file: TFile) {
+        console.debug('[Portals update] updateFileElement:', file.path, new Error().stack);
         const fileEl = this.fileElementMap.get(file.path);
         if (!fileEl || !fileEl.isConnected) return;
 
@@ -139,6 +140,7 @@ export class PortalsView extends ItemView {
             iconSpan.empty();
             this.plugin.renderIconString(iconSpan, appearance.icon, 'file');
         }
+        
         // update main element color
         if (appearance.color) {
             fileEl.classList.add('has-file-color');
@@ -150,49 +152,66 @@ export class PortalsView extends ItemView {
             fileEl.setCssProps({ '--file-color': '' });
         }
 
-        // update preview
-        const previewEl = fileEl.querySelector('.portals-file-preview');
-        if (previewEl instanceof HTMLElement) {
-            if (appearance.color) {
-                previewEl.addClass('has-file-color');
-                previewEl.setCssProps({ '--file-color': appearance.color });
-            } else {
-                previewEl.removeClass('has-file-color');
-                previewEl.setCssProps({ '--file-color': '' });
+        // ── Update colors for all preview layers ──
+        const previewLayers = [
+            '.portals-file-preview',
+            '.portals-task-preview',
+            '.portals-file-info-bar'
+        ];
+        
+        for (const selector of previewLayers) {
+            const layer = fileEl.querySelector(selector);
+            if (layer instanceof HTMLElement) {
+                if (appearance.color) {
+                    layer.addClass('has-file-color');
+                    layer.setCssProps({ '--file-color': appearance.color });
+                } else {
+                    layer.removeClass('has-file-color');
+                    layer.setCssProps({ '--file-color': '' });
+                }
             }
         }
 
-        // Update info bar color
-        const infoBar = fileEl.querySelector('.portals-file-info-bar');
-        if (infoBar instanceof HTMLElement) {
-            if (appearance.color) {
-                infoBar.addClass('has-file-color');
-                infoBar.setCssProps({ '--file-color': appearance.color });
-            } else {
-                infoBar.removeClass('has-file-color');
-                infoBar.setCssProps({ '--file-color': '' });
-            }
-        }
-
-        // 1. preview text + presence (create if missing, update if present, remove if emptied)
+        // 1. preview text + presence + task progress
         if (this.plugin.settings.showFilePreview && file.extension === 'md') {
-            const existing = fileEl.querySelector('.portals-file-preview');
             void this.app.vault.cachedRead(file).then(content => {
+                const existing = fileEl.querySelector('.portals-file-preview');
+                // ── Snippet Logic ──
                 const snippet = FileItemFactory.extractSnippet(content, 300);
                 if (snippet.length === 0) {
                     existing?.remove();
-                    return;
-                }
-                if (existing instanceof HTMLElement) {
-                    existing.setText(snippet);
                 } else {
-                    const previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
-                    previewEl.setText(snippet);
+                    if (existing instanceof HTMLElement) {
+                        existing.setText(snippet);
+                    } else {
+                        const previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
+                        previewEl.setText(snippet);
+                        const explicit = this.plugin.settings.previewExcludedFiles[file.path];
+                        const collapsed = this.previewsCollapsed;
+                        const showPreview = collapsed ? explicit === false : explicit !== true;
+                        if (!showPreview) previewEl.addClass('file-item-preview-hidden');
+                        fileEl.addClass('file-item-has-preview');
+                        
+                        // Apply color to newly created preview
+                        if (appearance.color) {
+                            previewEl.addClass('has-file-color');
+                            previewEl.setCssProps({ '--file-color': appearance.color });
+                        }
+                    }
+                }
+
+                // Task - this handles creating, updating, and removing the task preview live.
+                const taskEl = FileItemFactory.buildTaskPreview(fileEl, content, this.plugin);                
+                if (taskEl) {
+                    fileEl.addClass('file-item-has-preview');
                     const explicit = this.plugin.settings.previewExcludedFiles[file.path];
                     const collapsed = this.previewsCollapsed;
                     const showPreview = collapsed ? explicit === false : explicit !== true;
-                    if (!showPreview) previewEl.addClass('file-item-preview-hidden');
-                    fileEl.addClass('file-item-has-preview');
+                    if (!showPreview) taskEl.addClass('file-item-preview-hidden');
+                    if (appearance.color) {
+                        taskEl.addClass('has-file-color');
+                        taskEl.setCssProps({ '--file-color': appearance.color });
+                    }
                 }
             });
         }
@@ -204,6 +223,7 @@ export class PortalsView extends ItemView {
                 FileItemFactory.applyFileInfoBarTags(infoBar, file, this.app);
             }
         }
+        
         FileItemFactory.applyReminderIndicator(fileEl, file, this.app, this.plugin);
     }
 

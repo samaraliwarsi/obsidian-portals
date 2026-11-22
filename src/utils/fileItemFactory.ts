@@ -7,6 +7,7 @@ import { getFrontmatterTags } from './tagHelpers';
 import { getPluginInstance } from './Proxies/pluginInstance';
 import { formatDisplayDate, getDaysDifference, parseLocalDate } from './dateHelpers';
 import { Frontmatter } from '../types';
+import { parseTasks } from './taskParser';
 
 
 export class FileItemFactory {
@@ -54,10 +55,6 @@ export class FileItemFactory {
 
             const explicit = plugin.settings.previewExcludedFiles[file.path];
             const collapsed = view.previewsCollapsed;
-
-            // Explicit visibility:
-            // - Normal Mode: show unless the user explicitly hid this file.
-            // - Collapse Mode: hide unless uer wants this file shown. 
             const showPreview = collapsed ? explicit === false : explicit !== true;
 
             const toggleBtn = fileEl.createSpan({ cls: 'portals-file-action-icons' });
@@ -65,6 +62,7 @@ export class FileItemFactory {
 
             let previewEl: HTMLDivElement | null = null;
             let infoBar: HTMLDivElement | null = null;
+            let taskEl: HTMLDivElement | null = null;
 
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -75,6 +73,9 @@ export class FileItemFactory {
                 const noShown = !newExcludedState;
                 if (previewEl) {
                     previewEl.classList.toggle('file-item-preview-hidden', !noShown);
+                }
+                if (taskEl) {
+                    taskEl.classList.toggle('file-item-preview-hidden', !noShown);
                 }
                 if (infoBar) {
                     infoBar.classList.toggle('file-item-preview-hidden', !noShown);
@@ -87,40 +88,55 @@ export class FileItemFactory {
                 if (snippet.length > 0) {
                     previewEl = fileEl.createDiv({ cls: 'portals-file-preview' });
                     previewEl.setText(snippet);
+                }
 
-                    if (plugin.settings.showFileInfoBar) {
-                        infoBar = fileEl.createDiv({ cls: 'portals-file-info-bar' });
-                        const portalType = plugin.settings.selectedSpace?.type;
-                        if (portalType === 'folder') {
-                           FileItemFactory.applyFileInfoBarTags(infoBar, file, app);         
-                        } else if (portalType === 'tag') {
-                            const parentFolder = file.parent;
-                            if (parentFolder && parentFolder.path !== '/') {
-                                const folderName = parentFolder.name;
-                                infoBar.createSpan({ cls: 'portals-file-info-bar-text', text: 'in ' + folderName });
-                            }
+                taskEl = FileItemFactory.buildTaskPreview(fileEl, content, plugin);
+
+                if (plugin.settings.showFileInfoBar) {
+                    infoBar = fileEl.createDiv({ cls: 'portals-file-info-bar' });
+                    const portalType = plugin.settings.selectedSpace?.type;
+                    if (portalType === 'folder') {
+                        FileItemFactory.applyFileInfoBarTags(infoBar, file, app);         
+                    } else if (portalType === 'tag') {
+                        const parentFolder = file.parent;
+                        if (parentFolder && parentFolder.path !== '/') {
+                            const folderName = parentFolder.name;
+                            infoBar.createSpan({ cls: 'portals-file-info-bar-text', text: 'in ' + folderName });
                         }
                     }
+                }
 
-                    if (!showPreview) {
-                        previewEl.addClass('file-item-preview-hidden');
-                        if (infoBar) infoBar.addClass('file-item-preview-hidden');
-                    }
+                if (!showPreview) {
+                    if (previewEl) previewEl.addClass('file-item-preview-hidden');
+                    if (infoBar) infoBar.addClass('file-item-preview-hidden');
+                    if (taskEl) taskEl.addClass('file-item-preview-hidden');
+                }
 
-                    if (savedColor) {
+                if (savedColor) {
+                    if (previewEl) {
                         previewEl.addClass('has-file-color');
                         previewEl.setCssProps({ '--file-color': savedColor });
-                        if (infoBar) {
-                            infoBar.addClass('has-file-color');
-                            infoBar.setCssProps({ '--file-color': savedColor });
-                        }
-                    } else {
+                    }
+                    if (taskEl) {
+                        taskEl.addClass('has-file-color');
+                        taskEl.setCssProps({ '--file-color': savedColor });
+                    }
+                    if (infoBar) {
+                        infoBar.addClass('has-file-color');
+                        infoBar.setCssProps({ '--file-color': savedColor });
+                    }
+                } else {
+                    if (previewEl) {
                         previewEl.removeClass('has-file-color');
                         previewEl.setCssProps({ '--file-color': '' });
-                        if (infoBar) {
-                            infoBar.removeClass('has-file-color');
-                            infoBar.setCssProps({ '--file-color': '' });
-                        }
+                    }
+                    if (taskEl) {
+                        taskEl.removeClass('has-file-color');
+                        taskEl.setCssProps({ '--file-color': '' });
+                    }
+                    if (infoBar) {
+                        infoBar.removeClass('has-file-color');
+                        infoBar.setCssProps({ '--file-color': '' });
                     }
                 }
             }).catch(() => {}); 
@@ -322,5 +338,76 @@ export class FileItemFactory {
         } catch {
             return null;
         }
+    }
+
+    public static buildTaskPreview(fileEl: HTMLElement, content: string, plugin: PortalsPlugin): HTMLDivElement | null {
+        // buildTaskPreview is called from BOTH createFileItem and updateFileElement.
+        // These can race when refreshSidePortal fires createFileItem while an
+        // updateFileElement is still in flight. Making this function idempotent
+        // (find existing, remove duplicates, update or create) prevents duplicate
+        // taskEls without needing coordination between the two callers.
+        
+         // Find ALL existing task previews to clean up any race-condition duplicates
+        const existingTasks = fileEl.querySelectorAll('.portals-task-preview');
+        const taskEl = existingTasks.length > 0 ? (existingTasks[0] as HTMLDivElement) : null;
+        
+        // Remove duplicates if they exist
+        for (let i = 1; i < existingTasks.length; i++) {
+            existingTasks[i]?.remove();
+        }
+
+        // check if the feature is disabled or tasks are completed
+        if (plugin.settings.showTaskProgress === 'off') {
+            if (taskEl) taskEl.remove();
+            return null;
+        }
+
+        const stats = parseTasks(content);
+
+        // If no tasks or all complete, remove the element and return
+        if (stats.total === 0 || stats.isComplete) {
+            if (taskEl) taskEl.remove();
+            return null;
+        }
+
+        // Create or clear
+        let finalTaskEl: HTMLDivElement;
+        if (!taskEl) {
+            finalTaskEl = fileEl.createDiv({ cls: 'portals-task-preview' });
+        } else {
+            finalTaskEl = taskEl;
+            finalTaskEl.empty();
+        }
+
+        const percent = Math.round((stats.completed / stats.total) * 100);
+        if (plugin.settings.showTaskProgress === 'number') {
+            finalTaskEl.createSpan({ text: `${stats.completed}/${stats.total}`, cls: 'portals-task-text' });
+        } 
+        else if (plugin.settings.showTaskProgress === 'ring') {
+            const svg = finalTaskEl.createSvg('svg', { attr: { width: '16', height: '16', viewBox: '0 0 16 16' } });
+            svg.addClass('portals-task-ring');
+            
+            svg.createSvg('circle', { attr: { cx: '8', cy: '8', r: '6', stroke: 'var(--background-modifier-border)', 'stroke-width': '2', fill: 'none' } });
+            
+            svg.createSvg('circle', { 
+                attr: { 
+                    cx: '8', cy: '8', r: '6', 
+                    stroke: 'var(--file-color, var(--text-normal))', 
+                    'stroke-width': '2', 
+                    fill: 'none',
+                    'stroke-dasharray': '37.7',
+                    'stroke-dashoffset': `${37.7 - (37.7 * percent / 100)}`,
+                    'transform': 'rotate(-90 8 8)'
+                } 
+            });
+            finalTaskEl.createSpan({ text: `${stats.completed}/${stats.total}`, cls: 'portals-task-text' });
+        } 
+        else if (plugin.settings.showTaskProgress === 'bar') {
+            const barContainer = finalTaskEl.createDiv({ cls: 'portals-task-bar-container' });
+            const barFill = barContainer.createDiv({ cls: 'portals-task-bar-fill' });
+            barFill.setCssStyles({ width: `${percent}%` });
+            finalTaskEl.createSpan({ text: `${stats.completed}/${stats.total}`, cls: 'portals-task-text' });
+        }
+        return finalTaskEl;
     }
 }
