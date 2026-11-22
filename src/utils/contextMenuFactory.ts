@@ -289,9 +289,10 @@ export class ContextMenuFactory {
             .setIcon('image')
             .onClick(() => {
                 new IconPickerModal(view.app, view.plugin.phosphorProvider, view.plugin.lucideProvider, view.plugin, (iconKey) => {
-                    view.saveTreeScroll();
-                    view.plugin.settings.customIcons[compositeKey] = iconKey
-                    void view.plugin.saveSettings().then(() => view.render());
+                    view.plugin.settings.customIcons[compositeKey] = iconKey;
+                    void view.plugin.saveSettings().then(() => {
+                        view.refreshTabBarVisuals();
+                    });
                 }).open();
             }));
         if (view.plugin.settings.customIcons[compositeKey]) {
@@ -300,7 +301,9 @@ export class ContextMenuFactory {
                 .setIcon('trash')
                 .onClick(() => {
                     delete view.plugin.settings.customIcons[compositeKey];
-                    void view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => {
+                        view.refreshTabBarVisuals();
+                    });
                 })
             );
         }
@@ -316,7 +319,9 @@ export class ContextMenuFactory {
                     new ColorPickerModal(view.app, view.plugin, dummyEl, (color: string) => {
                         view.saveTreeScroll();
                         space.color = color;
-                        void view.plugin.saveSettings().then(() => view.render());
+                        void view.plugin.saveSettings().then(() => {
+                            view.refreshTabBarVisuals();
+                        });
                     }, () => {
                         view.render();
                     }, space.color).open();
@@ -400,7 +405,9 @@ export class ContextMenuFactory {
             .onClick(() => {
                 new IconPickerModal(view.app, view.plugin.phosphorProvider, view.plugin.lucideProvider, view.plugin, (iconKey) => {
                     view.plugin.settings.customIcons[stackKey] = iconKey;
-                    void view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => {
+                        view.refreshTabBarVisuals();
+                    });
                 }).open();
             }));
         if (view.plugin.settings.customIcons[stackKey]) {
@@ -409,7 +416,9 @@ export class ContextMenuFactory {
                 .setIcon('trash')
                 .onClick(() => {
                     delete view.plugin.settings.customIcons[stackKey];
-                    void view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => {
+                        view.refreshTabBarVisuals();
+                    });
                 }));
         }
         
@@ -420,7 +429,9 @@ export class ContextMenuFactory {
                 const dummyEl = createDiv();
                 new ColorPickerModal(view.app, view.plugin,  dummyEl, (color: string) => {
                     stack.color = color;
-                    void view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => {
+                        view.refreshTabBarVisuals();
+                    });
                 }, () => { 
                     view.render();
                 }, stack.color).open();
@@ -432,7 +443,9 @@ export class ContextMenuFactory {
                 .setIcon('undo')
                 .onClick(() => {
                     stack.color = 'transparent';
-                    void view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings().then(() => {
+                        view.refreshTabBarVisuals();
+                    });
                 }));
         }
 

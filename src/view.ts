@@ -72,6 +72,54 @@ export class PortalsView extends ItemView {
         return `tag:${mainTag}/group:${groupTag}`;
     }
 
+    public refreshTabBarVisuals() {
+        const tabBar = this.containerEl.querySelector('.portals-tab-bar');
+        if (!tabBar) return;
+
+        tabBar.querySelectorAll<HTMLElement>('.portals-tab:not(.portals-stack-header-tab)').forEach(tabEl => {
+            const type = tabEl.dataset.type as 'folder' | 'tag';
+            const path = tabEl.dataset.path;
+            if (!type || !path) return;
+
+            const space = this.plugin.settings.spaces.find(s => s.type === type && s.path === path);
+            if (!space) return;
+
+            const compositeKey = `${type}:${path}`;
+
+            const iconSpan = tabEl.querySelector('.portals-tab-icon');
+            if (iconSpan instanceof HTMLElement) {
+                iconSpan.empty();
+                const defaultIcon = space.icon || (type === 'folder' ? 'folder-simple' : 'tag');
+                this.plugin.renderCustomIcon(iconSpan, compositeKey, defaultIcon);
+            }
+
+            if (this.plugin.settings.tabColorEnabled && space.color && space.color !== 'transparent') {
+                if (tabEl.classList.contains('is-active')) {
+                    tabEl.setCssProps({ '--tab-active-color': space.color });
+                } else {
+                    tabEl.setCssProps({ '--tab-active-color': '' });
+                }
+            } else {
+                tabEl.setCssProps({ '--tab-active-color': '' });
+            }
+        });
+
+        // Update stack headers
+        tabBar.querySelectorAll<HTMLElement>('.portals-stack-header-tab').forEach(header => {
+            const stackId = header.dataset.stackId;
+            if (!stackId) return;
+            const stack = this.plugin.settings.portalStacks.find(s => s.id === stackId);
+            if (!stack) return;
+
+            const stackKey = `stack:${stack.id}`;
+            const iconSpan = header.querySelector('.portals-tab-icon');
+            if (iconSpan instanceof HTMLElement) {
+                iconSpan.empty();
+                this.plugin.renderCustomIcon(iconSpan, stackKey, 'stack');
+            }
+        });
+    }
+
     public refreshFileAppearances() {
         this.fileElementMap.forEach((_el, path) => {
             const file = this.app.vault.getAbstractFileByPath(path);
@@ -91,7 +139,7 @@ export class PortalsView extends ItemView {
             iconSpan.empty();
             this.plugin.renderIconString(iconSpan, appearance.icon, 'file');
         }
-
+        // update main element color
         if (appearance.color) {
             fileEl.classList.add('has-file-color');
             fileEl.setCssProps({ '--file-color': appearance.color });
@@ -100,6 +148,30 @@ export class PortalsView extends ItemView {
         } else {
             fileEl.classList.remove('has-file-color');
             fileEl.setCssProps({ '--file-color': '' });
+        }
+
+        // update preview
+        const previewEl = fileEl.querySelector('.portals-file-preview');
+        if (previewEl instanceof HTMLElement) {
+            if (appearance.color) {
+                previewEl.addClass('has-file-color');
+                previewEl.setCssProps({ '--file-color': appearance.color });
+            } else {
+                previewEl.removeClass('has-file-color');
+                previewEl.setCssProps({ '--file-color': '' });
+            }
+        }
+
+        // Update info bar color
+        const infoBar = fileEl.querySelector('.portals-file-info-bar');
+        if (infoBar instanceof HTMLElement) {
+            if (appearance.color) {
+                infoBar.addClass('has-file-color');
+                infoBar.setCssProps({ '--file-color': appearance.color });
+            } else {
+                infoBar.removeClass('has-file-color');
+                infoBar.setCssProps({ '--file-color': '' });
+            }
         }
 
         // 1. preview text + presence (create if missing, update if present, remove if emptied)

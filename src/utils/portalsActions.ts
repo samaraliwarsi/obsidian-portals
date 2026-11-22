@@ -423,46 +423,58 @@ export class PortalsActions {
 
     static async setCustomIcon(app: App, plugin: PortalsPlugin, view: PortalsView, path: string, displayName: string): Promise<void> {
         new IconPickerModal(app, plugin.phosphorProvider, plugin.lucideProvider, plugin, (iconKey: string) => {
-            view.saveTreeScroll();
             plugin.settings.customIcons[path] = iconKey;
             void plugin.saveData(plugin.settings).then(() => {
-                view.renderContent();
+                const item = app.vault.getAbstractFileByPath(path);
+                if (item instanceof TFile) {
+                    view.updateFileElement(item);
+                    plugin.refreshSidePortal(plugin.settings.activeSplitTab);
+                    plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
+                } else {
+                    view.renderContent();
+                }
                 new Notice(`Icon set for ${displayName}`);
             });
         }).open();
     }
 
     static async removeCustomIcon(_app: App, plugin: PortalsPlugin, view: PortalsView, path: string): Promise<void> {
-        view.saveTreeScroll();
         delete plugin.settings.customIcons[path];
         await plugin.saveData(plugin.settings);
-        view.renderContent();
+        const item = _app.vault.getAbstractFileByPath(path);
+        if (item instanceof TFile) {
+            view.updateFileElement(item);
+            plugin.refreshSidePortal(plugin.settings.activeSplitTab);
+            plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
+        } else {
+            view.renderContent(); 
+        }
         new Notice('Custom icon removed');
     }
 
     static async setCustomIconForTagGroup(app: App, plugin: PortalsPlugin, view: PortalsView, groupTag: string, groupKey: string): Promise<void> {
         const displayName = `#${groupTag}`;
         new IconPickerModal(app, plugin.phosphorProvider, plugin.lucideProvider, plugin, (iconKey: string) => {
-            view.saveTreeScroll();
             plugin.settings.customIcons[groupKey] = iconKey;
             void plugin.saveData(plugin.settings).then(() => {
                 view.renderContent();
+                plugin.refreshAltRightPanelContent(); // maybe this is only needed in the files (remove)
                 new Notice(`Icon set for group ${displayName}`);
             });
         }).open();
     }
 
     static async removeCustomIconForTagGroup(_app: App, plugin: PortalsPlugin, view: PortalsView, groupKey: string): Promise<void> {
-        view.saveTreeScroll();
         delete plugin.settings.customIcons[groupKey];
         await plugin.saveData(plugin.settings);
         view.renderContent();
+        plugin.refreshAltRightPanelContent(); // maybe this is only needed in the files (remove)
         new Notice('Custom icon removed');
     }
 
     static setCustomColor(app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder, summaryEl: HTMLElement): void {
         const currentColor = plugin.settings.customColors[folder.path];
-        view.saveTreeScroll();
+
         new ColorPickerModal(app, plugin, summaryEl, (color) => {
             plugin.settings.customColors[folder.path] = color;
             void plugin.saveData(plugin.settings).then(() => view.renderContent());
@@ -473,37 +485,41 @@ export class PortalsActions {
 
     static setCustomColorForFile(app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile, fileEl: HTMLElement): void {
         const currentColor = plugin.settings.customColors[file.path];
-        view.saveTreeScroll();
         new ColorPickerModal(app, plugin, fileEl, (color) => {
             plugin.settings.customColors[file.path] = color;
-            void plugin.saveData(plugin.settings).then(() => view.renderContent());
+            void plugin.saveData(plugin.settings).then(() => {
+                view.updateFileElement(file);
+                plugin.refreshSidePortal(plugin.settings.activeSplitTab);
+                plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
+            });
         }, () => {
-            view.renderContent();
+            view.updateFileElement(file);
         }, currentColor).open();
     }
 
     static resetCustomColorForFile(_app: App, plugin: PortalsPlugin, view: PortalsView, file: TFile): void {
-        view.saveTreeScroll();
         delete plugin.settings.customColors[file.path];
-        void plugin.saveData(plugin.settings).then(() => view.renderContent());
+        void plugin.saveData(plugin.settings).then(() => {
+            view.updateFileElement(file);
+            plugin.refreshSidePortal(plugin.settings.activeSplitTab);
+            plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
+        });
         new Notice('File color reset');
     }
 
     static resetCustomColor(_app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): void {
-        view.saveTreeScroll();
         delete plugin.settings.customColors[folder.path];
         void plugin.saveData(plugin.settings).then(() => view.renderContent());
     }
 
     static setTagColor(app: App, plugin: PortalsPlugin, view: PortalsView, key: string, targetElement: HTMLElement): void {
         const currentColor = plugin.settings.tagColors[key];
-        view.saveTreeScroll();
         new ColorPickerModal(app, plugin, targetElement, (color) => {
             plugin.settings.tagColors[key] = color;
             void plugin.saveData(plugin.settings).then(() => view.renderContent());
-        }, () => {
-            view.renderContent();
-        }, currentColor).open();
+                }, () => {
+                view.renderContent();
+            }, currentColor).open();    
     }
 
     static resetTagColor(_app: App, plugin: PortalsPlugin, view: PortalsView, key: string, _targetElement: HTMLElement): void {
