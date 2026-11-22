@@ -678,7 +678,7 @@ function buildUtilitiesSection(_tab: SpacesSettingTab): SettingGroupItem[] {
             render: (setting) => {
                         const controlEl = setting.controlEl;
                         controlEl.empty();
-                        const btn = controlEl.createEl('button', { text: 'Rules', cls: 'mod-cta' });
+                        const btn = controlEl.createEl('button', { text: 'Rules' });
                         btn.addEventListener('click', () => {
                             const leaf = _tab.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
                             const view = leaf?.view instanceof PortalsView ? leaf.view : null;

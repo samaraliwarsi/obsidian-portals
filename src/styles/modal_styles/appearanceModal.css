@@ -132,7 +132,7 @@ button.portals-reset-btn.portals-ar-del-btn:hover {
 
 /* Color Swatch inside the button */
 .portals-appearance-rules-modal .cm-color-swatch {
-    height: 20px;
+    height: 24px;
     aspect-ratio: 1/1;
     border-radius: 8px;
     background: var(--swatch-bg, transparent);
