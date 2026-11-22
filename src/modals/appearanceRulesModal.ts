@@ -175,7 +175,6 @@ export class AppearanceRulesModal extends Modal {
                         rule.property = val;
                         propBtn.setText(val);
                     },
-                    parent: this.modalEl
                 });
             });
 
@@ -228,7 +227,6 @@ export class AppearanceRulesModal extends Modal {
                         rule.value = val;
                         valBtn.setText(val);
                     },
-                    parent: this.modalEl
                 });
             });
 
