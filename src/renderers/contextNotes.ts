@@ -668,7 +668,7 @@ export class ContextNotesRenderer {
                 // Use Obsidian's getResourcePath to resolve the correct vault URI
                 img.src = this.app.vault.getResourcePath(targetFile);
                 img.alt = targetFile.basename;
-                img.style.maxWidth = '100%';
+                img.setCssStyles({ maxWidth: '100%' });
                 embed.replaceWith(imgContainer);
                 continue;
             }

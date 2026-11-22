@@ -94,14 +94,11 @@
 button.portals-reset-btn.portals-colpop-clear {
     flex: 1;
     display: flex;
-    cursor: pointer;
-    color: var(--text-muted);
     font-size: var(--font-ui-small);
     background: var(--background-primary-alt);
     border-radius: 8px;
     cursor: pointer;
     color: var(--text-muted);
-    padding: 1px 4px;
     align-items: center;
     justify-content: center;
     height: var(--swatch-size);
