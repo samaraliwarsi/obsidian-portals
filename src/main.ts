@@ -778,7 +778,7 @@ export default class PortalsPlugin extends Plugin {
         let ruleColor: string | undefined;
         
 
-        const fm = this.app.metadataCache.getFileCache(file)?.frontmatter; 
+        const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter; 
         if (fm && this.settings.appearanceRules) {
             for (const rule of this.settings.appearanceRules) {
                 const rawVal = fm[rule.property]

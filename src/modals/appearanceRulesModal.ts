@@ -295,7 +295,7 @@ export class AppearanceRulesModal extends Modal {
     private getValuesForProperty(prop: string): string[] {
         const vals = new Set<string>();
         for (const f of this.app.vault.getMarkdownFiles()) {
-            const fm = this.app.metadataCache.getFileCache(f)?.frontmatter as Frontmatter | undefined;
+            const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(f)?.frontmatter;
             const raw = fm?.[prop];
             if (raw !== undefined && raw !== null) {
                 if (Array.isArray(raw)) {
