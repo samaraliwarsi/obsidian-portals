@@ -112,6 +112,14 @@ export class RemindersRenderer {
             this.plugin.renderCustomIcon(iconSpan, item.file.path, 'calendar');
             
             fileEl.createSpan({ text: this.view.getDisplayName(item.file), cls: 'portals-item-name' });
+
+            const savedColor = this.plugin.settings.customColors[item.file.path];
+            if (savedColor) {
+                fileEl.classList.add('has-file-color');
+                fileEl.setCssProps({ '--file-color': savedColor });
+                const icon = fileEl.querySelector('.file-icon i');
+                if (icon) icon.addClass('has-file-color');
+            }
             
             // Format date as YYYY-MM-DD
             const dateStr = formatDisplayDate(item.date, this.plugin.settings.dateDisplayFormat);

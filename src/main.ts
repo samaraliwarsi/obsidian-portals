@@ -229,9 +229,17 @@ export default class PortalsPlugin extends Plugin {
                 } else {
                     this.reminderDates.delete(file.path);
                 }
+                const lSidePortal = this.settings.activeSplitTab;
+                const rSidePortal = this.settings.alternateActiveTab;
 
-                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                // Refresh the Reminders panel if it's open on either side
+                if (lSidePortal === 'reminders' || rSidePortal === 'reminders') {
                     this.refreshSidePortal('reminders');
+                }
+
+                // Refresh the Recent panel if it's open on either side
+                if (lSidePortal === 'recent' || rSidePortal === 'recent') {
+                    this.refreshSidePortal('recent');
                 }
                 this.updateReminderBadge();
             }, 300);

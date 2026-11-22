@@ -2,6 +2,7 @@ import { App, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
+import { FileItemFactory } from '../utils/fileItemFactory';
 
 
 export class RecentFilesRenderer {
@@ -63,6 +64,12 @@ export class RecentFilesRenderer {
                     extSpan.addClass('is-open');
                 }
             }
+            const reminderIndicator = this.plugin.settings.reminderTreeIndicator;
+            if (reminderIndicator === 'dynamic' || reminderIndicator === 'simple') {
+                FileItemFactory.applyReminderIndicator(fileEl, file, this.app, this.plugin);
+            }
+            
+
             // custom color 
             const savedColor = this.plugin.settings.customColors[file.path];
             const iconEl = fileEl.querySelector('.file-icon i') as HTMLElement;
