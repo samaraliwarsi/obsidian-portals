@@ -9926,7 +9926,6 @@ input.cm-opacity-slider {
     max-height: var(--dialog-max-height);
     display: flex;
     flex-direction: column;
-    max-height: 60vh;
 }
 
 .portals-ar-modal .portals-ar-modal-title {
@@ -10015,9 +10014,7 @@ button.portals-reset-btn.portals-ar-prop-btn {
     cursor: grabbing;
 }
 
-
 .portals-ar-modal .portals-ar-reorder-handle:hover {
-    color: var(--text-error);
     color: var(--interactive-accent);
 }
 
@@ -10162,14 +10159,11 @@ button.portals-reset-btn.portals-ar-color-btn {
 button.portals-reset-btn.portals-colpop-clear {
     flex: 1;
     display: flex;
-    cursor: pointer;
-    color: var(--text-muted);
     font-size: var(--font-ui-small);
     background: var(--background-primary-alt);
     border-radius: 8px;
     cursor: pointer;
     color: var(--text-muted);
-    padding: 1px 4px;
     align-items: center;
     justify-content: center;
     height: var(--swatch-size);

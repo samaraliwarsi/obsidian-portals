@@ -277,7 +277,7 @@ export class IconPickerPopover {
         };
         
         // 10ms delay prevents the CURRENT click from instantly closing the popover
-        setTimeout(() => {
+        window.setTimeout(() => {
             if (!this.destroyed) {
                 activeDocument.addEventListener('mousedown', this.clickOutsideHandler, { capture: true });
             }

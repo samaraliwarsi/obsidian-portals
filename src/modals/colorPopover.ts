@@ -224,7 +224,7 @@ export class ColorPickerPopover {
         };
         
         // 10ms delay prevents the CURRENT click from instantly closing the popover
-        setTimeout(() => {
+        window.setTimeout(() => {
             if (!this.destroyed) {
                 activeDocument.addEventListener('mousedown', this.clickOutsideHandler, { capture: true });
             }
@@ -257,7 +257,6 @@ export class ColorPickerPopover {
     public destroy() {
         if (this.destroyed) return;
         this.destroyed = true;
-        console.log(`[Popover Log] destroy() called. Stack trace:`, new Error().stack); // This will tell us EXACTLY who closed it
         
         activeDocument.removeEventListener('mousedown', this.clickOutsideHandler, { capture: true });
         activeDocument.removeEventListener('keydown', this.keyHandler);

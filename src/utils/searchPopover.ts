@@ -125,7 +125,7 @@ export class SearchPopover {
                 this.destroy();
             }
         };
-        setTimeout(() => {
+        window.setTimeout(() => {
             if (!this.destroyed) {
                 activeDocument.addEventListener('mousedown', this.clickOutsideHandler, { capture: true });
             }

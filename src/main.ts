@@ -548,7 +548,7 @@ export default class PortalsPlugin extends Plugin {
             const library = iconKey.substring(0, colonIndex);
             const iconName = iconKey.substring(colonIndex + 1);
             if (library === 'phosphor' || library === 'lucide' || library === 'emoji') {
-                const provider = this.getProviderForLibrary(library as 'phosphor' | 'lucide' | 'emoji');
+                const provider = this.getProviderForLibrary(library);
                 provider.renderIcon(element, iconName);
                 return;
             }

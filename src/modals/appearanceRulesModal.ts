@@ -1,6 +1,6 @@
 import { App, Menu, Modal, Notice, Platform } from 'obsidian';
 import PortalsPlugin from '../main';
-import { AppearanceRule } from '../types';
+import { AppearanceRule, Frontmatter } from '../types';
 import Sortable from 'sortablejs';
 import { SearchPopover } from '../utils/searchPopover';
 import { IconPickerPopover } from './iconPickerPopover';
@@ -22,7 +22,7 @@ export class AppearanceRulesModal extends Modal {
         this.plugin = plugin;
         this.view = view || null;
         // Clone to avoid mutating settings until Save is clicked
-        this.rules = JSON.parse(JSON.stringify(plugin.settings.appearanceRules || []));
+       this.rules = JSON.parse(JSON.stringify(plugin.settings.appearanceRules || [])) as AppearanceRule[];
     }
 
     private closeActivePopover() {
@@ -247,7 +247,6 @@ export class AppearanceRulesModal extends Modal {
                         this.plugin.renderIconString(iconBtn, iconKey, 'file');
                     }
                 );
-                console.log('Popover created:', this.activePopover);
             });
 
             // 5. Color Button
@@ -296,7 +295,8 @@ export class AppearanceRulesModal extends Modal {
     private getValuesForProperty(prop: string): string[] {
         const vals = new Set<string>();
         for (const f of this.app.vault.getMarkdownFiles()) {
-            const raw = this.app.metadataCache.getFileCache(f)?.frontmatter?.[prop];
+            const fm = this.app.metadataCache.getFileCache(f)?.frontmatter as Frontmatter | undefined;
+            const raw = fm?.[prop];
             if (raw !== undefined && raw !== null) {
                 if (Array.isArray(raw)) {
                     raw.forEach(x => vals.add(String(x)));
