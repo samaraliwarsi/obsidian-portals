@@ -409,6 +409,7 @@ export class ContextNotesRenderer {
             await this.processEmbeds(noteContainer, component, targetFile.path);
             if (this._currentRenderToken !== token) return;
 
+            // Link clicks 
             noteContainer.addEventListener('click', (e) => {
                 const target = e.target as HTMLElement;
                 const link = target.closest('a');
@@ -417,18 +418,17 @@ export class ContextNotesRenderer {
                 if (href && !href.startsWith('http://') && !href.startsWith('https://')) {
                     e.preventDefault();
                     e.stopPropagation();
-                    const resolved = this.app.metadataCache.getFirstLinkpathDest(href, targetFile.path);
-                    if (resolved instanceof TFile) {
-                        if (e.metaKey || e.ctrlKey) {
-                            void this.app.workspace.getLeaf('tab').openFile(resolved);
-                        } else if (e.shiftKey) {
-                            void this.app.workspace.getLeaf('split').openFile(resolved);
-                        } else {
-                            void this.app.workspace.getLeaf().openFile(resolved);
-                        }
-                    }
+
+                    // determine where to open the link
+                    let newLeaf: 'tab' | 'split' | false = false;
+                    if (e.metaKey || e.ctrlKey) newLeaf = 'tab';
+                    else if (e.shiftKey) newLeaf = 'split';
+
+                    // openLinkText properly handles subpaths (#headings) and blocks
+                    void this.app.workspace.openLinkText(href, targetFile.path, newLeaf);
                 }
             });
+            // link middle click
             noteContainer.addEventListener('mouseup', (e: MouseEvent) => {
                 const target = e.target as HTMLElement;
                 const link = target.closest('a');
@@ -436,26 +436,22 @@ export class ContextNotesRenderer {
                 const href = link.getAttribute('href') || link.getAttribute('data-href');
                 if (href && !href.startsWith('http://') && !href.startsWith('https://')) {                    
                     if (e.button === 1) {
-                        const resolved = this.app.metadataCache.getFirstLinkpathDest(href, targetFile.path);
-                        if (resolved instanceof TFile) {
-                            e.preventDefault();
-                            e.stopImmediatePropagation();
-                            void this.app.workspace.getLeaf('tab').openFile(resolved);
-                        }
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        void this.app.workspace.openLinkText(href, targetFile.path, 'tab');
                     }
                 }
             });
-
+            // note body mclick
             noteContainer.addEventListener('click', (e) => {
                 if ((e.target as HTMLElement).closest('a')) return;
-                if (e.metaKey || e.ctrlKey) {
-                    void this.app.workspace.getLeaf('tab').openFile(targetFile);
-                } else if (e.shiftKey) {
-                    void this.app.workspace.getLeaf('split').openFile(targetFile);
-                } else {
-                    void this.app.workspace.getLeaf().openFile(targetFile);
-                }
+                let newLeaf: 'tab' | 'split' | false = false;
+                if (e.metaKey || e.ctrlKey) newLeaf = 'tab';
+                else if (e.shiftKey) newLeaf = 'split';
+                else newLeaf = 'tab';
+                void this.app.workspace.getLeaf(newLeaf).openFile(targetFile);
             });
+            // note body middle click
             noteContainer.addEventListener('mouseup', (e: MouseEvent) => {
                 if (e.button === 1) {
                     e.stopPropagation();
@@ -580,6 +576,49 @@ export class ContextNotesRenderer {
 
     // =============================EMBED PROCESSING=====================================
 
+    private extractHeadingSection(content: string, headingPath: string): string {
+        const parts = headingPath.split('#');
+        const targetHeading = parts[parts.length - 1]?.trim();
+        
+        const lines = content.split('\n');
+        
+        const startIndex = lines.findIndex(line => {
+            const match = line.match(/^(#{1,6})\s+(.*)$/);
+            if (!match || !match[2]) return false;
+            const headingText = match[2].replace(/#+$/, '').trim();
+            return headingText === targetHeading;
+        });
+
+        if (startIndex === -1) {
+            return content; // Fallback to full content if heading not found
+        }
+
+        const startLine = lines[startIndex];
+        if (!startLine) return content;
+
+        const startMatch = startLine.match(/^(#{1,6})/);
+        if (!startMatch || !startMatch[1]) return content;
+        
+        const startLevel = startMatch[1].length;
+
+        let endIndex = lines.length;
+        for (let i = startIndex + 1; i < lines.length; i++) {
+            const currentLine = lines[i];
+            if (!currentLine) continue;
+
+            const nextMatch = currentLine.match(/^(#{1,6})\s/);
+            if (nextMatch && nextMatch[1]) {
+                const nextLevel = nextMatch[1].length;
+                if (nextLevel <= startLevel) {
+                    endIndex = i;
+                    break;
+                }
+            }
+        }
+
+        return lines.slice(startIndex, endIndex).join('\n');
+    }
+
     private async processEmbeds(container: HTMLElement, component: Component, sourcePath: string, depth = 0): Promise<void> { 
         if (depth > 5) return;
 
@@ -589,32 +628,70 @@ export class ContextNotesRenderer {
             const src = embed.getAttribute('src') || embed.getAttribute('data-src');
             if (!src) continue;
 
-            const cleanSrc = src.split('#')[0];
+            if (src.startsWith('http://') || src.startsWith('https://')) {
+                const webContainer = container.createDiv({ cls: 'portals-embed-link' });
+                const link = webContainer.createEl('a', {
+                    href: src,
+                    attr: {
+                        target: '_blank',
+                        rel: 'noopener noreferrer'
+                    }
+                });
+                let displayUrl = src;
+                try {
+                    const urlObj = new URL(src);
+                    displayUrl = urlObj.hostname.replace(/^www\./, '') + (urlObj.pathname !== '/' ? urlObj.pathname : '');
+                } catch { /* Fallback */ }
+                
+                link.createSpan({ text: displayUrl });
+                embed.replaceWith(webContainer);
+                continue;
+            }
+
+            const [cleanSrc, ...subpathParts] = src.split('#');
+            const subpath = subpathParts.join('#');
             if (!cleanSrc) continue;
 
             const targetFile = this.app.metadataCache.getFirstLinkpathDest(cleanSrc, sourcePath);
             if (!(targetFile instanceof TFile)) continue;
 
+            // ── Handle Images ──
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(targetFile.extension)) {
+                const imgContainer = container.createDiv({ cls: 'portals-image-embed' });
+                const img = imgContainer.createEl('img');
+                // Use Obsidian's getResourcePath to resolve the correct vault URI
+                img.src = this.app.vault.getResourcePath(targetFile);
+                img.alt = targetFile.basename;
+                img.style.maxWidth = '100%';
+                embed.replaceWith(imgContainer);
+                continue;
+            }
+
             if (targetFile.extension === 'md') {
                 const embedContainer = container.createDiv({ cls: 'markdown-preview-view' });
                 embedContainer.setAttr('data-source-path', targetFile.path);
-                const content = await this.app.vault.read(targetFile);
+                const rawContent = await this.app.vault.read(targetFile);
+                const contentToRender = subpath 
+                    ? this.extractHeadingSection(rawContent, subpath) 
+                    : rawContent;
+
                 const childComponent = new Component();
                 this.view.addChild(childComponent);
                 component.addChild(childComponent);
-                await MarkdownRenderer.render(this.app, content, embedContainer, targetFile.path, childComponent);
+
+                await MarkdownRenderer.render(this.app, contentToRender, embedContainer, targetFile.path, childComponent);
                 await this.processEmbeds(embedContainer, childComponent, targetFile.path, depth + 1);
                 embed.replaceWith(embedContainer);
-            } else if (targetFile.extension === 'base') {
-                const baseEmbedContainer = container.createDiv({ cls: 'portals-base-embed' });
+            } else if (targetFile.extension === 'base' || targetFile.extension === 'canvas') {
+                const embedContainer = container.createDiv({ cls: 'portals-base-embed' });
                 await MarkdownRenderer.render(
                     this.app,
                     `![[${targetFile.path}]]`,
-                    baseEmbedContainer,
+                    embedContainer,
                     sourcePath,
                     component
                 );
-                embed.replaceWith(baseEmbedContainer);
+                embed.replaceWith(embedContainer);
             } else {
                 const linkContainer = container.createDiv({ cls: 'portals-embed-link' });
                 const link = linkContainer.createEl('a', { href: '#' });
