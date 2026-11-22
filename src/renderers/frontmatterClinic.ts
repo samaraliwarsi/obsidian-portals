@@ -6,6 +6,7 @@ import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../modals/frontmatterPopup';
 import { SaveViewModal } from '../modals/saveViewModal';
 import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
+import { sortFilesBySetting, sortStringsNaturally } from '../utils/sortHelpers';
 
 
 const clinicCache = {
@@ -423,7 +424,7 @@ export class FrontmatterClinicRenderer {
             }
             this.sortClinicFiles(sortIcon);
             
-            const allProps = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort();
+            const allProps = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort(sortStringsNaturally);
             for (const prop of allProps) {
                 const opt = groupSelect.createEl('option', { value: prop, text: prop });
                 if (this.plugin.settings.clinicState.groupBy === prop) {
@@ -504,7 +505,7 @@ export class FrontmatterClinicRenderer {
                         }));
                         menu.addSeparator();
                         const values = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set();
-                        for (const val of Array.from(values).sort()) {
+                        for (const val of Array.from(values).sort(sortStringsNaturally)) {
                             let displayVal = val;
 
                             // Format for display
@@ -554,7 +555,7 @@ export class FrontmatterClinicRenderer {
                     if (!filter.property || filter.property === 'No frontmatter') return;
                     
                     const valuesSet = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set<string>();
-                    const values = ['All values', 'None', ...Array.from(valuesSet).sort()];
+                    const values = ['All values', 'None', ...Array.from(valuesSet).sort(sortStringsNaturally)];
                     
                     this.showSearchPopoverForClinic(valueBtn, values,
                         filter.value === '' ? 'All values' : filter.value === '__none__' ? 'None' : filter.value, 
@@ -647,7 +648,7 @@ export class FrontmatterClinicRenderer {
                 const sortedGroupNames = Object.keys(groups).sort((a, b) => {
                     if (a === 'None') return 1;
                     if (b === 'None') return -1;
-                    return a.localeCompare(b);
+                    return sortStringsNaturally(a, b);
                 });
                 
                 for (const groupName of sortedGroupNames) {
@@ -764,7 +765,7 @@ export class FrontmatterClinicRenderer {
                     e.stopPropagation(); 
 
                     const valuesSet = FrontmatterClinicRenderer.getProperties().get(badgeProperty) || new Set<string>();
-                    const rawValues = Array.from(valuesSet).sort();
+                    const rawValues = Array.from(valuesSet).sort(sortStringsNaturally);
 
                     const displayToRaw = new Map<string, string>();
                     const displayValues = rawValues.map(v => {
@@ -911,17 +912,12 @@ export class FrontmatterClinicRenderer {
 
     private sortForFilter() {
         const { clinicSortBy, clinicSortorder } = this.plugin.settings.clinicState;
-        this.filteredFiles.sort((a, b) => {
-            let aVal: string | number, bVal: string | number;
-            switch(clinicSortBy) {
-                case 'name': aVal = a.name; bVal = b.name; break;
-                case 'created': aVal = a.stat.ctime; bVal = b.stat.ctime; break;
-                case 'modified': aVal = a.stat.mtime; bVal = b.stat.mtime; break;
-                default: aVal = a.name; bVal = b.name;
-            }
-            if (clinicSortorder === 'asc') return (aVal < bVal ? -1 : aVal > bVal ? 1 : 0);
-            else return (aVal > bVal ? -1 : aVal < bVal ? 1 : 0);
-        });
+        this.filteredFiles = sortFilesBySetting(
+            this.filteredFiles,
+            this.plugin.settings,
+            clinicSortBy,
+            clinicSortorder
+        );
     }
 
     private filterFiles() {

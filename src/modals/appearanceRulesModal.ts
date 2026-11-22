@@ -7,6 +7,7 @@ import { IconPickerPopover } from './iconPickerPopover';
 import { ColorPickerPopover } from './colorPopover';
 import { PortalsView, VIEW_TYPE_PORTALS } from '../view';
 import { ConfirmModal } from './confirmModal';
+import { sortStringsNaturally } from '../utils/sortHelpers';
 
 export class AppearanceRulesModal extends Modal {
     private plugin: PortalsPlugin;
@@ -50,7 +51,7 @@ export class AppearanceRulesModal extends Modal {
             const fm = this.app.metadataCache.getFileCache(f)?.frontmatter;
             if (fm) Object.keys(fm).forEach(k => props.add(k));
         }
-        this.allProperties = Array.from(props).sort();
+        this.allProperties = Array.from(props).sort(sortStringsNaturally);
 
         this.listEl = contentEl.createDiv({ cls: 'portals-ar-sortable-list portals-rules-list' });
         this.renderList();
@@ -221,7 +222,7 @@ export class AppearanceRulesModal extends Modal {
                 this.closeActivePopover();
                 const vals = this.getValuesForProperty(rule.property);                
                 this.activePopover = new SearchPopover(valBtn, {
-                    items: Array.from(vals).sort(),
+                    items: Array.from(vals).sort(sortStringsNaturally),
                     currentSelected: rule.value,
                     onSelect: (val) => {
                         rule.value = val;
@@ -306,7 +307,7 @@ export class AppearanceRulesModal extends Modal {
                 }
             }
         }
-        return Array.from(vals).sort();
+        return Array.from(vals).sort(sortStringsNaturally);
     }
 
     onClose() {

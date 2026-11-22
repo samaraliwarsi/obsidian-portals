@@ -5,6 +5,7 @@ import { SearchPopover } from '../utils/searchPopover';
 import { ConfirmModal } from './confirmModal'; 
 import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
 import { Frontmatter } from '../types';
+import { sortStringsNaturally } from '../utils/sortHelpers';
 
 declare module 'obsidian' {
     interface Menu {
@@ -103,7 +104,7 @@ export class FrontmatterPopup {
             const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
             if (fm) Object.keys(fm).forEach(k => propSet.add(k));
         }
-        this.allProperties = Array.from(propSet).filter(p => p.length > 0).sort();
+        this.allProperties = Array.from(propSet).filter(p => p.length > 0).sort(sortStringsNaturally);
 
        // ── Property picker ──
         const propRow = container.createDiv({ cls: 'fm-input-wrapper' });
@@ -534,7 +535,7 @@ export class FrontmatterPopup {
                 });
             }
         }
-        this.propertyValues = Array.from(valSet).sort();
+        this.propertyValues = Array.from(valSet).sort(sortStringsNaturally);
     }
 
     private showPropertySearch(anchor: HTMLElement): void {

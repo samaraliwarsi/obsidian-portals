@@ -7,6 +7,7 @@ import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { isContextNote, hasContextNote } from '../renderers/contextNotes';
 import { FileItemFactory } from '../utils/fileItemFactory';
 import { SectionRenderer } from '../utils/sectionsRenderer';
+import { sortFilesBySetting } from '../utils/sortHelpers';
 
 export class FolderTreeRenderer {
     private app: App;
@@ -252,43 +253,16 @@ export class FolderTreeRenderer {
                 const aPos = orderMap[a.path] ?? Number.MAX_SAFE_INTEGER;
                 const bPos = orderMap[b.path] ?? Number.MAX_SAFE_INTEGER;
                 if (aPos !== bPos) return aPos - bPos;
-                return a.name.localeCompare(b.name);
+                return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
             });
         } else {
-            folders.sort((a, b) => a.name.localeCompare(b.name));
+            folders.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
         }
 
         // Files 
-        const fileSortFunc = (a: TFile, b: TFile) => {
-            let aVal: string | number, bVal: string | number;
-            switch (this.plugin.settings.sortBy) {
-                case 'name':
-                    aVal = a.name;
-                    bVal = b.name;
-                    break;
-                case 'created':
-                    aVal = a.stat.ctime;
-                    bVal = b.stat.ctime;
-                    break;
-                case 'modified':
-                    aVal = a.stat.mtime;
-                    bVal = b.stat.mtime;
-                    break;
-                default:
-                    aVal = a.name;
-                    bVal = b.name;
-            }
-            if (this.plugin.settings.sortOrder === 'asc') {
-                if (aVal < bVal) return -1;
-                if (aVal > bVal) return 1;
-                return 0;
-            } else {
-                if (aVal > bVal) return -1;
-                if (aVal < bVal) return 1;
-                return 0;
-            }
-        };
-        files.sort(fileSortFunc);
-        return [...folders, ...files];
+        return [
+            ...folders, 
+            ...sortFilesBySetting(files, this.plugin.settings)
+        ];
     }
 }

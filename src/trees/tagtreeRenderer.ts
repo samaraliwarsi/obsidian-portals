@@ -8,6 +8,7 @@ import { isContextNoteFile, hasContextNote, getContextNote } from '../renderers/
 import { getFrontmatterTags } from '../utils/tagHelpers';
 import { FileItemFactory } from '../utils/fileItemFactory';
 import { SectionRenderer } from '../utils/sectionsRenderer';
+import { sortFilesBySetting } from '../utils/sortHelpers';
 
 
 interface TagNode {
@@ -257,21 +258,6 @@ export class TagTreeRenderer {
                 return;
             }
 
-            // FLAT LIST: Sort helper
-            const sortFiles = (files: TFile[]) => files.sort((a, b) => {
-                const sortBy = this.plugin.settings.sortBy;
-                const sortOrder = this.plugin.settings.sortOrder;
-                let aVal: string | number, bVal: string | number;
-                switch (sortBy) {
-                    case 'name': aVal = a.name; bVal = b.name; break;
-                    case 'created': aVal = a.stat.ctime; bVal = b.stat.ctime; break;
-                    case 'modified': aVal = a.stat.mtime; bVal = b.stat.mtime; break;
-                    default: aVal = a.name; bVal = b.name;
-                }
-                if (sortOrder === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-                else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
-            });
-
             // FLAT LIST: Create elements for Main Tag
             const mainDetails = container.createEl('details', { cls: 'folder-details' });
             mainDetails.setAttr('open', 'true');
@@ -319,7 +305,7 @@ export class TagTreeRenderer {
 
             // FLAT LIST: If no groups, list all files under the main tag
             if (!groupTags || groupTags.length === 0) {
-                const flatFiles = sortFiles(taggedFiles);
+                const flatFiles = sortFilesBySetting(taggedFiles, this.plugin.settings);
                 const flatFilesContextAware = flatFiles.filter(file => {
                     if (this.plugin.settings.enableContextNotes && 
                         !this.plugin.settings.showContextNotesInTree 
@@ -481,7 +467,7 @@ export class TagTreeRenderer {
                 const contextNotesOn = this.plugin.settings.enableContextNotes;
                 const showContextNotes = this.plugin.settings.showContextNotesInTree;
 
-                let groupFiles = sortFiles(files);
+                let groupFiles = sortFilesBySetting(files, this.plugin.settings);
                 if (!contextNotesOn || (contextNotesOn && showContextNotes)) {
                     const flatGroupContextNote = getContextNote(this.app, this.plugin, gTag);
                     if (flatGroupContextNote && !this.plugin.settings.hiddenItems[flatGroupContextNote.path]) {
@@ -535,7 +521,7 @@ export class TagTreeRenderer {
             }
 
             // FLAT LIST: TAG GROUPS - Render ungrouped files directly under main tag
-            const ungroupedSorted = sortFiles(ungrouped);
+            const ungroupedSorted = sortFilesBySetting(ungrouped, this.plugin.settings);
             const ungroupedContextAware = ungroupedSorted.filter(file => {
                 if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, tagName)) {
                     return false;
@@ -579,20 +565,6 @@ export class TagTreeRenderer {
                 current = current.children.get(part)!;
             }
         }
-
-        const sortFiles = (files: TFile[]) => files.sort((a, b) => {
-            const sortBy = this.plugin.settings.sortBy;
-            const sortOrder = this.plugin.settings.sortOrder;
-            let aVal: string | number, bVal: string | number;
-            switch (sortBy) {
-                case 'name': aVal = a.name; bVal = b.name; break;
-                case 'created': aVal = a.stat.ctime; bVal = b.stat.ctime; break;
-                case 'modified': aVal = a.stat.mtime; bVal = b.stat.mtime; break;
-                default: aVal = a.name; bVal = b.name;
-            }
-            if (sortOrder === 'asc') return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-            else return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
-        });
 
         // ── HLIST: SUBTAGS - Recursive subtag node renderer ───────────────
         const renderNode = (node: TagNode, parentEl: HTMLElement, level: number, index: number = 0, total: number = 1) => {
@@ -698,7 +670,7 @@ export class TagTreeRenderer {
             if (node.files.length > 0) {
                 const contextNotesOn = this.plugin.settings.enableContextNotes;
                 const showContextNotes = this.plugin.settings.showContextNotesInTree;
-                let nodeFiles = sortFiles(node.files);
+                let nodeFiles = sortFilesBySetting(node.files, this.plugin.settings);
 
                 if (!contextNotesOn || (contextNotesOn && showContextNotes)) {
                     const subtagContextNote = getContextNote(this.app, this.plugin, node.fullPath);
@@ -925,7 +897,7 @@ export class TagTreeRenderer {
 
             const contextNoteOn = this.plugin.settings.enableContextNotes;
             const showContextNotes = this.plugin.settings.showContextNotesInTree;
-            let sGroupFiles = sortFiles(files);
+            let sGroupFiles = sortFilesBySetting(files, this.plugin.settings);
             if (!contextNoteOn || (contextNoteOn && showContextNotes)) {
                 const sGroupContextNote = getContextNote(this.app, this.plugin, gTag);
                 if (sGroupContextNote && !this.plugin.settings.hiddenItems[sGroupContextNote.path]) {
@@ -1005,7 +977,7 @@ export class TagTreeRenderer {
             ungroupedRootFiles.push(...root.files);
         }
 
-        const noGroupRootFiles = sortFiles(ungroupedRootFiles);
+        const noGroupRootFiles = sortFilesBySetting(ungroupedRootFiles, this.plugin.settings);
         const noGroupRootFilesContextAware = noGroupRootFiles.filter(file => {
             if (this.plugin.settings.enableContextNotes && !this.plugin.settings.showContextNotesInTree && isContextNoteFile(this.app, this.plugin, file, tagName)) {
                 return false;
