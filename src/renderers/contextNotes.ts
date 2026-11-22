@@ -248,6 +248,7 @@ export class ContextNotesRenderer {
     private currentNotePath: string | null = null;
     private _currentRenderToken: object | null = null;
     private scrollFrozen = false;
+    private modifyDebounceTimer: number | null = null;
 
     constructor(app: App, plugin: PortalsPlugin, view: ContextNotesView, container: HTMLElement, scrollCache: Map<string, number>) {
         this.app = app;
@@ -329,6 +330,11 @@ export class ContextNotesRenderer {
     public destroy(): void {
         this.destroyed = true;
         this._currentRenderToken = null;
+
+        if (this.modifyDebounceTimer) {
+            window.clearTimeout(this.modifyDebounceTimer);
+            this.modifyDebounceTimer = null;
+        }
 
         if (this.linkObserver) {
             this.linkObserver.disconnect();
@@ -713,8 +719,14 @@ export class ContextNotesRenderer {
 
         const modifyRef = this.app.vault.on('modify', (file) => {
             if (file instanceof TFile && file.path === currentNotePath()) {
-                this.invalidateCache(file);
-                void this.render();
+                if (this.modifyDebounceTimer) {
+                    window.clearTimeout(this.modifyDebounceTimer);
+                }
+                this.modifyDebounceTimer = window.setTimeout(() => {
+                    this.invalidateCache(file);
+                    void this.render();
+                    this.modifyDebounceTimer = null;
+                }, 500);
             }
         });
 
