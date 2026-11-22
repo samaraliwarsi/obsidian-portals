@@ -266,22 +266,26 @@ export default class PortalsPlugin extends Plugin {
             if (file instanceof TFolder) {
                 debouncedTreeRefresh();
             }
-            if (file instanceof TFile && file.extension === 'md') {
-                window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
+            if (file instanceof TFile) {
                 debouncedTreeRefresh();
+    
+                if (file.extension === 'md') {
+                    window.setTimeout(() => FrontmatterClinicRenderer.updateFileCache(this.app, file), 100);
+                    debouncedTreeRefresh();
 
-                // Journal, Context notes and reminders update
-                if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
-                    this.refreshSidePortal('journal');
-                    this.refreshAltRightPanelContent('journal');
-                }
-                if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
-                    this.refreshSidePortal('context-notes');
-                    this.refreshAltRightPanelContent('context-notes');
-                }
-                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
-                    this.refreshSidePortal('reminders');
-                    this.refreshAltRightPanelContent('reminders');
+                    // Journal, Context notes and reminders update
+                    if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
+                        this.refreshSidePortal('journal');
+                        this.refreshAltRightPanelContent('journal');
+                    }
+                    if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
+                        this.refreshSidePortal('context-notes');
+                        this.refreshAltRightPanelContent('context-notes');
+                    }
+                    if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                        this.refreshSidePortal('reminders');
+                        this.refreshAltRightPanelContent('reminders');
+                    }
                 }
             }
             void this.refreshTrashIfActive();
@@ -310,61 +314,65 @@ export default class PortalsPlugin extends Plugin {
                     this.refreshAltRightPanelContent('reminders');
                 }
             }
-            if (file instanceof TFile && file.extension === 'md') {
-                this.reminderDates.delete(file.path);
-                FrontmatterClinicRenderer.removeFileCache(file.path);
-                if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
-                    this.refreshSidePortal('properties');
-                    this.refreshAltRightPanelContent('properties')
-                }
-                if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
-                    this.refreshSidePortal('context-notes');
-                    this.refreshAltRightPanelContent('context-notes');
-                }
-                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
-                    this.refreshSidePortal('reminders');
-                    this.refreshAltRightPanelContent('reminders');
-                }
-
-                
-                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
-                    if (leaf.view instanceof PortalsView) {
-                        const journal = getJournalRenderer(leaf.view);
-                        if (journal) journal.removeFile(file.path);
-
-                        const el = leaf.view.fileElementMap.get(file.path);
-                        if (el && el.isConnected) {
-                            el.remove();
-                            leaf.view.fileElementMap.delete(file.path);
-                        }
+            if (file instanceof TFile) {
+                debouncedTreeRefresh();
+                if (file.extension === 'md') {
+                    this.reminderDates.delete(file.path);
+                    FrontmatterClinicRenderer.removeFileCache(file.path);
+                    if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
+                        this.refreshSidePortal('properties');
+                        this.refreshAltRightPanelContent('properties')
                     }
-                });
-                if (this.settings.alternateActiveTab === 'journal') {
-                    this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
-                        if (leaf.view instanceof AltSidePanelView) {
+                    if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
+                        this.refreshSidePortal('context-notes');
+                        this.refreshAltRightPanelContent('context-notes');
+                    }
+                    if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
+                        this.refreshSidePortal('reminders');
+                        this.refreshAltRightPanelContent('reminders');
+                    }
+
+                    
+                    this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
+                        if (leaf.view instanceof PortalsView) {
                             const journal = getJournalRenderer(leaf.view);
                             if (journal) journal.removeFile(file.path);
-                        } 
-                    });
-                }
-                if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
-                this.treeRefreshTimer = window.setTimeout(() => {
-                    this.treeRefreshTimer = null;
-                    this.refreshAllTreeContent();
-                }, 600);
-            }
-            void this.refreshTrashIfActive();
 
-            if (file instanceof TFile) {
-                void this.removeRecentFile(file.path);
-                const marks = this.settings.markedJournalNotes;
-                const index = marks.indexOf(file.path);
-                if (index !== -1) {
-                    marks.splice(index, 1);
-                    void this.saveData(this.settings);
+                            const el = leaf.view.fileElementMap.get(file.path);
+                            if (el && el.isConnected) {
+                                el.remove();
+                                leaf.view.fileElementMap.delete(file.path);
+                            }
+                        }
+                    });
+                    if (this.settings.alternateActiveTab === 'journal') {
+                        this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
+                            if (leaf.view instanceof AltSidePanelView) {
+                                const journal = getJournalRenderer(leaf.view);
+                                if (journal) journal.removeFile(file.path);
+                            } 
+                        });
+                    }
+                    if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
+                    this.treeRefreshTimer = window.setTimeout(() => {
+                        this.treeRefreshTimer = null;
+                        this.refreshAllTreeContent();
+                    }, 600);
+                }
+                void this.refreshTrashIfActive();
+
+                if (file instanceof TFile) {
+                    void this.removeRecentFile(file.path);
+                    const marks = this.settings.markedJournalNotes;
+                    const index = marks.indexOf(file.path);
+                    if (index !== -1) {
+                        marks.splice(index, 1);
+                        void this.saveData(this.settings);
+                    }
                 }
             }
         }));
+            
 
         // ==========================================
         // 3. RENAME LISTENER

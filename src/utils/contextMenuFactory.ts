@@ -160,6 +160,11 @@ export class ContextMenuFactory {
             .setTitle('New canvas')
             .setIcon('layout-dashboard')
             .onClick(() => PortalsActions.newCanvasInFolder(view.app, view.plugin, view, folder)));
+        
+        menu.addItem(item => item
+            .setTitle('New base')
+            .setIcon('database')
+            .onClick(() => PortalsActions.createNewBaseFile(view.app, view.plugin, view, folder)));
 
         if (view.plugin.settings.enableContextNotes) {
             const contextNote = folder.children.find((child): child is TFile =>

@@ -63,20 +63,77 @@ export class PortalsActions {
     }
 
     static async newCanvasInFolder(app: App, _plugin: PortalsPlugin, view: PortalsView, folder: TFolder): Promise<void> {
-        const defaultName = 'Untitled.canvas';
-        let candidate = `${folder.path}/${defaultName}`;
+        const isPluginEnabled = (app as unknown as { internalPlugins?: { getPluginById(id: string): { enabled: boolean } | undefined } }).internalPlugins;
+        const canvasPlugin = isPluginEnabled?.getPluginById('canvas');
+        if (!canvasPlugin?.enabled) {
+            new Notice('Canvas core plugin is disabled. Enable it in Settings → Core plugins.');
+            return;
+        }
+        const canvasName = 'Untitled.canvas';
+        const canvasPath = folder.path === '/' ? canvasName : `${folder.path}/${canvasName}`;
+
         let counter = 1;
-        while (app.vault.getAbstractFileByPath(candidate)) {
-            candidate = `${folder.path}/Untitled ${counter}.canvas`;
+        let finalPath = canvasPath;
+        while (app.vault.getAbstractFileByPath(finalPath)) {
+            finalPath = folder.path === '/' 
+                ? `Untitled ${counter}.canvas` 
+                : `${folder.path}/Untitled ${counter}.canvas`;
             counter++;
         }
+
+        // Minimal valid canvas JSON
+        const content = JSON.stringify({ nodes: [], edges: [] }, null, 2);
+
         try {
-            await app.vault.create(candidate, '{"nodes":[],"edges":[]}');
-            new Notice('Canvas created');
-            view.triggerRenameOnPath(candidate);
+            const file = await app.vault.create(finalPath, content);
+            await app.workspace.getLeaf().openFile(file);
+            new Notice('Canvas created.');
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
             new Notice(`Failed to create canvas: ${message}`);
+        }
+    }
+
+    static async createNewBaseFile(app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): Promise<void> {
+        // Check if Bases core plugin is enabled
+        const internalPlugins = (app as unknown as { internalPlugins?: { getPluginById: (id: string) => { enabled: boolean } | undefined } }).internalPlugins;
+        const basesPlugin = internalPlugins?.getPluginById('bases');
+        if (!basesPlugin?.enabled) {
+            new Notice('Bases core plugin is disabled. Enable it in Settings → Core plugins.');
+            return;
+        }
+
+        const baseName = 'New Base.base';
+        const basePath = folder.path === '/' ? baseName : `${folder.path}/${baseName}`;
+        
+        // Avoid overwriting
+        let counter = 1;
+        let finalPath = basePath;
+        while (app.vault.getAbstractFileByPath(finalPath)) {
+            finalPath = folder.path === '/' 
+                ? `New Base ${counter}.base` 
+                : `${folder.path}/New Base ${counter}.base`;
+            counter++;
+        }
+
+        // Minimal valid base YAML - a table view scoped to the folder
+        const folderFilter = folder.path === '/' ? '' : folder.path;
+        const content = [
+            'views:',
+            '  - type: table',
+            '    name: "New Base"',
+            '    filters:',
+            '      and:',
+            `        - 'file.inFolder("${folderFilter}")'`
+        ].join('\n');
+
+        try {
+            const file = await app.vault.create(finalPath, content);
+            await app.workspace.getLeaf().openFile(file);
+            new Notice('Base created.');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            new Notice(`Failed to create base: ${message}`);
         }
     }
 

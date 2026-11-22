@@ -215,11 +215,22 @@ export class PortalsView extends ItemView {
 
         // 1. Remove all existing open dots
         treeContainer.querySelectorAll('.open-dot').forEach(el => el.remove());
+        treeContainer.querySelectorAll('.file-extension.is-open').forEach(el => el.removeClass('is-open'));
 
         if (file) {
             // 2. Add dot to the newly active file
             const fileEl = treeContainer.querySelector(`.file-item[data-path="${file.path}"]`);
-            if (fileEl) fileEl.createSpan({ cls: 'open-dot' });
+            if (fileEl) {
+                const nonMd = file.extension !== 'md';
+                const enableExtBadge = this.plugin.settings.enableFileExtensionNonMD;
+
+                if (nonMd && enableExtBadge) {
+                    const extSpan = fileEl.querySelector('.file-extension');
+                    if (extSpan) extSpan.addClass('is-open');
+                } else {
+                    fileEl.createSpan({ cls: 'open-dot' });
+                }
+            }
 
             const space = this.plugin.settings.selectedSpace;
 
