@@ -935,6 +935,8 @@ body.portals-dragging {
     position: relative;
     height: 18px;
     margin-right: 4px;
+    max-width: 100%;
+    border: none;
 }
 
 .portals-section-label {
@@ -942,10 +944,14 @@ body.portals-dragging {
     color: var(--text-faint);
     white-space: nowrap;
     order: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .portals-section-arrows {
     display: none;
     order: 2;
+    flex-shrink: 0;
 }
 .portals-section-separator:hover .portals-section-arrows {
     display: flex;
@@ -969,4 +975,5 @@ body.portals-dragging {
     flex: 1;
     margin-right: 4px;
     margin-left: 0;
+    height: 1px;
 }

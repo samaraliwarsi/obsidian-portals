@@ -1,4 +1,4 @@
-import { TFile, App } from 'obsidian';
+import { TFile, App, Platform } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { FileItemFactory } from './fileItemFactory';
@@ -161,7 +161,7 @@ export class SectionRenderer {
 
         // ------ Separator line with label + arrows ------
         const sepDiv = container.createDiv({ cls: 'portals-section-separator' });
-        sepDiv.createSpan({ cls: 'portals-section-label', text: section.label });
+        const labelSpan = sepDiv.createSpan({ cls: 'portals-section-label', text: section.label });
         const arrowsSpan = sepDiv.createSpan({ cls: 'portals-section-arrows' });
         arrowsSpan.createEl('i', {
             cls: 'ph ph-caret-up',
@@ -171,6 +171,10 @@ export class SectionRenderer {
             cls: 'ph ph-caret-down',
             attr: { 'data-index': String(index) },
         });
+
+        if (!Platform.isMobile && section.label.length > 25) {
+            view.attachTooltip(labelSpan, section.label, 300, 'right');
+        }
 
         // Click to reorder
         arrowsSpan.addEventListener('click', (e) => {
