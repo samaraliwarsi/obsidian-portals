@@ -10,6 +10,7 @@ import { ContextNotesRenderer } from '../renderers/contextNotes';
 import { TrashRenderer } from '../renderers/trashRenderer';
 import { AltSidePanelView } from './RightSideView';
 import { RemindersRenderer } from './remindersRenderer';
+import { beginRender, endRender } from '../render/instrument';
 
 const journalRenderers = new WeakMap<PortalsView | AltSidePanelView, JournalRenderer>();
 const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();
@@ -47,7 +48,7 @@ export function destroySidePanelRenderer(view: PortalsView | AltSidePanelView): 
     }
 }
 
-export async function renderSidePanelContent(
+async function renderPanelContent(
     app: App,
     plugin: PortalsPlugin,
     contentEl: HTMLElement,
@@ -130,4 +131,23 @@ export async function renderSidePanelContent(
         remindersRenderer.render();
     }
     return;
+}
+
+export async function renderSidePanelContent(
+    app: App,
+    plugin: PortalsPlugin,
+    contentEl: HTMLElement,
+    tabId: string,
+    mainView: PortalsView | null,
+): Promise<void> {
+    const probe = beginRender('panel:content', {
+        detail: tabId,
+        root: contentEl,
+        scrollSelector: '.portals-split-content',
+    });
+    try {
+        await renderPanelContent(app, plugin, contentEl, tabId, mainView);
+    } finally {
+        endRender(probe);
+    }
 }

@@ -7,6 +7,7 @@ import { FrontmatterPopup } from '../modals/frontmatterPopup';
 import { SaveViewModal } from '../modals/saveViewModal';
 import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
 import { sortFilesBySetting, sortStringsNaturally } from '../utils/sortHelpers';
+import { beginRender, endRender } from '../render/instrument';
 
 
 const clinicCache = {
@@ -291,7 +292,20 @@ export class FrontmatterClinicRenderer {
         this.view = view;
     }
 
-    async render() {
+    async render(): Promise<void> {
+        const probe = beginRender('panel:clinic', {
+            detail: 'frontmatter panel',
+            root: this.container,
+            scrollSelector: '.portals-split-content',
+        });
+        try {
+            await this.renderInternal();
+        } finally {
+            endRender(probe);
+        }
+    }
+
+    private async renderInternal(): Promise<void> {
         this.destroyed = false;
 
         if (this.clinicToolbar) {

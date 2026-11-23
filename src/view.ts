@@ -19,6 +19,7 @@ import { SidePortalModal } from './modals/sidePortalModal';
 import { destroContextRenderer, destroySidePanelRenderer, getContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { getFrontmatterTags } from './utils/tagHelpers';
+import { beginRender, endRender, recordRender } from './render/instrument';
 
 const MIN_EXPANDED_HEIGHT = 150;
 export const SIDE_TAB_ICONS: Record<string, string> = {
@@ -130,9 +131,10 @@ export class PortalsView extends ItemView {
     }
 
     public updateFileElement(file: TFile) {
-        console.debug('[Portals update] updateFileElement:', file.path, new Error().stack);
         const fileEl = this.fileElementMap.get(file.path);
         if (!fileEl || !fileEl.isConnected) return;
+
+        const probe = beginRender('view:row', { detail: file.path, root: this.containerEl });
 
         const appearance = this.plugin.getFileAppearance(file);
         const iconSpan = fileEl?.querySelector('.file-icon');
@@ -225,6 +227,8 @@ export class PortalsView extends ItemView {
         }
         
         FileItemFactory.applyReminderIndicator(fileEl, file, this.app, this.plugin);
+
+        endRender(probe);
     }
 
     public updateActiveFileDots(file: TFile | null): void {
@@ -1662,9 +1666,13 @@ export class PortalsView extends ItemView {
         }
         
         const newHash = this.getSettingsHash();
-        if (newHash === this.lastRenderHash) return;
+        if (newHash === this.lastRenderHash) {
+            recordRender('view:all:noop', 'settings hash unchanged');
+            return;
+        }
         this.lastRenderHash = newHash;
 
+        const probe = beginRender('view:all', { detail: 'full rebuild', root: this.containerEl });
         try {
             const viewContent = this.containerEl.children[1] as HTMLElement;
             if (!viewContent) return;
@@ -2174,6 +2182,8 @@ export class PortalsView extends ItemView {
             this.reapplySelectionHighlights();
         } catch (e) {
             console.error('Portals render error:', e);
+        } finally {
+            endRender(probe);
         }
     }
 
@@ -2197,6 +2207,8 @@ export class PortalsView extends ItemView {
         const treeContainer = container.querySelector('.portals-tree-container');
         if (!treeContainer) return;
 
+        const probe = beginRender('view:tree', { detail: 'tree rebuild', root: this.containerEl });
+
         treeContainer.addClass('portals-is-rebuilding'); // class to mute flickers
         treeContainer.empty();
 
@@ -2207,7 +2219,10 @@ export class PortalsView extends ItemView {
             s.path === this.plugin.settings.selectedSpace?.path && 
             s.type === this.plugin.settings.selectedSpace?.type
         ) || spaces[0];
-        if (!selectedSpace) return;
+        if (!selectedSpace) {
+            endRender(probe);
+            return;
+        }
 
         if (selectedSpace.type === 'folder') {
             const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
@@ -2241,6 +2256,7 @@ export class PortalsView extends ItemView {
         treeContainer.removeClass('portals-is-rebuilding');
         
         this.reapplySelectionHighlights();
+        endRender(probe);
     }
 
     public refreshRecentTab() {

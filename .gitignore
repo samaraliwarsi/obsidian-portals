@@ -26,3 +26,6 @@ src/build-css
 
 # exclude pre-refactor css file 
 src/styles/mainSidebarStyles.css
+
+# exclude dsh-code-index
+.dsh-code-index
