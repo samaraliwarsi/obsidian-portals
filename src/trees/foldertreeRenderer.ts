@@ -1,4 +1,4 @@
-import { TFile, TFolder, TAbstractFile, App, Platform } from 'obsidian';
+import { TFile, TFolder, TAbstractFile, App } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
@@ -29,57 +29,31 @@ export class FolderTreeRenderer {
         index: number = 0,
         totalFirstLevelFolders: number = 0
     ): void {
-        const details = container.createEl('details');
-        details.addClass('folder-details');
-
-        if (this.plugin.settings.openFolders.includes(folder.path)) {
-            details.setAttr('open', 'true');
-        }
-
-        const summary = details.createEl('summary');
-        summary.addClass('folder-summary');
-
-        const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-
-        this.plugin.renderCustomIcon(iconSpan, folder.path, iconName)
-
-        const displayName = folder.path === '/' ? this.app.vault.getName() : folder.name;
-        const nameSpan = summary.createSpan({ text: displayName });
-        nameSpan.addClass('portals-item-name');
-        summary.dataset.path = folder.path;
-        summary.dataset.reorderKey = folder.path;
-
-        if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
-                summary.addEventListener('mouseenter', () => {
-                    if (!nameSpan) return;
-                    const tooltip = this.getFolderTooltip(folder, nameSpan);
-                    if (tooltip) this.view.showTooltip(tooltip, summary, 300, 'right');
-                });
-                summary.addEventListener('mouseleave', () => {
-                    this.view.hideTooltip(100);
-                });
-            }
-
-        const hasNote = hasContextNote(this.app, this.plugin, folder);
-        if (this.plugin.settings.enableContextNotes && hasNote) {
-            const style = this.plugin.settings.contextNoteHighlightStyle;
-            if (style === 'icon') {
-                iconSpan.addClass('has-context-note-icon');
-                if (this.plugin.settings.treeStyle === 'minimal' || this.plugin.settings.treeStyle === 'shades') {
-                    summary.addClass('has-context-note-icon');
-                }
-            } else if (style === 'underline') {
-                nameSpan.addClass('has-context-note-underline');
-            }
-        }
-
         const activePath = this.view.getActiveFilePath();
-        if (activePath) {
-            const isAncestor = folder.path === '/' ? true : activePath.startsWith(folder.path + '/');
-            if (isAncestor) {
-                summary.createSpan({ cls: 'open-dot' });
-            }
-        }
+        const isAncestor = activePath
+            ? (folder.path === '/' ? true : activePath.startsWith(folder.path + '/'))
+            : false;
+
+        const { details, summary, children: childrenContainer, icon: iconSpan } = Rows.branch(
+            { app: this.app, plugin: this.plugin, view: this.view, openFiles },
+            container,
+            {
+                key: folder.path,
+                label: folder.path === '/' ? this.app.vault.getName() : folder.name,
+                iconKey: folder.path,
+                iconFallback: iconName,
+                open: this.plugin.settings.openFolders.includes(folder.path),
+                reorderKey: folder.path,
+                colorKey: folder.path,
+                colorSource: 'folder',
+                depth,
+                index,
+                totalFirstLevel: totalFirstLevelFolders,
+                contextNoteHighlight: this.plugin.settings.enableContextNotes && hasContextNote(this.app, this.plugin, folder),
+                openDot: isAncestor,
+                tooltip: (nameSpan) => this.getFolderTooltip(folder, nameSpan),
+            },
+        );
 
         this.view.quickFolderIcon?.(summary, () => void PortalsActions.newFolderInFolder(this.app, this.plugin, this.view, folder));
         this.view.quickFileIcon?.(summary, () => void PortalsActions.newNoteInFolder(this.app, this.plugin, this.view, folder));
@@ -94,73 +68,6 @@ export class FolderTreeRenderer {
             e.preventDefault();
             ContextMenuFactory.showFolderMenu(this.view, folder, summary, e);
         });
-
-        const childrenContainer = details.createDiv({ cls: 'folder-children' });
-
-        const customColor = this.plugin.settings.customColors[folder.path];
-        const style = this.plugin.settings.treeStyle;
-        const shouldApplyColor = customColor &&
-            style !== 'shades' &&
-            style !== 'hues' &&
-            !(style === 'portals' && this.plugin.settings.tabColorEnabled);
-
-        if (shouldApplyColor) {
-            summary.classList.add('has-folder-color');
-            details.classList.add('has-folder-color');
-            childrenContainer.classList.add('has-folder-color');
-            details.setCssProps({ '--folder-color': customColor });
-            summary.setCssProps({ '--folder-color': customColor });
-        } else {
-            summary.classList.remove('has-folder-color');
-            details.classList.remove('has-folder-color');
-            childrenContainer.classList.remove('has-folder-color');
-            details.setCssProps({ '--folder-color': '' });
-            summary.setCssProps({ '--folder-color': '' });
-        }
-
-        // Shades style for first-level folders
-        if (depth === 1 && this.plugin.settings.treeStyle === 'shades') {
-            const minOpacity = 0.1;
-            const maxOpacity = 0.3;
-            let shadeOpacity;
-            const total = totalFirstLevelFolders > 0 ? totalFirstLevelFolders : 1;
-            if (total <= 1) {
-                shadeOpacity = minOpacity;
-            } else {
-                const progress = index / (total - 1);
-                shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
-            }
-            shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
-            summary.classList.add('shaded-folder-summary');
-            summary.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
-            childrenContainer.classList.add('shaded-folder-children');
-            childrenContainer.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
-        }
-
-        // Hues style for first-level folders
-        if (depth === 1 && this.plugin.settings.treeStyle === 'hues') {
-            const total = totalFirstLevelFolders > 0 ? totalFirstLevelFolders : 1;
-            let progress = index / (total - 1);
-            if (total <= 1) progress = 0.5;
-            const hue = progress * 360;
-            const minOpacity = 0.1;
-            const maxOpacity = 0.3;
-            let opacity;
-            if (total <= 1) {
-                opacity = minOpacity;
-            } else {
-                opacity = maxOpacity - progress * (maxOpacity - minOpacity);
-            }
-            opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
-            summary.classList.add('hued-folder-summary');
-            summary.setCssProps({ '--hue-start': String(hue) });
-            summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-            summary.setCssProps({ '--hue-opacity': String(opacity) });
-            childrenContainer.classList.add('hued-folder-children');
-            childrenContainer.setCssProps({ '--hue-start': String(hue) });
-            childrenContainer.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-            childrenContainer.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
-        }
 
         const loadChildren = () => {
             if (childrenContainer.children.length > 0) return;

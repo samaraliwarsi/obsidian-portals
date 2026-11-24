@@ -4,7 +4,6 @@ import type { PortalsView } from '../view';
 import { TreeEventHelpers } from '../utils/treeEventHelpers';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FileItemFactory } from '../utils/fileItemFactory';
-import { getPluginInstance } from '../utils/Proxies/pluginInstance';
 
 // Everything a row builder needs. A row is a projection of state: it reads the
 // context, never the DOM.
@@ -15,6 +14,32 @@ export interface RowCtx {
     openFiles: Set<string>;
 }
 
+export interface BranchSpec {
+    key: string;
+    /// Which data attribute carries the key: folders use data-path, tags use data-tag-path.
+    keyAttr?: 'path' | 'tagPath';
+    label: string;
+    iconKey: string;
+    iconFallback: string;
+    reorderKey?: string;
+    open?: boolean;
+    colorKey?: string;
+    colorSource?: 'folder' | 'tag';
+    depth?: number;
+    index?: number;
+    totalFirstLevel?: number;
+    contextNoteHighlight?: boolean;
+    openDot?: boolean;
+    tooltip?: (nameSpan: HTMLElement) => string | null;
+}
+
+export interface BranchParts {
+    details: HTMLDetailsElement;
+    summary: HTMLElement;
+    children: HTMLDivElement;
+    icon: HTMLElement;
+}
+
 export class Rows {
     // One file row. This is the single implementation shared by the main tree,
     // the section list and every side-panel list.
@@ -23,7 +48,7 @@ export class Rows {
         const fileEl = container.createDiv({ cls: 'file-item' });
         const appearance = plugin.getFileAppearance(file);
         const iconSpan = fileEl.createSpan({ cls: 'file-icon' });
-        getPluginInstance()?.renderIconString(iconSpan, appearance.icon, 'file');
+        plugin.renderIconString(iconSpan, appearance.icon, 'file');
 
         const nameSpan = fileEl.createSpan({ text: FileItemFactory.getDisplayName(file, plugin) });
         nameSpan.addClass('portals-item-name');
@@ -174,5 +199,99 @@ export class Rows {
         view.fileElementMap.set(file.path, fileEl);
 
         return fileEl;
+    }
+
+    // A folder, a tag and a tag group are the same object in the DOM: a
+    // <details> holding a <summary> row and a children container. One builder
+    // serves all three so their styling and behaviour cannot drift apart.
+    static branch(ctx: RowCtx, parent: HTMLElement, spec: BranchSpec): BranchParts {
+        const { plugin, view } = ctx;
+        const keyAttr = spec.keyAttr ?? 'path';
+
+        const details = parent.createEl('details', { cls: 'folder-details' });
+        if (spec.open) details.setAttr('open', 'true');
+
+        const summary = details.createEl('summary', { cls: 'folder-summary' });
+        const iconSpan = summary.createSpan({ cls: 'folder-icon' });
+        plugin.renderCustomIcon(iconSpan, spec.iconKey, spec.iconFallback);
+
+        const nameSpan = summary.createSpan({ text: spec.label });
+        nameSpan.addClass('portals-item-name');
+        if (keyAttr === 'tagPath') summary.dataset.tagPath = spec.key;
+        else summary.dataset.path = spec.key;
+        if (spec.reorderKey) summary.dataset.reorderKey = spec.reorderKey;
+
+        if (spec.tooltip && !Platform.isMobile && plugin.settings.showTreeItemToolTips) {
+            summary.addEventListener('mouseenter', () => {
+                const tooltip = spec.tooltip?.(nameSpan);
+                if (tooltip) view.showTooltip(tooltip, summary, 300, 'right');
+            });
+            summary.addEventListener('mouseleave', () => {
+                view.hideTooltip(100);
+            });
+        }
+
+        if (spec.contextNoteHighlight) {
+            const style = plugin.settings.contextNoteHighlightStyle;
+            if (style === 'icon') {
+                iconSpan.addClass('has-context-note-icon');
+                if (plugin.settings.treeStyle === 'minimal' || plugin.settings.treeStyle === 'shades') {
+                    summary.addClass('has-context-note-icon');
+                }
+            } else if (style === 'underline') {
+                nameSpan.addClass('has-context-note-underline');
+            }
+        }
+
+        if (spec.openDot) summary.createSpan({ cls: 'open-dot' });
+
+        const children = details.createDiv({ cls: 'folder-children' });
+
+        const treeStyle = plugin.settings.treeStyle;
+        const colorKey = spec.colorKey;
+        const savedColor = colorKey
+            ? (spec.colorSource === 'tag' ? plugin.settings.tagColors[colorKey] : plugin.settings.customColors[colorKey])
+            : undefined;
+        const canApplyColor = savedColor
+            && treeStyle !== 'shades'
+            && treeStyle !== 'hues'
+            && !(treeStyle === 'portals' && plugin.settings.tabColorEnabled);
+
+        if (canApplyColor) {
+            summary.classList.add('has-folder-color');
+            details.classList.add('has-folder-color');
+            children.classList.add('has-folder-color');
+            details.setCssProps({ '--folder-color': savedColor });
+            summary.setCssProps({ '--folder-color': savedColor });
+        }
+
+        const depth = spec.depth ?? 0;
+        const total = (spec.totalFirstLevel ?? 0) > 0 ? (spec.totalFirstLevel ?? 1) : 1;
+        const position = spec.index ?? 0;
+        const progress = total <= 1 ? 0 : position / (total - 1);
+        const minOpacity = 0.1;
+        const maxOpacity = 0.3;
+        const opacity = Math.min(maxOpacity, Math.max(minOpacity, maxOpacity - progress * (maxOpacity - minOpacity)));
+
+        if (depth === 1 && treeStyle === 'shades') {
+            summary.classList.add('shaded-folder-summary');
+            summary.setCssProps({ '--folder-shade-opacity': String(opacity) });
+            children.classList.add('shaded-folder-children');
+            children.setCssProps({ '--folder-shade-opacity': String(opacity) });
+        }
+
+        if (depth === 1 && treeStyle === 'hues') {
+            const hue = progress * 360;
+            summary.classList.add('hued-folder-summary');
+            summary.setCssProps({ '--hue-start': String(hue) });
+            summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
+            summary.setCssProps({ '--hue-opacity': String(opacity) });
+            children.classList.add('hued-folder-children');
+            children.setCssProps({ '--hue-start': String(hue) });
+            children.setCssProps({ '--hue-end': String((hue + 30) % 360) });
+            children.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
+        }
+
+        return { details, summary, children, icon: iconSpan };
     }
 }
