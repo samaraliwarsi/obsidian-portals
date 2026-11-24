@@ -102,6 +102,33 @@ recorder and is how the next person diagnoses it.
 3. **Deferral, not racing.** Rebuilds must not run while `view.isBusy()`.
 4. **The recorder is dev-only.** `dev/instrument.ts`, copied over the stub in
    `src/pipeline/instrument.ts` to profile. Never ship it in `src/`.
+5. **Read per-portal state inside the handler.** Floating buttons, menus and
+   popovers are built in `renderFullScope` and now *survive* a portal switch,
+   because switching is a tree-only render. Anything captured at build time
+   (`settings.selectedSpace`, `spaceSectionPrefs[<portal key>]`) goes stale and
+   fails quietly: the write succeeds, the UI shows the old value. Resolve it when
+   the menu opens.
+6. **A state class must not fight `display`.** `.file-item-preview-hidden`
+   `{ display: none }` loses to a later equal-specificity rule such as
+   `.portals-task-preview { display: flex }`. Use `setPreviewVisibility()` in
+   `Rows` — it applies the class *and* `show()`/`hide()`, so intent survives the
+   cascade. Any future rule that sets `display` on a hideable child reintroduces
+   this bug.
+7. **Only verified settings join `SETTING_INTENT`.** A narrow intent that misses
+   a surface leaves it stale (see `enableContextNotes`: the tree is right, the
+   context-notes panel is not). Add a row only after its capture in
+   `settings-render-matrix.md` passes; the default `all` is wrong only by being
+   slow.
+
+## Failure modes seen in practice
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| UI correct after restart, stale until then | value captured at build, no rebuild on switch | read inside the handler |
+| Element stays visible despite the hidden class | later equal-specificity `display` rule | class **and** `show()`/`hide()` |
+| Toggle works for some elements only | element created after the toggle, state captured earlier | re-read state when async work lands |
+| Panel shows a partial list after a bulk edit | cache built at load, not rebuilt | rebuild cache + refresh panel after the mutation |
+| Command still callable after its setting is off | removed via the raw command manager, left in the plugin list | `plugin.removeCommand(id)` |
 
 ## Debugging
 
