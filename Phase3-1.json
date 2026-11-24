@@ -1,0 +1,145 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949
+{\fonttbl}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+}
+[
+  {
+    "label": "Create a note",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 42.4,
+        "p95Ms": 45.4,
+        "maxMs": 45.4,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 2,
+        "medianMs": 27.9,
+        "p95Ms": 36.4,
+        "maxMs": 36.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T09:43:32.117Z"
+  },
+  {
+    "label": "Delete a file",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 60,
+        "p95Ms": 60,
+        "maxMs": 60,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 39.8,
+        "p95Ms": 39.8,
+        "maxMs": 39.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T09:43:59.179Z"
+  },
+  {
+    "label": "Rename a file",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 46.1,
+        "p95Ms": 46.1,
+        "maxMs": 46.1,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 36.8,
+        "p95Ms": 36.8,
+        "maxMs": 36.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T09:44:34.539Z"
+  },
+  {
+    "label": "Make 5–6 rapid changes - Individual context menu deletes",
+    "seconds": 30,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 6,
+        "medianMs": 63.15,
+        "p95Ms": 74.8,
+        "maxMs": 74.8,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 6,
+        "medianMs": 32.6,
+        "p95Ms": 36.5,
+        "maxMs": 36.5,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T09:45:46.536Z"
+  },
+  {
+    "label": "Make 5–6 rapid changes - Multiselect deletes",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 48.3,
+        "p95Ms": 48.3,
+        "maxMs": 48.3,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 22,
+        "p95Ms": 22,
+        "maxMs": 22,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T09:46:27.996Z"
+  },
+  {
+    "label": "Drag a file onto a folder ",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 32.6,
+        "p95Ms": 32.6,
+        "maxMs": 32.6,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 43.8,
+        "p95Ms": 43.8,
+        "maxMs": 43.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T09:47:18.235Z"
+  }
+]

@@ -17,6 +17,7 @@ import { DatePickerModal } from './modals/datePickerModal';
 import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
 import type { Frontmatter } from './types';
 import { RemindersStartupModal } from './modals/remindersStartupModal';
+import { RenderBus } from './pipeline/renderBus';
 
 interface AppWithInternalPlugins extends App {
     internalPlugins: unknown;
@@ -29,17 +30,15 @@ export default class PortalsPlugin extends Plugin {
     emojiProvider = new EmojiIconProvider();
     private bookmarksListenerRef: (() => void) | null = null;
     private refreshAltRightPanelTimeout: number | null = null;
-    private treeRefreshTimer: number | null = null;
     public registeredPortalCommandIds: string[] = [];
     private reminderRefreshTimer: number | null = null;
     public fileTagCache = new Map<string, string>();
     private trashRefreshTimer: number | null = null;
-    private journalRefreshTimer: number | null = null;
     public textSettingRenderTimer: number | null = null;
     private backupInProgress = false;
     public fileSectionCache = new Map<string, string>();
-    private previewRefreshTimer: number | null = null;
     public reminderDates = new Map<string, string>();
+    public renderBus = new RenderBus(this);
 
     async onload() {
         setPluginInstance(this);
@@ -135,26 +134,13 @@ export default class PortalsPlugin extends Plugin {
             if (!(file instanceof TFile) || file.extension !== 'md') return;
             // Preview safety net - ensures previews appear for files that were empty on creation
             if (this.settings.showFilePreview) {
-                if (this.previewRefreshTimer) window.clearTimeout(this.previewRefreshTimer);
-                this.previewRefreshTimer = window.setTimeout(() => {
-                    this.previewRefreshTimer = null;
-                    this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
-                        if (leaf.view instanceof PortalsView) {
-                            leaf.view.updateFileElement(file);
-                        }
-                    });
-                }, 500);
+                this.renderBus.invalidate('tree:appearance', { files: [file.path], reason: 'preview refresh' });
             }
             // Journal refresh
             const folderPath = this.getJournalFolderPath();
             if (folderPath && folderPath !== '/' && !file.path.startsWith(folderPath + '/')) return;
             if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
-                if (this.journalRefreshTimer) window.clearTimeout(this.journalRefreshTimer);
-                this.journalRefreshTimer = window.setTimeout(() => {
-                    this.journalRefreshTimer = null;
-                    this.refreshSidePortal('journal');
-                    this.refreshAltRightPanelContent('journal');
-                }, 2000);
+                this.renderBus.invalidate('panel', { tabId: 'journal', afterMs: 2000, reason: 'journal note modified' });
             }
         }));
 
@@ -207,13 +193,9 @@ export default class PortalsPlugin extends Plugin {
             }
 
             if (needsRebuild) {
-                debouncedTreeRefresh();
+                this.renderBus.invalidate('tree:structure', { reason: 'metadata changed' });
             } else {
-                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
-                    if (leaf.view instanceof PortalsView) {
-                        leaf.view.updateFileElement(file);
-                    }
-                });
+                this.renderBus.invalidate('tree:appearance', { files: [file.path], reason: 'metadata changed' });
             }
 
             // --- Reminders & Badge Logic (Preserved from your old code) ---
@@ -234,23 +216,19 @@ export default class PortalsPlugin extends Plugin {
 
                 // Refresh the Reminders panel if it's open on either side
                 if (lSidePortal === 'reminders' || rSidePortal === 'reminders') {
-                    this.refreshSidePortal('reminders');
+                    this.renderBus.invalidate('panel', { tabId: 'reminders', afterMs: 300, reason: 'reminder changed' });
                 }
 
                 // Refresh the Recent panel if it's open on either side
                 if (lSidePortal === 'recent' || rSidePortal === 'recent') {
-                    this.refreshSidePortal('recent');
+                    this.renderBus.invalidate('panel', { tabId: 'recent', afterMs: 300, reason: 'reminder changed' });
                 }
                 this.updateReminderBadge();
             }, 300);
         }));
 
         const debouncedTreeRefresh = () => {
-            if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
-            this.treeRefreshTimer = window.setTimeout(() => {
-                this.treeRefreshTimer = null;
-                this.refreshAllTreeContent();
-            }, 50);
+            this.renderBus.invalidate('tree:structure', { reason: 'tree refresh' });
         }
         // =================================================
         // FOCUS LISTENER
@@ -353,11 +331,7 @@ export default class PortalsPlugin extends Plugin {
                             } 
                         });
                     }
-                    if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
-                    this.treeRefreshTimer = window.setTimeout(() => {
-                        this.treeRefreshTimer = null;
-                        this.refreshAllTreeContent();
-                    }, 600);
+                    debouncedTreeRefresh();
                 }
                 void this.refreshTrashIfActive();
 
@@ -407,11 +381,7 @@ export default class PortalsPlugin extends Plugin {
                     FrontmatterClinicRenderer.removeFileCache(oldPath);
                     FrontmatterClinicRenderer.updateFileCache(this.app, file);
                     
-                    if (this.treeRefreshTimer) window.clearTimeout(this.treeRefreshTimer);
-                    this.treeRefreshTimer = window.setTimeout(() => {
-                        this.treeRefreshTimer = null;
-                        this.refreshAllTreeContent();
-                    }, 600);
+                    debouncedTreeRefresh();
 
                     window.setTimeout(() => {
                         if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
@@ -583,17 +553,9 @@ export default class PortalsPlugin extends Plugin {
         setPluginInstance(null);
         FrontmatterClinicRenderer.resetCache();
 
-        if (this.previewRefreshTimer) {
-            window.clearTimeout(this.previewRefreshTimer);
-            this.previewRefreshTimer = null;
-        }
         if (this.reminderRefreshTimer) {
             window.clearTimeout(this.reminderRefreshTimer);
             this.reminderRefreshTimer = null;
-        }
-        if (this.journalRefreshTimer) {
-            window.clearTimeout(this.journalRefreshTimer);
-            this.journalRefreshTimer = null;
         }
         if (this.trashRefreshTimer) {
             window.clearTimeout(this.trashRefreshTimer);
@@ -902,13 +864,11 @@ export default class PortalsPlugin extends Plugin {
         });
     }
 
-    private refreshAllTreeContent() {
-        this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
-            if (leaf.view instanceof PortalsView) {
-                leaf.view.saveTreeScroll();
-                leaf.view.renderContent();
-            }
-        });
+
+    public getPortalsViews(): PortalsView[] {
+        return this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)
+            .map(leaf => leaf.view)
+            .filter((view): view is PortalsView => view instanceof PortalsView);
     }
 
     public refreshAltRightPanelContent(tabId?: string): void {

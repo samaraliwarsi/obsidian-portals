@@ -1659,6 +1659,11 @@ export class PortalsView extends ItemView {
         });
     }
 
+    // True while a rebuild would destroy a node the user is interacting with.
+    public isBusy(): boolean {
+        return this.renaming || this.isDraggingTab;
+    }
+
     // Single entry point. 'all' rebuilds the chrome and the tree; 'tree' rebuilds
     // only the selected portal's content.
     render(intent: 'all' | 'tree' = 'all') {
