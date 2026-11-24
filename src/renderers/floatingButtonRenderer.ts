@@ -161,7 +161,7 @@ export class FloatingButtonsRenderer {
                     this.plugin.settings.sortBy = by;
                     this.plugin.settings.sortOrder = order;
                     void this.plugin.saveData(this.plugin.settings);
-                    this.view.renderContent();
+                    this.plugin.renderBus.invalidate('tree:structure', { reason: 'floating action' });
                 };
                 menu.addItem(item => item
                     .setTitle('Name ascending')
@@ -205,7 +205,7 @@ export class FloatingButtonsRenderer {
                         entry.criterion = criterion;
                         this.plugin.settings.spaceSectionPrefs[compositeKey] = entry;
                         void this.plugin.saveSettings();
-                        this.view.renderContent();
+                        this.plugin.renderBus.invalidate('tree:structure', { reason: 'floating action' });
                     };
                     menu.addItem(item => item
                         .setTitle(currentCriterion === 'property' && currentProp

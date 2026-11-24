@@ -196,7 +196,7 @@ export class SectionRenderer {
             this.saveSectionOrder(plugin, parentPath, sections);
             view.saveTreeScroll();
             // Re‑render the whole tree
-            view.renderContent();
+            plugin.renderBus.invalidate('tree:structure', { reason: 'section reordered' });
         });
 
         // ------ File items ------

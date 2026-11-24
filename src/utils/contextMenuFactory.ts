@@ -338,7 +338,7 @@ export class ContextMenuFactory {
                     .onClick(() => {
                         view.saveTreeScroll();
                         space.color = 'transparent';
-                        void view.plugin.saveSettings().then(() => view.render());
+                        void view.plugin.saveSettings();
                     }));
             }
         }
@@ -361,7 +361,7 @@ export class ContextMenuFactory {
                         .onClick(() => {
                             space.stackId = stack.id;
                             view.rebuildTabBarOrder();
-                            void view.plugin.saveSettings().then(() => view.render());
+                            void view.plugin.saveSettings();
                         }));
                 }
             });
@@ -377,7 +377,7 @@ export class ContextMenuFactory {
                     if (!view.plugin.settings.tabBarOrder.includes(compositeKey)) {
                         view.plugin.settings.tabBarOrder.push(compositeKey);
                     }
-                    void view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings();
                 }));
         }
 
@@ -400,7 +400,7 @@ export class ContextMenuFactory {
             .onClick(() => {
                 new RenamePortalModal(view.app, stack.name, (newName: string) => {
                     stack.name = newName.trim() || 'Stack';
-                    void view.plugin.saveSettings().then(() => view.render());
+                    void view.plugin.saveSettings();
                 }).open();
             }));
         const stackKey = `stack:${stack.id}`;
@@ -465,7 +465,7 @@ export class ContextMenuFactory {
                 portalsInStack.forEach(s => delete s.stackId);
                 view.plugin.settings.portalStacks = view.plugin.settings.portalStacks.filter(s => s.id !== stack.id);
                 view.plugin.settings.tabBarOrder = view.plugin.settings.tabBarOrder.filter(entry => entry !== `stack:${stack.id}`);
-                void view.plugin.saveSettings().then(() => view.render());
+                void view.plugin.saveSettings();
             }));
 
         menu.showAtPosition({ x: event.clientX, y: event.clientY });

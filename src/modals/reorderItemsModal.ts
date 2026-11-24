@@ -70,7 +70,7 @@ export class ReorderItemsModal extends Modal {
                     custom[key] = index;
                 });
                 void this.plugin.saveData(this.plugin.settings).then(() => {
-                    this.view.renderContent();
+                    this.plugin.renderBus.invalidate('tree:structure', { reason: 'reorder applied' });
                 });
             },
         });

@@ -142,6 +142,11 @@ function percentile(values: number[], p: number): number {
     return sorted[clamped] ?? 0;
 }
 
+const INTERNAL_FRAMES = new Set([
+    'callerFromStack', 'beginRender', 'endRender', 'recordRender',
+    'RenderStats', 'begin', 'end', 'record',
+]);
+
 // Stack capture only happens when instrumentation is enabled -- the same
 // `new Error().stack` cost that currently runs on every row update.
 function callerFromStack(): string {
@@ -150,10 +155,10 @@ function callerFromStack(): string {
     for (const raw of stack.split('\n')) {
         const line = raw.trim();
         if (!line.startsWith('at ')) continue;
-        if (line.includes('beginRender')) continue;
-        if (line.includes('RenderStats')) continue;
-        const frame = line.slice(3).replace(/\(.*[/\\]([^/\\]+)/, '($1)');
-        return frame.slice(0, 120);
+        const frame = line.slice(3);
+        const name = frame.split(' ')[0] ?? '';
+        if (INTERNAL_FRAMES.has(name)) continue;
+        return frame.replace(/\(.*[/\\]([^/\\]+)/, '($1)').slice(0, 120);
     }
     return 'unknown';
 }

@@ -337,7 +337,7 @@ export class FrontmatterPopup {
                     }
                 }
                 if (changed) {
-                    this.view.renderContent();
+                    this.plugin.renderBus.invalidate('tree:structure', { reason: 'frontmatter applied' });
                 }
                 new Notice(`Pasted YAML into ${changed} file(s).`);
             };
@@ -366,7 +366,7 @@ export class FrontmatterPopup {
                     }
                 }
                 if (cleared) {
-                    this.view.renderContent();
+                    this.plugin.renderBus.invalidate('tree:structure', { reason: 'frontmatter applied' });
                 }
                 new Notice(`Cleared frontmatter in ${cleared} file(s).`);
             })();
@@ -651,7 +651,7 @@ export class FrontmatterPopup {
         }
         if (changed) {
             const savedSelection = new Set(this.view.selectedItems);
-            this.view.renderContent();
+            this.plugin.renderBus.invalidate('tree:structure', { reason: 'frontmatter applied' });
             this.view.selectedItems = savedSelection;
             window.setTimeout(() => this.view.reapplySelectionHighlights(), 50);
         }

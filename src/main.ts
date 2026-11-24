@@ -633,16 +633,9 @@ export default class PortalsPlugin extends Plugin {
             new Notice('Portals: Failed to save settings. Changes may not persist after restart.');
         }
         updatePortalCommands(this);
-        this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
-            if (leaf.view instanceof PortalsView) {
-                const treeContainer = leaf.view.containerEl.querySelector('.portals-tree-container');
-                if (treeContainer) {
-                    leaf.view.scrollToRestore = treeContainer.scrollTop;
-                }
-                leaf.view.render();
-            }
-        });
-        this.refreshAltRightPanelContent();
+        // Settings changes stale the whole surface; the bus decides when to
+        // rebuild rather than every caller rendering eagerly.
+        this.renderBus.invalidate('all', { reason: 'settings saved' });
     }
 
     async activateView() {

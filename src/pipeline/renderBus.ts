@@ -1,6 +1,7 @@
 import { TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
+import { recordRender } from './instrument';
 
 // What changed, not what to draw. Callers declare the change and the bus
 // decides which surface is stale.
@@ -47,6 +48,8 @@ export class RenderBus {
         const merged = previous ? { ...previous.options, ...options } : options;
         const delay = merged.afterMs ?? DELAY_MS[intent];
         this.queue.set(key, { intent, options: merged, dueAt: Date.now() + delay });
+        // Record who asked, because the render stack only shows the view.
+        recordRender(`intent:${intent}`, options.tabId ?? options.reason ?? '');
         this.arm();
     }
 

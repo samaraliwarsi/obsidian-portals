@@ -1,0 +1,100 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949
+{\fonttbl}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+}
+[
+  {
+    "label": "reorder modal - move one item",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 34.1,
+        "p95Ms": 34.1,
+        "maxMs": 34.1,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T11:13:17.784Z"
+  },
+  {
+    "label": "reorder modal - move one item",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 23.4,
+        "p95Ms": 23.4,
+        "maxMs": 23.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T11:13:37.886Z"
+  },
+  {
+    "label": "floating new note",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 3,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 13.1,
+        "p95Ms": 13.5,
+        "maxMs": 13.5,
+        "jumps": 1
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 14,
+        "p95Ms": 14,
+        "maxMs": 14,
+        "jumps": 1
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 37.4,
+        "p95Ms": 37.4,
+        "maxMs": 37.4,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:panel",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T11:14:13.860Z"
+  }
+]

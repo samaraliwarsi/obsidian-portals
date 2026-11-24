@@ -191,7 +191,7 @@ export class PortalsActions {
             // consider if needed the whole block that encapsulates renderContent()
             window.setTimeout(() => {
                 if (!view.fileElementMap.has(newPath)) {
-                    view.renderContent();
+                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
                 }
             }, 300);
         } catch (err: unknown) {
@@ -364,7 +364,7 @@ export class PortalsActions {
                 }
                 void plugin.saveData(plugin.settings).then(() => {
                     view.clearSelection();
-                    view.renderContent();
+                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
                     new Notice(`Moved ${movedCount} item(s) to ${targetFolder.path}`);
                 });
             })();
@@ -423,7 +423,7 @@ export class PortalsActions {
             }
             await plugin.saveData(plugin.settings);
             view.clearSelection();
-            view.renderContent();
+            view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
             new Notice(`Created folder "${folderName}" and moved ${movedCount} item(s)`);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
@@ -488,7 +488,7 @@ export class PortalsActions {
                     plugin.refreshSidePortal(plugin.settings.activeSplitTab);
                     plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
                 } else {
-                    view.renderContent();
+                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
                 }
                 new Notice(`Icon set for ${displayName}`);
             });
@@ -504,7 +504,7 @@ export class PortalsActions {
             plugin.refreshSidePortal(plugin.settings.activeSplitTab);
             plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
         } else {
-            view.renderContent(); 
+            view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }); 
         }
         new Notice('Custom icon removed');
     }
@@ -514,7 +514,7 @@ export class PortalsActions {
         new IconPickerModal(app, plugin.phosphorProvider, plugin.lucideProvider, plugin, (iconKey: string) => {
             plugin.settings.customIcons[groupKey] = iconKey;
             void plugin.saveData(plugin.settings).then(() => {
-                view.renderContent();
+                view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
                 plugin.refreshAltRightPanelContent(); // maybe this is only needed in the files (remove)
                 new Notice(`Icon set for group ${displayName}`);
             });
@@ -524,7 +524,7 @@ export class PortalsActions {
     static async removeCustomIconForTagGroup(_app: App, plugin: PortalsPlugin, view: PortalsView, groupKey: string): Promise<void> {
         delete plugin.settings.customIcons[groupKey];
         await plugin.saveData(plugin.settings);
-        view.renderContent();
+        view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
         plugin.refreshAltRightPanelContent(); // maybe this is only needed in the files (remove)
         new Notice('Custom icon removed');
     }
@@ -534,9 +534,9 @@ export class PortalsActions {
 
         new ColorPickerModal(app, plugin, summaryEl, (color) => {
             plugin.settings.customColors[folder.path] = color;
-            void plugin.saveData(plugin.settings).then(() => view.renderContent());
+            void plugin.saveData(plugin.settings).then(() => view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }));
         }, () => {
-            view.renderContent();
+            view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
         }, currentColor).open();
     }
 
@@ -568,23 +568,23 @@ export class PortalsActions {
 
     static resetCustomColor(_app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): void {
         delete plugin.settings.customColors[folder.path];
-        void plugin.saveData(plugin.settings).then(() => view.renderContent());
+        void plugin.saveData(plugin.settings).then(() => view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }));
     }
 
     static setTagColor(app: App, plugin: PortalsPlugin, view: PortalsView, key: string, targetElement: HTMLElement): void {
         const currentColor = plugin.settings.tagColors[key];
         new ColorPickerModal(app, plugin, targetElement, (color) => {
             plugin.settings.tagColors[key] = color;
-            void plugin.saveData(plugin.settings).then(() => view.renderContent());
+            void plugin.saveData(plugin.settings).then(() => view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }));
                 }, () => {
-                view.renderContent();
+                view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
             }, currentColor).open();    
     }
 
     static resetTagColor(_app: App, plugin: PortalsPlugin, view: PortalsView, key: string, _targetElement: HTMLElement): void {
         view.saveTreeScroll();
         delete plugin.settings.tagColors[key];
-        void plugin.saveData(plugin.settings).then(() => view.renderContent());
+        void plugin.saveData(plugin.settings).then(() => view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }));
     }
 
     // ──────── RENAME HELPERS ────────
@@ -821,7 +821,7 @@ export class PortalsActions {
                 plugin.settings.customColors[newFolderPath] = color;
             }
             await plugin.saveData(plugin.settings);
-            view.renderContent();
+            view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
             new Notice(`"${file.basename}" set as context note of "${folderName}".`);
         } catch (err) {
             new Notice(`Failed to set as context note: ${err}`);
