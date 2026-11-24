@@ -1,0 +1,550 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949
+{\fonttbl}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+}
+[
+  {
+    "label": "Stack auto-collapse",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 30.2,
+        "p95Ms": 30.2,
+        "maxMs": 30.2,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 73.5,
+        "p95Ms": 73.5,
+        "maxMs": 73.5,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:41:43.976Z"
+  },
+  {
+    "label": "Quick tab number/ quick tab badge - toggle between dropdown",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 21.2,
+        "p95Ms": 21.2,
+        "maxMs": 21.2,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 67,
+        "p95Ms": 67,
+        "maxMs": 67,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:43:19.352Z"
+  },
+  {
+    "label": "Tab icon position",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 54.3,
+        "p95Ms": 99,
+        "maxMs": 99,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 34.4,
+        "p95Ms": 34.4,
+        "maxMs": 34.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:44:25.029Z"
+  },
+  {
+    "label": "FileextensionNonMD",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 47.85,
+        "p95Ms": 86.7,
+        "maxMs": 86.7,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 25.7,
+        "p95Ms": 25.7,
+        "maxMs": 25.7,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:45:42.457Z"
+  },
+  {
+    "label": "Tree item tooltips",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 43.1,
+        "p95Ms": 77,
+        "maxMs": 77,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 25.7,
+        "p95Ms": 25.7,
+        "maxMs": 25.7,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:46:17.901Z"
+  },
+  {
+    "label": "Quick add icon",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 51.25,
+        "p95Ms": 93.3,
+        "maxMs": 93.3,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 44.2,
+        "p95Ms": 44.2,
+        "maxMs": 44.2,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:46:54.066Z"
+  },
+  {
+    "label": "Enable context notes",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 53.9,
+        "p95Ms": 98.8,
+        "maxMs": 98.8,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 33.3,
+        "p95Ms": 33.3,
+        "maxMs": 33.3,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:48:13.645Z"
+  },
+  {
+    "label": "context notes highlight style",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 51.65,
+        "p95Ms": 94.5,
+        "maxMs": 94.5,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 44.7,
+        "p95Ms": 44.7,
+        "maxMs": 44.7,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:48:48.816Z"
+  },
+  {
+    "label": "Show context notes in tree",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 56.75,
+        "p95Ms": 103.7,
+        "maxMs": 103.7,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 35.8,
+        "p95Ms": 35.8,
+        "maxMs": 35.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:49:44.725Z"
+  },
+  {
+    "label": "Appearance rules",
+    "seconds": 20,
+    "rows": [
+      {
+        "intent": "view:row",
+        "count": 32,
+        "medianMs": 5.1,
+        "p95Ms": 12,
+        "maxMs": 14.2,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 6.45,
+        "p95Ms": 6.8,
+        "maxMs": 6.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:50:43.418Z"
+  },
+  {
+    "label": "Enable sections",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 52.55,
+        "p95Ms": 99.1,
+        "maxMs": 99.1,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 35.7,
+        "p95Ms": 35.7,
+        "maxMs": 35.7,
+        "jumps": 1
+      }
+    ],
+    "at": "2026-11-24T15:51:18.394Z"
+  },
+  {
+    "label": "Section type change (floating button)",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 46.7,
+        "p95Ms": 87.6,
+        "maxMs": 87.6,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 33.6,
+        "p95Ms": 33.6,
+        "maxMs": 33.6,
+        "jumps": 1
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 33.8,
+        "p95Ms": 33.8,
+        "maxMs": 33.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:52:07.288Z"
+  },
+  {
+    "label": "auto collapse folders",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 44.2,
+        "p95Ms": 82.3,
+        "maxMs": 82.3,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 32.1,
+        "p95Ms": 32.1,
+        "maxMs": 32.1,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:52:53.836Z"
+  },
+  {
+    "label": "rreminder tree indicator",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 46.7,
+        "p95Ms": 87,
+        "maxMs": 87,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 39.6,
+        "p95Ms": 39.6,
+        "maxMs": 39.6,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:54:04.537Z"
+  },
+  {
+    "label": "floating button collapsed - doesn't requires setting",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 28.2,
+        "p95Ms": 28.2,
+        "maxMs": 28.2,
+        "jumps": 1
+      },
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 76.4,
+        "p95Ms": 76.4,
+        "maxMs": 76.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:54:47.489Z"
+  },
+  {
+    "label": "Clinic state - happens from inside clinic",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:clinic",
+        "count": 2,
+        "medianMs": 28.95,
+        "p95Ms": 36.4,
+        "maxMs": 36.4,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 55.45,
+        "p95Ms": 88.4,
+        "maxMs": 88.4,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 29.1,
+        "p95Ms": 29.1,
+        "maxMs": 29.1,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:56:13.101Z"
+  },
+  {
+    "label": "date display format",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 69.45,
+        "p95Ms": 96,
+        "maxMs": 96,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 47.5,
+        "p95Ms": 47.5,
+        "maxMs": 47.5,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 39.7,
+        "p95Ms": 39.7,
+        "maxMs": 39.7,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T15:56:50.332Z"
+  }
+]

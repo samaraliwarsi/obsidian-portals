@@ -111,7 +111,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         name: 'Toggle sections in explorer',
         callback: () => {
             plugin.settings.enableSections = !plugin.settings.enableSections
-                void plugin.saveSettings();
+                void plugin.saveSettings('tree:structure');
         },
     });
 
@@ -120,7 +120,7 @@ export function registerAllCommands (plugin: PortalsPlugin) {
         name: 'Toggle file previews in explorer',
         callback: () => {
             plugin.settings.showFilePreview = !plugin.settings.showFilePreview;
-            void plugin.saveSettings();
+            void plugin.saveSettings('tree:structure');
         }
     });
 
