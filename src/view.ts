@@ -48,7 +48,6 @@ export class PortalsView extends ItemView {
     public floatingBtnCollapseTooltipShown = false;
     public floatingBtnSectionTooltipShown = false;
     public _activeOutsideClickListener: ((e: MouseEvent) => void) | null = null;
-    private renderTimer: number | null = null;
     public fileElementMap = new Map<string, HTMLElement>();
     public scrollToRestore: number | null = null;
     private spaceScrollCache = new Map<string, number>();
@@ -357,12 +356,6 @@ export class PortalsView extends ItemView {
             this.selectedItems.add(rangeKey);
             const el = elMap.get(rangeKey);
             el?.classList.add('is-selected');
-        }
-    }
-
-    public cancelScheduledRender(): void {
-        if (this.renderTimer) {
-            this.renderTimer = null;
         }
     }
 
@@ -1379,10 +1372,6 @@ export class PortalsView extends ItemView {
     }
 
     async onClose() {
-        if (this.renderTimer) {
-            window.clearTimeout(this.renderTimer);
-            this.renderTimer = null;
-        }
 
         if (this._activeOutsideClickListener) {
             activeDocument.removeEventListener('mousedown', this._activeOutsideClickListener);
@@ -2037,10 +2026,6 @@ export class PortalsView extends ItemView {
     private renderTreeScope() {
         if (this.renaming) return;
         this.hideTooltip(0);
-        if (this.renderTimer) {
-            window.clearTimeout(this.renderTimer);
-            this.renderTimer = null;
-        }
         if (this.isDraggingTab) return;
         const openFiles = this.getOpenFilePaths();
         const container = this.containerEl.children[1] as HTMLElement;
@@ -2264,11 +2249,7 @@ export class PortalsView extends ItemView {
                     const message = err instanceof Error ? err.message : String(err);
                     new Notice(`Failed to move: ${message}`);
                 } finally {
-                    if (this.renderTimer) {
-                        window.clearTimeout(this.renderTimer);
-                        this.renderTimer = null;   
-                    }
-                    this.renderContent();
+                    this.plugin.renderBus.invalidate('tree:structure', { reason: 'drop moved file' });
                 }
             })().catch(err => console.error(err));
         });

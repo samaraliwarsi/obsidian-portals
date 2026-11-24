@@ -204,8 +204,9 @@ export class FloatingButtonsRenderer {
                         const entry = this.plugin.settings.spaceSectionPrefs[compositeKey] ?? {};
                         entry.criterion = criterion;
                         this.plugin.settings.spaceSectionPrefs[compositeKey] = entry;
-                        void this.plugin.saveSettings();
-                        this.plugin.renderBus.invalidate('tree:structure', { reason: 'floating action' });
+                        // One intent: saveSettings no longer forces a full rebuild
+                        // on top of the structure change.
+                        void this.plugin.saveSettings('tree:structure', { reason: 'sections changed' });
                     };
                     menu.addItem(item => item
                         .setTitle(currentCriterion === 'property' && currentProp
@@ -232,7 +233,7 @@ export class FloatingButtonsRenderer {
                                 entry.criterion = 'property';
                                 this.plugin.settings.spaceSectionPrefs[compositeKey] = entry;
                                 this.view.saveTreeScroll();
-                                void this.plugin.saveSettings().then(() => this.view.render())
+                                void this.plugin.saveSettings('tree:structure', { reason: 'section property changed' })
                             },
                             placeholder: 'Property name...'
                         });

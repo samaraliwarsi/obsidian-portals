@@ -182,8 +182,7 @@ export class PortalsActions {
             newPath = dir ? `${dir}/${newName}` : newName;
         }
         try {
-            view.cancelScheduledRender();
-            view.saveTreeScroll();
+                        view.saveTreeScroll();
             const savedScroll = view.scrollToRestore;
             await app.vault.copy(file, newPath);
             new Notice(`Duplicated to ${newName}`);
@@ -277,8 +276,7 @@ export class PortalsActions {
         const confirmed = await ConfirmModal.confirm(app, confirmMsg);
         if (!confirmed) return;
 
-        view.cancelScheduledRender();
-        const paths = Array.from(view.selectedItems);
+                const paths = Array.from(view.selectedItems);
 
         const firstItem = view.selectedItems.values().next();
         if (firstItem.done) return;
@@ -323,8 +321,7 @@ export class PortalsActions {
 
     static async moveSelectedItemsToFolder(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
-        view.cancelScheduledRender();
-        const paths = Array.from(view.selectedItems);
+                const paths = Array.from(view.selectedItems);
         const firstItem = view.selectedItems.values().next();
         if (firstItem.done) return;
         const firstItemPath = firstItem.value;
@@ -373,8 +370,7 @@ export class PortalsActions {
 
     static async createFolderFromSelected(app: App, plugin: PortalsPlugin, view: PortalsView): Promise<void> {
         if (view.selectedItems.size === 0) return;
-        view.cancelScheduledRender();
-        const paths = Array.from(view.selectedItems);
+                const paths = Array.from(view.selectedItems);
         const firstItem = view.selectedItems.values().next();
         if (firstItem.done) return;
         const firstItemPath = firstItem.value; 
