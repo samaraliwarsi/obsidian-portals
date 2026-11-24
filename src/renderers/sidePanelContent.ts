@@ -42,7 +42,9 @@ const activeSidePanelRenderers = new WeakMap<HTMLElement, PanelRenderer>();
 // from scratch, so without this every switch loses the reader's position.
 interface PanelScrollState {
     value: number;
-    hostClass: string | null;
+    // A locator for the element that actually scrolls. Class when it has one,
+    // tag otherwise: several panels build their scroller as an unclassed div.
+    selector: string | null;
 }
 
 const panelScroll = new WeakMap<HTMLElement, Map<string, PanelScrollState>>();
@@ -55,16 +57,17 @@ function capturePanelScroll(contentEl: HTMLElement): PanelScrollState {
             if (el.scrollTop > host.scrollTop) host = el;
         }
     }
+    const cls = host.classList.item(0);
     return {
         value: host.scrollTop,
-        hostClass: host === contentEl ? null : host.classList.item(0),
+        selector: host === contentEl ? null : (cls ? `.${cls}` : host.tagName.toLowerCase()),
     };
 }
 
 function restorePanelScroll(contentEl: HTMLElement, state: PanelScrollState): void {
     if (state.value <= 0) return;
-    const host = state.hostClass
-        ? contentEl.querySelector<HTMLElement>(`.${state.hostClass}`) ?? contentEl
+    const host = state.selector
+        ? contentEl.querySelector<HTMLElement>(state.selector) ?? contentEl
         : contentEl;
     host.scrollTop = state.value;
 }
