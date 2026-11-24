@@ -346,107 +346,48 @@ export class TagTreeRenderer {
             let groupIndex = 0;
             for (const [gTag, files] of sortedGroupEntries) {
                 if (files.length === 0) continue;
-                const groupDetails = childrenContainer.createEl('details', { cls: 'folder-details' });
                 const groupKey = this.view.getTagGroupKey(tagName, gTag);
+                const expandedGroups = this.plugin.settings.expandedGroups[tagName] || [];
+
+                const {
+                    details: groupDetails,
+                    summary,
+                    children: groupChildren,
+                    icon: iconSpan,
+                } = Rows.branch(
+                    { app: this.app, plugin: this.plugin, view: this.view, openFiles },
+                    childrenContainer,
+                    {
+                        key: gTag,
+                        keyAttr: 'tagPath',
+                        label: '#' + gTag,
+                        iconKey: groupKey,
+                        iconFallback: 'tag-simple',
+                        reorderKey: groupKey,
+                        open: expandedGroups.includes(gTag),
+                        colorKey: groupKey,
+                        colorSource: 'tag',
+                        depth: 1,
+                        index: groupIndex,
+                        totalFirstLevel: totalGroups,
+                        shadeMaxOpacity: 0.4,
+                        hueMaxOpacity: 0.3,
+                        hueChildrenFactor: 0.6,
+                        contextNoteHighlight: this.plugin.settings.enableContextNotes && hasContextNote(this.app, this.plugin, gTag),
+                        openDot: this.shouldShowOpenDot(gTag, true),
+                        tooltip: (nameSpan) => this.getTagTooltip(gTag, nameSpan, true, files.length, tagToFiles, allTags, undefined, false),
+                    },
+                );
                 groupDetails.dataset.groupKey = groupKey;
 
-                // FLAT LIST: TAG GROUPS - open state based on expanded groups
-                const saveExpanded = this.plugin.settings.expandedGroups[tagName] || [];
-                if (saveExpanded.includes(gTag)) {
-                    groupDetails.open = true;
-                } else {
-                    groupDetails.open = false;
-                }
-                const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
-                const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
-
-                this.applyColorToDetails(groupDetails, summary, groupChildren, groupKey);
-
-                // FLAT LIST: TAG GROUPS - Shades Style
-                if (this.plugin.settings.treeStyle === 'shades') {
-                    const minOpacity = 0.1;
-                    const maxOpacity = 0.4;
-                    let shadeOpacity;
-                    const total = totalGroups > 0 ? totalGroups : 1;
-                    if (total <= 1) {
-                        shadeOpacity = minOpacity
-                    } else {
-                        const progress = groupIndex / (total -1);
-                        shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                    }
-                    shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
-
-                    summary.classList.add('shaded-folder-summary');
-                    summary.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
-                    groupChildren.classList.add('shaded-folder-children');
-                    groupChildren.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
-                }
-
-                // FLAT LIST: TAG GROUPS - Hue Style
-                if (this.plugin.settings.treeStyle === 'hues') {
-                    const total = totalGroups > 0 ? totalGroups : 1;
-                    let progress = groupIndex / (total - 1);
-                    if (total <= 1) progress = 0.5;
-                    const hue = progress * 360;
-                    const minOpacity = 0.1;
-                    const maxOpacity = 0.3;
-                    let opacity;
-                    if (total <= 1) {
-                        opacity = minOpacity;
-                    } else {
-                        opacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                        opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
-                    }
-                    summary.classList.add('hued-folder-summary');
-                    summary.setCssProps({ '--hue-start': String(hue) });
-                    summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-                    summary.setCssProps({ '--hue-opacity': String(opacity) });
-                    groupChildren.classList.add('hued-folder-children');
-                    groupChildren.setCssProps({ '--hue-start': String(hue) });
-                    groupChildren.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-                    groupChildren.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
-                }
-
-                // FLAT LIST: TAG GROUPS - icon with custom support
-                const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-                this.plugin.renderCustomIcon(iconSpan, groupKey, 'tag-simple');
-                summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
-                summary.dataset.tagPath = gTag;
-                summary.dataset.reorderKey = groupKey;
-
-                // FLAT LIST: open-dot
-                if (this.shouldShowOpenDot(gTag, true)) {
-                    summary.createSpan({ cls: 'open-dot' });
-                }
-
-                // FLAT LIST: TAG GROUPS - tree item tooltips 
-                if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
-                    summary.addEventListener('mouseenter', () => {
-                        const nameSpan = summary.querySelector('.portals-item-name') as HTMLElement;
-                        if (!nameSpan) return;
-                        const tooltip = this.getTagTooltip(gTag, nameSpan, true, files.length, tagToFiles, allTags, undefined, false);
-                        if (tooltip) this.view.showTooltip(tooltip, summary, 300, 'right');
-                    });
-                    summary.addEventListener('mouseleave', () => {
-                        this.view.hideTooltip(100);
-                    });
-                }
-
-                // FLAT LIST: TAG GROUPS - Quick‑create note for tag groups flat list (mainT + gTag)
                 this.view.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName, [gTag]));
 
-                // FLAT LIST: TAG GROUPS - Apply context note highlight to group tag
-                const groupTagPath = gTag;
-                this.applyContextNoteHighlight(summary, iconSpan, groupTagPath);
-
-                // FLAT LIST: TAG GROUPS - context menu for group
                 summary.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    const groupKey = this.view.getTagGroupKey(tagName, gTag);
-                    ContextMenuFactory.showGroupTagContextMenu(this.view, tagName, groupKey, gTag, groupDetails, summary, e);
+                    const menuKey = this.view.getTagGroupKey(tagName, gTag);
+                    ContextMenuFactory.showGroupTagContextMenu(this.view, tagName, menuKey, gTag, groupDetails, summary, e);
                 });
 
-                // FLAT LIST: TAG GROUPS - treeEventHelpers.ts hook
                 TreeEventHelpers.attachTagNodeListeners(summary, groupKey, gTag, this.view);
                 TreeEventHelpers.attachIconContextNoteOpener(iconSpan, gTag, this.view);
 

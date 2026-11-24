@@ -36,6 +36,9 @@ export interface BranchSpec {
     shadeChildrenFactor?: number;
     hueMaxOpacity?: number;
     hueChildrenFactor?: number;
+    /// Hue position used when a level has a single row. Folders and tag groups
+    /// sit at the middle (0.5); subtag levels start at 0.
+    singleHueProgress?: number;
     tooltip?: (nameSpan: HTMLElement) => string | null;
 }
 
@@ -273,13 +276,17 @@ export class Rows {
         const depth = spec.depth ?? 0;
         const total = (spec.totalFirstLevel ?? 0) > 0 ? (spec.totalFirstLevel ?? 1) : 1;
         const position = spec.index ?? 0;
-        const progress = total <= 1 ? 0 : position / (total - 1);
+        const hasRamp = total > 1;
+        const progress = hasRamp ? position / (total - 1) : 0;
         const minOpacity = 0.1;
-        const ramp = (ceiling: number) =>
-            Math.min(ceiling, Math.max(minOpacity, ceiling - progress * (ceiling - minOpacity)));
+        const ramp = (ceiling: number, at: number) =>
+            Math.min(ceiling, Math.max(minOpacity, ceiling - at * (ceiling - minOpacity)));
 
         if (depth === 1 && treeStyle === 'shades') {
-            const shade = ramp(spec.shadeMaxOpacity ?? 0.3);
+            // A lone first-level row sits at the floor, as in the original
+            // folder and tag implementations.
+            const ceiling = spec.shadeMaxOpacity ?? 0.3;
+            const shade = hasRamp ? ramp(ceiling, progress) : minOpacity;
             const childShade = shade * (spec.shadeChildrenFactor ?? 1);
             summary.classList.add('shaded-folder-summary');
             summary.setCssProps({ '--folder-shade-opacity': String(shade) });
@@ -288,8 +295,10 @@ export class Rows {
         }
 
         if (depth === 1 && treeStyle === 'hues') {
-            const hue = progress * 360;
-            const hueOpacity = ramp(spec.hueMaxOpacity ?? 0.3);
+            // A lone first-level row takes the middle of the wheel.
+            const at = hasRamp ? progress : (spec.singleHueProgress ?? 0.5);
+            const hue = at * 360;
+            const hueOpacity = hasRamp ? ramp(spec.hueMaxOpacity ?? 0.3, at) : minOpacity;
             const childHue = hueOpacity * (spec.hueChildrenFactor ?? 0.6);
             summary.classList.add('hued-folder-summary');
             summary.setCssProps({ '--hue-start': String(hue) });
