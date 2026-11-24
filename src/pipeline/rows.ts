@@ -30,6 +30,12 @@ export interface BranchSpec {
     totalFirstLevel?: number;
     contextNoteHighlight?: boolean;
     openDot?: boolean;
+    /// Shades ramp ceiling, and the multiplier applied to the children's opacity.
+    /// Shared by folders, tags and groups: same DOM, same ramp.
+    shadeMaxOpacity?: number;
+    shadeChildrenFactor?: number;
+    hueMaxOpacity?: number;
+    hueChildrenFactor?: number;
     tooltip?: (nameSpan: HTMLElement) => string | null;
 }
 
@@ -235,10 +241,9 @@ export class Rows {
             const style = plugin.settings.contextNoteHighlightStyle;
             if (style === 'icon') {
                 iconSpan.addClass('has-context-note-icon');
-                if (plugin.settings.treeStyle === 'minimal' || plugin.settings.treeStyle === 'shades') {
-                    summary.addClass('has-context-note-icon');
-                }
+                summary.addClass('has-context-note-icon');
             } else if (style === 'underline') {
+                summary.addClass('has-context-note-underline');
                 nameSpan.addClass('has-context-note-underline');
             }
         }
@@ -270,26 +275,30 @@ export class Rows {
         const position = spec.index ?? 0;
         const progress = total <= 1 ? 0 : position / (total - 1);
         const minOpacity = 0.1;
-        const maxOpacity = 0.3;
-        const opacity = Math.min(maxOpacity, Math.max(minOpacity, maxOpacity - progress * (maxOpacity - minOpacity)));
+        const ramp = (ceiling: number) =>
+            Math.min(ceiling, Math.max(minOpacity, ceiling - progress * (ceiling - minOpacity)));
 
         if (depth === 1 && treeStyle === 'shades') {
+            const shade = ramp(spec.shadeMaxOpacity ?? 0.3);
+            const childShade = shade * (spec.shadeChildrenFactor ?? 1);
             summary.classList.add('shaded-folder-summary');
-            summary.setCssProps({ '--folder-shade-opacity': String(opacity) });
+            summary.setCssProps({ '--folder-shade-opacity': String(shade) });
             children.classList.add('shaded-folder-children');
-            children.setCssProps({ '--folder-shade-opacity': String(opacity) });
+            children.setCssProps({ '--folder-shade-opacity': String(childShade) });
         }
 
         if (depth === 1 && treeStyle === 'hues') {
             const hue = progress * 360;
+            const hueOpacity = ramp(spec.hueMaxOpacity ?? 0.3);
+            const childHue = hueOpacity * (spec.hueChildrenFactor ?? 0.6);
             summary.classList.add('hued-folder-summary');
             summary.setCssProps({ '--hue-start': String(hue) });
             summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-            summary.setCssProps({ '--hue-opacity': String(opacity) });
+            summary.setCssProps({ '--hue-opacity': String(hueOpacity) });
             children.classList.add('hued-folder-children');
             children.setCssProps({ '--hue-start': String(hue) });
             children.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-            children.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
+            children.setCssProps({ '--hue-opacity': String(childHue) });
         }
 
         return { details, summary, children, icon: iconSpan };

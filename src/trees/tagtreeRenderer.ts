@@ -258,42 +258,29 @@ export class TagTreeRenderer {
                 return;
             }
 
-            // FLAT LIST: Create elements for Main Tag
-            const mainDetails = container.createEl('details', { cls: 'folder-details' });
-            mainDetails.setAttr('open', 'true');
-            const mainSummary = mainDetails.createEl('summary', { cls: 'folder-summary' });
-            const mainIconSpan = mainSummary.createSpan({ cls: 'folder-icon' });
-            this.plugin.renderCustomIcon(mainIconSpan, `tag:${tagName}`, iconName || 'tag-simple');
-            mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
-            const childrenContainer = mainDetails.createDiv({ cls: 'folder-children' });
-            mainSummary.dataset.tagPath = tagName;
+            // FLAT LIST: Main Tag row
+            const {
+                summary: mainSummary,
+                children: childrenContainer,
+                icon: mainIconSpan,
+            } = Rows.branch(
+                { app: this.app, plugin: this.plugin, view: this.view, openFiles },
+                container,
+                {
+                    key: tagName,
+                    keyAttr: 'tagPath',
+                    label: '#' + tagName,
+                    iconKey: `tag:${tagName}`,
+                    iconFallback: iconName || 'tag-simple',
+                    open: true,
+                    contextNoteHighlight: this.plugin.settings.enableContextNotes && hasContextNote(this.app, this.plugin, tagName),
+                    openDot: this.shouldShowOpenDot(tagName, false),
+                    tooltip: (nameSpan) => this.getTagTooltip(tagName, nameSpan, false, undefined, tagToFiles, allTags, groupTags, true),
+                },
+            );
 
-            // FLAT LIST: opendot
-            if (this.shouldShowOpenDot(tagName, false)) {
-                mainSummary.createSpan({ cls: 'open-dot' });
-            }
-
-            // FLAT LIST: tree item tooltips
-            if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
-                mainSummary.addEventListener('mouseenter', () => {
-                    const nameSpan = mainSummary.querySelector('.portals-item-name') as HTMLElement;
-                    if (!nameSpan) return;
-                    const tooltip = this.getTagTooltip(tagName, nameSpan, false, undefined, tagToFiles, allTags, groupTags, true);
-                    if (tooltip) this.view.showTooltip(tooltip, mainSummary, 300, 'right');
-                });
-                mainSummary.addEventListener('mouseleave', () => {
-                    this.view.hideTooltip(100);
-                });
-            }
-
-            // FLAT LIST: Apply context note highlight to main tag
-            const mainTagPath = tagName;
-            this.applyContextNoteHighlight(mainSummary, mainIconSpan, mainTagPath);
-
-            // FLAT LIST: Quick‑create note for tag lists (tagName)
             this.view.quickFileIcon(mainSummary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName));
 
-            // FLAT LIST: Context Menu
             mainSummary.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 ContextMenuFactory.showTagContextMenu(this.view, tagName, iconName || 'tag', mainSummary, e);
@@ -721,39 +708,27 @@ export class TagTreeRenderer {
         };
 
         // HLIST: Main wrapper details for the portal
-        const mainDetails = container.createEl('details', { cls: 'folder-details' });
-        mainDetails.open = true;
-        const mainSummary = mainDetails.createEl('summary', { cls: 'folder-summary' });
-        const mainIconSpan = mainSummary.createSpan({ cls: 'folder-icon' });
-        this.plugin.renderCustomIcon(mainIconSpan, `tag:${tagName}`, iconName || 'tag');
-        mainSummary.createSpan({ text: '#' + tagName }).addClass('portals-item-name');
-        const mainChildren = mainDetails.createDiv({ cls: 'folder-children' });
-        mainSummary.dataset.tagPath = tagName;
+        const {
+            summary: mainSummary,
+            children: mainChildren,
+            icon: mainIconSpan,
+        } = Rows.branch(
+            { app: this.app, plugin: this.plugin, view: this.view, openFiles },
+            container,
+            {
+                key: tagName,
+                keyAttr: 'tagPath',
+                label: '#' + tagName,
+                iconKey: `tag:${tagName}`,
+                iconFallback: iconName || 'tag',
+                open: true,
+                contextNoteHighlight: this.plugin.settings.enableContextNotes && hasContextNote(this.app, this.plugin, tagName),
+                openDot: this.shouldShowOpenDot(tagName, false),
+                tooltip: (nameSpan) => this.getTagTooltip(tagName, nameSpan, false, undefined, tagToFiles, allTags, groupTags, true),
+            },
+        );
 
-        // HLIST: opendot
-        if (this.shouldShowOpenDot(tagName, false)) {
-            mainSummary.createSpan({ cls: 'open-dot' });
-        }
-
-        // HLIST: tree item tooltips
-        if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
-                mainSummary.addEventListener('mouseenter', () => {
-                    const nameSpan = mainSummary.querySelector('.portals-item-name') as HTMLElement;
-                    if (!nameSpan) return;
-                    const tooltip = this.getTagTooltip(tagName, nameSpan, false, undefined, tagToFiles, allTags, groupTags, true);
-                    if (tooltip) this.view.showTooltip(tooltip, mainSummary, 300, 'right');
-                });
-                mainSummary.addEventListener('mouseleave', () => {
-                    this.view.hideTooltip(100);
-                });
-            }
-
-        // HLIST: Quick‑create note for sub tag tree head item (tagName)
         this.view.quickFileIcon(mainSummary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName));
-
-        // HLIST: Apply context note highlight to main tag
-        const mainTagPath = tagName;
-        this.applyContextNoteHighlight(mainSummary, mainIconSpan, mainTagPath);
 
         mainSummary.addEventListener('contextmenu', (e) => {
             e.preventDefault();
