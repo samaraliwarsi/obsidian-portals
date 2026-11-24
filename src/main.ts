@@ -95,6 +95,9 @@ export default class PortalsPlugin extends Plugin {
             // The metadata cache is not ready during onload, so the reminder map
             // built there is empty and the panel shows nothing until a change.
             this.rebuildReminderDatesCache();
+            // The panel was rendered from an empty cache before this point.
+            this.refreshSidePortal('reminders');
+            this.refreshAltRightPanelContent('reminders');
             window.setTimeout(() => { void this.setupPortalsSidebar(); }, 0);
             // auto backup
             if (this.settings.enableAutoBackup) {

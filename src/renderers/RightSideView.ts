@@ -1,7 +1,7 @@
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import PortalsPlugin from '../main';
 import Sortable from 'sortablejs';
-import { renderSideTabs } from './sideTabs';
+import { renderSideTabs, updateSideTabs } from './sideTabs';
 import { PortalsView, VIEW_TYPE_PORTALS } from '../view';
 import { destroySidePanelRenderer, getContextRenderer, renderSidePanelContent } from './sidePanelContent';
 
@@ -151,22 +151,17 @@ export class AltSidePanelView extends ItemView {
         const compact = this.plugin.settings.compactTabs;
         const header = this.contentEl.querySelector<HTMLElement>('.portals-secondary-header');
         if (header) header.toggleClass('portals-compact-tabs', compact);
-        const strip = this.contentEl.querySelector<HTMLElement>('.portals-split-tabs');
-        if (strip) strip.toggleClass('portals-compact-tabs', compact);
 
-        const displayMode = this.plugin.settings.tabNameDisplay;
-        const rootColor = this.getRootAccentColor();
-        this.contentEl.querySelectorAll<HTMLElement>('.portals-split-tab').forEach(tab => {
-            const isActive = tab.dataset.tabId === activeTabId;
-            tab.toggleClass('is-active', isActive);
-            tab.setCssProps({
-                '--split-tab-active-color': isActive && rootColor ? rootColor : '',
-            });
-            const label = tab.querySelector('span.tab-label');
-            if (label) {
-                const show = displayMode === 'all' || (displayMode === 'activeOnly' && isActive);
-                label.toggleClass('hide', !show);
-            }
+        const strip = this.contentEl.querySelector<HTMLElement>('.portals-split-tabs');
+        if (!strip) return;
+        strip.toggleClass('portals-compact-tabs', compact);
+        // Delegated: the per-tab look must not be re-implemented here, or a
+        // setting like icon position applies to one panel and not the other.
+        updateSideTabs(strip, {
+            activeTabId,
+            rootColor: this.getRootAccentColor(),
+            nameDisplay: this.plugin.settings.tabNameDisplay,
+            iconPosition: this.plugin.settings.tabIconPosition,
         });
     }
 
