@@ -61,6 +61,7 @@ export class PortalsView extends ItemView {
     public fileElementMap = new Map<string, HTMLElement>();
     public scrollToRestore: number | null = null;
     private spaceScrollCache = new Map<string, number>();
+    private scrollCaptureResumeAt = 0;
     private lastRenderedSpaceKey: string = '';
     private scrollAnchor: { selector: string; offset: number; path?: string; isTag?: boolean } | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
@@ -1339,6 +1340,10 @@ export class PortalsView extends ItemView {
             // Emptying the tree mid-rebuild fires a scroll to 0; writing that
             // would overwrite the position we are about to restore.
             if (target.classList.contains('portals-is-rebuilding')) return;
+            // Scroll events from a rebuild are dispatched a frame later than the
+            // DOM change, so the class alone is not enough: a trailing reset to 0
+            // would overwrite the position we just restored.
+            if (performance.now() < this.scrollCaptureResumeAt) return;
             const space = this.plugin.settings.selectedSpace;
             if (!space) return;
             const key = `${space.type}:${space.path}`;
@@ -2164,6 +2169,7 @@ export class PortalsView extends ItemView {
 
         const probe = beginRender('view:tree', { detail: 'tree rebuild', root: this.containerEl });
 
+        this.scrollCaptureResumeAt = performance.now() + 150;
         treeContainer.addClass('portals-is-rebuilding'); // class to mute flickers
         treeContainer.empty();
 
