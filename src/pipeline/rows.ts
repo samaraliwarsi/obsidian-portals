@@ -49,6 +49,17 @@ export interface BranchParts {
     icon: HTMLElement;
 }
 
+// The class alone loses the cascade: `.portals-task-preview { display: flex }`
+// has the same specificity and comes later, so it wins over the hidden rule.
+// Drive display directly as well, which is also why the +/- button appeared to
+// do nothing for task bars.
+function setPreviewVisibility(el: HTMLElement | null, visible: boolean): void {
+    if (!el) return;
+    el.toggleClass('file-item-preview-hidden', !visible);
+    if (visible) el.show();
+    else el.hide();
+}
+
 export class Rows {
     // One file row. This is the single implementation shared by the main tree,
     // the section list and every side-panel list.
@@ -109,15 +120,9 @@ export class Rows {
                 void plugin.saveData(plugin.settings);
 
                 const noShown = !newExcludedState;
-                if (previewEl) {
-                    previewEl.classList.toggle('file-item-preview-hidden', !noShown);
-                }
-                if (taskEl) {
-                    taskEl.classList.toggle('file-item-preview-hidden', !noShown);
-                }
-                if (infoBar) {
-                    infoBar.classList.toggle('file-item-preview-hidden', !noShown);
-                }
+                setPreviewVisibility(previewEl, noShown);
+                setPreviewVisibility(taskEl, noShown);
+                setPreviewVisibility(infoBar, noShown);
                 plugin.renderPluginIcon(toggleBtn, noShown ? 'minus-circle' : 'plus-circle');
             });
 
@@ -150,9 +155,9 @@ export class Rows {
                 const excludedNow = plugin.settings.previewExcludedFiles[file.path] ?? false;
                 const visibleNow = view.previewsCollapsed ? excludedNow === false : excludedNow !== true;
                 if (!visibleNow) {
-                    if (previewEl) previewEl.addClass('file-item-preview-hidden');
-                    if (infoBar) infoBar.addClass('file-item-preview-hidden');
-                    if (taskEl) taskEl.addClass('file-item-preview-hidden');
+                    setPreviewVisibility(previewEl, false);
+                    setPreviewVisibility(infoBar, false);
+                    setPreviewVisibility(taskEl, false);
                 }
 
                 if (savedColor) {
