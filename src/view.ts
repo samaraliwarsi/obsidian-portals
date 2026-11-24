@@ -1125,21 +1125,21 @@ export class PortalsView extends ItemView {
 
     public async hideItem(key: string, silent = false) {
         this.plugin.settings.hiddenItems[key] = true;
-        await this.plugin.saveSettings();
+        await this.plugin.saveSettings('tree:structure', { reason: 'hidden items changed' });
         this.plugin.refreshAltRightPanelContent('hidden');
         if (!silent) new Notice('Item hidden');
     }
 
     public async unhideItem(key: string) {
         delete this.plugin.settings.hiddenItems[key];
-        await this.plugin.saveSettings();
+        await this.plugin.saveSettings('tree:structure', { reason: 'hidden items changed' });
         this.plugin.refreshAltRightPanelContent('hidden');
         new Notice(`Unhidden: ${key}`);
     }
 
     public async unhideAllItems() {
         this.plugin.settings.hiddenItems = {};
-        await this.plugin.saveSettings();
+        await this.plugin.saveSettings('tree:structure', { reason: 'hidden items changed' });
         this.plugin.refreshAltRightPanelContent('hidden');
         new Notice('All items unhidden');
     }

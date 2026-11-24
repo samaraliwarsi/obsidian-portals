@@ -335,5 +335,5 @@ export function recordRender(intent: string, detail?: string): void {
 }
 
 // Console handle. Kept out of the plugin API surface on purpose.
-const debugGlobal = globalThis as unknown as { __portalsRender?: RenderStats };
-debugGlobal.__portalsRender = renderStats;
+// window, not globalThis, so the handle works from a popout window too.
+(window as unknown as { __portalsRender?: RenderStats }).__portalsRender = renderStats;
