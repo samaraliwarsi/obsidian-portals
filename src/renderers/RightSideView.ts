@@ -146,6 +146,14 @@ export class AltSidePanelView extends ItemView {
     // Mirrors what the strip builder applies, otherwise the accent colour would
     // only ever land on the tab that happened to be active at build time.
     private applyActiveTab(activeTabId: string): void {
+        // Header-level look lives outside the tabs, so sync it on every refresh
+        // rather than only when the strip is rebuilt.
+        const compact = this.plugin.settings.compactTabs;
+        const header = this.contentEl.querySelector<HTMLElement>('.portals-secondary-header');
+        if (header) header.toggleClass('portals-compact-tabs', compact);
+        const strip = this.contentEl.querySelector<HTMLElement>('.portals-split-tabs');
+        if (strip) strip.toggleClass('portals-compact-tabs', compact);
+
         const displayMode = this.plugin.settings.tabNameDisplay;
         const rootColor = this.getRootAccentColor();
         this.contentEl.querySelectorAll<HTMLElement>('.portals-split-tab').forEach(tab => {

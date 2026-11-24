@@ -92,6 +92,9 @@ export default class PortalsPlugin extends Plugin {
         }
 
         this.app.workspace.onLayoutReady(() => {
+            // The metadata cache is not ready during onload, so the reminder map
+            // built there is empty and the panel shows nothing until a change.
+            this.rebuildReminderDatesCache();
             window.setTimeout(() => { void this.setupPortalsSidebar(); }, 0);
             // auto backup
             if (this.settings.enableAutoBackup) {
@@ -633,6 +636,7 @@ export default class PortalsPlugin extends Plugin {
             new Notice('Portals: Failed to save settings. Changes may not persist after restart.');
         }
         updatePortalCommands(this);
+        this.closeAltSidePanelsIfDisabled();
         // Settings changes stale the whole surface; the bus decides when to
         // rebuild rather than every caller rendering eagerly.
         this.renderBus.invalidate('all', { reason: 'settings saved' });
@@ -857,6 +861,15 @@ export default class PortalsPlugin extends Plugin {
         });
     }
 
+
+    // sidePanelEnabled is a global switch: the right-hand panel is a side portal
+    // too, so turning side portals off closes it rather than leaving it running.
+    private closeAltSidePanelsIfDisabled(): void {
+        if (this.settings.sidePanelEnabled) return;
+        this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL).forEach(leaf => {
+            leaf.detach();
+        });
+    }
 
     public getPortalsViews(): PortalsView[] {
         return this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)
