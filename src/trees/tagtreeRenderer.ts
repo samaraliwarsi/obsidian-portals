@@ -1,4 +1,4 @@
-import { App, Platform, TFile } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
@@ -134,46 +134,6 @@ export class TagTreeRenderer {
         }
         
         return tooltip || null;
-    }
-
-    // Highlights the summary/icon if a context note exists
-    private applyContextNoteHighlight(summary: HTMLElement, iconSpan: HTMLElement, tagPath: string): void {
-        if (!this.plugin.settings.enableContextNotes
-            || !hasContextNote(this.app, this.plugin, tagPath)
-            || this.plugin.settings.contextNoteHighlightStyle === 'none') {
-            return;
-        }
-        const style = this.plugin.settings.contextNoteHighlightStyle;
-        if (style === 'icon') {
-            iconSpan.addClass('has-context-note-icon');
-            summary.addClass('has-context-note-icon');
-        } else if (style === 'underline') {
-            summary.addClass('has-context-note-underline');
-            const nameSpan = summary.querySelector('.portals-item-name');
-            nameSpan?.addClass('has-context-note-underline');
-        }
-    }
-
-    // Applies and remove custom color to a details/summary/children group.
-    private applyColorToDetails(details: HTMLElement, summary: HTMLElement, childrenContainer: HTMLElement, colorKey: string): void {
-        const savedColor = this.plugin.settings.tagColors[colorKey];
-        const style = this.plugin.settings.treeStyle;
-        const canApplyColor = savedColor
-            && style !== 'shades'
-            && style !== 'hues'
-            && !(style === 'portals' && this.plugin.settings.tabColorEnabled);
-
-        if (canApplyColor) {
-            details.classList.add('has-folder-color');
-            summary.classList.add('has-folder-color');
-            childrenContainer.classList.add('has-folder-color');
-            details.setCssProps({ '--folder-color': savedColor });
-        } else {
-            details.classList.remove('has-folder-color');
-            details.setCssProps({ '--folder-color': '' });
-            summary.classList.remove('has-folder-color');
-            childrenContainer.classList.remove('has-folder-color');
-        }
     }
 
     // ============MAIN TAG SPACE RENDER==============================================================================================================
@@ -498,87 +458,41 @@ export class TagTreeRenderer {
         const renderNode = (node: TagNode, parentEl: HTMLElement, level: number, index: number = 0, total: number = 1) => {
             const nodeKey = `tag:${tagName}/node:${node.fullPath}`;
             if (this.plugin.settings.hiddenItems[nodeKey]) return;
-            const details = parentEl.createEl('details', { cls: 'folder-details' });
             const expandedSet = this.plugin.settings.expandedTagHierarchy[tagName] || [];
-            if (expandedSet.includes(node.fullPath)) {
-                details.open = true;
-            }
 
-            const summary = details.createEl('summary', { cls: 'folder-summary' });
+            const {
+                details,
+                summary,
+                children: childrenContainer,
+                icon: iconSpan,
+            } = Rows.branch(
+                { app: this.app, plugin: this.plugin, view: this.view, openFiles },
+                parentEl,
+                {
+                    key: node.fullPath,
+                    keyAttr: 'tagPath',
+                    label: node.name,
+                    iconKey: nodeKey,
+                    iconFallback: 'tag',
+                    reorderKey: nodeKey,
+                    open: expandedSet.includes(node.fullPath),
+                    colorKey: nodeKey,
+                    colorSource: 'tag',
+                    depth: level,
+                    index,
+                    totalFirstLevel: total,
+                    shadeMaxOpacity: 0.4,
+                    shadeChildrenFactor: 0.6,
+                    hueMaxOpacity: 0.3,
+                    hueChildrenFactor: 0.6,
+                    singleHueProgress: 0,
+                    contextNoteHighlight: this.plugin.settings.enableContextNotes && hasContextNote(this.app, this.plugin, node.fullPath),
+                    openDot: this.shouldShowOpenDot(node.fullPath, false),
+                    tooltip: (nameSpan) => this.getTagTooltip(node.fullPath, nameSpan, false, undefined, tagToFiles, allTags, undefined, false),
+                },
+            );
 
-            const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-            this.plugin.renderCustomIcon(iconSpan, nodeKey, 'tag');
-            const nameSpan = summary.createSpan({ text: node.name });
-            nameSpan.addClass('portals-item-name');
-            summary.dataset.tagPath = node.fullPath;
-            summary.dataset.reorderKey = nodeKey;
-
-            // HLIST : SUBTAGS - tree item tooltips 
-            if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
-                summary.addEventListener('mouseenter', () => {
-                    const nameSpan = summary.querySelector('.portals-item-name') as HTMLElement;
-                    if (!nameSpan) return;
-                    const tooltip = this.getTagTooltip(node.fullPath, nameSpan, false, undefined, tagToFiles, allTags, undefined, false);
-                    if (tooltip) this.view.showTooltip(tooltip, summary, 300, 'right');
-                });
-                summary.addEventListener('mouseleave', () => {
-                    this.view.hideTooltip(100);
-                });
-            }
-
-
-            // HLIST: SUBTAGS - opendot
-            if (this.shouldShowOpenDot(node.fullPath, false)) {
-                summary.createSpan({ cls: 'open-dot' });
-            }
-
-            const childrenContainer = details.createDiv({ cls: 'folder-children' });
-
-            // HLIST: SUBTAGS - Quick‑create note for sub tag tree sub item (node.fullpath)
             this.view.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, node.fullPath));
-
-            // HLIST: SUBTAGS - Apply context note highlight to subtag node
-            const nodeTagPath = node.fullPath; // e.g., "project/ideas"
-            this.applyContextNoteHighlight(summary, iconSpan, nodeTagPath);
-
-            this.applyColorToDetails(details, summary, childrenContainer, nodeKey)
-
-            // HLIST: SUBTAGS - Apply shades/hues styling only at level 1
-            if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
-                const minOpacity = 0.1, maxOpacity = 0.4;
-                let shadeOpacity;
-                if (total > 1) {
-                    const progress = index / (total - 1);
-                    shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                } else {
-                    shadeOpacity = minOpacity;
-                }
-                shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
-                summary.classList.add('shaded-folder-summary');
-                summary.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
-                childrenContainer.classList.add('shaded-folder-children');
-                childrenContainer.setCssProps({ '--folder-shade-opacity': String(shadeOpacity * 0.6) });
-            } else if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
-                const minOpacity = 0.1, maxOpacity = 0.3;
-                let hue, opacity;
-                if (total > 1) {
-                    const progress = index / (total - 1);
-                    hue = progress * 360;
-                    opacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                } else {
-                    hue = 0;
-                    opacity = minOpacity;
-                }
-                opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
-                summary.classList.add('hued-folder-summary');
-                summary.setCssProps({ '--hue-start': String(hue) });
-                summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-                summary.setCssProps({ '--hue-opacity': String(opacity) });
-                childrenContainer.classList.add('hued-folder-children');
-                childrenContainer.setCssProps({ '--hue-start': String(hue) });
-                childrenContainer.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-                childrenContainer.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
-            }
 
             // HLIST: SUBTAGS - Render child tags
             const orderMap = this.plugin.settings.customTreeOrder;
@@ -726,84 +640,42 @@ export class TagTreeRenderer {
         // HLIST: GROUPS INSIDE HEIRARACHAL TAGS
         const renderSingleGroup = (gTag: string, files: TFile[], parentEl: HTMLElement, level: number, idx: number, total: number) => {
             if (files.length === 0) return;
-            const groupDetails = parentEl.createEl('details', { cls: 'folder-details' });
             const groupKey = this.view.getTagGroupKey(tagName, gTag);
-            groupDetails.dataset.groupKey = groupKey;
             const savedExpanded = this.plugin.settings.expandedGroups[tagName] || [];
-            groupDetails.open = savedExpanded.includes(gTag);
-            const summary = groupDetails.createEl('summary', { cls: 'folder-summary' });
-            const groupChildren = groupDetails.createDiv({ cls: 'folder-children' });
 
-            this.applyColorToDetails(groupDetails, summary, groupChildren, groupKey);
+            const {
+                details: groupDetails,
+                summary,
+                children: groupChildren,
+                icon: iconSpan,
+            } = Rows.branch(
+                { app: this.app, plugin: this.plugin, view: this.view, openFiles },
+                parentEl,
+                {
+                    key: gTag,
+                    keyAttr: 'tagPath',
+                    label: '#' + gTag,
+                    iconKey: groupKey,
+                    iconFallback: 'tag-simple',
+                    reorderKey: groupKey,
+                    open: savedExpanded.includes(gTag),
+                    colorKey: groupKey,
+                    colorSource: 'tag',
+                    depth: level,
+                    index: idx,
+                    totalFirstLevel: total,
+                    shadeMaxOpacity: 0.4,
+                    hueMaxOpacity: 0.3,
+                    hueChildrenFactor: 0.6,
+                    singleHueProgress: 0,
+                    contextNoteHighlight: this.plugin.settings.enableContextNotes && hasContextNote(this.app, this.plugin, gTag),
+                    openDot: this.shouldShowOpenDot(gTag, true),
+                    tooltip: (nameSpan) => this.getTagTooltip(gTag, nameSpan, true, files.length, tagToFiles, allTags, undefined, false),
+                },
+            );
+            groupDetails.dataset.groupKey = groupKey;
 
-            // HLIST: GROUPS - Apply styling for level 1
-            if (level === 1 && this.plugin.settings.treeStyle === 'shades') {
-                const minOpacity = 0.1, maxOpacity = 0.4;
-                let shadeOpacity;
-                if (total > 1) {
-                    const progress = idx / (total - 1);
-                    shadeOpacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                } else {
-                    shadeOpacity = minOpacity;
-                }
-                shadeOpacity = Math.min(maxOpacity, Math.max(minOpacity, shadeOpacity));
-                summary.classList.add('shaded-folder-summary');
-                summary.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
-                groupChildren.classList.add('shaded-folder-children');
-                groupChildren.setCssProps({ '--folder-shade-opacity': String(shadeOpacity) });
-            } else if (level === 1 && this.plugin.settings.treeStyle === 'hues') {
-                const minOpacity = 0.1, maxOpacity = 0.3;
-                let hue, opacity;
-                if (total > 1) {
-                    const progress = idx / (total - 1);
-                    hue = progress * 360;
-                    opacity = maxOpacity - progress * (maxOpacity - minOpacity);
-                } else {
-                    hue = 0;
-                    opacity = minOpacity;
-                }
-                opacity = Math.min(maxOpacity, Math.max(minOpacity, opacity));
-                summary.classList.add('hued-folder-summary');
-                summary.setCssProps({ '--hue-start': String(hue) });
-                summary.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-                summary.setCssProps({ '--hue-opacity': String(opacity) });
-                groupChildren.classList.add('hued-folder-children');
-                groupChildren.setCssProps({ '--hue-start': String(hue) });
-                groupChildren.setCssProps({ '--hue-end': String((hue + 30) % 360) });
-                groupChildren.setCssProps({ '--hue-opacity': String(opacity * 0.6) });
-            }
-
-            // HLIST: GROUPS - Elements
-            const iconSpan = summary.createSpan({ cls: 'folder-icon' });
-            this.plugin.renderCustomIcon(iconSpan, groupKey, 'tag-simple');
-            summary.createSpan({ text: '#' + gTag }).addClass('portals-item-name');
-            summary.dataset.tagPath = gTag;
-            summary.dataset.reorderKey = groupKey;
-
-            // HLIST: GROUPS - open-dot
-            if (this.shouldShowOpenDot(gTag, true)) {
-                summary.createSpan({ cls: 'open-dot' });
-            }
-
-            //HLIST: GROUPS - tree item tooltips 
-            if (!Platform.isMobile && this.plugin.settings.showTreeItemToolTips) {
-                summary.addEventListener('mouseenter', () => {
-                    const nameSpan = summary.querySelector('.portals-item-name') as HTMLElement;
-                    if (!nameSpan) return;
-                    const tooltip = this.getTagTooltip(gTag, nameSpan, true, files.length, tagToFiles, allTags, undefined, false);
-                    if (tooltip) this.view.showTooltip(tooltip, summary, 300, 'right');
-                });
-                summary.addEventListener('mouseleave', () => {
-                    this.view.hideTooltip(100);
-                });
-            }
-
-            // HLIST: GROUPS - Quick‑create note for tag groups subtagtree (mainT + gTag)
             this.view.quickFileIcon(summary, () => void PortalsActions.newNoteInTagSpace(this.app, this.plugin, this.view, tagName, [gTag]));
-
-            // HLIST: GROUPS - Apply context note highlight to group
-            const groupTagPath = gTag;
-            this.applyContextNoteHighlight(summary, iconSpan, groupTagPath);
 
             summary.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
