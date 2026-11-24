@@ -889,18 +889,19 @@ export class PortalsView extends ItemView {
             // Instant restore: no smooth scrolling, just land where you left off.
             this.scrollToRestore = this.spaceScrollCache.get(spaceKey) ?? 0;
 
-            void this.plugin.saveData(this.plugin.settings).then(() => {
-                this.plugin.renderBus.invalidate('tree:structure', {
-                    skipScrollSave: true,
-                    reason: 'portal switched',
-                });
-                window.setTimeout(() => {
-                    const newActiveTab = this.containerEl.querySelector<HTMLElement>('.portals-tab.is-active');
-                    if (newActiveTab) {
-                        newActiveTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                    }
-                }, 200);
+            // A click is interactive: render now instead of waiting out the bus
+            // quiet period, then persist afterwards so disk I/O stays off the
+            // critical path.
+            this.plugin.renderBus.invalidate('tree:structure', {
+                skipScrollSave: true,
+                reason: 'portal switched',
             });
+            this.plugin.renderBus.flush();
+
+            const activeTab = this.containerEl.querySelector<HTMLElement>('.portals-tab.is-active');
+            activeTab?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
+
+            void this.plugin.saveData(this.plugin.settings);
         });
     }
 
