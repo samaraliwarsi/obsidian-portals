@@ -121,6 +121,24 @@ export class PortalsView extends ItemView {
         });
     }
 
+    // Updates only the active state of the existing tabs, so switching portals
+    // does not need to rebuild the tab bar.
+    public refreshActiveTabVisuals(): void {
+        const tabBar = this.containerEl.querySelector('.portals-tab-bar');
+        if (!tabBar) return;
+        const active = this.plugin.settings.selectedSpace;
+        tabBar.querySelectorAll<HTMLElement>('.portals-tab:not(.portals-stack-header-tab)').forEach(tab => {
+            const isActive = !!active && tab.dataset.type === active.type && tab.dataset.path === active.path;
+            tab.toggleClass('is-active', isActive);
+            const space = this.plugin.settings.spaces.find(s => s.type === tab.dataset.type && s.path === tab.dataset.path);
+            if (isActive && this.plugin.settings.tabColorEnabled && space?.color && space.color !== 'transparent') {
+                tab.setCssProps({ '--tab-active-color': space.color });
+            } else {
+                tab.setCssProps({ '--tab-active-color': '' });
+            }
+        });
+    }
+
     public refreshFileAppearances() {
         this.fileElementMap.forEach((_el, path) => {
             const file = this.app.vault.getAbstractFileByPath(path);
@@ -744,7 +762,7 @@ export class PortalsView extends ItemView {
     }
 
 
-    private renderPortalTab(parent: HTMLElement, space: SpaceConfig, mainContainer: HTMLElement) {
+    private renderPortalTab(parent: HTMLElement, space: SpaceConfig) {
         let displayName = space.displayName;
         if (!displayName) {
             const vaultName = this.app.vault.getName();
@@ -865,9 +883,19 @@ export class PortalsView extends ItemView {
                 this.plugin.settings.openFolders.push(space.path);
             }
 
-            void this.plugin.saveSettings().then(() => {
-                // The rebuild is queued by the bus, so the tab bar must be
-                // re-queried after it lands rather than reusing mainContainer.
+            // Switching portals changes the tree and the active tab only: the tab
+            // bar, side panel and floating buttons are unaffected.
+            this.refreshActiveTabVisuals();
+            const spaceKey = `${space.type}:${space.path}`;
+            this.scrollAnchor = null;
+            // Instant restore: no smooth scrolling, just land where you left off.
+            this.scrollToRestore = this.spaceScrollCache.get(spaceKey) ?? 0;
+
+            void this.plugin.saveData(this.plugin.settings).then(() => {
+                this.plugin.renderBus.invalidate('tree:structure', {
+                    skipScrollSave: true,
+                    reason: 'portal switched',
+                });
                 window.setTimeout(() => {
                     const newActiveTab = this.containerEl.querySelector<HTMLElement>('.portals-tab.is-active');
                     if (newActiveTab) {
@@ -1073,11 +1101,12 @@ export class PortalsView extends ItemView {
                     : null;
             }
             const compositeKey = `${space.type}:${space.path}`;
+            this.spaceScrollCache.delete(compositeKey);
             if(!space.stackId) {
                 this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder.filter(entry => entry !== compositeKey);
             }
-                
-            void this.plugin.saveSettings().then(() => this.render());
+
+            void this.plugin.saveSettings();
             new Notice(`Removed portal: ${space.path}`);
         }).open();
     }
@@ -1257,7 +1286,17 @@ export class PortalsView extends ItemView {
         return 'folder-tree';
     }
 
+    // Drop cached positions for portals that no longer exist, including ones
+    // removed by a folder rename.
+    private pruneSpaceScrollCache(): void {
+        const live = new Set(this.plugin.settings.spaces.map(s => `${s.type}:${s.path}`));
+        for (const key of [...this.spaceScrollCache.keys()]) {
+            if (!live.has(key)) this.spaceScrollCache.delete(key);
+        }
+    }
+
     async onOpen() {
+        this.pruneSpaceScrollCache();
         this.render();
 
         this.containerEl.addEventListener('mousedown', (e: MouseEvent) => {
@@ -1298,6 +1337,9 @@ export class PortalsView extends ItemView {
             const target = e.target as HTMLElement | null;
             if (!target?.classList?.contains('portals-tree-container')) return;
             if (!target.isConnected) return;
+            // Emptying the tree mid-rebuild fires a scroll to 0; writing that
+            // would overwrite the position we are about to restore.
+            if (target.classList.contains('portals-is-rebuilding')) return;
             const space = this.plugin.settings.selectedSpace;
             if (!space) return;
             const key = `${space.type}:${space.path}`;
@@ -1776,7 +1818,7 @@ export class PortalsView extends ItemView {
 
                     if (!item.stack.collapsed) {
                         for (const space of item.portals) {
-                            this.renderPortalTab(groupDiv, space, container);
+                            this.renderPortalTab(groupDiv, space);
                         }
                     }
 
@@ -1826,7 +1868,7 @@ export class PortalsView extends ItemView {
                     });
                     this.sortableInstances.push(stackSortable);
                 } else {
-                    this.renderPortalTab(tabBar, item.space, container);
+                    this.renderPortalTab(tabBar, item.space);
                 }
             }
 
@@ -2162,8 +2204,8 @@ export class PortalsView extends ItemView {
             const spaceChanged = currentSpacekey !== this.lastRenderedSpaceKey;
             this.lastRenderedSpaceKey = currentSpacekey;
             if (spaceChanged) {
-                const cached = this.spaceScrollCache.get(currentSpacekey);
-                this.scrollToRestore = cached ?? 0;
+                this.scrollAnchor = null;
+                this.scrollToRestore = this.spaceScrollCache.get(currentSpacekey) ?? 0;
             }
             this.restoreTreeScroll();
             // Floating buttons (attached to mainPanel)
@@ -2219,6 +2261,8 @@ export class PortalsView extends ItemView {
         }
 
         this.buildSelectedSpaceContent(treeContainer, selectedSpace, openFiles);
+        // Only now is this space what the DOM actually shows.
+        this.lastRenderedSpaceKey = `${selectedSpace.type}:${selectedSpace.path}`;
         this.restoreTreeScroll();
         
         treeContainer.removeClass('portals-is-rebuilding');

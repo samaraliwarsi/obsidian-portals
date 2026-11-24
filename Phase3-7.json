@@ -1,0 +1,76 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949
+{\fonttbl}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+}
+[
+  {
+    "label": "Rapid switching — A→B→A→B→A",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 5,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 5,
+        "medianMs": 51.1,
+        "p95Ms": 78.1,
+        "maxMs": 78.1,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T12:42:33.130Z"
+  },
+  {
+    "label": "Cross-contamination check — scroll A deep, switch to B (unscrolled, at top), scroll B a little, switch back to A ",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 2,
+        "medianMs": 66.45,
+        "p95Ms": 76.4,
+        "maxMs": 76.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T12:44:25.169Z"
+  },
+  {
+    "label": "Single A→B→A",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 3,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 3,
+        "medianMs": 47.3,
+        "p95Ms": 76.2,
+        "maxMs": 76.2,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T12:45:08.859Z"
+  }
+]

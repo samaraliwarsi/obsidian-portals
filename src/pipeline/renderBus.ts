@@ -14,6 +14,8 @@ export interface InvalidateOptions {
     files?: string[];
     // Quiet period before running, overriding the intent default.
     afterMs?: number;
+    // Keep the scroll target the caller already set instead of capturing one.
+    skipScrollSave?: boolean;
     // Free-form note for debugging.
     reason?: string;
 }
@@ -125,7 +127,7 @@ export class RenderBus {
                 break;
             case 'tree:structure':
                 for (const view of views) {
-                    view.saveTreeScroll();
+                    if (!options.skipScrollSave) view.saveTreeScroll();
                     view.render('tree');
                 }
                 break;
