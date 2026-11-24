@@ -1,5 +1,5 @@
 import { ButtonComponent } from 'obsidian';
-import { getLocalItem, setLocalItem } from './Proxies/storageProxy';
+import { getLocalItem, setLocalItem } from './Proxies/localFlags';
 
 /**
  * Turns a button into a per‑device toggle stored in localStorage.

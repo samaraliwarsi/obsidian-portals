@@ -7,8 +7,7 @@ import { registerAllCommands, updatePortalCommands } from './utils/commands';
 import { LucideIconProvider } from './icons/LucideIconProvider';
 import { PhosphorIconProvider } from './icons/phosphorIconProvider';
 import { IconProvider } from './icons/iconProvider';
-import { setPluginInstance } from './utils/Proxies/pluginInstance';
-import { getLocalItem } from './utils/Proxies/storageProxy';
+import { getLocalItem } from './utils/Proxies/localFlags';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { InternalPluginsWithBookmarks, SpaceConfig } from './types';
 import { getContextRenderer, getJournalRenderer } from './renderers/sidePanelContent';
@@ -42,7 +41,6 @@ export default class PortalsPlugin extends Plugin {
     public renderBus = new RenderBus(this);
 
     async onload() {
-        setPluginInstance(this);
         await this.loadSettings();
         updatePortalCommands(this);
         registerAllCommands(this);
@@ -562,7 +560,6 @@ export default class PortalsPlugin extends Plugin {
     }
 
     onunload() { 
-        setPluginInstance(null);
         FrontmatterClinicRenderer.resetCache();
 
         if (this.reminderRefreshTimer) {
