@@ -877,6 +877,14 @@ export default class PortalsPlugin extends Plugin {
         });
     }
 
+    // Rebuild the right panel's strip, not just its content: tab- and icon-level
+    // settings are applied when the strip is built.
+    public rebuildAltSidePanels(): void {
+        for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL)) {
+            if (leaf.view instanceof AltSidePanelView) leaf.view.refresh();
+        }
+    }
+
     public getPortalsViews(): PortalsView[] {
         return this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)
             .map(leaf => leaf.view)
@@ -1369,6 +1377,11 @@ export default class PortalsPlugin extends Plugin {
         }
         this.settings.previousReminderProperty = '';
         await this.saveSettings();
+        // The map is built from frontmatter at load; migrating properties leaves
+        // it stale, which is why the panel showed only part of the list.
+        this.rebuildReminderDatesCache();
+        this.refreshSidePortal('reminders');
+        this.updateReminderBadge();
         FrontmatterClinicRenderer.resetCache();
         void FrontmatterClinicRenderer.buildCache(this.app);
         if (count === 0) {

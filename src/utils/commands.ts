@@ -271,9 +271,11 @@ export function registerAllCommands (plugin: PortalsPlugin) {
 export function updatePortalCommands(plugin: PortalsPlugin) {
     // 1. Clear previously registered portal commands
     if (plugin.registeredPortalCommandIds) {
-        const appWithCommands = plugin.app as unknown as { commands: { removeCommand(id: string): void } };
+        // Remove through the Plugin API: the raw command manager drops the entry
+        // but leaves it in the plugin's registered list, so it reappears and the
+        // palette keeps offering portals after the setting is switched off.
         for (const id of plugin.registeredPortalCommandIds) {
-            appWithCommands.commands.removeCommand(id);
+            plugin.removeCommand(id);
         }
         plugin.registeredPortalCommandIds = [];
     }

@@ -123,7 +123,8 @@ export class RenderBus {
             case 'chrome':
                 for (const view of views) view.saveTreeScroll();
                 for (const view of views) view.render('all');
-                this.plugin.refreshAltRightPanelContent();
+                // rebuildAltSidePanels also refreshes the content pane.
+                this.plugin.rebuildAltSidePanels();
                 break;
             case 'tree:structure':
                 for (const view of views) {
