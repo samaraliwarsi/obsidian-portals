@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf, TFile, TFolder, Notice, Platform, View } from 'obsidian';
 import PortalsPlugin from './main';
 import Sortable, { SortableEvent } from 'sortablejs';
+import { renderSideTabs, updateSideTabs } from './renderers/sideTabs';
 import { SpaceConfig } from './types';
 import { AddPortalModal } from './modals/addPortalModal';
 import { PortalStack } from './types';
@@ -22,16 +23,6 @@ import { getFrontmatterTags } from './utils/tagHelpers';
 import { beginRender, endRender } from './pipeline/instrument';
 
 const MIN_EXPANDED_HEIGHT = 150;
-export const SIDE_TAB_ICONS: Record<string, string> = {
-    recent: 'clock-counter-clockwise',
-    'context-notes': 'note',
-    bookmarks: 'bookmark',
-    journal: 'calendar-heart',
-    hidden: 'eye-slash',
-    properties: 'list-dashes',
-    trash: 'trash',
-    reminders: 'bell',
-};
 
 type TabBarItem = 
     | { type: 'stack-group'; stack: PortalStack; portals: SpaceConfig[] }
@@ -1866,40 +1857,7 @@ export class PortalsView extends ItemView {
                 const tabContainer = secondaryHeader.createDiv({ cls: 'portals-split-tabs' });
                 tabContainer.toggleClass('portals-compact-tabs', this.plugin.settings.compactTabs);
 
-                // Make side‑portal tabs reorderable
-                const sideTabSortable = new Sortable(tabContainer, {
-                    animation: 150,
-                    delay: 400,
-                    delayOnTouchOnly: true,
-                    touchStartThreshold: 5,
-                    scrollSensitivity: 30,
-                    direction: 'horizontal',
-                    draggable: '.portals-split-tab',
-                    swapThreshold: 0.5,
-                    invertSwap: true,
-                    fallbackClass: 'portals-sortable-fallback',
-                    onStart: () => {
-                        // optional – nothing needed, but can set a flag if needed
-                    },
-                    onEnd: (_evt: SortableEvent) => {
-                        void (async () => {
-                            const newOrder: string[] = [];
-                            tabContainer.querySelectorAll('.portals-split-tab').forEach(el => {
-                                const id = (el as HTMLElement).dataset.tabId;
-                                if (id) newOrder.push(id);
-                            });
-                            if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.splitViewTabs)) {
-                                this.plugin.settings.splitViewTabs = newOrder;
-                                await this.plugin.saveSettings();
-                            }
-                        })();
-                    }
-                });
-                this.sortableInstances.push(sideTabSortable);
-
-                // Get tabs from settings, ensure context-notes is present for testing
                 const tabs = this.plugin.settings.splitViewTabs || ['recent'];
-                const icons = SIDE_TAB_ICONS;
                 const activeTab = this.plugin.settings.activeSplitTab || 'recent';
 
                 let rootColor: string | undefined;
@@ -1910,113 +1868,35 @@ export class PortalsView extends ItemView {
                     }
                 }
 
-            tabs.forEach(tabId => {
-                const tabBtn = tabContainer.createDiv({ cls: 'portals-split-tab' });
-                tabBtn.dataset.tabId = tabId;
-
-                // Always create the span with class 'tab-label'
-                const span = tabBtn.createSpan({ cls: 'tab-label' });
-                span.textContent = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-', ' ');
-                span.addClass('hide');
-
-                // Add icon
-                const iconSpan = tabBtn.createSpan({ cls: 'portals-tab-icon' });
-                this.plugin.renderPluginIcon(iconSpan, icons[tabId] || 'file');
-
-                // handle active state and label visibility
-                const isActive = (tabId === activeTab);
-                const displayMode = this.plugin.settings.tabNameDisplay;
-
-                // determine whether to show the label
-                let showlabel = false;
-                if (displayMode === 'all') {
-                    showlabel = true;
-                } else if (displayMode === 'activeOnly') {
-                    showlabel = isActive;
-                } else {
-                    showlabel = false;
-                }
-
-                if (showlabel) {
-                    span.removeClass('hide');
-                } else {
-                    span.addClass('hide');
-                }
-
-                if (isActive) {
-                    tabBtn.addClass('is-active');
-                    if (rootColor) {
-                        tabBtn.setCssProps({ '--split-tab-active-color': rootColor });
-                    }
-                }
-
-                if (this.plugin.settings.tabNameDisplay !== 'none') {
-                    const tabIconPos = this.plugin.settings.tabIconPosition;
-                    if (tabIconPos === 'left') {
-                        tabBtn.setAttribute('tab-icon-position', 'left');
-                    } else {
-                        tabBtn.removeAttribute('tab-icon-position');
-                    }
-                }
-
-                if (!Platform.isMobile) {
-                    const displayName = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-',' ');
-                    tabBtn.addEventListener('mouseenter', () => {
-                        const labelSpan = tabBtn.querySelector('span.tab-label');
-                        if (labelSpan && labelSpan.hasClass('hide')) {
-                            this.showTooltip(displayName, tabBtn, 300);
+                const sideTabSortable = renderSideTabs(tabContainer, this.plugin, {
+                    tabs,
+                    activeTabId: activeTab,
+                    rootColor: rootColor ?? null,
+                    nameDisplay: this.plugin.settings.tabNameDisplay,
+                    iconPosition: this.plugin.settings.tabIconPosition,
+                    compact: this.plugin.settings.compactTabs,
+                    showTooltip: (text, el, delay) => this.showTooltip(text, el, delay),
+                    hideTooltip: (delay) => this.hideTooltip(delay),
+                    onSelect: (tabId) => {
+                        this.expandPanel();
+                        this.plugin.settings.activeSplitTab = tabId;
+                        void this.plugin.saveData(this.plugin.settings);
+                        updateSideTabs(tabContainer, {
+                            activeTabId: tabId,
+                            rootColor: rootColor ?? null,
+                            nameDisplay: this.plugin.settings.tabNameDisplay,
+                            iconPosition: this.plugin.settings.tabIconPosition,
+                        });
+                        void this.renderSplitTabContent(secondaryPanel, tabId);
+                    },
+                    onReorder: (newOrder) => {
+                        if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.splitViewTabs)) {
+                            this.plugin.settings.splitViewTabs = newOrder;
+                            void this.plugin.saveSettings();
                         }
-                    });
-                    tabBtn.addEventListener('mouseleave', () => {
-                        this.hideTooltip(100);
-                    });   
-                }
-
-                if (tabId === 'reminders') {
-                    window.setTimeout(() => this.plugin.updateReminderBadge(), 0);
-                }
-
-                // Click handler
-                tabBtn.addEventListener('click', () => {
-                    this.expandPanel();
-                    this.plugin.settings.activeSplitTab = tabId;
-                    void this.plugin.saveData(this.plugin.settings);
-
-                    const currentDisplayMode = this.plugin.settings.tabNameDisplay;
-
-                    // Update all split tabs
-                    tabContainer.querySelectorAll('.portals-split-tab').forEach(t => {
-                        const currentTab = t as HTMLElement;
-                        const currentId = currentTab.dataset.tabId;
-                        if (!currentId) return;
-                        
-                        // Remove active class from all tabs
-                        currentTab.removeClass('is-active');
-                        currentTab.setCssProps({ '--split-tab-active-color': '' });
-
-                        // get span label
-                        const labelSpan = currentTab.querySelector('span.tab-label');
-                        if (labelSpan) {
-                            const newisActive = (currentId === tabId);
-                            let newShowLabel = false;
-                            if (currentDisplayMode === 'all') newShowLabel = true;
-                            else if (currentDisplayMode === 'activeOnly') newShowLabel = newisActive;
-                            else newShowLabel = false;
-                            if (newShowLabel) {
-                                labelSpan.removeClass('hide');
-                            } else {
-                                labelSpan.addClass('hide');
-                            }
-                        }
-                    });
-                    // Add active class to clicked tab
-                    tabBtn.addClass('is-active');
-                    if (rootColor) {
-                        tabBtn.setCssProps({ '--split-tab-active-color': rootColor });
-                    }
-                    void this.renderSplitTabContent(secondaryPanel, tabId);
+                    },
                 });
-            });
+                if (sideTabSortable) this.sortableInstances.push(sideTabSortable);
 
             // 🔽 Scroll active side‑portal tab into view
             const activeSplitTab = tabContainer.querySelector('.portals-split-tab.is-active');

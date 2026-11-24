@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import PortalsPlugin from '../main';
-import { renderSidePanel } from '../sidePanelTabs';
+import Sortable from 'sortablejs';
+import { renderSideTabs } from './sideTabs';
 import { PortalsView, VIEW_TYPE_PORTALS } from '../view';
 import { destroySidePanelRenderer, getContextRenderer, renderSidePanelContent } from './sidePanelContent';
 
@@ -12,6 +13,7 @@ export class AltSidePanelView extends ItemView {
     public mainView: PortalsView | null = null;
     public activeTabId: string = '';
     private contentArea: HTMLElement | null = null;
+    private stripSortable: Sortable | null = null;
     //private currentContextRenderer: ContextNotesRenderer | null = null;
 
     constructor(leaf: WorkspaceLeaf, plugin: PortalsPlugin) {
@@ -72,27 +74,49 @@ export class AltSidePanelView extends ItemView {
         const active = this.plugin.settings.alternateActiveTab || tabs[0] || '';
         this.activeTabId = active;
 
-        const onTabsUpdate = (newTabs: string[], newActive: string) => {
-            const reordered = JSON.stringify(newTabs) !== JSON.stringify(this.plugin.settings.alternateSideTabs);
-            if (!reordered && newActive === this.activeTabId) return;
-            this.plugin.settings.alternateSideTabs = newTabs;
-            this.plugin.settings.alternateActiveTab = newActive;
-            this.activeTabId = newActive;
-            // saveData, not saveSettings: switching a side tab must not trigger a
-            // full rebuild of the main explorer behind it.
-            void this.plugin.saveData(this.plugin.settings).then(() => {
-                if (reordered) {
-                    this.refresh();
-                    return;
-                }
-                // A switch only changes one class and the content pane.
-                this.applyActiveTab(newActive);
-                void this.refreshContent();
-            });
-        };
+        this.buildStrip(tabs, active);
+    }
 
-        renderSidePanel(this.contentEl, this.plugin, this.mainView, tabs, active, onTabsUpdate);
-        this.contentArea = this.contentEl.querySelector('.portals-split-content');
+    // Header, tab strip and content pane, built once from the shared builder.
+    private buildStrip(tabs: string[], active: string): void {
+        this.stripSortable?.destroy();
+        this.stripSortable = null;
+        this.contentEl.empty();
+
+        const header = this.contentEl.createDiv({ cls: 'portals-secondary-header' });
+        header.toggleClass('portals-compact-tabs', this.plugin.settings.compactTabs);
+        const tabContainer = header.createDiv({ cls: 'portals-split-tabs' });
+
+        this.stripSortable = renderSideTabs(tabContainer, this.plugin, {
+            tabs,
+            activeTabId: active,
+            rootColor: this.getRootAccentColor(),
+            nameDisplay: this.plugin.settings.tabNameDisplay,
+            iconPosition: this.plugin.settings.tabIconPosition,
+            compact: this.plugin.settings.compactTabs,
+            showTooltip: (text, el, delay) => this.mainView?.showTooltip(text, el, delay),
+            hideTooltip: (delay) => this.mainView?.hideTooltip(delay),
+            onSelect: (tabId) => this.switchTab(tabId),
+            onReorder: (newOrder) => {
+                this.plugin.settings.alternateSideTabs = newOrder;
+                void this.plugin.saveData(this.plugin.settings);
+            },
+        });
+
+        this.contentArea = this.contentEl.createDiv({ cls: 'portals-split-content' });
+        if (this.mainView) {
+            void renderSidePanelContent(this.plugin.app, this.plugin, this.contentArea, active, this.mainView);
+        }
+    }
+
+    // Selecting a tab updates the strip in place; it never rebuilds the panel.
+    private switchTab(tabId: string): void {
+        if (tabId === this.activeTabId) return;
+        this.activeTabId = tabId;
+        this.plugin.settings.alternateActiveTab = tabId;
+        void this.plugin.saveData(this.plugin.settings);
+        this.applyActiveTab(tabId);
+        void this.refreshContent();
     }
 
     public async refreshContent() {
@@ -148,6 +172,8 @@ export class AltSidePanelView extends ItemView {
     }
 
     async onClose() {
+        this.stripSortable?.destroy();
+        this.stripSortable = null;
         destroySidePanelRenderer(this);
         this.contentEl.empty();
     }
