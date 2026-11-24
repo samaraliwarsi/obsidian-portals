@@ -1,0 +1,303 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949
+{\fonttbl}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+}
+[
+  {
+    "label": "B7-hide and unhide",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 19.65,
+        "p95Ms": 20.5,
+        "maxMs": 20.5,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 2,
+        "medianMs": 27.5,
+        "p95Ms": 33.4,
+        "maxMs": 33.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T17:18:02.146Z"
+  },
+  {
+    "label": "B1- Create a note",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 3,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 24.7,
+        "p95Ms": 24.7,
+        "maxMs": 24.7,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 25.9,
+        "p95Ms": 25.9,
+        "maxMs": 25.9,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T17:19:00.426Z"
+  },
+  {
+    "label": "C5-Change one file's color",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 4,
+        "medianMs": 40.25,
+        "p95Ms": 52,
+        "maxMs": 52,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 2,
+        "medianMs": 46.15,
+        "p95Ms": 50.5,
+        "maxMs": 50.5,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 11.5,
+        "p95Ms": 11.5,
+        "maxMs": 11.5,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 54.8,
+        "p95Ms": 54.8,
+        "maxMs": 54.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T17:20:31.510Z"
+  },
+  {
+    "label": "C5-Change one file's icon",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 38.1,
+        "p95Ms": 49,
+        "maxMs": 49,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 11.9,
+        "p95Ms": 11.9,
+        "maxMs": 11.9,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 47.5,
+        "p95Ms": 47.5,
+        "maxMs": 47.5,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T17:20:49.635Z"
+  },
+  {
+    "label": "Additional - based on my exp - frontmatter editor clinicstate edits, changing button value",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:clinic",
+        "count": 2,
+        "medianMs": 29.45,
+        "p95Ms": 31.7,
+        "maxMs": 31.7,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 23,
+        "p95Ms": 34.9,
+        "maxMs": 34.9,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 38,
+        "p95Ms": 38,
+        "maxMs": 38,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T17:21:58.049Z"
+  },
+  {
+    "label": "Additional - based on my exp - frontmatter editor clinicstate edits, changing button value",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:clinic",
+        "count": 2,
+        "medianMs": 26.8,
+        "p95Ms": 26.9,
+        "maxMs": 26.9,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 22.5,
+        "p95Ms": 34.5,
+        "maxMs": 34.5,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 37.8,
+        "p95Ms": 37.8,
+        "maxMs": 37.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T17:22:28.138Z"
+  },
+  {
+    "label": "Additional - based on my exp - frontmatter editor - saving a view",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:clinic",
+        "count": 2,
+        "medianMs": 29.6,
+        "p95Ms": 32.6,
+        "maxMs": 32.6,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 25.5,
+        "p95Ms": 40.6,
+        "maxMs": 40.6,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 44.3,
+        "p95Ms": 44.3,
+        "maxMs": 44.3,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T17:22:53.348Z"
+  },
+  {
+    "label": "Additional - based on my exp - frontmatter editor - switching view",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:clinic",
+        "count": 2,
+        "medianMs": 27.35,
+        "p95Ms": 28,
+        "maxMs": 28,
+        "jumps": 1
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 22.05,
+        "p95Ms": 33.6,
+        "maxMs": 33.6,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 36.4,
+        "p95Ms": 36.4,
+        "maxMs": 36.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T17:23:26.873Z"
+  }
+]

@@ -250,7 +250,7 @@ export class FrontmatterClinicRenderer {
                 for (const file of selectedInView) {
                     delete this.plugin.settings.customColors[file.path];
                 }
-                void this.plugin.saveSettings().then(() => this.view.render());
+                void this.plugin.saveSettings('tree:structure', { reason: 'frontmatter applied' });
             });
 
             // 4. Deselect
@@ -386,7 +386,7 @@ export class FrontmatterClinicRenderer {
 
                     this.plugin.settings.clinicState.filters = JSON.parse(JSON.stringify(view.filters)) as { property: string; value: string }[];
                     this.plugin.settings.clinicState.groupBy = view.groupBy;
-                    void this.plugin.saveSettings().then(() => this.render());
+                    void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                 }
             });
 
@@ -400,7 +400,7 @@ export class FrontmatterClinicRenderer {
                     delete this.plugin.settings.clinicState.savedViews[activeViewName];
                     this.plugin.settings.clinicState.filters = [{ property: '', value: ''}];
                     this.plugin.settings.clinicState.groupBy = '';
-                    void this.plugin.saveSettings().then(() => this.render());
+                    void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                 });
             }
 
@@ -415,7 +415,7 @@ export class FrontmatterClinicRenderer {
                         filters: JSON.parse(JSON.stringify(this.plugin.settings.clinicState.filters)) as { property: string; value: string }[],
                         groupBy: this.plugin.settings.clinicState.groupBy
                     };
-                    void this.plugin.saveSettings().then(() => this.render());
+                    void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                 }).open();
             });
 
@@ -448,7 +448,7 @@ export class FrontmatterClinicRenderer {
 
             groupSelect.addEventListener('change', () => {
                 this.plugin.settings.clinicState.groupBy = groupSelect.value;
-                void this.plugin.saveSettings().then(() => this.render());
+                void this.plugin.saveData(this.plugin.settings).then(() => this.render());
             });
 
             // --- FILTER ROWS ---
@@ -468,19 +468,19 @@ export class FrontmatterClinicRenderer {
                     menu.addItem(item => item.setTitle('None').onClick(() => {
                         filter.property = '';
                         filter.value = '';
-                        void this.plugin.saveSettings().then(() => this.render());
+                        void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                     }));
                     menu.addItem(item => item.setTitle('No frontmatter').onClick(() => {
                         filter.property = 'No frontmatter';
                         filter.value = '';
-                        void this.plugin.saveSettings().then(() => this.render());
+                        void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                     }));
                     menu.addSeparator();
                     for (const prop of FrontmatterClinicRenderer.getProperties().keys()) {
                         menu.addItem(item => item.setTitle(prop).onClick(() => {
                             filter.property = prop;
                             filter.value = '';
-                            void this.plugin.saveSettings().then(() => this.render());
+                            void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                         }));
                     }
                     const rect = propBtn.getBoundingClientRect();
@@ -511,11 +511,11 @@ export class FrontmatterClinicRenderer {
                         const menu = new Menu();
                         menu.addItem(item => item.setTitle('All values').onClick(() => {
                             filter.value = '';
-                            void this.plugin.saveSettings().then(() => this.render());
+                            void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                         }));
                         menu.addItem(item => item.setTitle('None').onClick(() => {
                             filter.value = '__none__';
-                            void this.plugin.saveSettings().then(() => this.render());
+                            void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                         }));
                         menu.addSeparator();
                         const values = FrontmatterClinicRenderer.getProperties().get(filter.property) || new Set();
@@ -530,7 +530,7 @@ export class FrontmatterClinicRenderer {
 
                             menu.addItem(item => item.setTitle(displayVal).onClick(() => {
                                 filter.value = val;
-                                void this.plugin.saveSettings().then(() => this.render());
+                                void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                             }));
                         }
                         const rect = valueBtn.getBoundingClientRect();
@@ -558,7 +558,7 @@ export class FrontmatterClinicRenderer {
                             filter.property = selected;
                             filter.value = '';
                         }
-                        void this.plugin.saveSettings().then(() => this.render());
+                        void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                     });
                 });
 
@@ -579,7 +579,7 @@ export class FrontmatterClinicRenderer {
                                 case 'None': filter.value = '__none__'; break;
                                 default: filter.value = selected; break;
                             }
-                            void this.plugin.saveSettings().then(() => this.render());
+                            void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                         }
                     );
                 });
@@ -598,7 +598,7 @@ export class FrontmatterClinicRenderer {
                         if (this.plugin.settings.clinicState.filters.length === 0) {
                             this.plugin.settings.clinicState.filters.push({ property: '', value: '' });
                         }
-                        void this.plugin.saveSettings().then(() => this.render());
+                        void this.plugin.saveData(this.plugin.settings).then(() => this.render());
                     });
                 }
             });
@@ -611,7 +611,7 @@ export class FrontmatterClinicRenderer {
             addFilterBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.plugin.settings.clinicState.filters.push({ property: '', value: '' });
-                void this.plugin.saveSettings().then(() => this.render());
+                void this.plugin.saveData(this.plugin.settings).then(() => this.render());
             });
 
             const hasFiles = this.filteredFiles.length > 0;
@@ -889,7 +889,7 @@ export class FrontmatterClinicRenderer {
             const setSort = (by: 'name' | 'created' | 'modified', order: 'asc' | 'desc') => {
                 state.clinicSortBy = by;
                 state.clinicSortorder = order;
-                void this.plugin.saveSettings().then(() => this.render());
+                void this.plugin.saveData(this.plugin.settings).then(() => this.render());
             };
 
             menu.addItem(item => item

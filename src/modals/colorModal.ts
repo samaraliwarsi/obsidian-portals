@@ -294,7 +294,9 @@ export class ColorPickerModal {
 
     private async savePalette() {
         this.plugin.settings.userPalette = [...this.paletteColors];
-        await this.plugin.saveSettings();
+        // Palette persistence only; nothing on screen derives from it, so this
+        // must not trigger a tree rebuild.
+        await this.plugin.saveData(this.plugin.settings);
     }
 
     close(): void { 
