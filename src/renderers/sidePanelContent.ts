@@ -12,9 +12,31 @@ import { AltSidePanelView } from './RightSideView';
 import { RemindersRenderer } from './remindersRenderer';
 import { beginRender, endRender } from '../pipeline/instrument';
 
+// Every side panel implements this. destroy() must release anything that would
+// outlive the DOM: timers, intervals, listeners.
+export interface PanelRenderer {
+    render(): void | Promise<void>;
+    destroy(): void;
+    saveScroll?(): void;
+}
+
+interface PanelEnv {
+    app: App;
+    plugin: PortalsPlugin;
+    view: PortalsView;
+    contentEl: HTMLElement;
+}
+
+// A panel that holds no state and no timers only needs the container emptied,
+// which the dispatcher already does.
+const stateless = (render: () => void | Promise<void>): PanelRenderer => ({
+    render,
+    destroy: () => { /* nothing to release */ },
+});
+
 const journalRenderers = new WeakMap<PortalsView | AltSidePanelView, JournalRenderer>();
 const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();
-const activeSidePanelRenderers = new WeakMap<HTMLElement, { destroy() : void }>();
+const activeSidePanelRenderers = new WeakMap<HTMLElement, PanelRenderer>();
 
 export function getContextRenderer(view: PortalsView): ContextNotesRenderer | undefined {
     return contextRenderers.get(view);
@@ -33,20 +55,103 @@ export function destroContextRenderer(view: PortalsView): void {
 }
 
 export function destroySidePanelRenderer(view: PortalsView | AltSidePanelView): void {
-    // destroy whatever renderer is active on sidepanel
     const splitContent = view.containerEl.querySelector('.portals-split-content');
     if (splitContent instanceof HTMLElement) {
         const renderer = activeSidePanelRenderers.get(splitContent);
         renderer?.destroy();
         activeSidePanelRenderers.delete(splitContent);
     }
-    // also destroy journal renderer - it may still be in weakmap from prior visit
     const journal = journalRenderers.get(view);
     if (journal) {
         journal.destroy();
         journalRenderers.delete(view);
     }
 }
+
+type PanelFactory = (env: PanelEnv) => PanelRenderer | null;
+
+// One entry per side-panel tab. Adding a panel is a single factory here;
+// lifecycle, scroll and teardown come for free.
+const PANELS: Record<string, PanelFactory> = {
+    recent: (env) => {
+        const renderer = new RecentFilesRenderer(env.app, env.plugin, env.view);
+        renderer.setContainer(env.contentEl);
+        return stateless(() => renderer.render());
+    },
+
+    'context-notes': (env) => {
+        if (!env.plugin.settings.enableContextNotes) {
+            env.contentEl.createEl('p', { text: 'Context notes are disabled.' });
+            return null;
+        }
+        const existing = contextRenderers.get(env.view);
+        if (existing) existing.saveScroll();
+        let renderer = existing;
+        if (!renderer) {
+            renderer = new ContextNotesRenderer(env.app, env.plugin, env.view, env.contentEl, new Map());
+            contextRenderers.set(env.view, renderer);
+        } else {
+            renderer.setContainer(env.contentEl);
+        }
+        const notes = renderer;
+        return {
+            render: () => notes.render(),
+            // Kept alive across tab switches; the vault listeners are shared.
+            destroy: () => { /* nothing to release */ },
+            saveScroll: () => notes.saveScroll(),
+        };
+    },
+
+    bookmarks: (env) => {
+        const refresh = () => {
+            void renderSidePanelContent(env.app, env.plugin, env.contentEl, 'bookmarks', env.view);
+        };
+        const renderer = new BookmarksRenderer(env.app, env.plugin, env.view, refresh);
+        renderer.setContainer(env.contentEl);
+        return stateless(() => renderer.render());
+    },
+
+    journal: (env) => {
+        const container = env.contentEl.createDiv();
+        const renderer = new JournalRenderer(env.app, env.plugin, container, env.view);
+        journalRenderers.set(env.view, renderer);
+        return {
+            render: () => renderer.render(),
+            destroy: () => renderer.destroy(),
+        };
+    },
+
+    hidden: (env) => {
+        const renderer = new HiddenItemsRenderer(env.app, env.plugin, env.view);
+        renderer.setContainer(env.contentEl);
+        return stateless(() => renderer.render());
+    },
+
+    properties: (env) => {
+        env.contentEl.addClass('portals-frontmatter-clinic');
+        const renderer = new FrontmatterClinicRenderer(env.app, env.plugin, env.contentEl, env.view);
+        return {
+            render: () => renderer.render(),
+            destroy: () => renderer.destroy(),
+        };
+    },
+
+    trash: (env) => {
+        env.contentEl.addClass('portals-trash-tab');
+        const renderer = new TrashRenderer(env.app, env.plugin, env.contentEl, env.view);
+        return {
+            render: () => renderer.render(),
+            destroy: () => renderer.destroy(),
+        };
+    },
+
+    reminders: (env) => {
+        env.contentEl.addClass('portals-reminders-tab');
+        const renderer = new RemindersRenderer(env.app, env.plugin, env.view);
+        renderer.setContainer(env.contentEl);
+        return stateless(() => renderer.render());
+    },
+};
 
 async function renderPanelContent(
     app: App,
@@ -55,10 +160,9 @@ async function renderPanelContent(
     tabId: string,
     mainView: PortalsView | null,
 ): Promise<void> {
-
-    const prev = activeSidePanelRenderers.get(contentEl);
-    if (prev) {
-        prev.destroy();
+    const previous = activeSidePanelRenderers.get(contentEl);
+    if (previous) {
+        previous.destroy();
         activeSidePanelRenderers.delete(contentEl);
     }
 
@@ -69,68 +173,14 @@ async function renderPanelContent(
         contentEl.addClass(`portals-tree-style-${plugin.settings.treeStyle}`);
     }
 
-    if (tabId === 'recent') {
-        const renderer = new RecentFilesRenderer(app, plugin, mainView!);
-        renderer.setContainer(contentEl);
-        renderer.render();
-    } else if (tabId === 'context-notes') {
-        if (!plugin.settings.enableContextNotes) {
-            contentEl.createEl('p', { text: 'Context notes are disabled.' });
-            return;
-        }
-        if (!mainView) return;
+    if (!mainView) return;
+    const factory = PANELS[tabId];
+    if (!factory) return;
 
-        const existing = contextRenderers.get(mainView);
-        if (existing) {
-            existing.saveScroll();
-        }
-
-        let renderer = contextRenderers.get(mainView);
-        if (!renderer) {
-            renderer = new ContextNotesRenderer(app, plugin, mainView, contentEl, new Map());
-            contextRenderers.set(mainView, renderer);
-        } else {
-            renderer.setContainer(contentEl);
-        }
-        await renderer.render();
-    } else if (tabId === 'bookmarks') {
-        const refresh = () => {
-            void renderSidePanelContent(app, plugin, contentEl, tabId, mainView);
-        };
-        const bmRenderer = new BookmarksRenderer(app, plugin, mainView!, refresh);
-        bmRenderer.setContainer(contentEl);
-        bmRenderer.render();
-    } else if (tabId === 'journal') {
-        if (!mainView) return;
-        const journalContainer = contentEl.createDiv();
-        const journalRenderer = new JournalRenderer(app, plugin, journalContainer, mainView);
-        journalRenderers.set(mainView, journalRenderer);
-
-        activeSidePanelRenderers.set(contentEl, journalRenderer);
-
-        await journalRenderer.render();
-    } else if (tabId === 'hidden') {
-        const hiddenRenderer = new HiddenItemsRenderer(app, plugin, mainView!);
-        hiddenRenderer.setContainer(contentEl);
-        hiddenRenderer.render();
-    } else if (tabId === 'properties') {
-        contentEl.addClass('portals-frontmatter-clinic');
-
-        const clinicRenderer = new FrontmatterClinicRenderer(app, plugin, contentEl, mainView!);
-        activeSidePanelRenderers.set(contentEl, clinicRenderer);
-        await clinicRenderer.render();
-    } else if (tabId === 'trash') {
-        contentEl.addClass('portals-trash-tab');
-        const trashRenderer = new TrashRenderer(app, plugin, contentEl, mainView!);
-        activeSidePanelRenderers.set(contentEl, trashRenderer);
-        await trashRenderer.render();
-    } else if (tabId === 'reminders') {
-        contentEl.addClass('portals-reminders-tab');
-        const remindersRenderer = new RemindersRenderer(app, plugin, mainView!);
-        remindersRenderer.setContainer(contentEl);
-        remindersRenderer.render();
-    }
-    return;
+    const panel = factory({ app, plugin, view: mainView, contentEl });
+    if (!panel) return;
+    activeSidePanelRenderers.set(contentEl, panel);
+    await panel.render();
 }
 
 export async function renderSidePanelContent(
