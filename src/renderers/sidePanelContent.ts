@@ -38,6 +38,37 @@ const journalRenderers = new WeakMap<PortalsView | AltSidePanelView, JournalRend
 const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();
 const activeSidePanelRenderers = new WeakMap<HTMLElement, PanelRenderer>();
 
+// Per content element, remember where each tab was scrolled to. Panels rebuild
+// from scratch, so without this every switch loses the reader's position.
+interface PanelScrollState {
+    value: number;
+    hostClass: string | null;
+}
+
+const panelScroll = new WeakMap<HTMLElement, Map<string, PanelScrollState>>();
+const activePanelTab = new WeakMap<HTMLElement, string>();
+
+function capturePanelScroll(contentEl: HTMLElement): PanelScrollState {
+    let host = contentEl;
+    if (contentEl.scrollTop === 0) {
+        for (const el of Array.from(contentEl.querySelectorAll<HTMLElement>('*'))) {
+            if (el.scrollTop > host.scrollTop) host = el;
+        }
+    }
+    return {
+        value: host.scrollTop,
+        hostClass: host === contentEl ? null : host.classList.item(0),
+    };
+}
+
+function restorePanelScroll(contentEl: HTMLElement, state: PanelScrollState): void {
+    if (state.value <= 0) return;
+    const host = state.hostClass
+        ? contentEl.querySelector<HTMLElement>(`.${state.hostClass}`) ?? contentEl
+        : contentEl;
+    host.scrollTop = state.value;
+}
+
 export function getContextRenderer(view: PortalsView): ContextNotesRenderer | undefined {
     return contextRenderers.get(view);
 }
@@ -166,6 +197,14 @@ async function renderPanelContent(
         activeSidePanelRenderers.delete(contentEl);
     }
 
+    const store = panelScroll.get(contentEl) ?? new Map<string, PanelScrollState>();
+    const previousTab = activePanelTab.get(contentEl);
+    // Context notes and journal keep their own richer scroll/cache handling.
+    if (previousTab && previousTab !== 'context-notes' && previousTab !== 'journal') {
+        store.set(previousTab, capturePanelScroll(contentEl));
+    }
+    panelScroll.set(contentEl, store);
+
     contentEl.empty();
     contentEl.className = 'portals-split-content';
 
@@ -181,6 +220,12 @@ async function renderPanelContent(
     if (!panel) return;
     activeSidePanelRenderers.set(contentEl, panel);
     await panel.render();
+
+    activePanelTab.set(contentEl, tabId);
+    const saved = store.get(tabId);
+    if (saved && saved.value > 0) {
+        window.requestAnimationFrame(() => restorePanelScroll(contentEl, saved));
+    }
 }
 
 export async function renderSidePanelContent(
