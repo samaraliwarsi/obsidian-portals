@@ -18,6 +18,7 @@ import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
 import type { Frontmatter } from './types';
 import { RemindersStartupModal } from './modals/remindersStartupModal';
 import { RenderBus } from './pipeline/renderBus';
+import type { InvalidateOptions, RenderIntent } from './pipeline/renderBus';
 
 interface AppWithInternalPlugins extends App {
     internalPlugins: unknown;
@@ -636,7 +637,7 @@ export default class PortalsPlugin extends Plugin {
         }
     }
 
-    async saveSettings() {
+    async saveSettings(intent: RenderIntent = 'all', options: InvalidateOptions = {}) {
         try {
             await this.saveData(this.settings);
         } catch (err) {
@@ -645,9 +646,9 @@ export default class PortalsPlugin extends Plugin {
         }
         updatePortalCommands(this);
         this.closeAltSidePanelsIfDisabled();
-        // Settings changes stale the whole surface; the bus decides when to
-        // rebuild rather than every caller rendering eagerly.
-        this.renderBus.invalidate('all', { reason: 'settings saved' });
+        // Settings changes stale the whole surface by default; callers that know
+        // the setting only touches the tree pass a narrower intent.
+        this.renderBus.invalidate(intent, { ...options, reason: 'settings saved' });
     }
 
     async activateView() {

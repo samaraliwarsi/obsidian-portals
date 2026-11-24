@@ -6,6 +6,17 @@ import { DEFAULT_PORTALS_PALETTE } from './modals/colorModal';
 import { buildSettingDefinitions } from './utils/settingsRelated/settingDefinitions';
 import { journalState } from './renderers/journalView';
 import { PortalsView, VIEW_TYPE_PORTALS } from './view';
+import type { RenderIntent } from './pipeline/renderBus';
+
+// Settings whose change is contained to one surface. Anything not listed falls
+// back to a full rebuild, so the safe default stays safe.
+const SETTING_INTENT: Partial<Record<string, RenderIntent>> = {
+    sortBy: 'tree:structure',
+    sortOrder: 'tree:structure',
+    showFilePreview: 'tree:structure',
+    showFileInfoBar: 'tree:structure',
+    showTaskProgress: 'tree:appearance',
+};
 
 export interface SpacesSettings {
     spaces: SpaceConfig[];
@@ -272,30 +283,22 @@ export class SpacesSettingTab extends PluginSettingTab {
         // write the value to settings first
         (this.plugin.settings as unknown as Record<string, unknown>)[key] = value;
 
+        const intent = SETTING_INTENT[key] ?? 'all';
+
         if (key === 'pinVaultRoot') {
             await this.plugin.saveData(this.plugin.settings);
             window.setTimeout(() => {
-                this.plugin.refreshAltRightPanelContent();
-                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
-                    if (leaf.view instanceof PortalsView) {
-                        leaf.view.render();
-                    }
-                });
+                this.plugin.renderBus.invalidate(intent, { reason: `setting:${key}` });
             }, 100);
         } else if (typeof value === 'string') {
             await this.plugin.saveData(this.plugin.settings);
             if (this.plugin.textSettingRenderTimer) window.clearTimeout(this.plugin.textSettingRenderTimer);
             this.plugin.textSettingRenderTimer = window.setTimeout(() => {
                 this.plugin.textSettingRenderTimer = null;
-                this.plugin.refreshAltRightPanelContent();
-                this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
-                    if (leaf.view instanceof PortalsView) {
-                        leaf.view.render();
-                    }
-                });
+                this.plugin.renderBus.invalidate(intent, { reason: `setting:${key}` });
             }, 500);
         } else {
-            await this.plugin.saveSettings();
+            await this.plugin.saveSettings(intent, { reason: `setting:${key}` });
         }
 
         if (key === 'reminderShowOverdue' || key === 'reminderOrder') {
