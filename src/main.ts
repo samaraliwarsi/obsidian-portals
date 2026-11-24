@@ -207,7 +207,12 @@ export default class PortalsPlugin extends Plugin {
                 this.reminderRefreshTimer = null;
                 
                 const prop = this.settings.reminderProperty || 'remind_at';
-                const fm: Frontmatter | undefined = this.app.metadataCache.getFileCache(file)?.frontmatter;
+                const cache = this.app.metadataCache.getFileCache(file);
+                // During a re-index the cache is briefly absent. Deleting on a
+                // missing cache wipes real reminders; only a cache that is
+                // present and has no property means "no reminder".
+                if (!cache) return;
+                const fm: Frontmatter | undefined = cache.frontmatter;
                 const raw = fm?.[prop];
                 if (raw) {
                     this.reminderDates.set(file.path, String(raw));
