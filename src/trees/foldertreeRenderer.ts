@@ -5,7 +5,7 @@ import { PortalsActions } from '../utils/portalsActions';
 import { TreeEventHelpers } from '../utils/treeEventHelpers';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { isContextNote, hasContextNote } from '../renderers/contextNotes';
-import { FileItemFactory } from '../utils/fileItemFactory';
+import { Rows } from '../pipeline/rows';
 import { SectionRenderer } from '../utils/sectionsRenderer';
 import { sortFilesBySetting } from '../utils/sortHelpers';
 
@@ -190,7 +190,7 @@ export class FolderTreeRenderer {
             if (!sectioned) {
                 for (const file of filesContextAware) {
                     if (this.plugin.settings.hiddenItems[file.path]) continue;
-                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
+                    Rows.file({ app: this.app, plugin: this.plugin, view: this.view, openFiles }, file, childrenContainer);
                 }
             }
         };

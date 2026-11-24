@@ -6,7 +6,7 @@ import { TreeEventHelpers } from '../utils/treeEventHelpers';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { isContextNoteFile, hasContextNote, getContextNote } from '../renderers/contextNotes';
 import { getFrontmatterTags } from '../utils/tagHelpers';
-import { FileItemFactory } from '../utils/fileItemFactory';
+import { Rows } from '../pipeline/rows';
 import { SectionRenderer } from '../utils/sectionsRenderer';
 import { sortFilesBySetting } from '../utils/sortHelpers';
 
@@ -318,7 +318,7 @@ export class TagTreeRenderer {
                 if (!sectioned) {
                     for (const file of flatFilesContextAware) {
                         if (this.plugin.settings.hiddenItems[file.path]) continue;
-                        FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
+                        Rows.file({ app: this.app, plugin: this.plugin, view: this.view, openFiles }, file, childrenContainer);
                     }
                 }
                 return;
@@ -497,7 +497,7 @@ export class TagTreeRenderer {
                 if (!sectioned) {
                     for (const file of groupFilesContextAware) {
                         if (this.plugin.settings.hiddenItems[file.path]) continue;
-                        const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
+                        const fileEl = Rows.file({ app: this.app, plugin: this.plugin, view: this.view, openFiles }, file, groupChildren);
                         fileEl.addEventListener('click', () => {
                             this.view.activeGroupTag = gTag;
                         }, true);
@@ -532,7 +532,7 @@ export class TagTreeRenderer {
             if (!sectioned) {
                 for (const file of ungroupedContextAware) {
                     if (this.plugin.settings.hiddenItems[file.path]) continue;
-                    FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
+                    Rows.file({ app: this.app, plugin: this.plugin, view: this.view, openFiles }, file, childrenContainer);
                 }
             }
             return;
@@ -691,7 +691,7 @@ export class TagTreeRenderer {
                 if (!sectioned) {
                     for (const file of nodeFilesContextAware) {
                         if (this.plugin.settings.hiddenItems[file.path]) continue;
-                        FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, childrenContainer, openFiles);
+                        Rows.file({ app: this.app, plugin: this.plugin, view: this.view, openFiles }, file, childrenContainer);
                     }
                 }
             }
@@ -927,7 +927,7 @@ export class TagTreeRenderer {
             if (!sectioned) {
                 for (const file of sGroupFilesContextAware) {
                     if (this.plugin.settings.hiddenItems[file.path]) continue;
-                    const fileEl = FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, groupChildren, openFiles);
+                    const fileEl = Rows.file({ app: this.app, plugin: this.plugin, view: this.view, openFiles }, file, groupChildren);
                     fileEl.addEventListener('click', () => {
                         this.view.activeGroupTag = gTag;
                     }, true);
@@ -988,7 +988,7 @@ export class TagTreeRenderer {
         if (!sectioned) {
             for (const file of noGroupRootFilesContextAware) {
                 if (this.plugin.settings.hiddenItems[file.path]) continue;
-                FileItemFactory.createFileItem(this.app, this.plugin, this.view, file, mainChildren, openFiles);
+                Rows.file({ app: this.app, plugin: this.plugin, view: this.view, openFiles }, file, mainChildren);
             }
         }   
     }

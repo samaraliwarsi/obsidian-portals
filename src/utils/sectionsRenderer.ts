@@ -1,7 +1,7 @@
 import { TFile, App, Platform } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-import { FileItemFactory } from './fileItemFactory';
+import { Rows } from '../pipeline/rows';
 
 type SectionKey = string;   // e.g. '.md', 'propValue'
 
@@ -202,7 +202,7 @@ export class SectionRenderer {
         // ------ File items ------
         for (const file of section.files) {
             if (plugin.settings.hiddenItems[file.path]) continue;
-            const fileEl = FileItemFactory.createFileItem(app, plugin, view, file, container, openFiles);
+            const fileEl = Rows.file({ app, plugin, view, openFiles }, file, container);
             afterCreate?.(fileEl);
         }
     }
