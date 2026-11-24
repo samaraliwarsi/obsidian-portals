@@ -74,6 +74,7 @@ export class AltSidePanelView extends ItemView {
 
         const onTabsUpdate = (newTabs: string[], newActive: string) => {
             const reordered = JSON.stringify(newTabs) !== JSON.stringify(this.plugin.settings.alternateSideTabs);
+            if (!reordered && newActive === this.activeTabId) return;
             this.plugin.settings.alternateSideTabs = newTabs;
             this.plugin.settings.alternateActiveTab = newActive;
             this.activeTabId = newActive;
@@ -105,6 +106,9 @@ export class AltSidePanelView extends ItemView {
             const renderer = getContextRenderer(this.mainView);
             if (renderer) renderer.saveScroll();
         }
+        // Settings-driven refreshes must also refresh the tab labels, which live
+        // in the strip and are otherwise only updated on a rebuild.
+        this.applyActiveTab(this.activeTabId);
         await renderSidePanelContent(
             this.plugin.app,
             this.plugin,

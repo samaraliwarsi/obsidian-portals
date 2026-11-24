@@ -125,11 +125,10 @@ export function renderSidePanel(
             }
         }
 
-        // Click handler – switch active tab
+        // Click handler – switch active tab. The closure value goes stale because
+        // the strip is no longer rebuilt on every switch, so let the view decide.
         tabBtn.addEventListener('click', () => {
-            if (activeTabId !== tabId) {
-                onTabsUpdate(tabs, tabId);
-            }
+            onTabsUpdate(tabs, tabId);
         });
     });
 
