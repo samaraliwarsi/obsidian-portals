@@ -19,7 +19,7 @@ import { SidePortalModal } from './modals/sidePortalModal';
 import { destroContextRenderer, destroySidePanelRenderer, getContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { getFrontmatterTags } from './utils/tagHelpers';
-import { beginRender, endRender, recordRender } from './pipeline/instrument';
+import { beginRender, endRender } from './pipeline/instrument';
 
 const MIN_EXPANDED_HEIGHT = 150;
 export const SIDE_TAB_ICONS: Record<string, string> = {
@@ -42,7 +42,6 @@ export const VIEW_TYPE_PORTALS = 'portals-view';
 
 export class PortalsView extends ItemView {
     plugin: PortalsPlugin;
-    private lastRenderHash: string = '';
     public tooltipEl: HTMLElement | null = null;
     private tooltipTimeout: number | null = null;
     private tooltipShowTimeout: number | null = null;
@@ -757,7 +756,6 @@ export class PortalsView extends ItemView {
         if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.tabBarOrder)) {
             this.plugin.settings.tabBarOrder = newOrder;
             await this.plugin.saveSettings();
-            this.lastRenderHash = this.getSettingsHash();
         }
     }
 
@@ -1624,77 +1622,6 @@ export class PortalsView extends ItemView {
         }
     }
 
-    //-- Settings Hash
-    private getSettingsHash(): string {
-        const s = this.plugin.settings;
-        return JSON.stringify({
-            spaces: s.spaces.map(sp => `${sp.type}:${sp.path}|${sp.icon}|${sp.color}|${sp.displayName || ''}|${sp.groupTags?.join(',') || ''}|${sp.stackId || ''}|${sp.quickTabNumber ?? ''}`).join(','),
-            openFolders: s.openFolders.join(','),
-            selectedSpace: s.selectedSpace ? `${s.selectedSpace.type}:${s.selectedSpace.path}` : '',
-            filePaneColorStyle: s.filePaneColorStyle,
-            tabColorEnabled: s.tabColorEnabled,
-            tabNameDisplay: s.tabNameDisplay,
-            sortBy: s.sortBy,
-            sortOrder: s.sortOrder,
-            secondaryPanelCollapsed: s.secondaryPanelCollapsed,
-            secondaryPanelHeight: s.secondaryPanelHeight,
-            sidePanelEnabled: s.sidePanelEnabled,
-            activeSplitTab: s.activeSplitTab,
-            splitViewTabs: s.splitViewTabs?.join(',') || '',
-            recentFilesList: s.recentFilesList?.join(',') || '',
-            showContextNotesInTree: s.showContextNotesInTree,
-            enableContextNotes: s.enableContextNotes,
-            floatingButtonsCollapsed: s.floatingButtonsCollapsed,
-            disableSidePanelOnMobile: s.disableSidePanelOnMobile,
-            enableFileExtensionNonMD: s.enableFileExtensionNonMD,
-            contextNoteHighlightStyle: s.contextNoteHighlightStyle,
-            compactTree: s.compactTree,
-            boldFolderNames: s.boldFolderNames,
-            treeStyle: s.treeStyle,
-            tabBarOrder: s.tabBarOrder.join(','),
-            //customColor: JSON.stringify(s.customColors),
-            //tagColors: JSON.stringify(s.tagColors),
-            //customIcons: JSON.stringify(s.customIcons),
-            hiddenItems: JSON.stringify(s.hiddenItems),
-            hideStackNames: s.hideStackNames,
-            showStackCount: s.showStackCount,
-            stackIconAccent: s.stackIconAccent,
-            stackAutoCollapse: s.stackAutoCollapse,
-            showCurrentPropertyValue: s.showCurrentPropertyValue,
-            hideFilteredCount: s.hideFilteredCount,
-            journalQuoteIndicator: s.journalQuoteIndicator,
-            compactTabs: s.compactTabs,
-            quickAddIcon: s.quickAddIcon,
-            contextNoteFollowActive: s.contextNoteFollowActive,
-            customTreeOrder: JSON.stringify(s.customTreeOrder),
-            tabIconPosition: s.tabIconPosition,
-            stackIconPosition: s.stackIconPosition,
-            showFilePreview: s.showFilePreview,
-            previewsCollapsed: this.previewsCollapsed,
-            previewExcludedFiles: JSON.stringify(s.previewExcludedFiles),
-            showFileInfoBar: s.showFileInfoBar,
-            enableSections: s.enableSections,
-            sectionCriterion: s.sectionCriterion,
-            sectionPropertyName: s.sectionPropertyName,
-            sectionOrders: JSON.stringify(s.sectionOrders),
-            spaceSectionPrefs: JSON.stringify(s.spaceSectionPrefs),
-            contextNoteIconClick: s.contextNoteIconClick,
-            showQuickTabNumberOnTabs: s.showQuickTabNumbersOnTabs,
-            showTreeItemToolTips: s.showTreeItemToolTips,
-            journalDefaultCurrentMode: s.journalDefaultCurrentMode,
-            iconLibrary: s.iconLibrary,
-            enableAutoBackup: s.enableAutoBackup,
-            alternateSideTabs: s.alternateSideTabs?.join(',') || '',
-            dateDisplayFormat: s.dateDisplayFormat,
-            reminderProperty: s.reminderProperty,
-            reminderTreeIndicator: s.reminderTreeIndicator,
-            appearanceRules: JSON.stringify(s.appearanceRules),
-            
-            portalStacks: s.portalStacks.map(st =>
-                `${st.id}|${st.name}|${st.icon || ''}|${st.color || ''}|${st.collapsed}|${st.order ?? 0}`).join(','),
-        });
-    }
-
     // True while a rebuild would destroy a node the user is interacting with.
     public isBusy(): boolean {
         return this.renaming || this.isDraggingTab;
@@ -1725,13 +1652,6 @@ export class PortalsView extends ItemView {
             this.rebuildTabBarOrder();
         }
         
-        const newHash = this.getSettingsHash();
-        if (newHash === this.lastRenderHash) {
-            recordRender('view:all:noop', 'settings hash unchanged');
-            return;
-        }
-        this.lastRenderHash = newHash;
-
         const probe = beginRender('view:all', { detail: 'full rebuild', root: this.containerEl });
         try {
             const viewContent = this.containerEl.children[1] as HTMLElement;
@@ -1857,7 +1777,6 @@ export class PortalsView extends ItemView {
                                             if (JSON.stringify(newPortalOrder) !== JSON.stringify(currentOrder)) {
                                                 this.plugin.settings.spaces = [...otherSpaces, ...newPortalOrder];
                                                 await this.plugin.saveData(this.plugin.settings);
-                                                this.lastRenderHash = this.getSettingsHash();
                                             }
                                             this.isDraggingTab = false;
                                         })();
@@ -1966,7 +1885,6 @@ export class PortalsView extends ItemView {
                             if (JSON.stringify(newOrder) !== JSON.stringify(this.plugin.settings.splitViewTabs)) {
                                 this.plugin.settings.splitViewTabs = newOrder;
                                 await this.plugin.saveSettings();
-                                this.lastRenderHash = this.getSettingsHash(); // prevent immediate re‑render
                             }
                         })();
                     }
