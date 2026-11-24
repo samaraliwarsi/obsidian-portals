@@ -10,6 +10,9 @@ import type { RenderIntent } from './pipeline/renderBus';
 
 // Settings whose change is contained to one surface. Anything not listed falls
 // back to a full rebuild, so the safe default stays safe.
+// Only settings verified end to end belong here. A wrong entry leaves a surface
+// stale (toggling context notes off must repaint the context-notes panel, which a
+// tree-only intent does not do), so the safe default stays 'all'.
 const SETTING_INTENT: Partial<Record<string, RenderIntent>> = {
     sortBy: 'tree:structure',
     sortOrder: 'tree:structure',

@@ -193,47 +193,58 @@ export class FloatingButtonsRenderer {
             });
 
             if (this.plugin.settings.enableSections) {
-                const space = this.plugin.settings.selectedSpace;
-                const compositeKey = `${space!.type}:${space!.path}`;
-                const prefs = this.plugin.settings.spaceSectionPrefs[compositeKey] ?? {};
-                const currentCriterion = prefs.criterion ?? this.plugin.settings.sectionCriterion;
-                const currentProp = prefs.propertyName ?? this.plugin.settings.sectionPropertyName ?? '';
+                // Floating buttons outlive a portal switch (that is a tree-only
+                // render), so anything captured here goes stale. Read the current
+                // space and criteria when the menu actually opens.
+                const sectionPrefs = () => {
+                    const space = this.plugin.settings.selectedSpace;
+                    const key = space ? `${space.type}:${space.path}` : '';
+                    const prefs = this.plugin.settings.spaceSectionPrefs[key] ?? {};
+                    return {
+                        key,
+                        criterion: prefs.criterion ?? this.plugin.settings.sectionCriterion,
+                        prop: prefs.propertyName ?? this.plugin.settings.sectionPropertyName ?? '',
+                    };
+                };
                 this.createButton('rows', 'Sections', pos.sections!, (e: MouseEvent) => {
+                    const { key, criterion, prop } = sectionPrefs();
                     const menu = new Menu();
-                    const setCriterion = (criterion: 'extension' | 'property') => {
-                        const entry = this.plugin.settings.spaceSectionPrefs[compositeKey] ?? {};
-                        entry.criterion = criterion;
-                        this.plugin.settings.spaceSectionPrefs[compositeKey] = entry;
+                    const setCriterion = (next: 'extension' | 'property') => {
+                        const entry = { ...(this.plugin.settings.spaceSectionPrefs[key] ?? {}), criterion: next };
+                        this.plugin.settings.spaceSectionPrefs[key] = entry;
                         // One intent: saveSettings no longer forces a full rebuild
                         // on top of the structure change.
                         void this.plugin.saveSettings('tree:structure', { reason: 'sections changed' });
                     };
                     menu.addItem(item => item
-                        .setTitle(currentCriterion === 'property' && currentProp
-                            ? `By frontmatter: ${currentProp}`
+                        .setTitle(criterion === 'property' && prop
+                            ? `By frontmatter: ${prop}`
                             : 'By frontmatter')
-                        .setChecked(currentCriterion === 'property')
+                        .setChecked(criterion === 'property')
                         .onClick(() => setCriterion('property')));
                     menu.addItem(item => item
                         .setTitle('By extension')
-                        .setChecked(currentCriterion === 'extension')
+                        .setChecked(criterion === 'extension')
                         .onClick(() => setCriterion('extension')));
                     menu.showAtPosition({ x: e.clientX, y: e.clientY });
                 },
-                (e) => { 
-                    if (currentCriterion === 'property') {
+                (e) => {
+                    const { key, criterion, prop } = sectionPrefs();
+                    if (criterion === 'property') {
                         e.preventDefault();
                         const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort();
                         new SearchPopover(e.currentTarget as HTMLElement, {
                             items: properties,
-                            currentSelected: currentProp,
+                            currentSelected: prop,
                             onSelect: (selected: string) => {
-                                const entry = this.plugin.settings.spaceSectionPrefs[compositeKey] ?? {};
-                                entry.propertyName = selected;
-                                entry.criterion = 'property';
-                                this.plugin.settings.spaceSectionPrefs[compositeKey] = entry;
+                                const entry = {
+                                    ...(this.plugin.settings.spaceSectionPrefs[key] ?? {}),
+                                    propertyName: selected,
+                                    criterion: 'property' as const,
+                                };
+                                this.plugin.settings.spaceSectionPrefs[key] = entry;
                                 this.view.saveTreeScroll();
-                                void this.plugin.saveSettings('tree:structure', { reason: 'section property changed' })
+                                void this.plugin.saveSettings('tree:structure', { reason: 'section property changed' });
                             },
                             placeholder: 'Property name...'
                         });
