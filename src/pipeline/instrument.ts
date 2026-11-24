@@ -32,6 +32,14 @@ export interface ProbeOptions {
     scrollSelector?: string;
 }
 
+// The row the reader is looking at: the first row whose bottom edge is below
+// the scroller's top edge. Sampled before and after a render to measure what the
+// reader actually sees, independently of how the view restores scroll.
+interface AnchorSample {
+    selector: string;
+    top: number;
+}
+
 export interface RenderToken {
     intent: string;
     surface: RenderSurface;
@@ -39,6 +47,7 @@ export interface RenderToken {
     caller: string;
     startedAt: number;
     scrollBefore: number | null;
+    anchor: AnchorSample | null;
     root: HTMLElement | null;
     scrollSelector: string;
 }
@@ -59,6 +68,14 @@ export interface RenderEvent {
     /// this is the value that distinguishes a real jump from a not-yet-restored
     /// rebuild.
     scrollAfterSettled: number | null;
+    /// Scroll offset changed at all, regardless of what the reader sees.
+    scrollMoved: boolean;
+    /// How far the anchored row moved on screen, in px. Null when there was no
+    /// anchor (tree at top, empty tree) so nothing could be judged.
+    anchorDelta: number | null;
+    /// The anchored row no longer exists (deleted, hidden, filtered out).
+    anchorMissing: boolean;
+    /// True only when the row the reader was looking at actually moved.
     jumped: boolean;
 }
 
@@ -78,12 +95,33 @@ function round(value: number): number {
     return Math.round(value * 100) / 100;
 }
 
-function readScroll(root: HTMLElement | null, selector: string): number | null {
+function resolveHost(root: HTMLElement | null, selector: string): HTMLElement | null {
     if (!root) return null;
     // Panels pass their content element directly, so it may be the scroll host.
-    if (root.matches(selector)) return root.scrollTop;
-    const host = root.querySelector<HTMLElement>(selector);
+    if (root.matches(selector)) return root;
+    return root.querySelector<HTMLElement>(selector);
+}
+
+function readScroll(root: HTMLElement | null, selector: string): number | null {
+    const host = resolveHost(root, selector);
     return host ? host.scrollTop : null;
+}
+
+function sampleAnchor(root: HTMLElement | null, selector: string): AnchorSample | null {
+    const host = resolveHost(root, selector);
+    if (!host) return null;
+    const hostTop = host.getBoundingClientRect().top;
+    for (const row of Array.from(host.querySelectorAll<HTMLElement>('[data-path], [data-tag-path]'))) {
+        const rect = row.getBoundingClientRect();
+        if (rect.bottom <= hostTop) continue;
+        const value = row.dataset.path ?? row.dataset.tagPath;
+        if (!value) continue;
+        const rowSelector = row.dataset.path
+            ? `[data-path="${value}"]`
+            : `[data-tag-path="${value}"]`;
+        return { selector: rowSelector, top: rect.top - hostTop };
+    }
+    return null;
 }
 
 function median(values: number[]): number {
@@ -150,6 +188,7 @@ class RenderStats {
             caller: callerFromStack(),
             startedAt: performance.now(),
             scrollBefore: readScroll(root, scrollSelector),
+            anchor: sampleAnchor(root, scrollSelector),
             root,
             scrollSelector,
         };
@@ -158,9 +197,6 @@ class RenderStats {
     end(token: RenderToken | null): void {
         if (!token) return;
         const scrollAfter = readScroll(token.root, token.scrollSelector);
-        const jumped = token.scrollBefore !== null
-            && scrollAfter !== null
-            && Math.abs(scrollAfter - token.scrollBefore) > 1;
 
         this.seq += 1;
         const event: RenderEvent = {
@@ -174,19 +210,36 @@ class RenderStats {
             scrollBefore: token.scrollBefore,
             scrollAfter,
             scrollAfterSettled: null,
-            jumped,
+            scrollMoved: false,
+            anchorDelta: null,
+            anchorMissing: false,
+            jumped: false,
         };
         this.events.push(event);
         if (this.events.length > MAX_EVENTS) this.events.shift();
 
-        // The view restores scroll inside requestAnimationFrame, so the read
-        // above still sees the pre-restore position. Re-check one frame later.
-        if (token.scrollBefore !== null) {
+        // Restoration runs inside requestAnimationFrame, so both the scroll
+        // offset and the anchored row are re-read one frame later. A shifted
+        // scroll offset is not a jump: pinning the anchor while rows are added,
+        // removed or re-sorted above it necessarily changes scrollTop.
+        if (token.scrollBefore !== null || token.anchor) {
             window.requestAnimationFrame(() => {
                 const settled = readScroll(token.root, token.scrollSelector);
-                if (settled === null) return;
-                event.scrollAfterSettled = settled;
-                event.jumped = Math.abs(settled - (token.scrollBefore ?? 0)) > 1;
+                if (settled !== null && token.scrollBefore !== null) {
+                    event.scrollAfterSettled = settled;
+                    event.scrollMoved = Math.abs(settled - token.scrollBefore) > 1;
+                }
+                if (!token.anchor) return;
+                const host = resolveHost(token.root, token.scrollSelector);
+                const row = host ? host.querySelector<HTMLElement>(token.anchor.selector) : null;
+                if (!host || !row) {
+                    event.anchorMissing = true;
+                    return;
+                }
+                const hostTop = host.getBoundingClientRect().top;
+                const delta = (row.getBoundingClientRect().top - hostTop) - token.anchor.top;
+                event.anchorDelta = round(delta);
+                event.jumped = Math.abs(delta) > 1;
             });
         }
     }
@@ -208,6 +261,9 @@ class RenderStats {
             scrollBefore: null,
             scrollAfter: null,
             scrollAfterSettled: null,
+            scrollMoved: false,
+            anchorDelta: null,
+            anchorMissing: false,
             jumped: false,
         });
         if (this.events.length > MAX_EVENTS) this.events.shift();

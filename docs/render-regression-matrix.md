@@ -95,11 +95,14 @@ One-line capture, 15 seconds:
 | `intent` | `view:all` full rebuild, `view:tree` tree only, `view:row` one row patched, `panel:*` side panel, `view:all:noop` rebuild requested but skipped |
 | `count` | how many happened during the capture |
 | `medianMs` / `p95Ms` / `maxMs` | how long they took |
-| `jumps` | redraws where the tree scroll moved by more than 1px |
+| `jumps` | redraws where the row you were *looking at* (the first visible row) moved by more than 1px. A changed scroll offset on its own is **not** a jump |
 
 ## What counts as a pass
 
 - The item you were reading must stay where it is on screen.
+- Delete and rename need a right-click, so the target row has to be visible. To test
+  the anchor being destroyed, target the **first visible** row. To test survival,
+  target a row near the bottom edge.
 - The scrollbar thumb moving is **not** a failure. When content height changes the
   thumb must move; what matters is that the item under your eyes does not.
 - Rows marked *expected movement* must move. Everything else must not.
@@ -121,8 +124,8 @@ One-line capture, 15 seconds:
 |---|---|---|---|
 | B1 | Create a note | New note in the current folder | 1 `view:tree`; new row appears; scroll kept |
 | B2 | Delete a file below the viewport | Delete a row you are not looking at | 1 `view:tree`; scroll kept |
-| B3 | Delete the file you are looking at | Delete the row under the cursor | Anchor falls back to nearest visible row; never scrolls to top |
-| B4 | Rename a file below the viewport | Rename a row you are not looking at | 1 `view:tree` or 0 plus a `view:row`; scroll kept |
+| B3 | Delete the row you are reading | Right-click > Delete on the **first visible** row | Falls back to the nearest surviving ancestor; never scrolls to the top |
+| B4 | Rename a row below the fold | Rename a row near the **bottom edge**, so the anchor (first visible row) survives | Anchor does not move. The renamed row itself may move, because the list re-sorts |
 | B5 | Rename a collapsed folder above the viewport | Rename it via the file explorer | Scroll kept |
 | B6 | Drag a file into another folder | Drag a row onto a folder row | Row moves; scroll kept |
 | B7 | Hide an item | Context menu > Hide | Row disappears; scroll kept; remaining rows do not shuffle |

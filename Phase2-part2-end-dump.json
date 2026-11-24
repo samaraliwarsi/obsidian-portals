@@ -1,0 +1,169 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949
+{\fonttbl}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+}
+[
+  {
+    "label": "B4-Rename a file below the viewport",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 3,
+        "medianMs": 8.1,
+        "p95Ms": 39,
+        "maxMs": 39,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 53.4,
+        "p95Ms": 53.4,
+        "maxMs": 53.4,
+        "jumps": 1
+      }
+    ],
+    "at": "2026-11-24T00:03:47.964Z"
+  },
+  {
+    "label": "B4-Rename a file below the viewport",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 3,
+        "medianMs": 8,
+        "p95Ms": 27.7,
+        "maxMs": 27.7,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 50.2,
+        "p95Ms": 50.2,
+        "maxMs": 50.2,
+        "jumps": 1
+      }
+    ],
+    "at": "2026-11-24T00:04:16.210Z"
+  },
+  {
+    "label": "B4-Rename a file below the viewport",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 3,
+        "medianMs": 8.1,
+        "p95Ms": 28,
+        "maxMs": 28,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 52.7,
+        "p95Ms": 52.7,
+        "maxMs": 52.7,
+        "jumps": 1
+      }
+    ],
+    "at": "2026-11-24T00:04:41.052Z"
+  },
+  {
+    "label": "A2-In a tag portal, type its `#tag` into a note",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 64.9,
+        "p95Ms": 64.9,
+        "maxMs": 64.9,
+        "jumps": 1
+      },
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 11,
+        "p95Ms": 11,
+        "maxMs": 11,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 23.2,
+        "p95Ms": 23.2,
+        "maxMs": 23.2,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T00:05:31.190Z"
+  },
+  {
+    "label": "A2-In a tag portal, type its `#tag` into a note",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 64,
+        "p95Ms": 64,
+        "maxMs": 64,
+        "jumps": 1
+      },
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 12.6,
+        "p95Ms": 12.6,
+        "maxMs": 12.6,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 22.2,
+        "p95Ms": 22.2,
+        "maxMs": 22.2,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T00:05:53.053Z"
+  },
+  {
+    "label": "A2-In a tag portal, type its `#tag` into a note",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 64,
+        "p95Ms": 64,
+        "maxMs": 64,
+        "jumps": 1
+      },
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 10.5,
+        "p95Ms": 10.5,
+        "maxMs": 10.5,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 23.9,
+        "p95Ms": 23.9,
+        "maxMs": 23.9,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-24T00:06:22.538Z"
+  }
+]
