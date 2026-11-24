@@ -119,17 +119,32 @@ export class AltSidePanelView extends ItemView {
     }
 
     // In-place active state, so switching tabs does not rebuild the strip.
+    // Mirrors what the strip builder applies, otherwise the accent colour would
+    // only ever land on the tab that happened to be active at build time.
     private applyActiveTab(activeTabId: string): void {
         const displayMode = this.plugin.settings.tabNameDisplay;
+        const rootColor = this.getRootAccentColor();
         this.contentEl.querySelectorAll<HTMLElement>('.portals-split-tab').forEach(tab => {
             const isActive = tab.dataset.tabId === activeTabId;
             tab.toggleClass('is-active', isActive);
+            tab.setCssProps({
+                '--split-tab-active-color': isActive && rootColor ? rootColor : '',
+            });
             const label = tab.querySelector('span.tab-label');
             if (label) {
                 const show = displayMode === 'all' || (displayMode === 'activeOnly' && isActive);
                 label.toggleClass('hide', !show);
             }
         });
+    }
+
+    // The accent used by the side tabs: the pinned root portal's colour, when
+    // tab colours are enabled.
+    private getRootAccentColor(): string | null {
+        if (!this.plugin.settings.pinVaultRoot || !this.plugin.settings.tabColorEnabled) return null;
+        const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+        if (!rootSpace?.color || rootSpace.color === 'transparent') return null;
+        return rootSpace.color;
     }
 
     async onClose() {
