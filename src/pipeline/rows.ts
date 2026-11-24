@@ -152,7 +152,10 @@ export class Rows {
                 // Re-read the state: the +/- button may have been clicked while
                 // this cachedRead was in flight, so a value captured at build
                 // time would resurrect the very elements the user just hid.
-                const excludedNow = plugin.settings.previewExcludedFiles[file.path] ?? false;
+                // No `?? false` here: an absent entry must stay `undefined`, or the
+                // collapsed branch below sees it as "explicitly enabled" and shows
+                // every preview when the user asked to hide them all.
+                const excludedNow = plugin.settings.previewExcludedFiles[file.path];
                 const visibleNow = view.previewsCollapsed ? excludedNow === false : excludedNow !== true;
                 if (!visibleNow) {
                     setPreviewVisibility(previewEl, false);
