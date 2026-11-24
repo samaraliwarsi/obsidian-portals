@@ -144,8 +144,15 @@ function percentile(values: number[], p: number): number {
 
 const INTERNAL_FRAMES = new Set([
     'callerFromStack', 'beginRender', 'endRender', 'recordRender',
-    'RenderStats', 'begin', 'end', 'record',
 ]);
+
+// Class methods appear as "RenderStats.begin" / "RenderBus.flush", so match the
+// owning class as well as the bare function names.
+function isInternalFrame(name: string): boolean {
+    return INTERNAL_FRAMES.has(name)
+        || name.startsWith('RenderStats')
+        || name.startsWith('RenderBus');
+}
 
 // Stack capture only happens when instrumentation is enabled -- the same
 // `new Error().stack` cost that currently runs on every row update.
@@ -157,7 +164,7 @@ function callerFromStack(): string {
         if (!line.startsWith('at ')) continue;
         const frame = line.slice(3);
         const name = frame.split(' ')[0] ?? '';
-        if (INTERNAL_FRAMES.has(name)) continue;
+        if (isInternalFrame(name)) continue;
         return frame.replace(/\(.*[/\\]([^/\\]+)/, '($1)').slice(0, 120);
     }
     return 'unknown';

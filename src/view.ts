@@ -865,16 +865,16 @@ export class PortalsView extends ItemView {
                 this.plugin.settings.openFolders.push(space.path);
             }
 
-            void this.plugin.saveSettings()
-                .then(() => this.render())
-                .then(() => {
-                    const newActiveTab = mainContainer.querySelector('.portals-tab.is-active');
+            void this.plugin.saveSettings().then(() => {
+                // The rebuild is queued by the bus, so the tab bar must be
+                // re-queried after it lands rather than reusing mainContainer.
+                window.setTimeout(() => {
+                    const newActiveTab = this.containerEl.querySelector<HTMLElement>('.portals-tab.is-active');
                     if (newActiveTab) {
-                        window.setTimeout(() => {
-                            newActiveTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                        }, 0);
+                        newActiveTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                     }
-                });
+                }, 200);
+            });
         });
     }
 
@@ -1054,9 +1054,7 @@ export class PortalsView extends ItemView {
             if (this.plugin.settings.spaces.length === 1 && !this.plugin.settings.pinVaultRoot) {
                 this.plugin.settings.selectedSpace = { path, type };
             }
-            void this.plugin.saveSettings().then(() => {
-                this.render();
-            });
+            void this.plugin.saveSettings();
         }).open();
     }
 
@@ -1104,7 +1102,6 @@ export class PortalsView extends ItemView {
         }
 
         await this.plugin.saveSettings();
-        this.render();
         const altLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_ALT_SIDE_PANEL);
         for (const leaf of altLeaves) {
             if (leaf.view instanceof AltSidePanelView) {
@@ -1116,7 +1113,6 @@ export class PortalsView extends ItemView {
     public async hideItem(key: string, silent = false) {
         this.plugin.settings.hiddenItems[key] = true;
         await this.plugin.saveSettings();
-        this.render();
         this.plugin.refreshAltRightPanelContent('hidden');
         if (!silent) new Notice('Item hidden');
     }
@@ -1124,7 +1120,6 @@ export class PortalsView extends ItemView {
     public async unhideItem(key: string) {
         delete this.plugin.settings.hiddenItems[key];
         await this.plugin.saveSettings();
-        this.render();
         this.plugin.refreshAltRightPanelContent('hidden');
         new Notice(`Unhidden: ${key}`);
     }
@@ -1132,7 +1127,6 @@ export class PortalsView extends ItemView {
     public async unhideAllItems() {
         this.plugin.settings.hiddenItems = {};
         await this.plugin.saveSettings();
-        this.render();
         this.plugin.refreshAltRightPanelContent('hidden');
         new Notice('All items unhidden');
     }
