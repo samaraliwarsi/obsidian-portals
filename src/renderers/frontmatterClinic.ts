@@ -7,7 +7,7 @@ import { FrontmatterPopup } from '../modals/frontmatterPopup';
 import { SaveViewModal } from '../modals/saveViewModal';
 import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
 import { sortFilesBySetting, sortStringsNaturally } from '../utils/sortHelpers';
-import { beginRender, endRender } from '../render/instrument';
+import { beginRender, endRender } from '../pipeline/instrument';
 
 
 const clinicCache = {

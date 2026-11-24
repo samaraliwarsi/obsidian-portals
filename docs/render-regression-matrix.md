@@ -143,8 +143,7 @@ One-line capture, 15 seconds:
 | # | Scenario | Do this | Expected |
 |---|---|---|---|
 | D1 | Switch portal tab | Click another portal | Jumps to that portal's last scroll position - expected movement |
-| D2 | Jump to file | Command palette > jump to file | Scrolls to and highlights the file - expected movement |
-| D3 | Collapse all | Floating button > collapse | Collapses to the top - expected movement |
+| D2 | Collapse all | Floating button > collapse | Collapses to the top - expected movement |
 
 ## E - Side panels
 
@@ -161,13 +160,32 @@ One-line capture, 15 seconds:
 | F1 | Drag the splitter | Container height changes; browser adjusts scroll |
 | F2 | Resize the sidebar | Same |
 
-## Baseline (first run, 2026-11-24)
+## Baseline (27 captures, 2026-11-24)
 
-| Capture | Result |
-|---|---|
-| typing, 15s | 1 x `view:tree` (22ms), 0 jumps |
-| frontmatter, 10s | 0 events recorded *before* panel instrumentation; frontmatter panel was not visible in the recorder |
-| portal switch, 10s | 11 x `view:all` (median 55.5ms, max 86.6ms), 13 x `view:all:noop`, 0 jumps |
+| intent | rebuilds | jumps | worst |
+|---|---|---|---|
+| `view:all` | 10 | 8 | 62.6 ms |
+| `view:tree` | 17 | 7 | 79.5 ms |
+| `view:row` | 61 | 0 | 25.6 ms |
+| `panel:content` | 98 | 0 | 152 ms |
+| `panel:clinic` | 33 | 0 | 53.5 ms |
+| `view:all:noop` | 5 | 0 | - |
+
+Captures that registered jumps: B1, B2, B3, B4, B7, C1, C3, C4, C6, D1.
+
+Two readings from this run:
+
+- Jumps appear only on rebuilds (`view:all`, `view:tree`), never on row patches
+  or panel renders.
+- Side panels rebuild far more often than the tree (98 vs 27) and cost more at
+  the tail (152 ms), but are invisible to the jump counter because they scroll
+  in a different element.
+
+> Caveat: the jump counts here are inflated. Scroll restoration runs inside a
+> `requestAnimationFrame`, but the recorder sampled `scrollTop` synchronously, so a
+> rebuild that was about to be restored could still register as a jump. From
+> phase 1 the recorder samples one frame later (`scrollAfterSettled`). Treat the
+> jumps column above as an upper bound, not a count of visible jumps.
 
 Static counts from the audit: 135 render/refresh call sites, 11 row builders,
 6 debounce policies, 4 render mechanisms across 58 files.

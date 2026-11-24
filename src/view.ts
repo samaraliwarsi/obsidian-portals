@@ -19,7 +19,7 @@ import { SidePortalModal } from './modals/sidePortalModal';
 import { destroContextRenderer, destroySidePanelRenderer, getContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { getFrontmatterTags } from './utils/tagHelpers';
-import { beginRender, endRender, recordRender } from './render/instrument';
+import { beginRender, endRender, recordRender } from './pipeline/instrument';
 
 const MIN_EXPANDED_HEIGHT = 150;
 export const SIDE_TAB_ICONS: Record<string, string> = {
@@ -63,7 +63,7 @@ export class PortalsView extends ItemView {
     public scrollToRestore: number | null = null;
     private spaceScrollCache = new Map<string, number>();
     private lastRenderedSpaceKey: string = '';
-    private scrollAnchor: { selector: string; offset: number } | null = null;
+    private scrollAnchor: { selector: string; offset: number; path?: string; isTag?: boolean } | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
     public rangeSelectionAnchor: string | null = null;
     public previewsCollapsed = false;
@@ -370,9 +370,12 @@ export class PortalsView extends ItemView {
             if (rect.bottom > containerRect.top) {
                 const path = item.dataset.path || item.dataset.tagPath;
                 if (path) {
+                    const isTag = !item.dataset.path;
                     this.scrollAnchor = {
-                        selector: item.dataset.path ? `[data-path="${path}"]` : `[data-tag-path="${path}"]`,
-                        offset: rect.top - containerRect.top
+                        selector: isTag ? `[data-tag-path="${path}"]` : `[data-path="${path}"]`,
+                        offset: rect.top - containerRect.top,
+                        path,
+                        isTag,
                     };
                 }
                 break;
@@ -382,11 +385,13 @@ export class PortalsView extends ItemView {
     public restoreTreeScroll(): void {
         // anchor based
         if (this.scrollAnchor) {
-            const { selector, offset } = this.scrollAnchor;
+            const anchor = this.scrollAnchor;
+            const offset = anchor.offset;
             this.scrollAnchor = null;
             const treeEl = this.containerEl.querySelector('.portals-tree-container');
             if (treeEl instanceof HTMLElement) {
-                const el = treeEl?.querySelector(selector);
+                const exact = treeEl.querySelector(anchor.selector);
+                const el = exact instanceof HTMLElement ? exact : this.findSurvivingAnchor(treeEl, anchor);
                 if (el instanceof HTMLElement) {
                     window.requestAnimationFrame(() => {
                         const containerRect = treeEl.getBoundingClientRect();
@@ -414,6 +419,24 @@ export class PortalsView extends ItemView {
         });
     }
 
+    // When the anchored row is gone (deleted, hidden, filtered out, renamed) fall
+    // back to its nearest surviving ancestor folder instead of a raw pixel offset
+    // measured against a differently sized tree.
+    private findSurvivingAnchor(tree: HTMLElement, anchor: { path?: string; isTag?: boolean }): HTMLElement | null {
+        const start = anchor.path;
+        if (!start) return null;
+        let path = start;
+        for (let depth = 0; depth < 16; depth++) {
+            const cut = path.lastIndexOf('/');
+            if (cut <= 0) break;
+            path = path.slice(0, cut);
+            const selector = anchor.isTag ? `[data-tag-path="${path}"]` : `[data-path="${path}"]`;
+            const el = tree.querySelector<HTMLElement>(selector);
+            if (el) return el;
+        }
+        return null;
+    }
+
     public saveScrollWithAnchor(anchorEl: HTMLElement) {
         const tree = this.containerEl.querySelector('.portals-tree-container');
         if (!tree) return;
@@ -423,9 +446,9 @@ export class PortalsView extends ItemView {
         const path = anchorEl.dataset.path;
         const tagPath = anchorEl.dataset.tagPath;
         if (path) {
-            this.scrollAnchor = { selector: `[data-path="${path}"]`, offset };
+            this.scrollAnchor = { selector: `[data-path="${path}"]`, offset, path, isTag: false };
         } else if (tagPath) {
-            this.scrollAnchor = { selector: `[data-tag-path="${tagPath}"]`, offset };
+            this.scrollAnchor = { selector: `[data-tag-path="${tagPath}"]`, offset, path: tagPath, isTag: true };
         } else {
             this.scrollToRestore = tree.scrollTop;
         }
@@ -1169,20 +1192,6 @@ export class PortalsView extends ItemView {
         return globalEnabled && !disabledOnMobile;
     }
 
-    public scheduleRender() {
-        if (this.renaming) return;
-        if (this.renderTimer) {
-            window.clearTimeout(this.renderTimer);
-        }
-        if (this.scrollToRestore === null && this.scrollAnchor === null) {
-            this.saveTreeScroll();
-        }
-        this.renderTimer = window.setTimeout(() => {
-            this.renderContent();
-            this.renderTimer = null;
-        }, 50);
-    }
-
     public renamePortal(space: SpaceConfig) {
         this.saveTreeScroll();
         const currentDisplay = space.displayName || this.getDefaultSpaceName(space);
@@ -1650,7 +1659,17 @@ export class PortalsView extends ItemView {
         });
     }
 
-    render() {
+    // Single entry point. 'all' rebuilds the chrome and the tree; 'tree' rebuilds
+    // only the selected portal's content.
+    render(intent: 'all' | 'tree' = 'all') {
+        if (intent === 'tree') {
+            this.renderTreeScope();
+            return;
+        }
+        this.renderFullScope();
+    }
+
+    private renderFullScope() {
         if (this.isDraggingTab) return;
         this.hideTooltip(0);
 
@@ -2138,36 +2157,7 @@ export class PortalsView extends ItemView {
                 s.type === this.plugin.settings.selectedSpace?.type
             ) || spaces[0];
             if (selectedSpace) {
-                const openFiles = this.getOpenFilePaths();
-                if (selectedSpace.type === 'folder') {
-                    const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
-                    if (folder && folder instanceof TFolder) {
-                        // count direct children folders at first level
-                        const totalFirstLevelFolders = folder.children.filter(c => c instanceof TFolder).length;
-                        const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
-                        if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
-                            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
-                        } else {
-                            spaceContent.setCssProps({ '--space-border-color': '' });
-                        }
-                        this.applySpaceBackground(spaceContent, selectedSpace.color);
-                        this.makeDropTarget(spaceContent, folder, true);
-                        new FolderTreeRenderer(this.app, this.plugin, this).render(folder, spaceContent, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
-                    } else {
-                        treeContainer.createEl('p', { text: `Folder not found: ${selectedSpace.path}` });
-                    }
-                } else {
-                    // count groups chosen
-                    const groupCount = selectedSpace.groupTags?.length ?? 0;
-                    const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
-                    if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
-                            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
-                        } else {
-                            spaceContent.setCssProps({ '--space-border-color': '' });
-                        }
-                    this.applySpaceBackground(spaceContent, selectedSpace.color);
-                    new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
-                }
+                this.buildSelectedSpaceContent(treeContainer, selectedSpace, this.getOpenFilePaths());
             }
             const currentSpacekey = selectedSpace ? `${selectedSpace.type}:${selectedSpace.path}`: '';
             const spaceChanged = currentSpacekey !== this.lastRenderedSpaceKey;
@@ -2194,7 +2184,12 @@ export class PortalsView extends ItemView {
         await renderSidePanelContent(this.app, this.plugin, contentEl, tabId, this);
     }
     
+    // Kept as a thin alias so the ~12 existing call sites keep working.
     renderContent() {
+        this.render('tree');
+    }
+
+    private renderTreeScope() {
         if (this.renaming) return;
         this.hideTooltip(0);
         if (this.renderTimer) {
@@ -2204,7 +2199,7 @@ export class PortalsView extends ItemView {
         if (this.isDraggingTab) return;
         const openFiles = this.getOpenFilePaths();
         const container = this.containerEl.children[1] as HTMLElement;
-        const treeContainer = container.querySelector('.portals-tree-container');
+        const treeContainer = container.querySelector<HTMLElement>('.portals-tree-container');
         if (!treeContainer) return;
 
         const probe = beginRender('view:tree', { detail: 'tree rebuild', root: this.containerEl });
@@ -2224,39 +2219,46 @@ export class PortalsView extends ItemView {
             return;
         }
 
-        if (selectedSpace.type === 'folder') {
-            const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
-            if (folder && folder instanceof TFolder) {
-                const totalFirstLevelFolders = folder.children.filter(c => c instanceof TFolder).length;
-                const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
-                if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
-                            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
-                        } else {
-                            spaceContent.setCssProps({ '--space-border-color': '' });
-                        }
-                this.applySpaceBackground(spaceContent, selectedSpace.color);
-                this.makeDropTarget(spaceContent, folder, true);
-                new FolderTreeRenderer(this.app, this.plugin, this).render(folder, spaceContent, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
-            } else {
-                treeContainer.createEl('p', { text: `Folder not found: ${selectedSpace.path}` });
-            }
-        } else {
-            const groupCount = selectedSpace.groupTags?.length ?? 0;
-            const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
-            if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
-                            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
-                        } else {
-                            spaceContent.setCssProps({ '--space-border-color': '' });
-                        }
-            this.applySpaceBackground(spaceContent, selectedSpace.color);
-            new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
-        }
+        this.buildSelectedSpaceContent(treeContainer, selectedSpace, openFiles);
         this.restoreTreeScroll();
         
         treeContainer.removeClass('portals-is-rebuilding');
         
         this.reapplySelectionHighlights();
         endRender(probe);
+    }
+
+    // The one place that turns a selected portal into rows. Shared by the full
+    // rebuild and the tree-only rebuild so the two paths cannot drift apart.
+    private buildSelectedSpaceContent(treeContainer: HTMLElement, selectedSpace: SpaceConfig, openFiles: Set<string>): void {
+        if (selectedSpace.type === 'folder') {
+            const folder = this.app.vault.getAbstractFileByPath(selectedSpace.path);
+            if (folder && folder instanceof TFolder) {
+                const totalFirstLevelFolders = folder.children.filter(c => c instanceof TFolder).length;
+                const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
+                if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
+                    spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
+                } else {
+                    spaceContent.setCssProps({ '--space-border-color': '' });
+                }
+                this.applySpaceBackground(spaceContent, selectedSpace.color);
+                this.makeDropTarget(spaceContent, folder, true);
+                new FolderTreeRenderer(this.app, this.plugin, this).render(folder, spaceContent, openFiles, selectedSpace.icon, 0, 0, totalFirstLevelFolders);
+            } else {
+                treeContainer.createEl('p', { text: `Folder not found: ${selectedSpace.path}` });
+            }
+            return;
+        }
+
+        const groupCount = selectedSpace.groupTags?.length ?? 0;
+        const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
+        if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
+            spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
+        } else {
+            spaceContent.setCssProps({ '--space-border-color': '' });
+        }
+        this.applySpaceBackground(spaceContent, selectedSpace.color);
+        new TagTreeRenderer(this.app, this.plugin, this).render(selectedSpace.path, spaceContent, selectedSpace.icon, openFiles, selectedSpace.groupTags, groupCount);
     }
 
     public refreshRecentTab() {

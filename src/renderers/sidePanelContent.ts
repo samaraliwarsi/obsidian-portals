@@ -10,7 +10,7 @@ import { ContextNotesRenderer } from '../renderers/contextNotes';
 import { TrashRenderer } from '../renderers/trashRenderer';
 import { AltSidePanelView } from './RightSideView';
 import { RemindersRenderer } from './remindersRenderer';
-import { beginRender, endRender } from '../render/instrument';
+import { beginRender, endRender } from '../pipeline/instrument';
 
 const journalRenderers = new WeakMap<PortalsView | AltSidePanelView, JournalRenderer>();
 const contextRenderers = new WeakMap<PortalsView | AltSidePanelView, ContextNotesRenderer>();

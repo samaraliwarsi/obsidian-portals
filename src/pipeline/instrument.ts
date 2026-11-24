@@ -55,6 +55,10 @@ export interface RenderEvent {
     durationMs: number;
     scrollBefore: number | null;
     scrollAfter: number | null;
+    /// Scroll position one frame later. Restoration is deferred to a rAF, so
+    /// this is the value that distinguishes a real jump from a not-yet-restored
+    /// rebuild.
+    scrollAfterSettled: number | null;
     jumped: boolean;
 }
 
@@ -159,7 +163,7 @@ class RenderStats {
             && Math.abs(scrollAfter - token.scrollBefore) > 1;
 
         this.seq += 1;
-        this.events.push({
+        const event: RenderEvent = {
             seq: this.seq,
             ts: Date.now(),
             intent: token.intent,
@@ -169,9 +173,22 @@ class RenderStats {
             durationMs: round(performance.now() - token.startedAt),
             scrollBefore: token.scrollBefore,
             scrollAfter,
+            scrollAfterSettled: null,
             jumped,
-        });
+        };
+        this.events.push(event);
         if (this.events.length > MAX_EVENTS) this.events.shift();
+
+        // The view restores scroll inside requestAnimationFrame, so the read
+        // above still sees the pre-restore position. Re-check one frame later.
+        if (token.scrollBefore !== null) {
+            window.requestAnimationFrame(() => {
+                const settled = readScroll(token.root, token.scrollSelector);
+                if (settled === null) return;
+                event.scrollAfterSettled = settled;
+                event.jumped = Math.abs(settled - (token.scrollBefore ?? 0)) > 1;
+            });
+        }
     }
 
     // Zero-duration event for a render that was *requested* but did nothing
@@ -190,6 +207,7 @@ class RenderStats {
             durationMs: 0,
             scrollBefore: null,
             scrollAfter: null,
+            scrollAfterSettled: null,
             jumped: false,
         });
         if (this.events.length > MAX_EVENTS) this.events.shift();
