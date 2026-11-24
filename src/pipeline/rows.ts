@@ -92,12 +92,11 @@ export class Rows {
         if (plugin.settings.showFilePreview && file.extension === 'md') {
             fileEl.addClass('file-item-has-preview');
 
-            const explicit = plugin.settings.previewExcludedFiles[file.path];
-            const collapsed = view.previewsCollapsed;
-            const showPreview = collapsed ? explicit === false : explicit !== true;
 
             const toggleBtn = fileEl.createSpan({ cls: 'portals-file-action-icons' });
-            plugin.renderPluginIcon(toggleBtn, showPreview ? 'minus-circle' : 'plus-circle');
+            const excludedAtBuild = plugin.settings.previewExcludedFiles[file.path];
+            const shownAtBuild = view.previewsCollapsed ? excludedAtBuild === false : excludedAtBuild !== true;
+            plugin.renderPluginIcon(toggleBtn, shownAtBuild ? 'minus-circle' : 'plus-circle');
 
             let previewEl: HTMLDivElement | null = null;
             let infoBar: HTMLDivElement | null = null;
@@ -145,7 +144,12 @@ export class Rows {
                     }
                 }
 
-                if (!showPreview) {
+                // Re-read the state: the +/- button may have been clicked while
+                // this cachedRead was in flight, so a value captured at build
+                // time would resurrect the very elements the user just hid.
+                const excludedNow = plugin.settings.previewExcludedFiles[file.path] ?? false;
+                const visibleNow = view.previewsCollapsed ? excludedNow === false : excludedNow !== true;
+                if (!visibleNow) {
                     if (previewEl) previewEl.addClass('file-item-preview-hidden');
                     if (infoBar) infoBar.addClass('file-item-preview-hidden');
                     if (taskEl) taskEl.addClass('file-item-preview-hidden');

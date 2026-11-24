@@ -64,7 +64,7 @@ background: var(--text-muted);
 }
 
 .portals-split-tabs::-webkit-scrollbar {
-    height: 8px;
+    max-height: 4px;
 }
 
 .portals-split-tabs::-webkit-scrollbar-track {

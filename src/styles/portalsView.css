@@ -708,7 +708,7 @@ body.portals-dragging {
     gap: 4px;
     align-items: center;
     padding: 0 4px;
-    padding-bottom: 2px;
+    padding-bottom: 10px;
     flex: 1;
     min-width: 0;
     scrollbar-width: auto;

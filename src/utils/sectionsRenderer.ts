@@ -32,8 +32,11 @@ export class SectionRenderer {
         // Respect the global toggle
         if (!plugin.settings.enableSections) return false;
 
-        // Build sections based on the active criterion
-        const sections = this.buildSections(app, plugin, files);
+        // Build sections based on the active criterion, dropping any that end up
+        // with no visible files (hiding the only file must not leave an empty
+        // header behind).
+        const sections = this.buildSections(app, plugin, files)
+            .filter(section => section.files.some(f => !plugin.settings.hiddenItems[f.path]));
 
         for (const section of sections) {
             for (const f of section.files) {

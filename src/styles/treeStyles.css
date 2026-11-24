@@ -646,3 +646,13 @@ body.theme-light .portals-split-content.portals-tree-style-hues.bookmarks-tree .
 .portals-tree-style-hues .portals-section-separator::after {
   border-bottom: 1px dashed rgba(128, 128, 128, 0.2);
 }
+
+
+/*===========================DRAG DROP======================================*/
+
+
+.portals-tree-style-shades .folder-summary.drag-over,
+.portals-tree-style-hues .folder-summary.drag-over {
+    outline: 2px solid var(--interactive-accent);
+    outline-offset: -2px;
+}
