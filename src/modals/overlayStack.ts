@@ -5,7 +5,6 @@ export interface OverlayLayer {
 }
 
 const layers: OverlayLayer[] = [];
-let bound = false;
 
 function onKeyDown(e: KeyboardEvent): void {
     if (e.key !== 'Escape') return;
@@ -26,14 +25,17 @@ function onKeyDown(e: KeyboardEvent): void {
     }
 }
 
+// Bind at module load, on `window` in the capture phase, not lazily on the first
+// layer. Order matters more than phase: listeners on the same node and phase run
+// in registration order, so a lazy binding lands AFTER Obsidian has registered its
+// modal's Escape handler and loses the race every time. window-capture is also the
+// earliest point any keydown reaches.
+activeWindow.addEventListener('keydown', onKeyDown, { capture: true });
+
 export const overlayStack = {
     push(layer: OverlayLayer): void {
         if (layers.includes(layer)) return;
         layers.push(layer);
-        if (!bound) {
-            bound = true;
-            activeDocument.addEventListener('keydown', onKeyDown);
-        }
     },
     remove(layer: OverlayLayer): void {
         const index = layers.indexOf(layer);
