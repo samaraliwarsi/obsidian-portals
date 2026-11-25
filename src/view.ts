@@ -2002,7 +2002,7 @@ export class PortalsView extends ItemView {
             }
             this.restoreTreeScroll();
             // Floating buttons (attached to mainPanel)
-            new FloatingButtonsRenderer(this.app, this.plugin, this).render(mainPanel);
+            this.renderFloatingButtons(mainPanel);
             this.reapplySelectionHighlights();
         } catch (e) {
             console.error('Portals render error:', e);
@@ -2021,6 +2021,15 @@ export class PortalsView extends ItemView {
     // Kept as a thin alias so the ~12 existing call sites keep working.
     renderContent() {
         this.render('tree');
+    }
+
+    // The button set depends on the active space: folder portals get "New folder",
+    // tag portals get "Tag groups". A portal switch is a tree-only render, so
+    // without this the previous portal's buttons linger and the tag portal never
+    // shows its Tag groups button.
+    private renderFloatingButtons(mainPanel: HTMLElement): void {
+        mainPanel.querySelectorAll('.portals-floating-btn').forEach(el => el.remove());
+        new FloatingButtonsRenderer(this.app, this.plugin, this).render(mainPanel);
     }
 
     private renderTreeScope() {
@@ -2052,7 +2061,13 @@ export class PortalsView extends ItemView {
 
         this.buildSelectedSpaceContent(treeContainer, selectedSpace, openFiles);
         // Only now is this space what the DOM actually shows.
-        this.lastRenderedSpaceKey = `${selectedSpace.type}:${selectedSpace.path}`;
+        const spaceKey = `${selectedSpace.type}:${selectedSpace.path}`;
+        const spaceChanged = spaceKey !== this.lastRenderedSpaceKey;
+        this.lastRenderedSpaceKey = spaceKey;
+        if (spaceChanged) {
+            const mainPanel = container.querySelector<HTMLElement>('.portals-main-panel');
+            if (mainPanel) this.renderFloatingButtons(mainPanel);
+        }
         this.restoreTreeScroll();
         
         treeContainer.removeClass('portals-is-rebuilding');

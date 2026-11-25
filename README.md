@@ -19,7 +19,8 @@ Portals enhances your Obsidian file navigation by letting you pin any folder or 
 - **Stacks** – group multiple tabs into collapsible stacks.
 - **Custom icons, colours & emojis** – Use Phosphor, Lucide, or native emojis; picker includes favourites and a custom paste field.
 - **Auto collapse folders** - Automatically fold and unfold folders or tag summaries that are in use.
-- **File preview** – Show content snippets below filenames; toggle per file or globally.
+- **Apperance Rules** - Color and assign icons to files based on frontmatter properties using priority based rules.
+- **File preview** – Show content snippets below filenames; toggle per file or globally. This can include tags and tasks.
 - **Sections** – Organise folders or tags into collapsible section breaks (by property or extension).
 - **Dynamic commands** – Every portal tab (folder or tag) is registered as its own command in the command palette for quick switching without leaving the keyboard.
 - **Auto backups** – Automatically save `data.json` on Obsidian reload.
@@ -100,6 +101,13 @@ npm run build
 ```
 
 The built `main.js` and `styles.css` will be in the root folder. Copy them into your test vault’s `.obsidian/plugins/portals/` directory.
+
+## For contributors
+
+- [Rendering architecture](docs/architecture.md) — how renders are triggered, contracts, invariants
+- [Regression matrix](docs/render-regression-matrix.md) — 22 scenarios with pass criteria
+- [Settings matrix](docs/settings-render-matrix.md) — which setting reaches which surface
+
 ## 📝 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
