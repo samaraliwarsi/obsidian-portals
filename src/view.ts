@@ -623,17 +623,46 @@ export class PortalsView extends ItemView {
     }
 
     public rebuildTabBarOrder() {
-        const order: string[] = [];
-        const sortedStacks = [...this.plugin.settings.portalStacks].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        for (const stack of sortedStacks) {
-            order.push(`stack:${stack.id}`);
-        }
-        for (const space of this.plugin.settings.spaces) {
-            if (!space.stackId) {
-                order.push(`${space.type}:${space.path}`);
+        // Rebuild from the existing order, not from scratch. The old version
+        // emitted "all stacks, then all portals", so any stack operation (create
+        // or join) yanked every stack to one end of the bar and pushed the
+        // portals behind them.
+        const spaces = this.plugin.settings.spaces;
+        const stackIds = new Set(this.plugin.settings.portalStacks.map(s => s.id));
+        const kept: string[] = [];
+        const seen = new Set<string>();
+
+        for (const entry of this.plugin.settings.tabBarOrder ?? []) {
+            if (entry.startsWith('stack:')) {
+                const id = entry.slice(6);
+                if (!stackIds.has(id) || seen.has(entry)) continue;
+                seen.add(entry);
+                kept.push(entry);
+                continue;
             }
+            const colon = entry.indexOf(':');
+            if (colon === -1) continue;
+            const type = entry.slice(0, colon);
+            const path = entry.slice(colon + 1);
+            const space = spaces.find(s => s.type === type && s.path === path);
+            // A portal that joined a stack now renders inside that stack.
+            if (!space || space.stackId || seen.has(entry)) continue;
+            seen.add(entry);
+            kept.push(entry);
         }
-        this.plugin.settings.tabBarOrder = order;
+
+        // Anything the order has not seen yet goes to the end, in its own order.
+        for (const stack of this.plugin.settings.portalStacks) {
+            const entry = `stack:${stack.id}`;
+            if (!seen.has(entry)) { seen.add(entry); kept.push(entry); }
+        }
+        for (const space of spaces) {
+            if (space.stackId) continue;
+            const entry = `${space.type}:${space.path}`;
+            if (!seen.has(entry)) { seen.add(entry); kept.push(entry); }
+        }
+
+        this.plugin.settings.tabBarOrder = kept;
     }
 
     public createNewStackWithPortal(space: SpaceConfig) {
@@ -651,6 +680,12 @@ export class PortalsView extends ItemView {
         
         this.plugin.settings.portalStacks.push(newStack);
         space.stackId = stackId;
+        // The new stack takes the place of its first portal, instead of being
+        // appended to the end of the bar.
+        const order = this.plugin.settings.tabBarOrder ?? [];
+        const entry = `${space.type}:${space.path}`;
+        const at = order.indexOf(entry);
+        if (at !== -1) order[at] = `stack:${stackId}`;
         this.rebuildTabBarOrder();
         void this.plugin.saveSettings().then(() => this.render());
     }
