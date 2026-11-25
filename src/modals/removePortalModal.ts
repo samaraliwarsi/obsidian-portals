@@ -1,47 +1,26 @@
 import { App } from "obsidian";
 import PortalsPlugin from "../main";
 import { SpaceConfig } from "../types";
+import { PortalsModal } from "./portalsModal";
 
-export class RemovePortalModal {
-    private app: App;
+export class RemovePortalModal extends PortalsModal {
     private plugin: PortalsPlugin;
     private onRemove: (space: SpaceConfig) => void;
-    private backdrop!: HTMLElement;
-    private container!: HTMLElement;
-    private keyHandler: (e: KeyboardEvent) => void;
 
     constructor(app: App, plugin: PortalsPlugin, onRemove: (space: SpaceConfig) => void) {
-        this.app = app;
+        super(app, {
+            containerClass: "portals-remP-container portals-remP-modal",
+            backdropClass: "portals-remP-backdrop",
+        });
         this.plugin = plugin;
         this.onRemove = onRemove;
-        this.keyHandler = (e: KeyboardEvent) => {
-            if (e.key === "Escape") this.close();
-        };
     }
 
-    open(): void {
-        if (this.container) {
-            this.close();
-        }
-
-        this.backdrop = activeDocument.body.createDiv("portals-remP-backdrop");
-        this.backdrop.addEventListener("click", () => this.close());
-
-        this.container = activeDocument.body.createDiv("portals-remP-container");
-        this.container.addClass("portals-remP-modal");
-        this.container.addEventListener("click", (e) => e.stopPropagation());
-
-        try {
-            this.renderList();
-            activeDocument.addEventListener("keydown", this.keyHandler);
-        } catch (e) {
-            console.error("Error building remove modal UI", e);
-            this.close();
-        }
+    protected buildContent(): void {
+        this.renderList();
     }
 
     private renderList(): void {
-        if (!this.container) return;
         this.container.empty();
         this.container.createDiv({ text: 'Remove portal tab', cls: 'portals-remP-title'});
 
@@ -63,7 +42,7 @@ export class RemovePortalModal {
                 displayName = "#" + space.path;
             }
 
-            const row = this.container.createDiv({cls: "remove-portal-row",});
+            const row = this.container.createDiv({ cls: "remove-portal-row" });
             row.createSpan({
                 text: displayName,
                 cls: "remove-portal-name",
@@ -78,11 +57,5 @@ export class RemovePortalModal {
                 this.renderList();
             });
         }
-    }
-
-    close(): void {
-        this.container?.remove();
-        this.backdrop?.remove();
-        activeDocument.removeEventListener("keydown", this.keyHandler);
     }
 }
