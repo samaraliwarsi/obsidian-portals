@@ -1,53 +1,32 @@
 import { App } from "obsidian";
+import { PortalsModal } from "./portalsModal";
 
-
-
-export class RenamePortalModal {
-    private app: App;
+export class RenamePortalModal extends PortalsModal {
     private currentName: string;
     private onSave: (newName: string) => void;
     private onCancel?: () => void;
-    private container!: HTMLElement;
-    private keyHandler: (e: KeyboardEvent) => void;
-    private backdrop!: HTMLElement;
-
 
     constructor(app: App, currentName: string, onSave: (newName: string) => void, onCancel?: () => void) {
-        this.app = app;
+        super(app, {
+            containerClass: 'portals-rename-modal portals-modal',
+            backdropClass: 'portals-rename-backdrop',
+        });
         this.currentName = currentName;
         this.onSave = onSave;
         this.onCancel = onCancel;
-        this.keyHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                this.close();
-            }
-        }
     }
 
-    open(): void {
-        if (this.container) {
-            this.close();
-        }
+    protected buildContent(): void {
+        this.buildUI();
+    }
 
-        this.backdrop = activeDocument.body.createDiv('portals-rename-backdrop');
-        this.backdrop.addEventListener('click', () => this.close());
-
-        this.container = activeDocument.body.createDiv('portals-rename-modal');
-        this.container.addClass('portals-modal');
-        this.container.addEventListener('click', (e) => e.stopPropagation());
-
-        try {
-            this.buildUI();
-            activeDocument.addEventListener('keydown', this.keyHandler)
-        } catch (e) {
-            console.error('Error building color picker UI', e);
-            this.close();
-        }
+    // Runs on every close path, including a successful Save — same as before.
+    protected beforeClose(): void {
+        this.onCancel?.();
     }
 
     buildUI(): void {
-        const { container } = this;
-        if (!container) return;
+        const container = this.container;
 
         container.createDiv({ text: 'Rename portal', cls: 'rename-popup-title' });
 
@@ -74,12 +53,5 @@ export class RenamePortalModal {
         };
         input.focus();
         input.select();
-    }
-
-    close(): void {
-        this.container.remove();
-        this.backdrop.remove();
-        activeDocument.removeEventListener('keydown', this.keyHandler);
-        this.onCancel?.();
     }
 }
