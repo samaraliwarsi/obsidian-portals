@@ -10,7 +10,7 @@ import { ContextNotesRenderer } from '../renderers/contextNotes';
 import { TrashRenderer } from '../renderers/trashRenderer';
 import { AltSidePanelView } from './RightSideView';
 import { RemindersRenderer } from './remindersRenderer';
-import { beginRender, endRender } from '../pipeline/instrument';
+import { beginRender, endRender } from '../pipeline/probe';
 
 // Every side panel implements this. destroy() must release anything that would
 // outlive the DOM: timers, intervals, listeners.

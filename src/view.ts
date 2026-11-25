@@ -20,7 +20,7 @@ import { SidePortalModal } from './modals/sidePortalModal';
 import { destroContextRenderer, destroySidePanelRenderer, getContextRenderer, renderSidePanelContent } from './renderers/sidePanelContent';
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { getFrontmatterTags } from './utils/tagHelpers';
-import { beginRender, endRender } from './pipeline/instrument';
+import { beginRender, endRender } from './pipeline/probe';
 
 const MIN_EXPANDED_HEIGHT = 150;
 

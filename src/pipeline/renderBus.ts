@@ -1,7 +1,7 @@
 import { TFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-import { recordRender } from './instrument';
+import { recordRender } from './probe';
 
 // What changed, not what to draw. Callers declare the change and the bus
 // decides which surface is stale.
