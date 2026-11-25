@@ -1,0 +1,289 @@
+{
+  "nodes": [
+    {
+      "id": "g-entry",
+      "type": "group",
+      "label": "Entry",
+      "x": -20,
+      "y": -20,
+      "width": 340,
+      "height": 420
+    },
+    {
+      "id": "g-pipe",
+      "type": "group",
+      "label": "Pipeline",
+      "x": 360,
+      "y": -20,
+      "width": 340,
+      "height": 560
+    },
+    {
+      "id": "g-surf",
+      "type": "group",
+      "label": "Surfaces",
+      "x": 740,
+      "y": -20,
+      "width": 360,
+      "height": 760
+    },
+    {
+      "id": "g-data",
+      "type": "group",
+      "label": "Data",
+      "x": 1140,
+      "y": -20,
+      "width": 320,
+      "height": 420
+    },
+    {
+      "id": "main",
+      "type": "text",
+      "text": "**PortalsPlugin**\n`main.ts`\nonload / events / saveSettings(intent)",
+      "x": 0,
+      "y": 40,
+      "width": 300,
+      "height": 110,
+      "color": "1"
+    },
+    {
+      "id": "view",
+      "type": "text",
+      "text": "**PortalsView**\n`view.ts`\nrender('all'|'tree') · isBusy() · scroll",
+      "x": 0,
+      "y": 190,
+      "width": 300,
+      "height": 130,
+      "color": "1"
+    },
+    {
+      "id": "bus",
+      "type": "text",
+      "text": "**RenderBus**\n`pipeline/renderBus.ts`\n5 intents · per-intent dueAt · deferral",
+      "x": 380,
+      "y": 40,
+      "width": 300,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "rows",
+      "type": "text",
+      "text": "**Rows**\n`pipeline/rows.ts`\nfile row + branch row (folder|tag|group)",
+      "x": 380,
+      "y": 200,
+      "width": 300,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "instr",
+      "type": "text",
+      "text": "**Recorder**\n`dev/instrument.ts` (swap in)\nstub lives in `src/pipeline/probe.ts`",
+      "x": 380,
+      "y": 370,
+      "width": 300,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "trees",
+      "type": "text",
+      "text": "**Trees**\n`trees/foldertreeRenderer.ts`\n`trees/tagtreeRenderer.ts`\ntraversal only, rows come from Rows",
+      "x": 760,
+      "y": 40,
+      "width": 320,
+      "height": 130,
+      "color": "5"
+    },
+    {
+      "id": "panelc",
+      "type": "text",
+      "text": "**Panel dispatcher**\n`renderers/sidePanelContent.ts`\nPANELS registry · PanelRenderer · scroll",
+      "x": 760,
+      "y": 200,
+      "width": 320,
+      "height": 130,
+      "color": "5"
+    },
+    {
+      "id": "strips",
+      "type": "text",
+      "text": "**Side tabs**\n`renderers/sideTabs.ts`\nrenderSideTabs / updateSideTabs",
+      "x": 760,
+      "y": 370,
+      "width": 320,
+      "height": 110,
+      "color": "5"
+    },
+    {
+      "id": "right",
+      "type": "text",
+      "text": "**Right panel**\n`renderers/RightSideView.ts`\nbuildStrip + shared dispatcher",
+      "x": 760,
+      "y": 520,
+      "width": 320,
+      "height": 110,
+      "color": "5"
+    },
+    {
+      "id": "float",
+      "type": "text",
+      "text": "**Floating buttons**\n`renderers/floatingButtonRenderer.ts`",
+      "x": 760,
+      "y": 660,
+      "width": 320,
+      "height": 80,
+      "color": "5"
+    },
+    {
+      "id": "settings",
+      "type": "text",
+      "text": "**Settings**\n`settings.ts` + `settingDefinitions.ts`\nSETTING_INTENT table",
+      "x": 1160,
+      "y": 40,
+      "width": 280,
+      "height": 120,
+      "color": "6"
+    },
+    {
+      "id": "types",
+      "type": "text",
+      "text": "**Types**\n`types.ts`",
+      "x": 1160,
+      "y": 200,
+      "width": 280,
+      "height": 70,
+      "color": "6"
+    },
+    {
+      "id": "utils",
+      "type": "text",
+      "text": "**Utils**\n`utils/*` (sort, sections, actions, menus)",
+      "x": 1160,
+      "y": 310,
+      "width": 280,
+      "height": 90,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "main",
+      "fromSide": "right",
+      "toNode": "bus",
+      "toSide": "left",
+      "label": "invalidate"
+    },
+    {
+      "id": "e2",
+      "fromNode": "bus",
+      "fromSide": "right",
+      "toNode": "view",
+      "toSide": "left",
+      "label": "dispatch"
+    },
+    {
+      "id": "e3",
+      "fromNode": "view",
+      "fromSide": "right",
+      "toNode": "trees",
+      "toSide": "left",
+      "label": "build"
+    },
+    {
+      "id": "e4",
+      "fromNode": "view",
+      "fromSide": "right",
+      "toNode": "strips",
+      "toSide": "left",
+      "label": "render strip"
+    },
+    {
+      "id": "e5",
+      "fromNode": "trees",
+      "fromSide": "right",
+      "toNode": "rows",
+      "toSide": "left",
+      "label": "row markup"
+    },
+    {
+      "id": "e6",
+      "fromNode": "view",
+      "fromSide": "right",
+      "toNode": "panelc",
+      "toSide": "left",
+      "label": "render panel"
+    },
+    {
+      "id": "e7",
+      "fromNode": "panelc",
+      "fromSide": "right",
+      "toNode": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e8",
+      "fromNode": "right",
+      "fromSide": "right",
+      "toNode": "strips",
+      "toSide": "left",
+      "label": "shared strip"
+    },
+    {
+      "id": "e9",
+      "fromNode": "right",
+      "fromSide": "right",
+      "toNode": "panelc",
+      "toSide": "left",
+      "label": "content"
+    },
+    {
+      "id": "e10",
+      "fromNode": "view",
+      "fromSide": "right",
+      "toNode": "instr",
+      "toSide": "left",
+      "label": "probe"
+    },
+    {
+      "id": "e11",
+      "fromNode": "bus",
+      "fromSide": "right",
+      "toNode": "instr",
+      "toSide": "left",
+      "label": "intent marker"
+    },
+    {
+      "id": "e12",
+      "fromNode": "settings",
+      "fromSide": "right",
+      "toNode": "bus",
+      "toSide": "left",
+      "label": "SETTING_INTENT"
+    },
+    {
+      "id": "e13",
+      "fromNode": "main",
+      "fromSide": "right",
+      "toNode": "settings",
+      "toSide": "left"
+    },
+    {
+      "id": "e14",
+      "fromNode": "float",
+      "fromSide": "right",
+      "toNode": "bus",
+      "toSide": "left",
+      "label": "invalidate"
+    },
+    {
+      "id": "e15",
+      "fromNode": "utils",
+      "fromSide": "right",
+      "toNode": "rows",
+      "toSide": "left"
+    }
+  ]
+}
