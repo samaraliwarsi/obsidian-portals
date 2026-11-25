@@ -1,57 +1,36 @@
 import { App, DropdownComponent } from "obsidian";
 import PortalsPlugin from "../main";
 import { SpaceConfig } from "../types";
+import { PortalsModal } from "./portalsModal";
 
-
-
-export class SetQuickTabNumberModal {
-    private app: App;
+export class SetQuickTabNumberModal extends PortalsModal {
     private plugin: PortalsPlugin;
     private space: SpaceConfig;
-    private keyHandler: (e: KeyboardEvent) => void;
-    private backdrop!: HTMLElement;
-    private container!: HTMLElement;
-    
+
     constructor(app: App, plugin: PortalsPlugin, space: SpaceConfig, private onSave: () => void, private onClose?: () => void) {
-        this.app = app;
+        super(app, {
+            containerClass: 'portals-qtn-modal portals-modal',
+            backdropClass: 'portals-qtn-backdrop',
+        });
         this.plugin = plugin;
         this.space = space;
-        this.onSave = onSave;
-        this.onClose = onClose;
-        
-        this.keyHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') this.close();
-        }
     }
 
-    open(): void {
-        if (this.container) {
-            this.close();
-        }
+    protected buildContent(): void {
+        this.buildUI();
+    }
 
-        this.backdrop = activeDocument.body.createDiv('portals-qtn-backdrop');
-        this.backdrop.addEventListener('click', () => this.close());
-
-        this.container = activeDocument.body.createDiv('portals-qtn-modal');
-        this.container.addEventListener('click', (e) => e.stopPropagation());
-        this.container.addClass('portals-modal');
-
-        try {
-            this.buildUI();
-            activeDocument.addEventListener('keydown', this.keyHandler)
-        } catch (e) {
-            console.error('Error building color picker UI', e);
-            this.close();
-        }
+    protected beforeClose(): void {
+        this.onClose?.();
     }
 
     buildUI(): void {
-        const { container } = this; 
-        
+        const container = this.container;
+
         container.createDiv({ text: 'Quick switch tabs', cls: 'qtn-popup-title' });
 
         const dropdownRow = container.createDiv('qtn-input-wrapper');
-        dropdownRow.createSpan({ 
+        dropdownRow.createSpan({
             text: 'Assign a number for tab quick switch commands & hotkey access',
             cls: 'portals-qtn-modal-subtext'
         });
@@ -84,12 +63,5 @@ export class SetQuickTabNumberModal {
             void this.plugin.saveSettings().then(() => this.onSave());
             this.close();
         };
-    }
-
-    close(): void {
-        this.container.remove();
-        this.backdrop.remove();
-        activeDocument.removeEventListener('keydown', this.keyHandler);
-        this.onClose?.();
     }
 }
