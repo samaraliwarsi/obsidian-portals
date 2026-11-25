@@ -30,7 +30,7 @@ function onKeyDown(e: KeyboardEvent): void {
 // in registration order, so a lazy binding lands AFTER Obsidian has registered its
 // modal's Escape handler and loses the race every time. window-capture is also the
 // earliest point any keydown reaches.
-activeWindow.addEventListener('keydown', onKeyDown, { capture: true });
+activeDocument.addEventListener('keydown', onKeyDown, { capture: true });
 
 export const overlayStack = {
     push(layer: OverlayLayer): void {
