@@ -240,6 +240,16 @@ export default class PortalsPlugin extends Plugin {
             }, 300);
         }));
 
+        // A folder rename fires once per descendant file. Routing each event to the
+        // panels rebuilt them 13+ times for one rename; the bus coalesces per tab.
+        const refreshPanelsCoalesced = () => {
+            for (const tabId of ['properties', 'journal', 'context-notes', 'reminders']) {
+                if (this.settings.activeSplitTab === tabId || this.settings.alternateActiveTab === tabId) {
+                    this.renderBus.invalidate('panel', { tabId, afterMs: 200, reason: 'rename' });
+                }
+            }
+        };
+
         const debouncedTreeRefresh = () => {
             this.renderBus.invalidate('tree:structure', { reason: 'tree refresh' });
         }
@@ -265,18 +275,7 @@ export default class PortalsPlugin extends Plugin {
                     debouncedTreeRefresh();
 
                     // Journal, Context notes and reminders update
-                    if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
-                        this.refreshSidePortal('journal');
-                        this.refreshAltRightPanelContent('journal');
-                    }
-                    if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
-                        this.refreshSidePortal('context-notes');
-                        this.refreshAltRightPanelContent('context-notes');
-                    }
-                    if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
-                        this.refreshSidePortal('reminders');
-                        this.refreshAltRightPanelContent('reminders');
-                    }
+                    refreshPanelsCoalesced();
                 }
             }
             void this.refreshTrashIfActive();
@@ -288,40 +287,14 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.vault.on('delete', (file) => {
             if (file instanceof TFolder) {
                 debouncedTreeRefresh();
-                if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
-                    this.refreshSidePortal('properties');
-                    this.refreshAltRightPanelContent('properties');
-                }
-                if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
-                    this.refreshSidePortal('journal');
-                    this.refreshAltRightPanelContent('journal');
-                }
-                if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
-                    this.refreshSidePortal('context-notes');
-                    this.refreshAltRightPanelContent('context-notes');
-                }
-                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
-                    this.refreshSidePortal('reminders');
-                    this.refreshAltRightPanelContent('reminders');
-                }
+                refreshPanelsCoalesced();
             }
             if (file instanceof TFile) {
                 debouncedTreeRefresh();
                 if (file.extension === 'md') {
                     this.reminderDates.delete(file.path);
                     FrontmatterClinicRenderer.removeFileCache(file.path);
-                    if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
-                        this.refreshSidePortal('properties');
-                        this.refreshAltRightPanelContent('properties')
-                    }
-                    if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
-                        this.refreshSidePortal('context-notes');
-                        this.refreshAltRightPanelContent('context-notes');
-                    }
-                    if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
-                        this.refreshSidePortal('reminders');
-                        this.refreshAltRightPanelContent('reminders');
-                    }
+                    refreshPanelsCoalesced();
 
                     
                     this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS).forEach(leaf => {
@@ -367,22 +340,7 @@ export default class PortalsPlugin extends Plugin {
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
             if (file instanceof TFolder) {
                 debouncedTreeRefresh();
-                if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
-                    this.refreshSidePortal('properties');
-                    this.refreshAltRightPanelContent('properties');
-                }
-                if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
-                    this.refreshSidePortal('journal');
-                    this.refreshAltRightPanelContent('journal');
-                }
-                if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
-                    this.refreshSidePortal('context-notes');
-                    this.refreshAltRightPanelContent('context-notes');
-                }
-                if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
-                    this.refreshSidePortal('reminders');
-                    this.refreshAltRightPanelContent('reminders');
-                }
+                refreshPanelsCoalesced();
             }
             if (file instanceof TFile) {
                 if (file.extension === 'md') {
@@ -396,24 +354,7 @@ export default class PortalsPlugin extends Plugin {
                     
                     debouncedTreeRefresh();
 
-                    window.setTimeout(() => {
-                        if (this.settings.activeSplitTab === 'properties' || this.settings.alternateActiveTab === 'properties') {
-                            this.refreshSidePortal('properties');
-                            this.refreshAltRightPanelContent('properties');
-                        }
-                        if (this.settings.activeSplitTab === 'journal' || this.settings.alternateActiveTab === 'journal') {
-                            this.refreshSidePortal('journal');
-                            this.refreshAltRightPanelContent('journal');
-                        }
-                        if (this.settings.activeSplitTab === 'context-notes' || this.settings.alternateActiveTab === 'context-notes') {
-                            this.refreshSidePortal('context-notes');
-                            this.refreshAltRightPanelContent('context-notes');
-                        }
-                        if (this.settings.activeSplitTab === 'reminders' || this.settings.alternateActiveTab === 'reminders') {
-                            this.refreshSidePortal('reminders');
-                            this.refreshAltRightPanelContent('reminders');
-                        }
-                    }, 150);
+                    refreshPanelsCoalesced();
                 }
 
                 // 2. Recent files & journal marks logic (moved from separated block)

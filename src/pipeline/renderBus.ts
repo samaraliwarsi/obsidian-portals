@@ -136,7 +136,10 @@ export class RenderBus {
                 this.patchRows(views, options.files);
                 break;
             case 'panel':
-                if (options.tabId) this.plugin.refreshSidePortal(options.tabId);
+                if (options.tabId) {
+                    this.plugin.refreshSidePortal(options.tabId);
+                    this.plugin.refreshAltRightPanelContent(options.tabId);
+                }
                 break;
         }
     }

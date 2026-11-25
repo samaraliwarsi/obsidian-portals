@@ -87,10 +87,13 @@ export class FrontmatterClinicRenderer {
         if (this.clinicRenderTimeout) {
             window.clearTimeout(this.clinicRenderTimeout)
         }
+        // 250ms, not 100: a folder rename emits one metadata change per
+        // descendant, and a 100ms window let several of those through, each
+        // costing a full clinic render.
         this.clinicRenderTimeout = window.setTimeout(() => {
             this.clinicRenderTimeout = null;
             void this.render();
-        }, 100);
+        }, 250);
     }
     public openFrontmatterModal(files: TFile[]): void {
         this.fmModalOpen = true;
