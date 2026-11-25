@@ -4,6 +4,9 @@ import PortalsPlugin from "../main";
 
 
 export class AddPortalModal {
+    // Every call site constructs a new instance, so an instance-level
+    // `if (this.container)` check can never fire. Track the open one instead.
+    private static openInstance: AddPortalModal | null = null;
     private app: App;
     private plugin: PortalsPlugin;
     private backdrop!: HTMLElement;
@@ -50,6 +53,8 @@ export class AddPortalModal {
     }
 
     open(): void {
+        if (AddPortalModal.openInstance) return;
+        AddPortalModal.openInstance = this;
         if (this.container) {
             this.close();
         }
@@ -197,6 +202,7 @@ export class AddPortalModal {
     }
 
     close(): void {
+        if (AddPortalModal.openInstance === this) AddPortalModal.openInstance = null;
         this.container.remove();
         this.backdrop.remove();
         activeDocument.removeEventListener('keydown', this.keyHandler);

@@ -2,6 +2,9 @@ import { App, Notice } from "obsidian";
 import PortalsPlugin from "../main";
 
 export class SidePortalModal {
+    // Same reason as AddPortalModal: a new instance per call means the
+    // container check inside open() never catches a second invocation.
+    private static openInstance: SidePortalModal | null = null;
     private plugin: PortalsPlugin;
     private onSave: (left: string[], right: string[]) => void;
     private selectedLeft: Set<string>;
@@ -22,6 +25,8 @@ export class SidePortalModal {
     }
 
     open(): void {
+        if (SidePortalModal.openInstance) return;
+        SidePortalModal.openInstance = this;
         if (this.container) this.close();
 
         this.backdrop = activeDocument.body.createDiv("portals-sp-backdrop");
@@ -149,6 +154,7 @@ export class SidePortalModal {
     }
 
     close(): void {
+        if (SidePortalModal.openInstance === this) SidePortalModal.openInstance = null;
         this.container?.remove();
         this.backdrop?.remove();
         activeDocument.removeEventListener("keydown", this.keyHandler);

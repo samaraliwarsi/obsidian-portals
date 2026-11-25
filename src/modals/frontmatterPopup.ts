@@ -23,6 +23,9 @@ function getFrontmatterProperty(frontmatter: unknown, key: string): unknown {
 }
 
 export class FrontmatterPopup {
+    // A new instance is constructed per call site, so the container check that
+    // open() does cannot see a second invocation. Track the open one.
+    private static openInstance: FrontmatterPopup | null = null;
     private app: App;
     private plugin: PortalsPlugin;
     private view: PortalsView;
@@ -63,6 +66,8 @@ export class FrontmatterPopup {
     }
 
     open(): void {
+        if (FrontmatterPopup.openInstance) return;
+        FrontmatterPopup.openInstance = this;
         // Backdrop
         this.backdrop = activeDocument.body.createDiv('portals-fm-backdrop');
         this.backdrop.addEventListener('click', () => this.close());
@@ -78,6 +83,7 @@ export class FrontmatterPopup {
     }
 
     close(): void {
+        if (FrontmatterPopup.openInstance === this) FrontmatterPopup.openInstance = null;
         this.propertySearchPopover?.destroy();
         this.valueSearchPopover?.destroy();
         this.backdrop?.remove();
