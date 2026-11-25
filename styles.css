@@ -5271,6 +5271,16 @@ input.portals-inline-rename:hover {
     pointer-events: none;
     contain: strict;
 }
+
+/*==============NEW MODAL APPROACH-TEST=======================================*/
+.portals-modal-root {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--layer-modal, 50);
+}
 /*===============================SCROLL BARS PLUGIN WIDE=======================*/
 /* ----------Tab bar and Tabs ---------*/
 .portals-tab-bar::-webkit-scrollbar {

@@ -1,3 +1,4 @@
+import { overlayStack } from '../modals/overlayStack';
 import { Platform } from "obsidian";
 
 interface SearchPopoverOptions {
@@ -18,6 +19,7 @@ export class SearchPopover {
     private resizeObserver!: ResizeObserver;
     private resizeHandler!: () => void;
     private scrollHandler!: (e: Event) => void;
+    private readonly overlayLayer = { close: () => this.destroy() };
 
     constructor(
         private anchor: HTMLElement,
@@ -27,6 +29,7 @@ export class SearchPopover {
             SearchPopover.activePopover.destroy();
         }
         SearchPopover.activePopover = this;
+        overlayStack.push(this.overlayLayer);
 
         //const parent = options.parent || activeDocument.body;
         this.popover = activeDocument.body.createDiv('portals-search-popover');
@@ -174,6 +177,10 @@ export class SearchPopover {
     private handleKeyboard(e: KeyboardEvent) {
         if (e.key === 'Escape') {
             e.preventDefault();
+            // The overlay stack listens on activeDocument. Without stopping the
+            // event here it bubbles after we destroy ourselves, finds the modal
+            // on top of the stack, and closes that too.
+            e.stopPropagation();
             this.destroy();
         } else if (e.key === 'Enter') {
             e.preventDefault();
@@ -201,6 +208,7 @@ export class SearchPopover {
     public destroy() {
         if (this.destroyed) return;
         this.destroyed = true;
+        overlayStack.remove(this.overlayLayer);
         activeDocument.removeEventListener('mousedown', this.clickOutsideHandler, { capture: true });
         activeDocument.removeEventListener('scroll', this.scrollHandler, { capture: true });
         window.removeEventListener('resize', this.resizeHandler);

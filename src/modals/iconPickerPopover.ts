@@ -1,9 +1,11 @@
 import { App, Platform } from 'obsidian';
 import PortalsPlugin from '../main';
 import { EMOJI_LIST } from '../icons/emojiList';
+import { overlayStack } from './overlayStack';
 
 export class IconPickerPopover {
     private popover: HTMLElement;
+    private readonly overlayLayer = { close: () => this.destroy() };
     private input!: HTMLInputElement;
     private grid!: HTMLElement;
     private tabContainer!: HTMLElement;
@@ -25,6 +27,7 @@ export class IconPickerPopover {
         private onSelect: (iconKey: string) => void
     ) {
         this.popover = activeDocument.body.createDiv('portals-icopop');
+        overlayStack.push(this.overlayLayer);
         this.popover.addClass('portals-inline-icon-popover');
         this.buildUI();
         this.position();
@@ -311,6 +314,7 @@ export class IconPickerPopover {
     public destroy() {
         if (this.destroyed) return;
         this.destroyed = true;
+        overlayStack.remove(this.overlayLayer);
         
         activeDocument.removeEventListener('mousedown', this.clickOutsideHandler, { capture: true });
         activeDocument.removeEventListener('keydown', this.keyHandler);

@@ -1,10 +1,12 @@
 import { Platform } from 'obsidian';
 import PortalsPlugin from '../main';
 import { DEFAULT_PORTALS_PALETTE } from './colorModal';
+import { overlayStack } from './overlayStack';
 
 export class ColorPickerPopover {
     private popover: HTMLElement;
     private destroyed = false;
+    private readonly overlayLayer = { close: () => this.destroy() };
     private resizeObserver!: ResizeObserver;
     private resizeHandler!: () => void;
     private clickOutsideHandler!: (e: MouseEvent) => void;
@@ -24,6 +26,7 @@ export class ColorPickerPopover {
         }*/
 
         this.popover = activeDocument.body.createDiv('portals-inline-color-popover');
+        overlayStack.push(this.overlayLayer);
         this.popover.addClass('portals-colpop')
         this.buildUI(currentColor);
         this.position();
@@ -257,6 +260,7 @@ export class ColorPickerPopover {
     public destroy() {
         if (this.destroyed) return;
         this.destroyed = true;
+        overlayStack.remove(this.overlayLayer);
         
         activeDocument.removeEventListener('mousedown', this.clickOutsideHandler, { capture: true });
         activeDocument.removeEventListener('keydown', this.keyHandler);

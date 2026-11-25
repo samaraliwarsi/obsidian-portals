@@ -6,6 +6,7 @@ import { ConfirmModal } from './confirmModal';
 import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
 import { Frontmatter } from '../types';
 import { sortStringsNaturally } from '../utils/sortHelpers';
+import { PortalsModal } from './portalsModal';
 
 declare module 'obsidian' {
     interface Menu {
@@ -22,16 +23,10 @@ function getFrontmatterProperty(frontmatter: unknown, key: string): unknown {
     return undefined;
 }
 
-export class FrontmatterPopup {
-    // A new instance is constructed per call site, so the container check that
-    // open() does cannot see a second invocation. Track the open one.
-    private static openInstance: FrontmatterPopup | null = null;
-    private app: App;
+export class FrontmatterPopup extends PortalsModal {
     private plugin: PortalsPlugin;
     private view: PortalsView;
     private files: TFile[];
-    private container!: HTMLElement;
-    private backdrop!: HTMLElement;
     private propBtn!: HTMLButtonElement;
     private propertyInput!: HTMLInputElement;
     private propertyIsExisting = false;
@@ -47,48 +42,28 @@ export class FrontmatterPopup {
     private propertyType: PropertyType = 'string';
     private propertyName = '';
     private value = '';
-    private keyHandler: (e: KeyboardEvent) => void;
     private yamlTextarea!: HTMLTextAreaElement;
     private copyYamlBtn!: HTMLButtonElement;
     private pasteYamlBtn!: HTMLButtonElement;
     private clearYamlBtn!: HTMLButtonElement;
 
     constructor(app: App, plugin: PortalsPlugin, view: PortalsView, files: TFile[], private onClose?: () => void) {
-        this.app = app;
+        super(app, {
+            containerClass: 'portals-fm-modal bulk-fm-modal',
+            backdropClass: 'portals-fm-backdrop',
+        });
         this.plugin = plugin;
         this.view = view;
         this.files = files;
-
-        // Key handler for Escape
-        this.keyHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') this.close();
-        };
     }
 
-    open(): void {
-        if (FrontmatterPopup.openInstance) return;
-        FrontmatterPopup.openInstance = this;
-        // Backdrop
-        this.backdrop = activeDocument.body.createDiv('portals-fm-backdrop');
-        this.backdrop.addEventListener('click', () => this.close());
-
-        // Container
-        this.container = activeDocument.body.createDiv('portals-fm-modal');
-        this.container.addClass('bulk-fm-modal');
-        // Stop clicks inside from closing
-        this.container.addEventListener('click', (e) => e.stopPropagation());
-
+    protected buildContent(_container: HTMLElement): void {
         this.buildUI();
-        activeDocument.addEventListener('keydown', this.keyHandler);
     }
 
-    close(): void {
-        if (FrontmatterPopup.openInstance === this) FrontmatterPopup.openInstance = null;
+    protected beforeClose(): void {
         this.propertySearchPopover?.destroy();
         this.valueSearchPopover?.destroy();
-        this.backdrop?.remove();
-        this.container?.remove();
-        activeDocument.removeEventListener('keydown', this.keyHandler);
         this.onClose?.();
     }
 
