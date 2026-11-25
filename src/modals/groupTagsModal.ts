@@ -25,19 +25,27 @@ export class GroupTagsModal extends Modal {
 
         const container = contentEl.createDiv({ cls: 'portals-gt-checkbox-container' });
         const filteredTags = this.availableTags.filter(tag => !tag.includes('/'));
-        filteredTags.forEach(tag => {
-            const div = container.createDiv({ cls: 'portals-gt-checkbox-item' });
-            const checkbox = div.createEl('input', { type: 'checkbox', value: tag });
-            checkbox.checked = this.selectedTags.has(tag);
-            div.createSpan({ text: tag });
-            checkbox.addEventListener('change', (e) => {
-                if ((e.target as HTMLInputElement).checked) {
-                    this.selectedTags.add(tag);
-                } else {
-                    this.selectedTags.delete(tag);
-                }
+        if (filteredTags.length === 0) {
+            const noTags = container.createDiv({ cls: 'portals-gt-noFound'});
+            noTags.createSpan({
+                text: 'No group tags found associated with the Portal tag',
+                cls: 'portals-gt-nofound-text'
             });
-        });
+        } else {
+            filteredTags.forEach(tag => {
+                const div = container.createDiv({ cls: 'portals-gt-checkbox-item' });
+                const checkbox = div.createEl('input', { type: 'checkbox', value: tag });
+                checkbox.checked = this.selectedTags.has(tag);
+                div.createSpan({ text: tag });
+                checkbox.addEventListener('change', (e) => {
+                    if ((e.target as HTMLInputElement).checked) {
+                        this.selectedTags.add(tag);
+                    } else {
+                        this.selectedTags.delete(tag);
+                    }
+                });
+            });
+        }
         const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
         buttonDiv.createEl('button', { text: 'Cancel' }).onclick = () => this.close();
         const saveBtn = buttonDiv.createEl('button', { text: 'Save', cls: 'mod-cta' });

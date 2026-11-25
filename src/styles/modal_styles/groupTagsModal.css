@@ -30,3 +30,17 @@
     align-items: center;
     font-size: small;
 }
+
+.portals-gt-modal .portals-gt-noFound {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 16px 8px;
+    color: var(--text-faint);
+}
+
+.portals-gt-nofound-text {
+  font-size: x-small;
+  color: var(--text-faint);
+  font-style: italic;
+  text-align: right;
+}
