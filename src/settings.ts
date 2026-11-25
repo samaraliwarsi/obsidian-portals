@@ -224,6 +224,9 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
 export class SpacesSettingTab extends PluginSettingTab {
     plugin: PortalsPlugin;
     public openSections: Set<string> = new Set();
+    // The declarative settings API builds each control once; this lets a control
+    // re-render itself after settings it displays have changed.
+    public activeTabsRefresher?: () => void;
     icon = 'folder-tree';
 
     constructor(app: App, plugin: PortalsPlugin) {

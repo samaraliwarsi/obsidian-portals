@@ -94,6 +94,9 @@ export default class PortalsPlugin extends Plugin {
             // The metadata cache is not ready during onload, so the reminder map
             // built there is empty and the panel shows nothing until a change.
             this.rebuildReminderDatesCache();
+            // Badge is a class on the tab; the strip was built before this cache
+            // existed, so nothing had set it yet.
+            this.updateReminderBadge();
             // The panel was rendered from an empty cache before this point.
             this.refreshSidePortal('reminders');
             this.refreshAltRightPanelContent('reminders');

@@ -1,0 +1,904 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949
+{\fonttbl}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+}
+[
+  {
+    "label": "A1-Typing in a note that belongs to an open portal",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:appearance",
+        "count": 10,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 5,
+        "medianMs": 4.6,
+        "p95Ms": 5.2,
+        "maxMs": 5.2,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:panel",
+        "count": 5,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 5,
+        "medianMs": 9.6,
+        "p95Ms": 13.6,
+        "maxMs": 13.6,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:33:13.496Z"
+  },
+  {
+    "label": "A2-In a tag portal, type its #tag into a note",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:appearance",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 38.8,
+        "p95Ms": 38.8,
+        "maxMs": 38.8,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:panel",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 16.6,
+        "p95Ms": 16.6,
+        "maxMs": 16.6,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:34:08.977Z"
+  },
+  {
+    "label": "A3-Typing a tag of a *different* portal",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:appearance",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:tree:structure",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 2,
+        "medianMs": 8.75,
+        "p95Ms": 10.3,
+        "maxMs": 10.3,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 2,
+        "medianMs": 27.3,
+        "p95Ms": 32.4,
+        "maxMs": 32.4,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:panel",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 11.35,
+        "p95Ms": 13.9,
+        "maxMs": 13.9,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:35:17.817Z"
+  },
+  {
+    "label": "A4-Frontmatter edit, properties panel open",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:appearance",
+        "count": 4,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 2,
+        "medianMs": 32.5,
+        "p95Ms": 33,
+        "maxMs": 33,
+        "jumps": 1
+      }
+    ],
+    "at": "2026-11-25T09:37:27.097Z"
+  },
+  {
+    "label": "A5-Frontmatter edit matching an appearance rule",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:appearance",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 11.5,
+        "p95Ms": 11.5,
+        "maxMs": 11.5,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 29.8,
+        "p95Ms": 29.8,
+        "maxMs": 29.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:38:25.440Z"
+  },
+  {
+    "label": "A6-Two windows / split view",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:appearance",
+        "count": 6,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 3,
+        "medianMs": 7.7,
+        "p95Ms": 13.5,
+        "maxMs": 13.5,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 3,
+        "medianMs": 25,
+        "p95Ms": 30.7,
+        "maxMs": 30.7,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:39:15.011Z"
+  },
+  {
+    "label": "B1-Create a note",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 3,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 11.8,
+        "p95Ms": 13.1,
+        "maxMs": 13.1,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 35.4,
+        "p95Ms": 35.4,
+        "maxMs": 35.4,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 21.4,
+        "p95Ms": 21.4,
+        "maxMs": 21.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:39:47.522Z"
+  },
+  {
+    "label": "B2-Delete a file below the viewport",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 4,
+        "medianMs": 20.2,
+        "p95Ms": 47.7,
+        "maxMs": 47.7,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:tree:structure",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 45.9,
+        "p95Ms": 45.9,
+        "maxMs": 45.9,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 12,
+        "p95Ms": 12,
+        "maxMs": 12,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:40:48.064Z"
+  },
+  {
+    "label": "B2-Delete a file",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 3,
+        "medianMs": 31.6,
+        "p95Ms": 56.1,
+        "maxMs": 56.1,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:tree:structure",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 53.6,
+        "p95Ms": 53.6,
+        "maxMs": 53.6,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 14.5,
+        "p95Ms": 14.5,
+        "maxMs": 14.5,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:41:17.825Z"
+  },
+  {
+    "label": "B2-Delete a file",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 3,
+        "medianMs": 30.6,
+        "p95Ms": 53.8,
+        "maxMs": 53.8,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:tree:structure",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 51.5,
+        "p95Ms": 51.5,
+        "maxMs": 51.5,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 12,
+        "p95Ms": 12,
+        "maxMs": 12,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:41:32.729Z"
+  },
+  {
+    "label": "B3-Delete the row you are reading",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 36.25,
+        "p95Ms": 38.4,
+        "maxMs": 38.4,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 35.9,
+        "p95Ms": 35.9,
+        "maxMs": 35.9,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 9.6,
+        "p95Ms": 9.6,
+        "maxMs": 9.6,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:42:27.222Z"
+  },
+  {
+    "label": "B4-Rename a file near the viewport bottom",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 20.85,
+        "p95Ms": 24.7,
+        "maxMs": 24.7,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 9.6,
+        "p95Ms": 9.6,
+        "maxMs": 9.6,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 23.6,
+        "p95Ms": 23.6,
+        "maxMs": 23.6,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:43:16.922Z"
+  },
+  {
+    "label": "B5-Rename a collapsed folder above the viewport",
+    "seconds": 15,
+    "rows": [],
+    "at": "2026-11-25T09:44:19.157Z"
+  },
+  {
+    "label": "B6-Drag a file into another folder",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 33.5,
+        "p95Ms": 39.5,
+        "maxMs": 39.5,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 9.5,
+        "p95Ms": 9.5,
+        "maxMs": 9.5,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 26.1,
+        "p95Ms": 26.1,
+        "maxMs": 26.1,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:44:58.995Z"
+  },
+  {
+    "label": "B7-Hide an item",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 13,
+        "p95Ms": 13,
+        "maxMs": 13,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:45:26.238Z"
+  },
+  {
+    "label": "C1-Toggle compact tree",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 48.75,
+        "p95Ms": 59.1,
+        "maxMs": 59.1,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 52.6,
+        "p95Ms": 52.6,
+        "maxMs": 52.6,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 44.8,
+        "p95Ms": 44.8,
+        "maxMs": 44.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:45:47.349Z"
+  },
+  {
+    "label": "C2-Change sort order",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 18.4,
+        "p95Ms": 18.4,
+        "maxMs": 18.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:46:07.563Z"
+  },
+  {
+    "label": "C3-Change tree style",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 47.4,
+        "p95Ms": 52.7,
+        "maxMs": 52.7,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 1,
+        "medianMs": 50.2,
+        "p95Ms": 50.2,
+        "maxMs": 50.2,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 39.2,
+        "p95Ms": 39.2,
+        "maxMs": 39.2,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:46:30.313Z"
+  },
+  {
+    "label": "C4-Toggle file previews",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 13.2,
+        "p95Ms": 13.2,
+        "maxMs": 13.2,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:46:54.350Z"
+  },
+  {
+    "label": "C5-Change one file's colour",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 35.05,
+        "p95Ms": 38.9,
+        "maxMs": 38.9,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 5.4,
+        "p95Ms": 5.4,
+        "maxMs": 5.4,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 35.8,
+        "p95Ms": 35.8,
+        "maxMs": 35.8,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:47:27.093Z"
+  },
+  {
+    "label": "C5.1-Change one file's icon",
+    "seconds": 10,
+    "rows": [],
+    "at": "2026-11-25T09:48:31.009Z"
+  },
+  {
+    "label": "C5.1-Change one file's icon",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 37.25,
+        "p95Ms": 40.1,
+        "maxMs": 40.1,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 6.6,
+        "p95Ms": 6.6,
+        "maxMs": 6.6,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 1,
+        "medianMs": 36.7,
+        "p95Ms": 36.7,
+        "maxMs": 36.7,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:48:49.872Z"
+  },
+  {
+    "label": "C6-Change tab name display",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 3,
+        "medianMs": 36,
+        "p95Ms": 39.6,
+        "maxMs": 39.6,
+        "jumps": 0
+      },
+      {
+        "intent": "view:all",
+        "count": 2,
+        "medianMs": 34.75,
+        "p95Ms": 39,
+        "maxMs": 39,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:clinic",
+        "count": 2,
+        "medianMs": 27.7,
+        "p95Ms": 27.8,
+        "maxMs": 27.8,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:all",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T09:59:18.169Z"
+  },
+  {
+    "label": "D1-Switch portal tab",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 39.1,
+        "p95Ms": 39.1,
+        "maxMs": 39.1,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T10:02:52.888Z"
+  },
+  {
+    "label": "D3-collapse all",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "intent:tree:structure",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 11.4,
+        "p95Ms": 11.4,
+        "maxMs": 11.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T10:03:16.085Z"
+  },
+  {
+    "label": "D3-collapse all",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "view:tree",
+        "count": 1,
+        "medianMs": 13.4,
+        "p95Ms": 13.4,
+        "maxMs": 13.4,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T10:03:47.049Z"
+  },
+  {
+    "label": "E1-Switch side tab",
+    "seconds": 10,
+    "rows": [
+      {
+        "intent": "panel:content",
+        "count": 1,
+        "medianMs": 47,
+        "p95Ms": 47,
+        "maxMs": 47,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T10:04:13.786Z"
+  },
+  {
+    "label": "E2-Edit a note, context notes open",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:appearance",
+        "count": 10,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 5,
+        "medianMs": 6.8,
+        "p95Ms": 12.3,
+        "maxMs": 12.3,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T10:07:32.795Z"
+  },
+  {
+    "label": "E3-Edit a reminder property",
+    "seconds": 15,
+    "rows": [
+      {
+        "intent": "intent:tree:appearance",
+        "count": 2,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      },
+      {
+        "intent": "panel:content",
+        "count": 2,
+        "medianMs": 16.3,
+        "p95Ms": 18.4,
+        "maxMs": 18.4,
+        "jumps": 0
+      },
+      {
+        "intent": "view:row",
+        "count": 1,
+        "medianMs": 6.3,
+        "p95Ms": 6.3,
+        "maxMs": 6.3,
+        "jumps": 0
+      },
+      {
+        "intent": "intent:panel",
+        "count": 1,
+        "medianMs": 0,
+        "p95Ms": 0,
+        "maxMs": 0,
+        "jumps": 0
+      }
+    ],
+    "at": "2026-11-25T10:08:10.430Z"
+  }
+]

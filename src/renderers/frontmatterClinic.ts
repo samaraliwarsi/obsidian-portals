@@ -274,7 +274,11 @@ export class FrontmatterClinicRenderer {
     }
 
     static getProperties() {
-        return clinicCache.properties;
+        // Sorted copy: every dropdown that lists properties reads this, and the
+        // cache order is scan order, which looks random in a picker.
+        return new Map(
+            [...clinicCache.properties.entries()].sort(([a], [b]) => sortStringsNaturally(a, b)),
+        );
     }
 
     static getNoFrontmatterPaths() {

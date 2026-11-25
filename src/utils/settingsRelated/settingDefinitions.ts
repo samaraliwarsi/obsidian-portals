@@ -844,7 +844,10 @@ function renderAddPortalButton(setting: Setting, tab: SpacesSettingTab): void {
             if (plugin.settings.spaces.length === 1 && !plugin.settings.pinVaultRoot) {
                 plugin.settings.selectedSpace = { path, type };
             }
-            void plugin.saveSettings();
+            // Rebuild the active-tabs list in place. The declarative settings API
+            // builds each control once, so without this the new row (and its
+            // controls) only appeared after leaving and re-entering settings.
+            void plugin.saveSettings().then(() => tab.activeTabsRefresher?.());
         }).open();
     });
 }
@@ -855,6 +858,8 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
     const app = tab.app;
     const controlEl = setting.controlEl;
     controlEl.empty();
+    // Let other controls ask this list to rebuild itself in place.
+    tab.activeTabsRefresher = () => renderActiveTabsSection(setting, tab);
     controlEl.addClass('portals-active-tabs-controls');
 
     const getPortalDisplayName = (portal: SpaceConfig): string => {
@@ -930,6 +935,9 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
                     plugin,
                     (iconKey: string) => {
                         plugin.settings.customIcons[compositeKey] = iconKey;
+                        // Reflect the choice on the row itself; this list is not
+                        // re-rendered after a save.
+                        plugin.renderCustomIcon(iconBtn, compositeKey, iconKey);
                         void plugin.saveSettings();
                     }
                 ).open();
@@ -970,11 +978,18 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
                 const b = parseInt(hex.slice(5, 7), 16);
                 portal.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
                 customSwatch.setCssProps({ '--swatch-bg': hex });
+                // Immediate feedback on the live tab; the settings list itself is
+                // never re-rendered, so this was the only visible surface.
+                plugin.getPortalsViews().forEach(v => v.refreshTabBarVisuals());
                 void plugin.saveSettings();
             };
             customSwatch.addEventListener('click', () => hiddenColorInput.click());
+            // 'change' as well as 'input': some platforms only fire change when the
+            // native picker is dismissed.
             hiddenColorInput.addEventListener('input', updateColor);
+            hiddenColorInput.addEventListener('change', updateColor);
             opacityInput.addEventListener('input', updateColor);
+            opacityInput.addEventListener('change', updateColor);
 
             // Trash
             const trashBtn = colorRow.createEl('button', {
@@ -982,6 +997,10 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
             });
             plugin.renderPluginIcon(trashBtn, 'trash');
             trashBtn.addEventListener('click', () => {
+                // Give feedback now: the settings list is not re-rendered on save,
+                // so without this the whole entry lingered until the page was
+                // revisited. Remove the entry, not just its control strip.
+                row.remove();
                 plugin.settings.spaces = plugin.settings.spaces.filter(s => s !== portal);
                 if (plugin.settings.selectedSpace?.path === portal.path &&
                     plugin.settings.selectedSpace?.type === portal.type) {

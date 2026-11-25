@@ -6,6 +6,7 @@ import { getFrontmatterTags } from '../utils/tagHelpers';
 import { FrontmatterClinicRenderer } from './frontmatterClinic';
 import { SearchPopover } from '../utils/searchPopover';
 import { GroupTagsModal } from '../modals/groupTagsModal';
+import { sortStringsNaturally } from '../utils/sortHelpers';
 
 type ButtonId = 'collapse' | 'preview' | 'sections' | 'sort' | 'newFolder' | 'newNote';
 const BUTTON_ORDER: ButtonId[] = ['collapse', 'preview', 'sections', 'sort', 'newFolder', 'newNote'];
@@ -232,7 +233,7 @@ export class FloatingButtonsRenderer {
                     const { key, criterion, prop } = sectionPrefs();
                     if (criterion === 'property') {
                         e.preventDefault();
-                        const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort();
+                        const properties = Array.from(FrontmatterClinicRenderer.getProperties().keys()).sort(sortStringsNaturally);
                         new SearchPopover(e.currentTarget as HTMLElement, {
                             items: properties,
                             currentSelected: prop,

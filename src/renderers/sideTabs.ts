@@ -85,6 +85,10 @@ export function renderSideTabs(container: HTMLElement, plugin: PortalsPlugin, op
         tabBtn.addEventListener('click', () => options.onSelect(tabId));
     }
 
+    // The reminder badge is a class on the tab, so a rebuild drops it. Re-apply
+    // here rather than relying on whoever happened to trigger the rebuild.
+    plugin.updateReminderBadge();
+
     const active = container.querySelector<HTMLElement>('.portals-split-tab.is-active');
     if (active) {
         window.setTimeout(() => active.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' }), 0);
