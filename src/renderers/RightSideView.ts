@@ -104,9 +104,19 @@ export class AltSidePanelView extends ItemView {
         });
 
         this.contentArea = this.contentEl.createDiv({ cls: 'portals-split-content' });
+        this.applySpaceAccent();
         if (this.mainView) {
             void renderSidePanelContent(this.plugin.app, this.plugin, this.contentArea, active, this.mainView);
         }
+    }
+
+    // Mirrors the left panel: Portals style draws file/folder left borders from
+    // --space-border-color, and without it the right panel fell back to the
+    // accent colour even when tab colours were on.
+    private applySpaceAccent(): void {
+        if (!this.contentArea) return;
+        const accent = this.plugin.settings.treeStyle === 'portals' ? this.getRootAccentColor() : null;
+        this.contentArea.setCssProps({ '--space-border-color': accent ?? '' });
     }
 
     // Selecting a tab updates the strip in place; it never rebuilds the panel.
@@ -120,6 +130,7 @@ export class AltSidePanelView extends ItemView {
     }
 
     public async refreshContent() {
+        this.applySpaceAccent();
         const mainLeaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PORTALS)[0];
         if (mainLeaf?.view instanceof PortalsView) {
             this.mainView = mainLeaf.view;
