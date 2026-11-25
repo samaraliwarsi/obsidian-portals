@@ -1,66 +1,42 @@
 import { App } from 'obsidian';
+import { PortalsModal } from './portalsModal';
 
-export class ConfirmModal {
+// Our own modal rather than Obsidian's: FrontmatterPopup (also ours) calls it,
+// and a native Modal opened from a custom one stacks in Obsidian's modal layer,
+// above ours, with its own Escape and focus handling. Same family, same rules.
+export class ConfirmModal extends PortalsModal {
     private resolve!: (value: boolean) => void;
     promise: Promise<boolean>;
     private message: string;
-    private container?: HTMLElement;
-    private backdrop?: HTMLElement;
-    private keyHandler: (e: KeyboardEvent) => void;
+    private settled = false;
 
     constructor(app: App, message: string) {
+        super(app, {
+            containerClass: 'portals-confirm-container portals-cnf-modal',
+            backdropClass: 'portals-confirm-backdrop',
+        });
         this.message = message;
         this.promise = new Promise<boolean>((res) => { this.resolve = res; });
-        this.keyHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                this.resolve(false);
-                this.close();
-            }
-        };
     }
 
-    open(): void {
-        if (this.container) this.close();
-
-        this.backdrop = activeDocument.body.createDiv('portals-confirm-backdrop');
-        this.backdrop.addEventListener('click', () => {
-            this.resolve(false);
-            this.close();
-        });
-
-        this.container = activeDocument.body.createDiv('portals-confirm-container');
-        this.container.addClass('portals-cnf-modal');
-        this.container.addEventListener('click', (e) => e.stopPropagation());
-
-        try {
-            this.buildUI();
-            activeDocument.addEventListener('keydown', this.keyHandler);
-        } catch (e) {
-            console.error('Error building confirm modal', e);
-            this.close();
-        }
+    protected buildContent(container: HTMLElement): void {
+        container.createEl('p', { text: this.message, cls: 'portals-confirm-message' });
+        const btnDiv = container.createDiv({ cls: 'modal-button-container' });
+        btnDiv.createEl('button', { text: 'Cancel' }).onclick = () => this.settle(false);
+        btnDiv.createEl('button', { text: 'OK', cls: 'mod-warning' }).onclick = () => this.settle(true);
     }
 
-    private buildUI(): void {
-        if (!this.container) return;
-        this.container.createEl('p', { text: this.message, cls: 'portals-confirm-message' });
-        const btnDiv = this.container.createDiv({ cls: 'modal-button-container' });
-        btnDiv.createEl('button', { text: 'Cancel' }).onclick = () => {
-            this.resolve(false);
-            this.close();
-        };
-        btnDiv.createEl('button', { text: 'OK', cls: 'mod-warning' }).onclick = () => {
-            this.resolve(true);
-            this.close();
-        };
+    // Escape or a backdrop click also lands here: the awaiting caller must always
+    // get an answer, or `await ConfirmModal.confirm(...)` never returns.
+    protected beforeClose(): void {
+        this.settle(false);
     }
 
-    close(): void {
-        this.container?.remove();
-        this.backdrop?.remove();
-        this.container = undefined;
-        this.backdrop = undefined;
-        activeDocument.removeEventListener('keydown', this.keyHandler);
+    private settle(value: boolean): void {
+        if (this.settled) return;
+        this.settled = true;
+        this.resolve(value);
+        this.close();
     }
 
     static async confirm(app: App, message: string): Promise<boolean> {
