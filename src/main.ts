@@ -620,6 +620,28 @@ export default class PortalsPlugin extends Plugin {
         return true;
     }
 
+    // Forget the preferences that belong to a portal tab itself. Both keys are
+    // tab-scoped: `folder:path` / `tag:path` are used only by the tab, while row
+    // icons use the plain path, tag nodes use `tag:main/node:sub`, and stacks use
+    // `stack:id`. customTreeOrder, sectionOrders and expandedGroups are shared with
+    // rows elsewhere and are deliberately left alone.
+    public forgetPortalPreferences(compositeKey: string): boolean {
+        let changed = false;
+        if (compositeKey in this.settings.spaceSectionPrefs) {
+            delete this.settings.spaceSectionPrefs[compositeKey];
+            changed = true;
+        }
+        // Folder tab icons are tab-only: folder rows key their icon by plain path.
+        // Tag tab icons are NOT: a tag row uses the same `tag:<path>` key, so
+        // removing a tag portal must not strip the icon from that tag's row in
+        // another portal.
+        if (compositeKey.startsWith('folder:') && compositeKey in this.settings.customIcons) {
+            delete this.settings.customIcons[compositeKey];
+            changed = true;
+        }
+        return changed;
+    }
+
     async saveSettings(intent: RenderIntent = 'all', options: InvalidateOptions = {}) {
         try {
             await this.saveData(this.settings);
@@ -1142,7 +1164,8 @@ export default class PortalsPlugin extends Plugin {
         const beforeCount = this.settings.spaces.length;
         let changed = false;
 
-        this.settings.spaces = this.settings.spaces.filter(space => {
+        const beforeSpaces = this.settings.spaces;
+        this.settings.spaces = beforeSpaces.filter(space => {
             if (space.type === 'folder') {
                 return existingFolders.includes(space.path);
             } else if (space.type === 'tag') {
@@ -1151,6 +1174,15 @@ export default class PortalsPlugin extends Plugin {
             return false;
         });
         if (beforeCount !== this.settings.spaces.length) changed = true;
+
+        // A renamed folder leaves its old portal behind as a dead entry; the
+        // tab-scoped keys (icon, section rules) would otherwise survive forever.
+        for (const space of beforeSpaces) {
+            if (this.settings.spaces.includes(space)) continue;
+            const key = `${space.type}:${space.path}`;
+            if (this.forgetPortalPreferences(key)) changed = true;
+            this.settings.tabBarOrder = this.settings.tabBarOrder.filter(entry => entry !== key);
+        }
         // Removing dead portals can strand stacks that no longer hold anything.
         if (this.pruneEmptyStacks()) changed = true;
 

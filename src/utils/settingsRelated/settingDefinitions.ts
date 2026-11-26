@@ -1015,6 +1015,7 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
                 row.remove();
                 plugin.settings.spaces = plugin.settings.spaces.filter(s => s !== portal);
                 plugin.pruneEmptyStacks();
+                plugin.forgetPortalPreferences(`${portal.type}:${portal.path}`);
                 if (plugin.settings.selectedSpace?.path === portal.path &&
                     plugin.settings.selectedSpace?.type === portal.type) {
                     plugin.settings.selectedSpace = plugin.settings.spaces[0]
