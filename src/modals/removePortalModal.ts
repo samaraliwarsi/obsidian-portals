@@ -24,7 +24,11 @@ export class RemovePortalModal extends PortalsModal {
         this.container.empty();
         this.container.createDiv({ text: 'Remove portal tab', cls: 'portals-remP-title'});
 
-        const spaces = this.plugin.settings.spaces;
+        // The pinned root is not an ordinary portal: unpinning it is the way to
+        // remove it. Listing it here left pinVaultRoot pointing at nothing.
+        const spaces = this.plugin.settings.spaces.filter(
+            space => !(space.path === '/' && space.type === 'folder'),
+        );
         if (spaces.length === 0) {
             this.container.createEl("p", { text: "No portals to remove." });
             return;

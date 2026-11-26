@@ -811,16 +811,19 @@ function renderPinnedVaultAppearance(setting: Setting, tab: SpacesSettingTab): v
         const b = parseInt(hex.slice(5, 7), 16);
 
         // Was `s.path === 'folder'`, which never matches: the pinned root is the
-        // space whose path is '/' and type is 'folder'.
-        const realSpace = plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
-        if (realSpace) {
-            realSpace.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
-            customSwatch.setCssProps({ '--swatch-bg': hex });
-            // Immediate feedback on the live tab; the settings pane is not
-            // re-rendered after a save.
-            plugin.getPortalsViews().forEach(view => view.refreshTabBarVisuals());
-            void plugin.saveSettings();
+        // space whose path is '/' and type is 'folder'. If it is missing, recreate
+        // it rather than silently writing nowhere.
+        let realSpace = plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
+        if (!realSpace) {
+            realSpace = { path: '/', type: 'folder', icon: 'folder-simple', color: 'transparent' };
+            plugin.settings.spaces.unshift(realSpace);
         }
+        realSpace.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        customSwatch.setCssProps({ '--swatch-bg': hex });
+        // Immediate feedback on the live tab; the settings pane is not re-rendered
+        // after a save.
+        plugin.getPortalsViews().forEach(view => view.refreshTabBarVisuals());
+        void plugin.saveSettings();
     };
 
     customSwatch.addEventListener('click', () => hiddenColorInput.click());

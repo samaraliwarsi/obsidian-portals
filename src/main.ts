@@ -570,6 +570,30 @@ export default class PortalsPlugin extends Plugin {
 
         this.pruneEmptyStacks();
 
+        // A pinned root with no root space can only come from an older build or a
+        // hand-edited data.json; the toggle would otherwise promise a tab that
+        // cannot exist.
+        if (this.settings.pinVaultRoot && !this.settings.spaces.some(s => s.path === '/' && s.type === 'folder')) {
+            this.settings.pinVaultRoot = false;
+        }
+
+        // The other direction: a root space without the pin is a leftover. The root
+        // tab is only ever created by pinning (the Active tabs list hides it, and
+        // Remove portal refuses it), so an unpinned one renders as a stray tab that
+        // does not behave like a normal portal.
+        if (!this.settings.pinVaultRoot) {
+            const before = this.settings.spaces.length;
+            this.settings.spaces = this.settings.spaces.filter(s => !(s.path === '/' && s.type === 'folder'));
+            if (this.settings.spaces.length !== before) {
+                this.settings.tabBarOrder = (this.settings.tabBarOrder ?? []).filter(entry => entry !== 'folder:/');
+                if (this.settings.selectedSpace?.path === '/' && this.settings.selectedSpace.type === 'folder') {
+                    this.settings.selectedSpace = this.settings.spaces[0]
+                        ? { path: this.settings.spaces[0].path, type: this.settings.spaces[0].type }
+                        : null;
+                }
+            }
+        }
+
         // for tag notes initialization (user enabled)
         if (!this.settings.previousTagNotesFolderPath) {
             this.settings.previousTagNotesFolderPath = this.settings.tagNotesFolderPath;
