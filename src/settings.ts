@@ -227,6 +227,7 @@ export class SpacesSettingTab extends PluginSettingTab {
     // The declarative settings API builds each control once; this lets a control
     // re-render itself after settings it displays have changed.
     public activeTabsRefresher?: () => void;
+    public pinnedAppearanceRefresher?: () => void;
     icon = 'folder-tree';
 
     constructor(app: App, plugin: PortalsPlugin) {
@@ -260,6 +261,11 @@ export class SpacesSettingTab extends PluginSettingTab {
                 if (!this.plugin.settings.selectedSpace) {
                     this.plugin.settings.selectedSpace = { path: rootPath, type: 'folder' };
                 }
+                // The pinned root always sits first; without this a re-pinned root is
+                // appended by the tab bar's "missing entries" pass.
+                if (!this.plugin.settings.tabBarOrder.includes('folder:/')) {
+                    this.plugin.settings.tabBarOrder = ['folder:/', ...this.plugin.settings.tabBarOrder];
+                }
             } else {
                 this.plugin.settings.spaces = this.plugin.settings.spaces.filter(
                     s => !(s.path === rootPath && s.type === 'folder')
@@ -270,7 +276,18 @@ export class SpacesSettingTab extends PluginSettingTab {
                         ? { path: this.plugin.settings.spaces[0].path, type: this.plugin.settings.spaces[0].type }
                         : null;
                 }
+                // Unpinning removes the tab, so its tab-scoped preferences go too:
+                // otherwise the old icon reappears the next time the root is pinned.
+                this.plugin.forgetPortalPreferences('folder:/');
+                this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder
+                    .filter(entry => entry !== 'folder:/');
             }
+        }
+        if (key === 'pinVaultRoot') {
+            // Pin state changed: rebuild the appearance row and the portal list so
+            // both reflect the new spaces array.
+            this.pinnedAppearanceRefresher?.();
+            this.activeTabsRefresher?.();
         }
         if (key === 'sidePanelEnabled' && value === false) {
             this.plugin.settings.secondaryPanelCollapsed = true;

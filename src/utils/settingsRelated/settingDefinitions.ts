@@ -755,6 +755,12 @@ function renderPinnedVaultAppearance(setting: Setting, tab: SpacesSettingTab): v
     const plugin = tab.plugin;
     const controlEl = setting.controlEl;
     controlEl.empty();
+    // The declarative API builds controls once, so the row would otherwise keep
+    // showing the previous root space's colour after pinning is toggled.
+    tab.pinnedAppearanceRefresher = () => {
+        setting.settingEl.toggle(plugin.settings.pinVaultRoot);
+        renderPinnedVaultAppearance(setting, tab);
+    };
     controlEl.addClass('portals-portal-controls');
 
     const actualRootSpace = plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
@@ -800,7 +806,9 @@ function renderPinnedVaultAppearance(setting: Setting, tab: SpacesSettingTab): v
         cls: 'portals-hidden-color-input'
     });
     const customSwatch = colorWrapper.createDiv('portals-color-swatch');
-    customSwatch.setCssProps({ '--swatch-bg': initialHex });
+    const hasColor = Boolean(rootSpace.color && rootSpace.color !== 'transparent');
+    customSwatch.setCssProps({ '--swatch-bg': hasColor ? initialHex : 'transparent' });
+    customSwatch.toggleClass('is-unset', !hasColor);
     const opacityWrapper = colorRow.createDiv('portals-opacity-wrapper');
     const opacityInput = opacityWrapper.createEl('input', {
         type: 'number',
@@ -827,6 +835,7 @@ function renderPinnedVaultAppearance(setting: Setting, tab: SpacesSettingTab): v
         }
         realSpace.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
         customSwatch.setCssProps({ '--swatch-bg': hex });
+        customSwatch.removeClass('is-unset');
         // Immediate feedback on the live tab; the settings pane is not re-rendered
         // after a save.
         plugin.getPortalsViews().forEach(view => view.refreshTabBarVisuals());
@@ -979,7 +988,11 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
                 type: 'color', value: initialHex, cls: 'portals-hidden-color-input'
             });
             const customSwatch = colorWrapper.createDiv('portals-color-swatch');
-            customSwatch.setCssProps({ '--swatch-bg': initialHex });
+            // No colour assigned: leave the swatch empty rather than painting the
+            // native picker's red starting value, which reads as a real choice.
+            const hasColor = Boolean(portal.color && portal.color !== 'transparent');
+            customSwatch.setCssProps({ '--swatch-bg': hasColor ? initialHex : 'transparent' });
+            customSwatch.toggleClass('is-unset', !hasColor);
 
             const opacityWrapper = colorRow.createDiv({ cls: 'portals-opacity-wrapper' });
             const opacityInput = opacityWrapper.createEl('input', {
@@ -997,6 +1010,7 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
                 const b = parseInt(hex.slice(5, 7), 16);
                 portal.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
                 customSwatch.setCssProps({ '--swatch-bg': hex });
+                customSwatch.removeClass('is-unset');
                 // Immediate feedback on the live tab; the settings list itself is
                 // never re-rendered, so this was the only visible surface.
                 plugin.getPortalsViews().forEach(v => v.refreshTabBarVisuals());
@@ -1019,7 +1033,14 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
                 // Give feedback now: the settings list is not re-rendered on save,
                 // so without this the whole entry lingered until the page was
                 // revisited. Remove the entry, not just its control strip.
+                const group = row.parentElement;
                 row.remove();
+                // An empty group header would otherwise linger until the settings
+                // pane is rebuilt.
+                if (group && group.classList.contains('portals-section-details') &&
+                    !group.querySelector('.portals-portal-row')) {
+                    group.remove();
+                }
                 plugin.settings.spaces = plugin.settings.spaces.filter(s => s !== portal);
                 plugin.pruneEmptyStacks();
                 plugin.forgetPortalPreferences(`${portal.type}:${portal.path}`);

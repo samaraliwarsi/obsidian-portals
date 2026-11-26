@@ -8202,6 +8202,17 @@ button.portals-settings-tab-btn.active {
     border-color: var(--text-accent);
 }
 
+.portals-color-swatch.is-unset {
+  background-color: transparent;
+  border-style: dashed;
+  border-color: var(--text-faint);
+}
+
+.portals-color-swatch.is-unset:hover {
+    border-style: solid;
+    border-color: var(--text-accent);
+}
+
 .portals-opacity-wrapper {
     display: flex;
     align-items: center;
