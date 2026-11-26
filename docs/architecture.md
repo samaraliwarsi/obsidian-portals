@@ -122,6 +122,39 @@ recorder and is how the next person diagnoses it.
    `settings-render-matrix.md` passes; the default `all` is wrong only by being
    slow.
 
+## Modals and popovers
+
+Three families, deliberately kept apart by folder:
+
+| Folder | Family | Escape and backdrop |
+|---|---|---|
+| `src/modals/` | ours, extend `PortalsModal` | `overlayStack` |
+| `src/modals/native/` | Obsidian `Modal` subclasses | Obsidian's keymap |
+| `src/modals/popovers/` | body-appended popovers | `overlayStack` (layer) |
+
+`PortalsModal` owns root/backdrop/container, backdrop-click close, a per-class
+single-instance guard, and `close() → beforeClose() → remove`. Subclasses
+implement `buildContent()` and, if they need cleanup, `beforeClose()`.
+
+`overlayStack` is one Escape handler, registered at module load on
+`activeDocument` in the capture phase, closing the newest layer only. Popovers
+register as layers; a failing `close()` drops the layer so Escape can never be
+swallowed permanently.
+
+**Observed limit:** for a native `Modal`, Obsidian's keymap owns Escape and is
+registered before any plugin, so popover-first Escape cannot be imposed there.
+Any modal that must host our popovers needs to be one of ours.
+
+**Closing a modal must clear stray tooltips** (`view.hideTooltip(0)`): tooltips
+are separate DOM nodes driven by mouseleave, which never fires on a removed
+element.
+
+**Popover positioning is intentionally not unified.** The anchor and direction
+differ by context (tab opens downward, a left side panel opens right toward the
+editor, a right side panel opens down), mobile changes the answer again, and only
+modals are predictably centred. A shared `placeNearAnchor` is worth building
+only once several popovers need the same geometry.
+
 ## Failure modes seen in practice
 
 | Symptom | Cause | Fix |

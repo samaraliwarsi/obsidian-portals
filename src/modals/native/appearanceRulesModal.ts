@@ -309,6 +309,9 @@ export class AppearanceRulesModal extends Modal {
     }
 
     onClose() {
+        // A tooltip showing when the modal closes would otherwise be stranded:
+        // its mouseleave never fires on the removed button.
+        this.view?.hideTooltip(0);
         this.closeActivePopover();
         this.contentEl.empty();
     }
