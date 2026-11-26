@@ -1,7 +1,7 @@
 import { App, Modal, Notice } from 'obsidian';
-import { IconProvider } from '../icons/iconProvider';
-import PortalsPlugin from '../main';
-import { EMOJI_LIST } from '../icons/emojiList';
+import { IconProvider } from '../../icons/iconProvider';
+import PortalsPlugin from '../../main';
+import { EMOJI_LIST } from '../../icons/emojiList';
 
 export class IconPickerModal extends Modal {
     onSubmit: (iconKey: string) => void;

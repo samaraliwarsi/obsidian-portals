@@ -4,8 +4,8 @@ import type { PortalsView } from '../view';
 import { PortalsActions } from '../utils/portalsActions';
 import { getFrontmatterTags } from '../utils/tagHelpers';
 import { FrontmatterClinicRenderer } from './frontmatterClinic';
-import { SearchPopover } from '../utils/searchPopover';
-import { GroupTagsModal } from '../modals/groupTagsModal';
+import { SearchPopover } from '../modals/popovers/searchPopover';
+import { GroupTagsModal } from '../modals/native/groupTagsModal';
 import { sortStringsNaturally } from '../utils/sortHelpers';
 
 type ButtonId = 'collapse' | 'preview' | 'sections' | 'sort' | 'newFolder' | 'newNote';

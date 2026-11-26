@@ -21,7 +21,9 @@ export interface PortalsModalOptions {
 // What we do take from Obsidian is behaviour: Escape via overlayStack, and no
 // focus trap (which is what breaks body-appended popovers).
 export abstract class PortalsModal implements OverlayLayer {
-    private static readonly openByClass = new Map<Function, PortalsModal>();
+    // Keyed by constructor (`unknown` rather than `Function`, which the lint
+    // rules reject as unsafe).
+    private static readonly openByClass = new Map<unknown, PortalsModal>();
 
     protected root!: HTMLElement;
     protected backdrop!: HTMLElement;

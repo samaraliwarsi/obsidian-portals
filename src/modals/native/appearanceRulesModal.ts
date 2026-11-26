@@ -1,13 +1,13 @@
 import { App, Menu, Modal, Notice, Platform } from 'obsidian';
-import PortalsPlugin from '../main';
-import { AppearanceRule, Frontmatter } from '../types';
+import PortalsPlugin from '../../main';
+import { AppearanceRule, Frontmatter } from '../../types';
 import Sortable from 'sortablejs';
-import { SearchPopover } from '../utils/searchPopover';
-import { IconPickerPopover } from './iconPickerPopover';
-import { ColorPickerPopover } from './colorPopover';
-import { PortalsView, VIEW_TYPE_PORTALS } from '../view';
-import { ConfirmModal } from './confirmModal';
-import { sortStringsNaturally } from '../utils/sortHelpers';
+import { SearchPopover } from '../popovers/searchPopover';
+import { IconPickerPopover } from '../popovers/iconPickerPopover';
+import { ColorPickerPopover } from '../popovers/colorPopover';
+import { PortalsView, VIEW_TYPE_PORTALS } from '../../view';
+import { ConfirmModal } from '../confirmModal';
+import { sortStringsNaturally } from '../../utils/sortHelpers';
 
 export class AppearanceRulesModal extends Modal {
     private plugin: PortalsPlugin;

@@ -1,7 +1,7 @@
 import { Menu, TFile, TFolder, MenuItem, Notice } from 'obsidian';
 import type { PortalsView } from '../view';
 import type { SpaceConfig, PortalStack, Frontmatter } from '../types';
-import { IconPickerModal } from '../modals/iconPicker';
+import { IconPickerModal } from '../modals/native/iconPicker';
 import { getContextNote, createContextNote, isContextNote } from '../renderers/contextNotes';
 import { SetQuickTabNumberModal } from '../modals/quickTabNumberModal';
 import { PortalsActions } from './portalsActions';

@@ -11,7 +11,7 @@ import { PortalsActions } from './utils/portalsActions';
 import { FolderTreeRenderer } from './trees/foldertreeRenderer';
 import { TagTreeRenderer } from './trees/tagtreeRenderer';
 import { FloatingButtonsRenderer } from './renderers/floatingButtonRenderer';
-import { ReorderItemsModal } from './modals/reorderItemsModal';
+import { ReorderItemsModal } from './modals/native/reorderItemsModal';
 import { FrontmatterPopup } from './modals/frontmatterPopup';
 import { FileItemFactory } from './utils/fileItemFactory';
 import { RenamePortalModal } from './modals/renamePortalModal';

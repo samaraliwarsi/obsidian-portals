@@ -1,7 +1,7 @@
 import { App, Modal } from 'obsidian';
-import PortalsPlugin from '../main';
+import PortalsPlugin from '../../main';
 import Sortable from 'sortablejs';
-import { PortalsView } from '../view';
+import { PortalsView } from '../../view';
 
 // ==================== REORDER MODAL ====================
 export class ReorderItemsModal extends Modal {

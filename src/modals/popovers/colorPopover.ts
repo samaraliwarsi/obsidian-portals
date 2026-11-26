@@ -1,7 +1,7 @@
 import { Platform } from 'obsidian';
-import PortalsPlugin from '../main';
-import { DEFAULT_PORTALS_PALETTE } from './colorModal';
-import { overlayStack } from './overlayStack';
+import PortalsPlugin from '../../main';
+import { DEFAULT_PORTALS_PALETTE } from '../colorModal';
+import { overlayStack } from '../overlayStack';
 
 export class ColorPickerPopover {
     private popover: HTMLElement;

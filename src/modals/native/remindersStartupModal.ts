@@ -1,7 +1,7 @@
 import { App, Modal, TFile, Notice } from 'obsidian';
-import type PortalsPlugin from '../main';
-import { getDaysDifference, parseLocalDate, formatDisplayDate } from '../utils/dateHelpers';
-import { Frontmatter } from '../types';
+import type PortalsPlugin from '../../main';
+import { getDaysDifference, parseLocalDate, formatDisplayDate } from '../../utils/dateHelpers';
+import { Frontmatter } from '../../types';
 
 export class RemindersStartupModal extends Modal {
     private plugin: PortalsPlugin;

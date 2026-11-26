@@ -12,10 +12,10 @@ import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSid
 import { InternalPluginsWithBookmarks, SpaceConfig } from './types';
 import { getContextRenderer, getJournalRenderer } from './renderers/sidePanelContent';
 import { EmojiIconProvider } from './icons/emojiIconProvider';
-import { DatePickerModal } from './modals/datePickerModal';
+import { DatePickerModal } from './modals/native/datePickerModal';
 import { getDaysDifference, parseLocalDate } from './utils/dateHelpers';
 import type { Frontmatter } from './types';
-import { RemindersStartupModal } from './modals/remindersStartupModal';
+import { RemindersStartupModal } from './modals/native/remindersStartupModal';
 import { RenderBus } from './pipeline/renderBus';
 import type { InvalidateOptions, RenderIntent } from './pipeline/renderBus';
 

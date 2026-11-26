@@ -1,7 +1,7 @@
 import { App, Platform } from 'obsidian';
-import PortalsPlugin from '../main';
-import { EMOJI_LIST } from '../icons/emojiList';
-import { overlayStack } from './overlayStack';
+import PortalsPlugin from '../../main';
+import { EMOJI_LIST } from '../../icons/emojiList';
+import { overlayStack } from '../overlayStack';
 
 export class IconPickerPopover {
     private popover: HTMLElement;

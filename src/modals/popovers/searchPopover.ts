@@ -1,4 +1,4 @@
-import { overlayStack } from '../modals/overlayStack';
+import { overlayStack } from '../overlayStack';
 import { Platform } from "obsidian";
 
 interface SearchPopoverOptions {

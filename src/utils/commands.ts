@@ -3,7 +3,7 @@ import PortalsPlugin from "../main";
 import { PortalsView, VIEW_TYPE_PORTALS } from "../view";
 import { getGuideUrl } from "./Proxies/urls";
 import { VIEW_TYPE_ALT_SIDE_PANEL } from "../renderers/RightSideView";
-import { AppearanceRulesModal } from "../modals/appearanceRulesModal";
+import { AppearanceRulesModal } from "../modals/native/appearanceRulesModal";
 
 export function registerAllCommands (plugin: PortalsPlugin) {
     plugin.addCommand({

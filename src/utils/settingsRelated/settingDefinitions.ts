@@ -1,14 +1,14 @@
 import { Notice, Platform, TFolder, type Setting, type SettingDefinitionItem, type SettingGroupItem } from "obsidian";
 import { DEFAULT_SETTINGS, type SpacesSettings, type SpacesSettingTab } from "../../settings";
-import { IconPickerModal } from "../../modals/iconPicker";
+import { IconPickerModal } from "../../modals/native/iconPicker";
 import { AddPortalModal } from "../../modals/addPortalModal";
 import { SpaceConfig } from "../../types";
 import { SidePortalModal } from "../../modals/sidePortalModal";
-import { SelectFolderModal } from "../../modals/selectFolderModal";
+import { SelectFolderModal } from "../../modals/native/selectFolderModal";
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from "../../renderers/RightSideView";
 import { getGuideUrl, getReleaseNotesUrl } from "../Proxies/urls";
 import { makeSyncButton } from "../syncButton";
-import { AppearanceRulesModal } from "../../modals/appearanceRulesModal";
+import { AppearanceRulesModal } from "../../modals/native/appearanceRulesModal";
 import { ConfirmModal } from "../../modals/confirmModal";
 import { PortalsView, VIEW_TYPE_PORTALS } from "../../view";
 

@@ -1,10 +1,10 @@
 import { App, TFile, Menu, Platform, EventRef } from 'obsidian';
 import PortalsPlugin from '../main';
-import { SearchPopover } from '../utils/searchPopover';
+import { SearchPopover } from '../modals/popovers/searchPopover';
 import { PortalsView } from '../view';
 import { ContextMenuFactory } from '../utils/contextMenuFactory';
 import { FrontmatterPopup } from '../modals/frontmatterPopup';
-import { SaveViewModal } from '../modals/saveViewModal';
+import { SaveViewModal } from '../modals/native/saveViewModal';
 import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
 import { sortFilesBySetting, sortStringsNaturally } from '../utils/sortHelpers';
 import { beginRender, endRender } from '../pipeline/probe';

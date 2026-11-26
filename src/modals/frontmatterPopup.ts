@@ -1,7 +1,7 @@
 import { App, TFile, Notice, Menu, Platform, parseYaml } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-import { SearchPopover } from '../utils/searchPopover';
+import { SearchPopover } from './popovers/searchPopover';
 import { ConfirmModal } from './confirmModal'; 
 import { formatDisplayDate, formatLocalDate, parseLocalDate } from '../utils/dateHelpers';
 import { Frontmatter } from '../types';

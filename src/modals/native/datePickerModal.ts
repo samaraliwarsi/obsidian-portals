@@ -1,7 +1,7 @@
 import { App, Modal, Notice, TFile } from 'obsidian';
-import type PortalsPlugin from '../main';
-import { formatLocalDate } from '../utils/dateHelpers';
-import { Frontmatter } from '../types';
+import type PortalsPlugin from '../../main';
+import { formatLocalDate } from '../../utils/dateHelpers';
+import { Frontmatter } from '../../types';
 
 export class DatePickerModal extends Modal {
     private plugin: PortalsPlugin;

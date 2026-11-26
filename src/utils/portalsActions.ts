@@ -1,10 +1,10 @@
 import { App, TFile, TFolder, Notice, Modal, TAbstractFile } from 'obsidian';
 import type PortalsPlugin from '../main';
 import type { PortalsView } from '../view';
-import { IconPickerModal } from '../modals/iconPicker';
+import { IconPickerModal } from '../modals/native/iconPicker';
 import { ColorPickerModal } from '../modals/colorModal';
 import { ConfirmModal } from '../modals/confirmModal';
-import { SelectFolderModal } from '../modals/selectFolderModal';
+import { SelectFolderModal } from '../modals/native/selectFolderModal';
 
 // ====================================================================
 // All vault‑operation helpers, customisation helpers, and rename helpers

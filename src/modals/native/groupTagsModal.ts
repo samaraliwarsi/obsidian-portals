@@ -1,6 +1,6 @@
 import { App, Modal } from "obsidian";
-import PortalsPlugin from "../main";
-import { SpaceConfig } from "../types";
+import PortalsPlugin from "../../main";
+import { SpaceConfig } from "../../types";
 
 export class GroupTagsModal extends Modal {
     private selectedTags: Set<string>;
