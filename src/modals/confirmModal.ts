@@ -14,6 +14,8 @@ export class ConfirmModal extends PortalsModal {
         super(app, {
             containerClass: 'portals-confirm-container portals-cnf-modal',
             backdropClass: 'portals-confirm-backdrop',
+            // Legitimately opened on top of another modal (bulk edit confirm).
+            nested: true,
         });
         this.message = message;
         this.promise = new Promise<boolean>((res) => { this.resolve = res; });

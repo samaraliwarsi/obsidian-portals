@@ -6,6 +6,8 @@ export interface PortalsModalOptions {
     backdropClass?: string;
     rootClass?: string;
     closeOnBackdrop?: boolean;
+    /** May open above another PortalsModal (e.g. a confirm dialog raised from one). */
+    nested?: boolean;
 }
 
 // Base for the modals that are not Obsidian `Modal`s (those are unusable when a
@@ -21,9 +23,10 @@ export interface PortalsModalOptions {
 // What we do take from Obsidian is behaviour: Escape via overlayStack, and no
 // focus trap (which is what breaks body-appended popovers).
 export abstract class PortalsModal implements OverlayLayer {
-    // Keyed by constructor (`unknown` rather than `Function`, which the lint
-    // rules reject as unsafe).
-    private static readonly openByClass = new Map<unknown, PortalsModal>();
+    // One modal of ours at a time, except for explicitly nested ones. Commands can
+    // fire while a modal is open (the palette is not blocked for custom modals),
+    // and stacking two unrelated dialogs is never what the user meant.
+    private static readonly openStack: PortalsModal[] = [];
 
     protected root!: HTMLElement;
     protected backdrop!: HTMLElement;
@@ -37,11 +40,10 @@ export abstract class PortalsModal implements OverlayLayer {
     }
 
     public open(): void {
-        const ctor = this.constructor;
-        // Call sites construct a new instance every time, so the guard has to be
-        // per class rather than per instance.
-        if (PortalsModal.openByClass.has(ctor)) return;
-        PortalsModal.openByClass.set(ctor, this);
+        const alreadyThisClass = PortalsModal.openStack.some(m => m.constructor === this.constructor);
+        const blocked = alreadyThisClass || (!this.options.nested && PortalsModal.openStack.length > 0);
+        if (blocked) return;
+        PortalsModal.openStack.push(this);
 
         this.opened = true;
         this.root = activeDocument.body.createDiv({ cls: this.options.rootClass ?? 'portals-modal-root' });
@@ -61,8 +63,8 @@ export abstract class PortalsModal implements OverlayLayer {
     public close(): void {
         if (!this.opened) return;
         this.opened = false;
-        const ctor = this.constructor;
-        if (PortalsModal.openByClass.get(ctor) === this) PortalsModal.openByClass.delete(ctor);
+        const index = PortalsModal.openStack.indexOf(this);
+        if (index !== -1) PortalsModal.openStack.splice(index, 1);
         overlayStack.remove(this);
         this.beforeClose();
         this.root?.remove();
