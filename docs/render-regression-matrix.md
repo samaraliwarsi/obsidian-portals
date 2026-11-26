@@ -77,6 +77,27 @@ compare against the baseline numbers at the bottom of this file.
 
 There is no automated test runner in this repo, so this matrix *is* the test.
 
+## Recorder
+
+The shipped plugin contains a no-op stub. To record, install the real recorder
+for the session:
+
+```bash
+npm run probe:on      # copies dev/instrument.ts over src/pipeline/probe.ts
+npm run build         # build-css + tsc + esbuild
+```
+
+Copy `main.js` to the vault plugin folder and reload Obsidian, then paste the
+helper block above. When you are done:
+
+```bash
+npm run probe:off     # restores the stub from git
+```
+
+Do not commit while the recorder is in place — `probe:off` restores whatever
+`HEAD` holds. The recorder carries console logging, which is why it lives in
+`dev/` and must never ship from `src/`.
+
 ## How to run
 
 1. `npm run build`, copy `main.js` to the vault plugin folder, reload Obsidian.

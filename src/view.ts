@@ -21,6 +21,7 @@ import { destroContextRenderer, destroySidePanelRenderer, getContextRenderer, re
 import { AltSidePanelView, VIEW_TYPE_ALT_SIDE_PANEL } from './renderers/RightSideView';
 import { getFrontmatterTags } from './utils/tagHelpers';
 import { beginRender, endRender } from './pipeline/probe';
+import { Rows } from './pipeline/rows';
 
 const MIN_EXPANDED_HEIGHT = 150;
 
@@ -140,6 +141,32 @@ export class PortalsView extends ItemView {
                 this.updateFileElement(file);
             }
         });
+    }
+
+    // Patch one folder or tag-group summary after an icon/colour change instead of
+    // rebuilding the tree. Rows carry what the patch needs as data attributes.
+    public updateSummaryElement(match: { path?: string; tagPath?: string; colorKey?: string }): boolean {
+        const summaries = this.containerEl.querySelectorAll<HTMLElement>('.folder-summary');
+        for (const summary of Array.from(summaries)) {
+            const hit = (match.path !== undefined && summary.dataset.path === match.path)
+                || (match.tagPath !== undefined && summary.dataset.tagPath === match.tagPath)
+                || (match.colorKey !== undefined && summary.dataset.colorKey === match.colorKey);
+            if (!hit) continue;
+
+            const details = summary.parentElement as HTMLDetailsElement | null;
+            const children = details?.querySelector<HTMLElement>('.folder-children');
+            const icon = summary.querySelector<HTMLElement>('.folder-icon');
+            if (!details || !children || !icon) return false;
+
+            Rows.applyIconAndColor(this.plugin, { summary, details, children, icon }, {
+                iconKey: summary.dataset.iconKey ?? '',
+                iconFallback: summary.dataset.iconFallback ?? 'file',
+                colorKey: summary.dataset.colorKey,
+                colorSource: summary.dataset.colorSource === 'tag' ? 'tag' : 'folder',
+            });
+            return true;
+        }
+        return false;
     }
 
     public updateFileElement(file: TFile) {

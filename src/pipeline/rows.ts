@@ -225,6 +225,37 @@ export class Rows {
     // A folder, a tag and a tag group are the same object in the DOM: a
     // <details> holding a <summary> row and a children container. One builder
     // serves all three so their styling and behaviour cannot drift apart.
+    // Icon and custom colour only. Shade/hue ramps depend on a row's position, not
+    // on the user's icon or colour choice, so a patch can skip them entirely.
+    static applyIconAndColor(
+        plugin: PortalsPlugin,
+        parts: { summary: HTMLElement; details: HTMLElement; children: HTMLElement; icon: HTMLElement },
+        spec: Pick<BranchSpec, 'iconKey' | 'iconFallback' | 'colorKey' | 'colorSource'>,
+    ): void {
+        plugin.renderCustomIcon(parts.icon, spec.iconKey, spec.iconFallback ?? 'file');
+
+        const treeStyle = plugin.settings.treeStyle;
+        const colorKey = spec.colorKey;
+        const savedColor = colorKey
+            ? (spec.colorSource === 'tag' ? plugin.settings.tagColors[colorKey] : plugin.settings.customColors[colorKey])
+            : undefined;
+        const canApply = Boolean(savedColor)
+            && treeStyle !== 'shades'
+            && treeStyle !== 'hues'
+            && !plugin.tabColorsDriveSummaries();
+
+        const targets = [parts.summary, parts.details, parts.children];
+        if (canApply) {
+            for (const el of targets) el.classList.add('has-folder-color');
+            parts.details.setCssProps({ '--folder-color': savedColor ?? '' });
+            parts.summary.setCssProps({ '--folder-color': savedColor ?? '' });
+        } else {
+            for (const el of targets) el.classList.remove('has-folder-color');
+            parts.details.setCssProps({ '--folder-color': '' });
+            parts.summary.setCssProps({ '--folder-color': '' });
+        }
+    }
+
     static branch(ctx: RowCtx, parent: HTMLElement, spec: BranchSpec): BranchParts {
         const { plugin, view } = ctx;
         const keyAttr = spec.keyAttr ?? 'path';
@@ -247,6 +278,12 @@ export class Rows {
         if (keyAttr === 'tagPath') summary.dataset.tagPath = spec.key;
         else summary.dataset.path = spec.key;
         if (spec.reorderKey) summary.dataset.reorderKey = spec.reorderKey;
+        // Enough context for an in-place patch later (icon/colour change), so a
+        // rebuild is not needed to re-derive it.
+        summary.dataset.iconKey = spec.iconKey;
+        summary.dataset.iconFallback = spec.iconFallback ?? 'file';
+        if (spec.colorKey) summary.dataset.colorKey = spec.colorKey;
+        if (spec.colorSource) summary.dataset.colorSource = spec.colorSource;
 
         if (spec.tooltip && !Platform.isMobile && plugin.settings.showTreeItemToolTips) {
             summary.addEventListener('mouseenter', () => {
@@ -274,22 +311,7 @@ export class Rows {
         const children = details.createDiv({ cls: 'folder-children' });
 
         const treeStyle = plugin.settings.treeStyle;
-        const colorKey = spec.colorKey;
-        const savedColor = colorKey
-            ? (spec.colorSource === 'tag' ? plugin.settings.tagColors[colorKey] : plugin.settings.customColors[colorKey])
-            : undefined;
-        const canApplyColor = savedColor
-            && treeStyle !== 'shades'
-            && treeStyle !== 'hues'
-            && !plugin.tabColorsDriveSummaries();
-
-        if (canApplyColor) {
-            summary.classList.add('has-folder-color');
-            details.classList.add('has-folder-color');
-            children.classList.add('has-folder-color');
-            details.setCssProps({ '--folder-color': savedColor });
-            summary.setCssProps({ '--folder-color': savedColor });
-        }
+        Rows.applyIconAndColor(plugin, { summary, details, children, icon: iconSpan }, spec);
 
         const depth = spec.depth ?? 0;
         const total = (spec.totalFirstLevel ?? 0) > 0 ? (spec.totalFirstLevel ?? 1) : 1;

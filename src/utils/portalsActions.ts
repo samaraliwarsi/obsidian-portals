@@ -483,8 +483,8 @@ export class PortalsActions {
                     view.updateFileElement(item);
                     plugin.refreshSidePortal(plugin.settings.activeSplitTab);
                     plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
-                } else {
-                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
+                } else if (!view.updateSummaryElement({ path })) {
+                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'icon change' });
                 }
                 new Notice(`Icon set for ${displayName}`);
             });
@@ -499,8 +499,8 @@ export class PortalsActions {
             view.updateFileElement(item);
             plugin.refreshSidePortal(plugin.settings.activeSplitTab);
             plugin.refreshSidePortal(plugin.settings.alternateActiveTab);
-        } else {
-            view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }); 
+        } else if (!view.updateSummaryElement({ path })) {
+            view.plugin.renderBus.invalidate('tree:structure', { reason: 'icon removed' });
         }
         new Notice('Custom icon removed');
     }
@@ -510,8 +510,9 @@ export class PortalsActions {
         new IconPickerModal(app, plugin.phosphorProvider, plugin.lucideProvider, plugin, (iconKey: string) => {
             plugin.settings.customIcons[groupKey] = iconKey;
             void plugin.saveData(plugin.settings).then(() => {
-                view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
-                plugin.refreshAltRightPanelContent(); // maybe this is only needed in the files (remove)
+                if (!view.updateSummaryElement({ tagPath: groupTag, colorKey: groupKey })) {
+                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'group icon change' });
+                }
                 new Notice(`Icon set for group ${displayName}`);
             });
         }).open();
@@ -520,8 +521,9 @@ export class PortalsActions {
     static async removeCustomIconForTagGroup(_app: App, plugin: PortalsPlugin, view: PortalsView, groupKey: string): Promise<void> {
         delete plugin.settings.customIcons[groupKey];
         await plugin.saveData(plugin.settings);
-        view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
-        plugin.refreshAltRightPanelContent(); // maybe this is only needed in the files (remove)
+        if (!view.updateSummaryElement({ colorKey: groupKey })) {
+            view.plugin.renderBus.invalidate('tree:structure', { reason: 'group icon removed' });
+        }
         new Notice('Custom icon removed');
     }
 
@@ -530,9 +532,15 @@ export class PortalsActions {
 
         new ColorPickerModal(app, plugin, summaryEl, (color) => {
             plugin.settings.customColors[folder.path] = color;
-            void plugin.saveData(plugin.settings).then(() => view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }));
+            void plugin.saveData(plugin.settings).then(() => {
+                if (!view.updateSummaryElement({ path: folder.path })) {
+                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'folder colour change' });
+                }
+            });
         }, () => {
-            view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
+            if (!view.updateSummaryElement({ path: folder.path })) {
+                view.plugin.renderBus.invalidate('tree:structure', { reason: 'folder colour cancelled' });
+            }
         }, currentColor).open();
     }
 
@@ -564,23 +572,37 @@ export class PortalsActions {
 
     static resetCustomColor(_app: App, plugin: PortalsPlugin, view: PortalsView, folder: TFolder): void {
         delete plugin.settings.customColors[folder.path];
-        void plugin.saveData(plugin.settings).then(() => view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }));
+        void plugin.saveData(plugin.settings).then(() => {
+            if (!view.updateSummaryElement({ path: folder.path })) {
+                view.plugin.renderBus.invalidate('tree:structure', { reason: 'folder colour reset' });
+            }
+        });
     }
 
     static setTagColor(app: App, plugin: PortalsPlugin, view: PortalsView, key: string, targetElement: HTMLElement): void {
         const currentColor = plugin.settings.tagColors[key];
         new ColorPickerModal(app, plugin, targetElement, (color) => {
             plugin.settings.tagColors[key] = color;
-            void plugin.saveData(plugin.settings).then(() => view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }));
+            void plugin.saveData(plugin.settings).then(() => {
+                if (!view.updateSummaryElement({ colorKey: key })) {
+                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'tag colour change' });
+                }
+            });
                 }, () => {
-                view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' });
+                if (!view.updateSummaryElement({ colorKey: key })) {
+                    view.plugin.renderBus.invalidate('tree:structure', { reason: 'tag colour cancelled' });
+                }
             }, currentColor).open();    
     }
 
     static resetTagColor(_app: App, plugin: PortalsPlugin, view: PortalsView, key: string, _targetElement: HTMLElement): void {
-        view.saveTreeScroll();
         delete plugin.settings.tagColors[key];
-        void plugin.saveData(plugin.settings).then(() => view.plugin.renderBus.invalidate('tree:structure', { reason: 'file action' }));
+        void plugin.saveData(plugin.settings).then(() => {
+            if (!view.updateSummaryElement({ colorKey: key })) {
+                view.saveTreeScroll();
+                view.plugin.renderBus.invalidate('tree:structure', { reason: 'tag colour reset' });
+            }
+        });
     }
 
     // ──────── RENAME HELPERS ────────
