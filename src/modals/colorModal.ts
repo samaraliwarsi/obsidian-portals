@@ -1,21 +1,18 @@
 import { App } from "obsidian";
 import PortalsPlugin from "../main";
+import { PortalsModal } from "./portalsModal";
 
 export const DEFAULT_PORTALS_PALETTE: string[] = [
   '#e53935', '#d81b60', '#8e24aa', '#5e35b1', '#3949ab',
   '#1e88e5', '#039be5', '#00acc1', '#00897b', '#43a047',
 ];
 
-export class ColorPickerModal {
-    private app: App;
+export class ColorPickerModal extends PortalsModal {
     private plugin: PortalsPlugin;
     private color: string;
     private opacity: number;
     private onSave: (color: string) => void;
     private targetElement: HTMLElement;
-    private backdrop!: HTMLElement;
-    private container!: HTMLElement;
-    private keyHandler: (e: KeyboardEvent) => void;
     private summaryElement: HTMLElement | null;
     private childrenContainer: HTMLElement | null;
     private originalDetailsClass: boolean;
@@ -31,7 +28,10 @@ export class ColorPickerModal {
     private readonly paletteSlotCount: number = DEFAULT_PORTALS_PALETTE.length;
     
     constructor(app: App, plugin: PortalsPlugin, targetElement: HTMLElement, onSave: (color: string) => void, private onClose?: () => void, currentColor?: string) {
-        this.app = app;
+        super(app, {
+            containerClass: 'portals-cm-modal bulk-color-modal',
+            backdropClass: 'portals-cm-backdrop',
+        });
         this.plugin = plugin;
         this.onSave = onSave;
         this.onClose = onClose;
@@ -67,32 +67,10 @@ export class ColorPickerModal {
             this.opacity = 1;
         }
         this.paletteColors = [...plugin.settings.userPalette ?? DEFAULT_PORTALS_PALETTE];
-
-        this.keyHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') this.close();
-        }
     }
 
-    open(): void {
-        if (this.container) {
-            this.close();
-        }
-        // backdrop
-        this.backdrop = activeDocument.body.createDiv('portals-cm-backdrop');
-        this.backdrop.addEventListener('click', () => this.close());
-
-        // container
-        this.container = activeDocument.body.createDiv('portals-cm-modal');
-        this.container.addClass('bulk-color-modal');
-        this.container.addEventListener('click', (e) => e.stopPropagation());
-
-        try {
-            this.buildUI();
-            activeDocument.addEventListener('keydown', this.keyHandler)
-        } catch (e) {
-            console.error('Error building color picker UI', e);
-            this.close();
-        }
+    protected buildContent(): void {
+        this.buildUI();
     }
 
     private buildUI(): void {
@@ -299,7 +277,9 @@ export class ColorPickerModal {
         await this.plugin.saveData(this.plugin.settings);
     }
 
-    close(): void { 
+    // Base runs this before removing the root: reverting the live element's
+    // preview styling must happen while the target is still connected.
+    protected beforeClose(): void {
         void this.savePalette();
         if (this.targetElement.classList.contains('file-item')) {
             this.targetElement.setCssProps({ color: this.originalFileTextColor });
@@ -326,9 +306,6 @@ export class ColorPickerModal {
             }
             this.targetElement.setCssProps({ '--folder-color': this.originalColor });
         }
-        this.container?.remove();
-        this.backdrop?.remove();
-        activeDocument.removeEventListener('keydown', this.keyHandler);
         this.onClose?.();
     }
 }
