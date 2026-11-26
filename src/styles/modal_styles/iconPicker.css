@@ -150,6 +150,7 @@
   font-size: var(--font-ui-smaller);
   color: var(--text-faint);
   text-align: center;
+  grid-column: 1 / -1;
 }
 
 .portals-icon-picker-fav-tab-btn {

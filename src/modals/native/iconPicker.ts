@@ -9,9 +9,14 @@ export class IconPickerModal extends Modal {
     private plugin: PortalsPlugin;
     private lucideProvider: IconProvider;
     private currentLibrary: 'phosphor' | 'lucide' | 'emoji' | 'favorites' = 'phosphor';
-    private displayCount = 300;
-    private initialBatchSizes = { phosphor: 300, lucide: 60, emoji: 60, favorites: 300 };
-    private batchSize = 300;
+    // Each icon is div + svg + label + star + 2 listeners (~4 nodes), built
+    // synchronously per batch. 300 per tab made the first paint slow; these keep a
+    // batch near 500 nodes and let "Load more" do the rest.
+    private displayCount = 120;
+    private initialBatchSizes = { phosphor: 120, lucide: 60, emoji: 60, favorites: 120 };
+    private batchSize = 120;
+    // Search used to render every match; a one-letter query could build 1000+ icons.
+    private readonly maxSearchResults = 240;
     private currentFilter = '';
     private searchInput!: HTMLInputElement;
     private iconGrid!: HTMLElement;
@@ -65,7 +70,7 @@ export class IconPickerModal extends Modal {
         });
         this.searchInput.addEventListener('input', () => {
             this.currentFilter = this.searchInput.value;
-            this.renderIcons();
+            this.renderIcons();          // typing keeps the debounce
         });
 
         this.iconGrid = contentEl.createDiv({ cls: 'portals-icon-grid' });
@@ -116,7 +121,8 @@ export class IconPickerModal extends Modal {
         if (library !== 'favorites' && library !== 'emoji') {
             this.updateCachedList();
         }
-        this.renderIcons();
+        // No debounce on a tab switch: the user is waiting on a click, not typing.
+        this.renderIcons(true);
     }
 
     private toggleFavorite(name: string, library: 'phosphor' | 'lucide' | 'emoji') {
@@ -188,7 +194,7 @@ export class IconPickerModal extends Modal {
         });
     }
 
-    private renderIcons() {
+    private renderIcons(immediate = false) {
         if (this._debounceTimer) window.clearTimeout(this._debounceTimer);
 
         if (this.currentLibrary === 'favorites') {
@@ -212,9 +218,11 @@ export class IconPickerModal extends Modal {
                         .map(item => item.name)
                     : this.cachedIconList.map(item => item.name);
 
-                // Apply batch limit only when not searching
+                // Searching renders matches directly, but capped: an unbounded
+                // result set is what made a one-letter query janky.
+                const truncated = Boolean(this.currentFilter) && filtered.length > this.maxSearchResults;
                 const toRender = this.currentFilter
-                    ? filtered
+                    ? filtered.slice(0, this.maxSearchResults)
                     : filtered.slice(0, this.displayCount);
 
                 this.iconGrid.empty();
@@ -267,6 +275,13 @@ export class IconPickerModal extends Modal {
                 }
                 this.iconGrid.appendChild(fragment);
 
+                if (truncated) {
+                    this.iconGrid.createDiv({
+                        cls: 'portals-iconpicker-subtext',
+                        text: `Showing the first ${this.maxSearchResults} matches — type more to narrow it down.`,
+                    });
+                }
+
                 // "Load more" button (only when not searching)
                 if (!this.currentFilter && this.displayCount < filtered.length) {
                     const remaining = filtered.length - this.displayCount;
@@ -280,7 +295,7 @@ export class IconPickerModal extends Modal {
                     });
                 }
             });
-        }, 200);
+        }, immediate ? 0 : 200);
     }
 
     private isFavorite(name: string, library: 'phosphor' | 'lucide' | 'emoji'): boolean {
