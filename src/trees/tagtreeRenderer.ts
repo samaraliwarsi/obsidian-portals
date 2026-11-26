@@ -392,22 +392,17 @@ export class TagTreeRenderer {
                     }
                 }
 
-                groupDetails.addEventListener('toggle', () => {
-                    if (groupDetails.dataset.autoCollapsed) {
-                        delete groupDetails.dataset.autoCollapsed;
-                        return;
-                    }
-                    const isOpen = groupDetails.open;
-                    let expanded = this.plugin.settings.expandedGroups[tagName] || [];
-                    if (isOpen) {
-                        if (!expanded.includes(gTag)) {
-                            expanded = [...expanded, gTag];
+                summary.addEventListener('click', () => {
+                    window.requestAnimationFrame(() => {
+                        let expanded = this.plugin.settings.expandedGroups[tagName] || [];
+                        if (groupDetails.open) {
+                            if (!expanded.includes(gTag)) expanded = [...expanded, gTag];
+                        } else {
+                            expanded = expanded.filter(t => t !== gTag);
                         }
-                    } else {
-                        expanded = expanded.filter(t => t !== gTag);
-                    }
-                    this.plugin.settings.expandedGroups[tagName] = expanded;
-                    this.plugin.saveData(this.plugin.settings).catch(console.error);
+                        this.plugin.settings.expandedGroups[tagName] = expanded;
+                        this.plugin.saveData(this.plugin.settings).catch(console.error);
+                    });
                 });
                 groupIndex++;
             }
@@ -552,11 +547,8 @@ export class TagTreeRenderer {
             TreeEventHelpers.attachTagNodeListeners(summary, nodeKey, node.fullPath, this.view);
             TreeEventHelpers.attachIconContextNoteOpener(iconSpan, node.fullPath, this.view);
 
-            details.addEventListener('toggle', () => {
-                if (details.dataset.autoCollapsed) {
-                    delete details.dataset.autoCollapsed;
-                    return;
-                }
+            summary.addEventListener('click', () => {
+                window.requestAnimationFrame(() => {
                 let expanded = this.plugin.settings.expandedTagHierarchy[tagName] || [];
                 if (details.open) {
                     if (!expanded.includes(node.fullPath)) {
@@ -567,6 +559,7 @@ export class TagTreeRenderer {
                 }
                 this.plugin.settings.expandedTagHierarchy[tagName] = expanded;
                 this.plugin.saveData(this.plugin.settings).catch(console.error);
+                });
             });
         };
 
@@ -730,11 +723,8 @@ export class TagTreeRenderer {
                 }
             }
 
-            groupDetails.addEventListener('toggle', () => {
-                if (groupDetails.dataset.autoCollapsed) {
-                    delete groupDetails.dataset.autoCollapsed;
-                    return;
-                }
+            summary.addEventListener('click', () => {
+                window.requestAnimationFrame(() => {
                 let expanded = this.plugin.settings.expandedGroups[tagName] || [];
                 if (groupDetails.open) {
                     if (!expanded.includes(gTag)) expanded = [...expanded, gTag];
@@ -743,6 +733,7 @@ export class TagTreeRenderer {
                 }
                 this.plugin.settings.expandedGroups[tagName] = expanded;
                 this.plugin.saveData(this.plugin.settings).catch(console.error);
+                });
             });
 
             // HLIST: GROUPS - treeEventHelpers.ts

@@ -901,9 +901,6 @@ export class PortalsView extends ItemView {
                 type: space.type
             };      
                 
-            if (space.type === 'folder' && !this.plugin.settings.openFolders.includes(space.path)) {
-                this.plugin.settings.openFolders.push(space.path);
-            }
 
             // Switching portals changes the tree and the active tab only: the tab
             // bar, side panel and floating buttons are unaffected.

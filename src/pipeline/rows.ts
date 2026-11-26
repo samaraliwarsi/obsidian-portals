@@ -229,8 +229,14 @@ export class Rows {
         const { plugin, view } = ctx;
         const keyAttr = spec.keyAttr ?? 'path';
 
-        const details = parent.createEl('details', { cls: 'folder-details' });
-        if (spec.open) details.setAttr('open', 'true');
+        // Build detached, set `open`, then attach. Setting the attribute on a
+        // connected element fires a toggle event, which each tree's persistence
+        // listener records as "the user expanded this" — that is what made every
+        // visited portal folder open later in other views.
+        const details = activeDocument.createElement('details');
+        details.className = 'folder-details';
+        if (spec.open) details.setAttribute('open', '');
+        parent.appendChild(details);
 
         const summary = details.createEl('summary', { cls: 'folder-summary' });
         const iconSpan = summary.createSpan({ cls: 'folder-icon' });

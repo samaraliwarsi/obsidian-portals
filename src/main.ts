@@ -380,16 +380,6 @@ export default class PortalsPlugin extends Plugin {
             }
         }));
 
-        const selectedSpace = this.settings.spaces.find(s => 
-            s.path === this.settings.selectedSpace?.path && 
-            s.type === this.settings.selectedSpace?.type
-        );
-        if (selectedSpace && selectedSpace.type === 'folder') {
-            if (!this.settings.openFolders.includes(selectedSpace.path)) {
-                this.settings.openFolders.push(selectedSpace.path);
-                await this.saveData(this.settings);
-            }
-        }
 
         this.registerView(
             VIEW_TYPE_PORTALS,
@@ -1125,9 +1115,6 @@ export default class PortalsPlugin extends Plugin {
 
         this.settings.selectedSpace = { path: space.path, type: space.type };
 
-        if (space.type === 'folder' && !this.settings.openFolders.includes(space.path)) {
-            this.settings.openFolders.push(space.path);
-        }
 
         if (space.stackId) {
             if (this.settings.stackAutoCollapse) {

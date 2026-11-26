@@ -109,25 +109,30 @@ export class FolderTreeRenderer {
             loadChildren();
         }
 
+        // Loading is fine on any toggle; persistence is not. A build can flip
+        // `open` (portal root, restored state, auto-collapse), and a toggle event
+        // cannot tell that apart from a user click — so only a click records state.
         details.addEventListener('toggle', () => {
             if (details.dataset.autoCollapsed) {
                 delete details.dataset.autoCollapsed;
                 return;
             }
-            if (details.open) {
-                loadChildren();
-            }
-            const path = folder.path;
-            let openFolders = this.plugin.settings.openFolders;
-            if (details.open) {
-                if (!openFolders.includes(path)) {
-                    openFolders.push(path);
+            if (details.open) loadChildren();
+        });
+
+        summary.addEventListener('click', () => {
+            // After the default action has flipped the row.
+            window.requestAnimationFrame(() => {
+                const path = folder.path;
+                let openFolders = this.plugin.settings.openFolders;
+                if (details.open) {
+                    if (!openFolders.includes(path)) openFolders.push(path);
+                } else {
+                    openFolders = openFolders.filter(p => p !== path);
                 }
-            } else {
-                openFolders = openFolders.filter(p => p !== path);
-            }
-            this.plugin.settings.openFolders = openFolders;
-            void this.plugin.saveData(this.plugin.settings);
+                this.plugin.settings.openFolders = openFolders;
+                void this.plugin.saveData(this.plugin.settings);
+            });
         });
     }
 
