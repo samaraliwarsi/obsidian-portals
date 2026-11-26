@@ -1156,7 +1156,7 @@ export default class PortalsPlugin extends Plugin {
     }
 
     // ========== MANUAL CLEANUP ==========
-    async cleanupDeadSpaces(): Promise<number> {
+    async cleanupDeadSpaces(): Promise<{ spaces: number; keys: number }> {
         const allFiles = this.app.vault.getAllLoadedFiles();
         const existingFolders = allFiles.filter(f => f instanceof TFolder).map(f => f.path);
 
@@ -1226,10 +1226,38 @@ export default class PortalsPlugin extends Plugin {
             }
         }
 
+        // Sweep tab-scoped keys whose portal is already gone: left behind by
+        // renames in older builds, or by removals before they were forgotten.
+        const liveKeys = new Set(this.settings.spaces.map(s => `${s.type}:${s.path}`));
+        let keysRemoved = 0;
+
+        for (const key of Object.keys(this.settings.customIcons)) {
+            // folder: only — tag: keys are shared with tag rows.
+            if (key.startsWith('folder:') && !liveKeys.has(key)) {
+                delete this.settings.customIcons[key];
+                keysRemoved++;
+                changed = true;
+            }
+        }
+        for (const key of Object.keys(this.settings.spaceSectionPrefs)) {
+            if (!liveKeys.has(key)) {
+                delete this.settings.spaceSectionPrefs[key];
+                keysRemoved++;
+                changed = true;
+            }
+        }
+
+        // Tab order entries for portals and stacks that no longer exist.
+        const liveStacks = new Set(this.settings.portalStacks.map(s => `stack:${s.id}`));
+        const orderBefore = this.settings.tabBarOrder.length;
+        this.settings.tabBarOrder = this.settings.tabBarOrder.filter(
+            entry => liveKeys.has(entry) || liveStacks.has(entry));
+        if (this.settings.tabBarOrder.length !== orderBefore) changed = true;
+
         if (changed) {
             await this.saveSettings();
         }
-        return beforeCount - this.settings.spaces.length;
+        return { spaces: beforeCount - this.settings.spaces.length, keys: keysRemoved };
     }
 
     async cleanupDeadHiddenItems(): Promise<number> {

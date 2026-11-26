@@ -597,8 +597,15 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                         const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
                         btn.addEventListener('click', () => {
                             void (async () => {
-                                const removed = await tab.plugin.cleanupDeadSpaces();
-                                new Notice(removed > 0 ? `Removed ${removed} dead portal(s)` : 'No dead portals found');
+                                const { spaces, keys } = await tab.plugin.cleanupDeadSpaces();
+                                if (spaces === 0 && keys === 0) {
+                                    new Notice('No dead portals found');
+                                    return;
+                                }
+                                const parts: string[] = [];
+                                if (spaces > 0) parts.push(`${spaces} dead portal(s)`);
+                                if (keys > 0) parts.push(`${keys} leftover preference key(s)`);
+                                new Notice(`Removed ${parts.join(' and ')}`);
                             })();
                         });
                     }
