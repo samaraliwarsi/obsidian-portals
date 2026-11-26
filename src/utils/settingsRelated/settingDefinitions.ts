@@ -190,12 +190,12 @@ function buildPortalTabsPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                 },
                 {
                     name: 'Tab colors',
-                    desc: 'Show custom portal colors on active tabs, active dots. Portal style uses the same color when enabled. The color of the pinnedvault root is used in side portals.',
+                    desc: 'Show custom portal colors on active tabs and active dots inside a portal. On style `Portals` and if `Tab colors to summaries` is on, this can do more.',
                     control: { type: 'toggle', key: 'tabColorEnabled' }
                 },
                 {
                     name: 'Tab colours to summaries',
-                    desc: 'Portals style only. On: folder and tag summaries take their space tab colour, and side panels take the pinned root colour. Off: tab colours stay on tabs, summaries keep custom or accent colours, and side panels use the accent.',
+                    desc: 'Portals style only. On: folder & tag summaries take Tab colors, and side panels take the pinned root colour. Off: tab colours stay on tabs, they do not affect summaries or side portals.',
                     // `visible` sets the initial state the framework respects; the
                     // render hook keeps it correct when tab colours or style change in
                     // the same pane.
