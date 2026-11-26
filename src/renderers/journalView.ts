@@ -171,7 +171,7 @@ export class JournalRenderer {
             }
 
             const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
-            const tabColorEnabled = this.plugin.settings.tabColorEnabled;
+            const tabColorEnabled = this.plugin.tabColorsDriveSummaries();
             const rootColor = (tabColorEnabled && rootSpace && rootSpace.color !== 'transparent') ? rootSpace.color : null;
             if (rootColor) {
                 this.container.setCssProps({ '--sideportal-accent-color': rootColor });

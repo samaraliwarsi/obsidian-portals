@@ -632,6 +632,15 @@ export default class PortalsPlugin extends Plugin {
         return changed;
     }
 
+    // The Portals style has always painted folder/tag summaries (and side-panel
+    // accents) with the tab colour. That is now opt-out: tab colours stay on tabs
+    // unless this says otherwise.
+    public tabColorsDriveSummaries(): boolean {
+        return this.settings.treeStyle === 'portals'
+            && this.settings.tabColorEnabled
+            && this.settings.portalsTabColorsToSummaries;
+    }
+
     async saveSettings(intent: RenderIntent = 'all', options: InvalidateOptions = {}) {
         try {
             await this.saveData(this.settings);

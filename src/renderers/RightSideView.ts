@@ -115,7 +115,7 @@ export class AltSidePanelView extends ItemView {
     // accent colour even when tab colours were on.
     private applySpaceAccent(): void {
         if (!this.contentArea) return;
-        const accent = this.plugin.settings.treeStyle === 'portals' ? this.getRootAccentColor() : null;
+        const accent = this.plugin.tabColorsDriveSummaries() ? this.getRootAccentColor() : null;
         this.contentArea.setCssProps({ '--space-border-color': accent ?? '' });
     }
 
@@ -179,7 +179,7 @@ export class AltSidePanelView extends ItemView {
     // The accent used by the side tabs: the pinned root portal's colour, when
     // tab colours are enabled.
     private getRootAccentColor(): string | null {
-        if (!this.plugin.settings.pinVaultRoot || !this.plugin.settings.tabColorEnabled) return null;
+        if (!this.plugin.settings.pinVaultRoot || !this.plugin.tabColorsDriveSummaries()) return null;
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
         if (!rootSpace?.color || rootSpace.color === 'transparent') return null;
         return rootSpace.color;

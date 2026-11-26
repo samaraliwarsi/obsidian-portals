@@ -1,4 +1,4 @@
-import { Notice, Platform, TFolder, type Setting, type SettingDefinitionItem, type SettingGroupItem } from "obsidian";
+import { Notice, Platform, TFolder, ToggleComponent, type Setting, type SettingDefinitionItem, type SettingGroupItem } from "obsidian";
 import { DEFAULT_SETTINGS, type SpacesSettings, type SpacesSettingTab } from "../../settings";
 import { IconPickerModal } from "../../modals/native/iconPicker";
 import { AddPortalModal } from "../../modals/addPortalModal";
@@ -192,6 +192,16 @@ function buildPortalTabsPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                     name: 'Tab colors',
                     desc: 'Show custom portal colors on active tabs, active dots. Portal style uses the same color when enabled. The color of the pinnedvault root is used in side portals.',
                     control: { type: 'toggle', key: 'tabColorEnabled' }
+                },
+                {
+                    name: 'Tab colours to summaries',
+                    desc: 'Portals style only. On: folder and tag summaries take their space tab colour, and side panels take the pinned root colour. Off: tab colours stay on tabs, summaries keep custom or accent colours, and side panels use the accent.',
+                    // `visible` sets the initial state the framework respects; the
+                    // render hook keeps it correct when tab colours or style change in
+                    // the same pane.
+                    visible: () => tab.plugin.settings.treeStyle === 'portals'
+                        && tab.plugin.settings.tabColorEnabled,
+                    render: (setting) => renderSummaryColourToggle(setting, tab)
                 },
             ]
         },
@@ -877,6 +887,23 @@ function renderAddPortalButton(setting: Setting, tab: SpacesSettingTab): void {
             // controls) only appeared after leaving and re-entering settings.
             void plugin.saveSettings().then(() => tab.activeTabsRefresher?.());
         }).open();
+    });
+}
+
+function renderSummaryColourToggle(setting: Setting, tab: SpacesSettingTab): void {
+    const plugin = tab.plugin;
+    setting.controlEl.empty();
+
+    const applicable = plugin.settings.treeStyle === 'portals' && plugin.settings.tabColorEnabled;
+    setting.settingEl.toggle(applicable);
+    // The declarative API builds this row once; keep a way to re-evaluate it when
+    // either condition changes in the same pane.
+    tab.summaryColourToggleRefresher = () => renderSummaryColourToggle(setting, tab);
+
+    const toggle = new ToggleComponent(setting.controlEl);
+    toggle.setValue(plugin.settings.portalsTabColorsToSummaries);
+    toggle.onChange(async (value) => {
+        await tab.setControlValue('portalsTabColorsToSummaries', value);
     });
 }
 

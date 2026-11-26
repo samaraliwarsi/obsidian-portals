@@ -337,7 +337,7 @@ export class FrontmatterClinicRenderer {
 
         // Set accent color from active space
         const rootSpace = this.plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
-        const tabColorEnabled = this.plugin.settings.tabColorEnabled;
+        const tabColorEnabled = this.plugin.tabColorsDriveSummaries();
         if (tabColorEnabled && rootSpace?.color && rootSpace.color !== 'transparent') {
             this.container.setCssProps({ '--sideportal-accent-color': rootSpace.color });
         } else {

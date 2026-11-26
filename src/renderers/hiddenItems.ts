@@ -25,7 +25,7 @@ export class HiddenItemsRenderer {
         contentEl.empty();
         contentEl.addClass('portals-hidden-tab');
 
-        const tabColorEnabled = this.plugin.settings.tabColorEnabled;
+        const tabColorEnabled = this.plugin.tabColorsDriveSummaries();
         const rootSpace = this.plugin.settings.spaces.find(
             s => s.path === '/' && s.type === 'folder'
         );

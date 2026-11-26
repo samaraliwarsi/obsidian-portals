@@ -29,6 +29,8 @@ export interface SpacesSettings {
     pinVaultRoot: boolean;
     filePaneColorStyle: 'gradient' | 'solid' | 'none';
     tabColorEnabled: boolean;
+    /** Portals style only: let tab colours drive summaries and side-panel accents. */
+    portalsTabColorsToSummaries: boolean;
     sortBy: 'name' | 'created' | 'modified';
     sortOrder: 'asc' | 'desc';
     showInactiveTabNames: boolean;
@@ -129,6 +131,7 @@ export const DEFAULT_SETTINGS: SpacesSettings = {
     pinVaultRoot: false,
     filePaneColorStyle: 'gradient',
     tabColorEnabled: true,
+    portalsTabColorsToSummaries: true,
     sortBy: 'name',
     showInactiveTabNames: false,
     tabNameDisplay: 'activeOnly',
@@ -228,6 +231,7 @@ export class SpacesSettingTab extends PluginSettingTab {
     // re-render itself after settings it displays have changed.
     public activeTabsRefresher?: () => void;
     public pinnedAppearanceRefresher?: () => void;
+    public summaryColourToggleRefresher?: () => void;
     icon = 'folder-tree';
 
     constructor(app: App, plugin: PortalsPlugin) {
@@ -282,6 +286,11 @@ export class SpacesSettingTab extends PluginSettingTab {
                 this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder
                     .filter(entry => entry !== 'folder:/');
             }
+        }
+        if (key === 'tabColorEnabled' || key === 'treeStyle') {
+            // The summary-colour row is only meaningful for Portals style with tab
+            // colours on; re-evaluate it in place.
+            this.summaryColourToggleRefresher?.();
         }
         if (key === 'pinVaultRoot') {
             // Pin state changed: rebuild the appearance row and the portal list so

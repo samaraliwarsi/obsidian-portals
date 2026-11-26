@@ -1900,7 +1900,7 @@ export class PortalsView extends ItemView {
                 const activeTab = this.plugin.settings.activeSplitTab || 'recent';
 
                 let rootColor: string | undefined;
-                if (this.plugin.settings.pinVaultRoot && this.plugin.settings.tabColorEnabled) {
+                if (this.plugin.settings.pinVaultRoot && this.plugin.tabColorsDriveSummaries()) {
                     const rootSpace = spaces.find(s => s.path === '/' && s.type === 'folder');
                     if (rootSpace && rootSpace.color && rootSpace.color !== 'transparent') {
                         rootColor = rootSpace.color;
@@ -2139,7 +2139,7 @@ export class PortalsView extends ItemView {
             if (folder && folder instanceof TFolder) {
                 const totalFirstLevelFolders = folder.children.filter(c => c instanceof TFolder).length;
                 const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
-                if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
+                if (this.plugin.tabColorsDriveSummaries() && selectedSpace.color && selectedSpace.color !== 'transparent') {
                     spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
                 } else {
                     spaceContent.setCssProps({ '--space-border-color': '' });
@@ -2155,7 +2155,7 @@ export class PortalsView extends ItemView {
 
         const groupCount = selectedSpace.groupTags?.length ?? 0;
         const spaceContent = treeContainer.createDiv({ cls: 'portals-space-content' });
-        if (this.plugin.settings.tabColorEnabled && selectedSpace.color && selectedSpace.color !== 'transparent') {
+        if (this.plugin.tabColorsDriveSummaries() && selectedSpace.color && selectedSpace.color !== 'transparent') {
             spaceContent.setCssProps({ '--space-border-color': selectedSpace.color });
         } else {
             spaceContent.setCssProps({ '--space-border-color': '' });

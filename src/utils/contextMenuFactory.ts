@@ -240,7 +240,7 @@ export class ContextMenuFactory {
             }
         }
 
-        const canSetColor = style !== 'shades' && style !== 'hues' && !(style === 'portals' && view.plugin.settings.tabColorEnabled);
+        const canSetColor = style !== 'shades' && style !== 'hues' && !(view.plugin.tabColorsDriveSummaries());
         if (canSetColor) {
             menu.addSeparator();
             menu.addItem(item => item
@@ -563,7 +563,7 @@ export class ContextMenuFactory {
 
         // Color option (if style allows)
         const canSetColor = style !== 'shades' && style !== 'hues' &&
-            !(style === 'portals' && view.plugin.settings.tabColorEnabled);
+            !(view.plugin.tabColorsDriveSummaries());
         if (canSetColor) {
             menu.addSeparator();
             const currentColor = view.plugin.settings.tagColors[groupKey];
@@ -659,7 +659,7 @@ export class ContextMenuFactory {
 
         // Color option
         const canSetColor = style !== 'shades' && style !== 'hues' &&
-            !(style === 'portals' && view.plugin.settings.tabColorEnabled);
+            !(view.plugin.tabColorsDriveSummaries());
         if (canSetColor) {
             menu.addSeparator();
             const currentColor = view.plugin.settings.tagColors[nodeKey];

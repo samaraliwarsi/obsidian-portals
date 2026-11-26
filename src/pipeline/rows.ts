@@ -281,7 +281,7 @@ export class Rows {
         const canApplyColor = savedColor
             && treeStyle !== 'shades'
             && treeStyle !== 'hues'
-            && !(treeStyle === 'portals' && plugin.settings.tabColorEnabled);
+            && !plugin.tabColorsDriveSummaries();
 
         if (canApplyColor) {
             summary.classList.add('has-folder-color');
