@@ -1121,6 +1121,8 @@ export class PortalsView extends ItemView {
             }
             const compositeKey = `${space.type}:${space.path}`;
             this.spaceScrollCache.delete(compositeKey);
+            // The stack may now be empty and must not outlive its last portal.
+            this.plugin.pruneEmptyStacks();
             if(!space.stackId) {
                 this.plugin.settings.tabBarOrder = this.plugin.settings.tabBarOrder.filter(entry => entry !== compositeKey);
             }

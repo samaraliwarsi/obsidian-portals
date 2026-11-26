@@ -1002,6 +1002,7 @@ function renderActiveTabsSection(setting: Setting, tab: SpacesSettingTab): void 
                 // revisited. Remove the entry, not just its control strip.
                 row.remove();
                 plugin.settings.spaces = plugin.settings.spaces.filter(s => s !== portal);
+                plugin.pruneEmptyStacks();
                 if (plugin.settings.selectedSpace?.path === portal.path &&
                     plugin.settings.selectedSpace?.type === portal.type) {
                     plugin.settings.selectedSpace = plugin.settings.spaces[0]

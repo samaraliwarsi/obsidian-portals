@@ -568,14 +568,32 @@ export default class PortalsPlugin extends Plugin {
             this.settings.tabBarOrder = order;
         }
 
-        // Clean up orphaned stacks on load
-        const referencedStackIds = new Set(this.settings.spaces.map(s => s.stackId).filter(id => id !== undefined));
-        this.settings.portalStacks = this.settings.portalStacks.filter(stack => referencedStackIds.has(stack.id));
+        this.pruneEmptyStacks();
 
         // for tag notes initialization (user enabled)
         if (!this.settings.previousTagNotesFolderPath) {
             this.settings.previousTagNotesFolderPath = this.settings.tagNotesFolderPath;
         }
+    }
+
+    // A stack exists to hold portals. With none left it can never be filled again
+    // (nothing adds into an empty stack), so it should not linger — otherwise an
+    // empty stack sits in the bar until the next reload prunes it.
+    public pruneEmptyStacks(): boolean {
+        const referenced = new Set<string>();
+        for (const space of this.settings.spaces) {
+            if (space.stackId) referenced.add(space.stackId);
+        }
+
+        const before = this.settings.portalStacks.length;
+        this.settings.portalStacks = this.settings.portalStacks.filter(stack => referenced.has(stack.id));
+        if (this.settings.portalStacks.length === before) return false;
+
+        const live = new Set(this.settings.portalStacks.map(stack => stack.id));
+        this.settings.tabBarOrder = (this.settings.tabBarOrder ?? []).filter(entry =>
+            !entry.startsWith('stack:') || live.has(entry.slice(6)));
+
+        return true;
     }
 
     async saveSettings(intent: RenderIntent = 'all', options: InvalidateOptions = {}) {
@@ -1109,6 +1127,8 @@ export default class PortalsPlugin extends Plugin {
             return false;
         });
         if (beforeCount !== this.settings.spaces.length) changed = true;
+        // Removing dead portals can strand stacks that no longer hold anything.
+        if (this.pruneEmptyStacks()) changed = true;
 
         const beforeFoldersCount = this.settings.openFolders.length;
         this.settings.openFolders = this.settings.openFolders.filter(path => existingFolders.includes(path));
