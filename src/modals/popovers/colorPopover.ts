@@ -65,9 +65,10 @@ export class ColorPickerPopover {
                 const swatch = swatchGrid.children[index] as HTMLElement;
                 if (swatch) swatch.setCssProps({ '--swatch-bg': newColor });
                 
-                // Save to settings (this syncs the modal instantly)
+                // Palette persistence only: nothing on screen derives from
+                // it, so a full rebuild would be wasted work.
                 this.plugin.settings.userPalette = [...palette];
-                void this.plugin.saveSettings();
+                void this.plugin.saveData(this.plugin.settings);
             }
         });
 
@@ -109,7 +110,7 @@ export class ColorPickerPopover {
                 swatch.setCssProps({ '--swatch-bg': defaultColor });
                 
                 this.plugin.settings.userPalette = [...palette];
-                void this.plugin.saveSettings();
+                void this.plugin.saveData(this.plugin.settings);
             });
         }
 

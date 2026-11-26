@@ -269,6 +269,7 @@ the duration, and whether the row the reader was watching moved (`jumped`,
 | Document                            | Use                                   |
 | ----------------------------------- | ------------------------------------- |
 | `docs/render-regression-matrix.md`  | 22 behaviour scenarios, pass criteria |
+| `docs/render-harness.md`            | design for automating that matrix (not built yet) |
 | `docs/settings-render-matrix.md`    | setting -> surface -> expected intent |
 | `docs/architecture.canvas`          | zoomable map of the module graph      |
 
