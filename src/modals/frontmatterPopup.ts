@@ -62,6 +62,10 @@ export class FrontmatterPopup extends PortalsModal {
     }
 
     protected beforeClose(): void {
+        // Tooltips are separate DOM elements driven by mouseenter/mouseleave. If
+        // the modal closes while one is showing, the leave event never fires on
+        // the removed button and the tooltip is left stranded on screen.
+        this.view.hideTooltip(0);
         this.propertySearchPopover?.destroy();
         this.valueSearchPopover?.destroy();
         this.onClose?.();
