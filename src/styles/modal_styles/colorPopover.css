@@ -4,6 +4,8 @@
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-m);
+    backdrop-filter: blur(var(--ui-blur, 10px));
+    --webkit-backdrop-filter: blur(var(--ui-blur, 10px));
     box-shadow: var(--shadow-l);
     padding: 8px;
     z-index: calc(var(--layer-modal) + 1);

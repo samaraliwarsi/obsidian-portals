@@ -95,10 +95,10 @@ details[open] > .reminders-header::before {
     color: var(--portals-reminder-overdue);
     stroke: var(--portals-reminder-overdue);
 }
-
+/*
 .portals-split-tab.has-reminder-due {
     box-shadow: inset 0 2px 0 var(--portals-reminder-overdue);
-}
+}*/
 
 .portals-reminder-indicator {
     display: inline-flex;

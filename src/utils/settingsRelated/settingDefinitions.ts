@@ -190,7 +190,7 @@ function buildPortalTabsPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
                 },
                 {
                     name: 'Tab colors',
-                    desc: 'Show tab color on bottom borders of active tabs. Portal style uses the same color when enabled. The color of the pinned vault root is used in side portals.',
+                    desc: 'Show custom portal colors on active tabs, active dots. Portal style uses the same color when enabled. The color of the pinnedvault root is used in side portals.',
                     control: { type: 'toggle', key: 'tabColorEnabled' }
                 },
             ]

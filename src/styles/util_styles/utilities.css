@@ -449,7 +449,8 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .portals-tree-container i.ph,
 .portals-secondary-panel i.ph,
 .portals-icon-picker-modal i.ph,
-.portals-split-content i.ph {
+.portals-split-content i.ph,
+.portals-color-row > button.clickable-icon .ph {
   font-size: var(--portals-icon-size);
   vertical-align: middle;
 }
@@ -459,7 +460,8 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .portals-tree-container .svg-icon,
 .portals-secondary-panel .svg-icon,
 .portals-icon-picker-modal .svg-icon,
-.portals-split-content .svg-icon {
+.portals-split-content .svg-icon,
+.portals-color-row > button.clickable-icon .svg-icon {
     width: var(--portals-icon-size);
     height: var(--portals-icon-size);
     display: block;

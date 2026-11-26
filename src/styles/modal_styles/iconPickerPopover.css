@@ -4,6 +4,8 @@
     max-height: 400px;
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
+    backdrop-filter: blur(var(--ui-blur, 10px));
+    --webkit-backdrop-filter: blur(var(--ui-blur, 10px));
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-l);
     display: flex;

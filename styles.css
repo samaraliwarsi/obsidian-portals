@@ -5199,7 +5199,8 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .portals-tree-container i.ph,
 .portals-secondary-panel i.ph,
 .portals-icon-picker-modal i.ph,
-.portals-split-content i.ph {
+.portals-split-content i.ph,
+.portals-color-row > button.clickable-icon .ph {
   font-size: var(--portals-icon-size);
   vertical-align: middle;
 }
@@ -5209,7 +5210,8 @@ button.portals-reset-btn.trash-btn-warn:focus-visible {
 .portals-tree-container .svg-icon,
 .portals-secondary-panel .svg-icon,
 .portals-icon-picker-modal .svg-icon,
-.portals-split-content .svg-icon {
+.portals-split-content .svg-icon,
+.portals-color-row > button.clickable-icon .svg-icon {
     width: var(--portals-icon-size);
     height: var(--portals-icon-size);
     display: block;
@@ -5525,7 +5527,7 @@ gap: 4px;
 margin-bottom: 12px;
 border-bottom: 1px solid var(--background-modifier-border);
 padding-bottom: 10px;
-margin-top: 8px;
+margin-top: 6px;
 scrollbar-width: auto;
 padding-right: 10px;
 padding-left: 4px;
@@ -7575,7 +7577,6 @@ button.trash-delete-btn:not(.clickable-icon):hover {
 
 .fm-clinic-header {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
 }
@@ -7964,10 +7965,10 @@ details[open] > .reminders-header::before {
     color: var(--portals-reminder-overdue);
     stroke: var(--portals-reminder-overdue);
 }
-
+/*
 .portals-split-tab.has-reminder-due {
     box-shadow: inset 0 2px 0 var(--portals-reminder-overdue);
-}
+}*/
 
 .portals-reminder-indicator {
     display: inline-flex;
@@ -8580,7 +8581,7 @@ button.portals-portal-list-delete {
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-s);
     padding: 6px;
-    z-index: var(--layer-modal);
+    z-index: calc(var(--layer-modal) + 1);
     width: auto;
     max-width: 200px;
     display: flex;
@@ -8646,7 +8647,7 @@ button.portals-portal-list-delete {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 .portals-adp-container {  /* Check utilities.css for phone size fix*/
@@ -8788,7 +8789,7 @@ button.portals-portal-list-delete {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 .portals-remP-container { /* Check utilities.css for phone size fix*/
@@ -8853,7 +8854,7 @@ button.portals-portal-list-delete {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 .portals-sp-container { /* Check utilities.css for phone size fix*/
@@ -8954,7 +8955,7 @@ button.portals-portal-list-delete {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 
@@ -9050,7 +9051,7 @@ input.portals-rename-input {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 .portals-cm-modal { /* Check utilities.css for phone size fix*/
@@ -9248,7 +9249,7 @@ input.cm-opacity-slider {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 .portals-qtn-modal { /* Check utilities.css for phone size fix*/
@@ -9513,7 +9514,7 @@ input.cm-opacity-slider {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 .portals-fm-modal {  /* Check utilities.css for phone size fix*/
@@ -9906,7 +9907,7 @@ input.cm-opacity-slider {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 .portals-confirm-container { /* Check utilities.css for phone size fix*/
@@ -10184,6 +10185,8 @@ button.portals-reset-btn.portals-ar-color-btn {
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-m);
+    backdrop-filter: blur(var(--ui-blur, 10px));
+    --webkit-backdrop-filter: blur(var(--ui-blur, 10px));
     box-shadow: var(--shadow-l);
     padding: 8px;
     z-index: calc(var(--layer-modal) + 1);
@@ -10297,6 +10300,8 @@ button.portals-reset-btn.portals-colpop-clear:hover {
     max-height: 400px;
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
+    backdrop-filter: blur(var(--ui-blur, 10px));
+    --webkit-backdrop-filter: blur(var(--ui-blur, 10px));
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-l);
     display: flex;

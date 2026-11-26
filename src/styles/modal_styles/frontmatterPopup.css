@@ -4,7 +4,7 @@
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: var(--background-modifier-cover);
-    z-index: 45;
+    z-index: calc(var(--layer-modal) - 5);
 }
 
 .portals-fm-modal {  /* Check utilities.css for phone size fix*/
