@@ -7576,7 +7576,8 @@ button.trash-delete-btn:not(.clickable-icon):hover {
 }
 
 .fm-clinic-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
     align-items: center;
     gap: 8px;
 }
@@ -7585,6 +7586,19 @@ button.trash-delete-btn:not(.clickable-icon):hover {
     flex: 1;
     justify-content: flex-start;
     border: 1px solid var(--background-modifier-border);
+    min-width: 0;
+    width: 100%;
+}
+
+.fm-clinic-header .fm-btn-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fm-clinic-header .fm-remove-filter-btn {
+    justify-self: end;
 }
 
 p.fm-noFound-txt {
