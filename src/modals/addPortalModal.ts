@@ -1,18 +1,12 @@
 import { App, Notice, TFolder } from "obsidian";
 import PortalsPlugin from "../main";
+import { PortalsModal } from "./portalsModal";
 
 
 
-export class AddPortalModal {
-    // Every call site constructs a new instance, so an instance-level
-    // `if (this.container)` check can never fire. Track the open one instead.
-    private static openInstance: AddPortalModal | null = null;
-    private app: App;
+export class AddPortalModal extends PortalsModal {
     private plugin: PortalsPlugin;
-    private backdrop!: HTMLElement;
-    private container!: HTMLElement;
-    private selectedPaths: Set<string> = new Set;
-    private keyHandler: (e: KeyboardEvent) => void;
+    private selectedPaths: Set<string> = new Set();
     private currentTab: 'root' | 'sub' | 'tag' = 'root';
     private searchInput!: HTMLInputElement;
     private resultsContainer!: HTMLElement;
@@ -21,7 +15,10 @@ export class AddPortalModal {
     private allTags: string[] = [];
 
     constructor(app: App, plugin: PortalsPlugin, private onChoose: (path: string, type: 'folder' | 'tag') => void) {
-        this.app = app;
+        super(app, {
+            containerClass: 'portals-adp-container portals-adp-modal',
+            backdropClass: 'portals-adp-backdrop',
+        });
         this.plugin = plugin;
 
         // build folder lists
@@ -46,33 +43,10 @@ export class AddPortalModal {
             .filter(tag => !tag.includes('/'))
             .sort()
         
-        // key handler for escape
-        this.keyHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') this.close();
-        }
     }
 
-    open(): void {
-        if (AddPortalModal.openInstance) return;
-        AddPortalModal.openInstance = this;
-        if (this.container) {
-            this.close();
-        }
-
-        this.backdrop = activeDocument.body.createDiv('portals-adp-backdrop');
-        this.backdrop.addEventListener('click', () => this.close());
-
-        this.container = activeDocument.body.createDiv('portals-adp-container');
-        this.container.addClass('portals-adp-modal');
-        this.container.addEventListener('click', (e) => e.stopPropagation());
-
-        try {
-            this.buildUI();
-            activeDocument.addEventListener('keydown', this.keyHandler)
-        } catch (e) {
-            console.error('Error building color picker UI', e);
-            this.close();
-        }
+    protected buildContent(): void {
+        this.buildUI();
     }
 
     buildUI(): void {
@@ -201,10 +175,4 @@ export class AddPortalModal {
         }
     }
 
-    close(): void {
-        if (AddPortalModal.openInstance === this) AddPortalModal.openInstance = null;
-        this.container.remove();
-        this.backdrop.remove();
-        activeDocument.removeEventListener('keydown', this.keyHandler);
-    }
 }
