@@ -810,17 +810,26 @@ function renderPinnedVaultAppearance(setting: Setting, tab: SpacesSettingTab): v
         const g = parseInt(hex.slice(3, 5), 16);
         const b = parseInt(hex.slice(5, 7), 16);
 
-        const realSpace = plugin.settings.spaces.find(s => s.path === 'folder');
+        // Was `s.path === 'folder'`, which never matches: the pinned root is the
+        // space whose path is '/' and type is 'folder'.
+        const realSpace = plugin.settings.spaces.find(s => s.path === '/' && s.type === 'folder');
         if (realSpace) {
             realSpace.color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
             customSwatch.setCssProps({ '--swatch-bg': hex });
+            // Immediate feedback on the live tab; the settings pane is not
+            // re-rendered after a save.
+            plugin.getPortalsViews().forEach(view => view.refreshTabBarVisuals());
             void plugin.saveSettings();
         }
     };
 
     customSwatch.addEventListener('click', () => hiddenColorInput.click());
+    // 'change' as well as 'input': some platforms only fire change when the
+    // native picker closes.
     hiddenColorInput.addEventListener('input', updateColor);
+    hiddenColorInput.addEventListener('change', updateColor);
     opacityInput.addEventListener('input', updateColor);
+    opacityInput.addEventListener('change', updateColor);
 }
 
 function renderAddPortalButton(setting: Setting, tab: SpacesSettingTab): void {
