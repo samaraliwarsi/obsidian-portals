@@ -155,6 +155,61 @@ editor, a right side panel opens down), mobile changes the answer again, and onl
 modals are predictably centred. A shared `placeNearAnchor` is worth building
 only once several popovers need the same geometry.
 
+## Source map
+
+```
+src/
+  main.ts                    plugin lifecycle; vault + metadata events → intents; settings persistence
+  view.ts                    PortalsView: render('all'|'tree'), tab bar, stacks, scroll, selection
+  settings.ts                SpacesSettingTab (declarative) + SETTING_INTENT table
+  types.ts                   shared types
+
+  pipeline/
+    renderBus.ts             5 intents, coalescing, deferral while a view is busy
+    rows.ts                  the one file row and the one branch row (folder | tag | group)
+    probe.ts                 no-op recorder stub; `npm run probe:on` copies dev/instrument.ts over it
+
+  trees/
+    foldertreeRenderer.ts    traversal only — rows come from Rows
+    tagtreeRenderer.ts       traversal, subtags and tag groups
+
+  renderers/
+    sidePanelContent.ts      PANELS registry, panel lifecycle, per-tab scroll
+    sideTabs.ts              shared side-tab strip builder and in-place updater
+    RightSideView.ts         right side panel: strip + content
+    contextNotes.ts          context-note cache and rendering (own scroll cache)
+    frontmatterClinic.ts     properties panel: cache, filters, grouping, saved views
+    remindersRenderer.ts     reminders panel (reuses Rows.file)
+    recentFiles.ts  journalView.ts  trashRenderer.ts
+    bookmarksRenderer.ts  hiddenItems.ts
+    floatingButtonRenderer.ts  the bottom-left action buttons and their menus
+
+  modals/
+    portalsModal.ts          base for our modals: backdrop, container, guard, buildContent/beforeClose
+    overlayStack.ts          one Escape handler, newest layer first (modals + popovers)
+    addPortalModal.ts  confirmModal.ts  colorModal.ts  frontmatterPopup.ts
+    quickTabNumberModal.ts  removePortalModal.ts  renamePortalModal.ts  sidePortalModal.ts
+    popovers/                body-appended popovers: searchPopover, colorPopover, iconPickerPopover
+    native/                  Obsidian `Modal` subclasses: appearance rules, date picker, tag groups,
+                             icon picker, reminders startup, reorder items, save view, select folder
+
+  utils/
+    portalsActions.ts        create / duplicate / delete / move (all emit intents)
+    contextMenuFactory.ts    row, tab and folder context menus
+    commands.ts              command palette registration and dynamic portal commands
+    fileItemFactory.ts       tooltips, word count, task progress, reminder indicator
+    sectionsRenderer.ts      section grouping for the tree
+    sortHelpers.ts  dateHelpers.ts  tagHelpers.ts  taskParser.ts  treeEventHelpers.ts  syncButton.ts
+    settingsRelated/settingDefinitions.ts   all settings controls (declarative API)
+    Proxies/localFlags.ts    device-local flags in localStorage
+    Proxies/urls.ts          outbound links
+
+  icons/                     Lucide, Phosphor and emoji providers, mappings and lists
+  styles/                    CSS sources; build-css.js combines them into styles.css
+dev/
+  instrument.ts              the render recorder (dev only)
+```
+
 ## Failure modes seen in practice
 
 | Symptom | Cause | Fix |
@@ -214,7 +269,6 @@ the duration, and whether the row the reader was watching moved (`jumped`,
 | Document                            | Use                                   |
 | ----------------------------------- | ------------------------------------- |
 | `docs/render-regression-matrix.md`  | 22 behaviour scenarios, pass criteria |
-| `docs/render-capture-cheatsheet.md` | exact `capture()` call per scenario   |
 | `docs/settings-render-matrix.md`    | setting -> surface -> expected intent |
 | `docs/architecture.canvas`          | zoomable map of the module graph      |
 

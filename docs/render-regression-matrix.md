@@ -84,9 +84,20 @@ There is no automated test runner in this repo, so this matrix *is* the test.
 3. For each row: reset, do the steps, then read `report()` and `jumps()`.
 4. Fill in Pass / Fail and any notes in the results table.
 
-One-line capture, 15 seconds:
+One-line capture: resets the buffer, records for N seconds, prints the table and
+stores the result, so scenarios cannot bleed into each other.
 
-    capture("A2 tag typing", 15)
+```js
+capture("A2-In a tag portal, type its #tag into a note", 15)
+```
+
+After a run:
+
+```js
+__portalsRender.report()   // intent / count / median / p95 / max / jumps
+__portalsRender.jumps()    // only the redraws that moved the list
+dump()                     // copy every stored capture to the clipboard
+```
 
 ## Reading the output
 
@@ -109,52 +120,52 @@ One-line capture, 15 seconds:
 
 ## A - Typing and background changes
 
-| #   | Scenario                                     | Capture code                                                  | Do this                                               | Pass looks like                                                        |
-| --- | -------------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------- |
-| A1  | Plain typing                                 | Capture("A1-Typing in a note that belongs to an open portal") | Type 20s in a note that belongs to the open portal    | No `view:tree`; list still; no red errors                              |
-| A2  | Typing a tag of the open portal              |                                                               | In a tag portal, type its `#tag` into a note          | 1 `view:tree` max; scroll unchanged; list returns exactly where it was |
-| A3  | Typing a tag of a *different* portal         |                                                               | Type a `#tag` that does not belong to the open portal | 0 `view:tree`                                                          |
-| A4  | Frontmatter edit, properties panel open      |                                                               | Change a property                                     | `panel:clinic` only; tree scroll untouched                             |
-| A5  | Frontmatter edit matching an appearance rule |                                                               | Change a property that drives a colour/icon rule      | `view:row` patches only; 0 `view:tree`                                 |
-| A6  | Two windows / split view                     |                                                               | Type in one leaf while another Portals view is open   | Each view patches independently; no rebuild storm                      |
+| # | Scenario | Capture command | Do this | Pass looks like |
+|---|---|---|---|---|
+| A1 | Plain typing | `capture("A1-Typing in a note that belongs to an open portal", 15)` | Type 20s in a note that belongs to the open portal | No `view:tree`; list still; no red errors |
+| A2 | Typing a tag of the open portal | `capture("A2-In a tag portal, type its #tag into a note", 15)` | In a tag portal, type its `#tag` into a note | 1 `view:tree` max; scroll unchanged; list returns exactly where it was |
+| A3 | Typing a tag of a *different* portal | `capture("A3-Typing a tag of a *different* portal", 15)` | Type a `#tag` that does not belong to the open portal | 0 `view:tree` |
+| A4 | Frontmatter edit, properties panel open | `capture("A4-Frontmatter edit, properties panel open", 15)` | Change a property | `panel:clinic` only; tree scroll untouched |
+| A5 | Frontmatter edit matching an appearance rule | `capture("A5-Frontmatter edit matching an appearance rule", 15)` | Change a property that drives a colour/icon rule | `view:row` patches only; 0 `view:tree` |
+| A6 | Two windows / split view | `capture("A6-Two windows / split view", 15)` | Type in one leaf while another Portals view is open | Each view patches independently; no rebuild storm |
 
 ## B - File and folder operations
 
-| # | Scenario | Do this | Pass looks like |
-|---|---|---|---|
-| B1 | Create a note | New note in the current folder | 1 `view:tree`; new row appears; scroll kept |
-| B2 | Delete a file below the viewport | Delete a row you are not looking at | 1 `view:tree`; scroll kept |
-| B3 | Delete the row you are reading | Right-click > Delete on the **first visible** row | Falls back to the nearest surviving ancestor; never scrolls to the top |
-| B4 | Rename a row below the fold | Rename a row near the **bottom edge**, so the anchor (first visible row) survives | Anchor does not move. The renamed row itself may move, because the list re-sorts |
-| B5 | Rename a collapsed folder above the viewport | Rename it via the file explorer | Scroll kept |
-| B6 | Drag a file into another folder | Drag a row onto a folder row | Row moves; scroll kept |
-| B7 | Hide an item | Context menu > Hide | Row disappears; scroll kept; remaining rows do not shuffle |
+| # | Scenario | Capture command | Do this | Pass looks like |
+|---|---|---|---|---|
+| B1 | Create a note | `capture("B1-Create a note", 15)` | New note in the current folder | 1 `view:tree`; new row appears; scroll kept |
+| B2 | Delete a file below the viewport | `capture("B2-Delete a file below the viewport", 15)` | Delete a row you are not looking at | 1 `view:tree`; scroll kept |
+| B3 | Delete the row you are reading | `capture("B3-Delete the row you are reading", 15)` | Right-click > Delete on the **first visible** row | Falls back to the nearest surviving ancestor; never scrolls to the top |
+| B4 | Rename a row below the fold | `capture("B4-Rename a file near the viewport bottom", 15)` | Rename a row near the **bottom edge**, so the anchor (first visible row) survives | Anchor does not move. The renamed row itself may move, because the list re-sorts |
+| B5 | Rename a collapsed folder above the viewport | `capture("B5-Rename a collapsed folder above the viewport", 15)` | Rename it via the file explorer | Scroll kept |
+| B6 | Drag a file into another folder | `capture("B6-Drag a file into another folder", 15)` | Drag a row onto a folder row | One `view:tree`; scroll kept |
+| B7 | Hide an item | `capture("B7-Hide an item", 15)` | Context menu > Hide, then unhide | One `view:tree` per action; scroll kept; remaining rows do not shuffle |
 
 ## C - Settings changes
 
-| # | Scenario | Do this | Pass looks like |
-|---|---|---|---|
-| C1 | Toggle compact tree | Settings > Compact tree | Anchor kept; heights change (thumb moves - fine) |
-| C2 | Change sort order | Settings > Sort | Anchor item stays put if still visible |
-| C3 | Change tree style | Settings > Tree style | Anchor kept |
-| C4 | Toggle file previews | Settings > File preview | Anchor kept; previews may grow rows above |
-| C5 | Change one file's colour or icon | Right-click > Colour | 1 `view:row`; no rebuild; no movement |
-| C6 | Change tab name display | Settings > Tab names | Tab bar updates; tree untouched |
+| # | Scenario | Capture command | Do this | Pass looks like |
+|---|---|---|---|---|
+| C1 | Toggle compact tree | `capture("C1-Toggle compact tree", 10)` | Settings > Compact tree | `view:all`; anchor kept; heights change (thumb moves - fine) |
+| C2 | Change sort order | `capture("C2-Change sort order", 10)` | Settings > Sort | `view:tree` only; anchor item stays put if still visible |
+| C3 | Change tree style | `capture("C3-Change tree style", 10)` | Settings > Tree style | `view:all`; anchor kept |
+| C4 | Toggle file previews | `capture("C4-Toggle file previews", 10)` | Settings > File preview | `view:row` patches; anchor kept |
+| C5 | Change one file's colour or icon | `capture("C5-Change one file's colour and icon", 10)` | Right-click > Colour, then icon | `view:row` only; no rebuild; no movement |
+| C6 | Change tab name display | `capture("C6-Change tab name display", 10)` | Settings > Tab names | Tab bar updates; tree untouched |
 
 ## D - Navigation (movement here is intended)
 
-| # | Scenario | Do this | Expected |
-|---|---|---|---|
-| D1 | Switch portal tab | Click another portal | Jumps to that portal's last scroll position - expected movement |
-| D2 | Collapse all | Floating button > collapse | Collapses to the top - expected movement |
+| # | Scenario | Capture command | Do this | Expected |
+|---|---|---|---|---|
+| D1 | Switch portal tab | `capture("D1-Switch portal tab", 10)` | Click another portal | `view:tree` only, ~20–65 ms; jumps to that portal's last scroll position - expected movement |
+| D2 | Collapse all | `capture("D2-collapse all", 10)` | Floating button > collapse | One `view:tree`; collapses to the top - expected movement |
 
 ## E - Side panels
 
-| # | Scenario | Do this | Pass looks like |
-|---|---|---|---|
-| E1 | Switch side tab | Click Recent / Trash / Properties | `panel:content` for the new tab; tree untouched |
-| E2 | Edit a note, Context Notes open | Edit the note the panel shows | Panel re-renders; tree untouched; panel scroll kept |
-| E3 | Edit a reminder property | Change the reminder date | Reminders panel updates once; tree untouched |
+| # | Scenario | Capture command | Do this | Pass looks like |
+|---|---|---|---|---|
+| E1 | Switch side tab | `capture("E1-Switch side tab", 10)` | Click Recent / Trash / Properties | `panel:content` for the new tab; tree untouched; strip does not flicker |
+| E2 | Edit a note, Context Notes open | `capture("E2-Edit a note, context notes open", 15)` | Edit the note the panel shows | Panel re-renders; tree untouched; panel scroll kept |
+| E3 | Edit a reminder property | `capture("E3-Edit a reminder property", 15)` | Change the reminder date | Reminders panel updates once; tree untouched |
 
 ## F - Outside our control (record, do not fix)
 

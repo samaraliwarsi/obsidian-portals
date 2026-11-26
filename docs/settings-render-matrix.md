@@ -79,7 +79,7 @@ Status: `ok` verified · `wired` verified through a narrow intent · `?` unteste
 ## How to run a row
 
 ```js
-__portalsRender.enable()   // needs the dev recorder; see the cheatsheet
+__portalsRender.enable()   // needs the dev recorder; see render-regression-matrix.md
 capture("S-sort", 10)      // then change the setting while it records
 __portalsRender.report()
 ```

@@ -165,6 +165,65 @@
       "width": 280,
       "height": 90,
       "color": "6"
+    },
+    {
+      "id": "g-modal",
+      "type": "group",
+      "label": "Modals & overlays",
+      "x": 720,
+      "y": 760,
+      "width": 700,
+      "height": 460
+    },
+    {
+      "id": "pmbase",
+      "type": "text",
+      "x": 740,
+      "y": 800,
+      "width": 320,
+      "height": 110,
+      "color": "3",
+      "text": "**PortalsModal** (base)\n`modals/portalsModal.ts`\nroot + backdrop + container · per-class single-instance guard · buildContent / beforeClose"
+    },
+    {
+      "id": "overlay",
+      "type": "text",
+      "x": 1090,
+      "y": 800,
+      "width": 300,
+      "height": 90,
+      "color": "3",
+      "text": "**overlayStack**\n`modals/overlayStack.ts`\none Escape handler, newest layer first"
+    },
+    {
+      "id": "ours",
+      "type": "text",
+      "x": 740,
+      "y": 940,
+      "width": 320,
+      "height": 110,
+      "color": "3",
+      "text": "**Our modals (8)**\n`modals/*.ts`\nconfirm · remove · rename · quickTabNumber\ncolour · addPortal · sidePortal · frontmatter"
+    },
+    {
+      "id": "popovers",
+      "type": "text",
+      "x": 740,
+      "y": 1080,
+      "width": 320,
+      "height": 100,
+      "color": "3",
+      "text": "**Popovers (3)**\n`modals/popovers/*`\nsearch · colour · icon — body-appended, Escape via stack"
+    },
+    {
+      "id": "native",
+      "type": "text",
+      "x": 1090,
+      "y": 940,
+      "width": 300,
+      "height": 110,
+      "color": "2",
+      "text": "**Native modals (8)**\n`modals/native/*`\nObsidian `Modal`: Escape, backdrop and focus belong to Obsidian"
     }
   ],
   "edges": [
@@ -284,6 +343,38 @@
       "fromSide": "right",
       "toNode": "rows",
       "toSide": "left"
+    },
+    {
+      "id": "e20",
+      "fromNode": "ours",
+      "fromSide": "right",
+      "toNode": "pmbase",
+      "toSide": "left",
+      "label": "extends"
+    },
+    {
+      "id": "e21",
+      "fromNode": "pmbase",
+      "fromSide": "right",
+      "toNode": "overlay",
+      "toSide": "left",
+      "label": "push"
+    },
+    {
+      "id": "e22",
+      "fromNode": "popovers",
+      "fromSide": "right",
+      "toNode": "overlay",
+      "toSide": "left",
+      "label": "layer"
+    },
+    {
+      "id": "e23",
+      "fromNode": "native",
+      "fromSide": "left",
+      "toNode": "popovers",
+      "toSide": "right",
+      "label": "hosts"
     }
   ]
 }
