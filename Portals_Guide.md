@@ -657,7 +657,7 @@ The first group is Configuration which includes several pages
 
 | Settings                                 | Description                                                                                                                                                 |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Clean up dead portals                    | Remove tabs for folders/tags that no longer exist. Hard reset for dead items.                                                                               |
+| Clean up dead portals                    |Remove portal tabs for folders or tags that no longer exist & clear leftover preferences for portals removed earlier. This cannot be undone.                                            |
 | Clean up dead hidden keys                | Use this to clean data.json only if changes were made outside Obsidian to hidden files, folders or tags. Changes inside Obsidian are updated automatically. |
 | Reset preview preferences                | Clears saved data about previews for a fresh start.                                                                                                         |
 | Clean up orphaned setting fields         | Removes stale data.json fields left over from older plugin versions.                                                                                        |

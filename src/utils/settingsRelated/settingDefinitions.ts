@@ -591,7 +591,7 @@ function buildMaintainPage(tab: SpacesSettingTab): SettingDefinitionItem[] {
             items: [
                 {
                     name: 'Clean up dead portals',
-                    desc: 'Remove portal tabs for folders or tags that no longer exist. This cannot be undone.',
+                    desc: 'Remove portal tabs for folders or tags that no longer exist, and clear leftover preferences (tab icon, section rules, tab order) for portals removed earlier. This cannot be undone.',
                     render: (setting) => {
                         setting.controlEl.empty();
                         const btn = setting.controlEl.createEl('button', { text: 'Clean now', cls: 'mod-warning' });
