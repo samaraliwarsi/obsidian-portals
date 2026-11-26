@@ -1,48 +1,26 @@
 import { App, Notice } from "obsidian";
 import PortalsPlugin from "../main";
+import { PortalsModal } from "./portalsModal";
 
-export class SidePortalModal {
-    // Same reason as AddPortalModal: a new instance per call means the
-    // container check inside open() never catches a second invocation.
-    private static openInstance: SidePortalModal | null = null;
+export class SidePortalModal extends PortalsModal {
     private plugin: PortalsPlugin;
     private onSave: (left: string[], right: string[]) => void;
     private selectedLeft: Set<string>;
     private selectedRight: Set<string>;
-    private backdrop!: HTMLElement;
-    private container!: HTMLElement;
-    private keyHandler: (e: KeyboardEvent) => void;
 
     constructor(app: App, plugin: PortalsPlugin, onSave: (left: string[], right: string[]) => void) {
+        super(app, {
+            containerClass: 'portals-sp-container portals-modal',
+            backdropClass: 'portals-sp-backdrop',
+        });
         this.plugin = plugin;
         this.onSave = onSave;
         this.selectedLeft = new Set(plugin.settings.splitViewTabs);
         this.selectedRight = new Set(plugin.settings.alternateSideTabs);
-
-        this.keyHandler = (e: KeyboardEvent) => {
-            if (e.key === "Escape") this.close();
-        };
     }
 
-    open(): void {
-        if (SidePortalModal.openInstance) return;
-        SidePortalModal.openInstance = this;
-        if (this.container) this.close();
-
-        this.backdrop = activeDocument.body.createDiv("portals-sp-backdrop");
-        this.backdrop.addEventListener("click", () => this.close());
-
-        this.container = activeDocument.body.createDiv("portals-sp-container");
-        this.container.addClass("portals-modal");
-        this.container.addEventListener("click", (e) => e.stopPropagation());
-
-        try {
-            this.buildUI();
-            activeDocument.addEventListener("keydown", this.keyHandler);
-        } catch (e) {
-            console.error("Error building side portals UI", e);
-            this.close();
-        }
+    protected buildContent(): void {
+        this.buildUI();
     }
 
     private buildUI(): void {
@@ -153,10 +131,4 @@ export class SidePortalModal {
         });
     }
 
-    close(): void {
-        if (SidePortalModal.openInstance === this) SidePortalModal.openInstance = null;
-        this.container?.remove();
-        this.backdrop?.remove();
-        activeDocument.removeEventListener("keydown", this.keyHandler);
-    }
 }
