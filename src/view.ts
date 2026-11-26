@@ -53,6 +53,10 @@ export class PortalsView extends ItemView {
     private spaceScrollCache = new Map<string, number>();
     private scrollCaptureResumeAt = 0;
     private lastRenderedSpaceKey: string = '';
+    // True while a tree build is inserting rows. Setting the `open` attribute on a
+    // connected <details> fires a toggle event, which the auto-collapse handler
+    // would otherwise treat as the user opening a row.
+    private treeRendering = false;
     private scrollAnchor: { selector: string; offset: number; path?: string; isTag?: boolean } | null = null;
     private multiSelectToolbar: HTMLElement | null = null;
     public rangeSelectionAnchor: string | null = null;
@@ -1373,10 +1377,16 @@ export class PortalsView extends ItemView {
             this.spaceScrollCache.set(key, target.scrollTop);
         }, { capture: true });
 
-        this.registerDomEvent(this.contentEl, 'toggle', (e: Event) => {
-            const target = e.target as HTMLElement;
-            if (!target.matches('.folder-details') || !(target as HTMLDetailsElement).open) return;
+        // Bound to a click on a summary, not to the 'toggle' event. A build sets the
+        // `open` attribute on connected <details> elements, which fires toggle
+        // events of its own — indistinguishable by timing, and they were collapsing
+        // the whole tree on every render and on startup.
+        this.registerDomEvent(this.contentEl, 'click', (e: MouseEvent) => {
             if (!this.plugin.settings.autoCollapseTree) return;
+            const summary = (e.target as HTMLElement | null)?.closest?.('.folder-summary');
+            if (!summary) return;
+            const target = summary.parentElement as HTMLDetailsElement | null;
+            if (!target?.classList.contains('folder-details')) return;
 
             const treeContainer = this.containerEl.querySelector('.portals-tree-container') as HTMLElement;
             if (!treeContainer) return;
@@ -1385,19 +1395,24 @@ export class PortalsView extends ItemView {
             const containerRect = treeContainer.getBoundingClientRect();
             const offsetBefore = targetRect.top - containerRect.top;
 
-            const openDetails = this.containerEl.querySelectorAll<HTMLDetailsElement>('.folder-details[open]');
-            openDetails.forEach(details => {
-                if (details === target) return;
-                if (details.contains(target)) return;
-                if (target.contains(details)) return;
-                details.open = false;
-            });
-
+            // After the click has flipped the row open, collapse its siblings.
             window.requestAnimationFrame(() => {
+                if (!target.open) return;
+                const openDetails = this.containerEl.querySelectorAll<HTMLDetailsElement>('.folder-details[open]');
+                openDetails.forEach(details => {
+                    if (details === target) return;
+                    if (details.contains(target)) return;
+                    if (target.contains(details)) return;
+                    // Mark before closing so the row's own listener does not persist
+                    // this programmatic collapse as the user's choice.
+                    details.dataset.autoCollapsed = '1';
+                    details.open = false;
+                });
+
                 const newRect = target.getBoundingClientRect();
                 const newContainerRect = treeContainer.getBoundingClientRect();
                 const offsetAfter = newRect.top - newContainerRect.top;
-                treeContainer.scrollTop += (offsetAfter - offsetBefore);
+                treeContainer.scrollTop += offsetAfter - offsetBefore;
             });
         }, { capture: true });
 
@@ -2028,9 +2043,11 @@ export class PortalsView extends ItemView {
                 s.path === this.plugin.settings.selectedSpace?.path && 
                 s.type === this.plugin.settings.selectedSpace?.type
             ) || spaces[0];
+            this.treeRendering = true;
             if (selectedSpace) {
                 this.buildSelectedSpaceContent(treeContainer, selectedSpace, this.getOpenFilePaths());
             }
+            window.requestAnimationFrame(() => { this.treeRendering = false; });
             const currentSpacekey = selectedSpace ? `${selectedSpace.type}:${selectedSpace.path}`: '';
             const spaceChanged = currentSpacekey !== this.lastRenderedSpaceKey;
             this.lastRenderedSpaceKey = currentSpacekey;
@@ -2097,7 +2114,10 @@ export class PortalsView extends ItemView {
             return;
         }
 
+        this.treeRendering = true;
         this.buildSelectedSpaceContent(treeContainer, selectedSpace, openFiles);
+        // Toggle events fire as tasks, so stay guarded until after the next frame.
+        window.requestAnimationFrame(() => { this.treeRendering = false; });
         // Only now is this space what the DOM actually shows.
         const spaceKey = `${selectedSpace.type}:${selectedSpace.path}`;
         const spaceChanged = spaceKey !== this.lastRenderedSpaceKey;

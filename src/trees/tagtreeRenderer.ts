@@ -393,6 +393,10 @@ export class TagTreeRenderer {
                 }
 
                 groupDetails.addEventListener('toggle', () => {
+                    if (groupDetails.dataset.autoCollapsed) {
+                        delete groupDetails.dataset.autoCollapsed;
+                        return;
+                    }
                     const isOpen = groupDetails.open;
                     let expanded = this.plugin.settings.expandedGroups[tagName] || [];
                     if (isOpen) {
@@ -549,6 +553,10 @@ export class TagTreeRenderer {
             TreeEventHelpers.attachIconContextNoteOpener(iconSpan, node.fullPath, this.view);
 
             details.addEventListener('toggle', () => {
+                if (details.dataset.autoCollapsed) {
+                    delete details.dataset.autoCollapsed;
+                    return;
+                }
                 let expanded = this.plugin.settings.expandedTagHierarchy[tagName] || [];
                 if (details.open) {
                     if (!expanded.includes(node.fullPath)) {
@@ -723,6 +731,10 @@ export class TagTreeRenderer {
             }
 
             groupDetails.addEventListener('toggle', () => {
+                if (groupDetails.dataset.autoCollapsed) {
+                    delete groupDetails.dataset.autoCollapsed;
+                    return;
+                }
                 let expanded = this.plugin.settings.expandedGroups[tagName] || [];
                 if (groupDetails.open) {
                     if (!expanded.includes(gTag)) expanded = [...expanded, gTag];

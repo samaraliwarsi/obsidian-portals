@@ -42,7 +42,10 @@ export class FolderTreeRenderer {
                 label: folder.path === '/' ? this.app.vault.getName() : folder.name,
                 iconKey: folder.path,
                 iconFallback: iconName,
-                open: this.plugin.settings.openFolders.includes(folder.path),
+                // The portal's own root row is the container for everything in the
+                // space: it must always start open, or the whole portal looks
+                // collapsed on entry.
+                open: depth === 0 || this.plugin.settings.openFolders.includes(folder.path),
                 reorderKey: folder.path,
                 colorKey: folder.path,
                 colorSource: 'folder',
@@ -107,6 +110,10 @@ export class FolderTreeRenderer {
         }
 
         details.addEventListener('toggle', () => {
+            if (details.dataset.autoCollapsed) {
+                delete details.dataset.autoCollapsed;
+                return;
+            }
             if (details.open) {
                 loadChildren();
             }
