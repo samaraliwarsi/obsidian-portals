@@ -117,6 +117,7 @@
 
 .fm-clinic-header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
 }
@@ -227,7 +228,7 @@ p.fm-noFound-txt {
 
 .fm-current-value {
     display: block;
-    flex-shrink: 0;
+    flex-shrink: 1;
     margin-right: 4px;
     font-size: 0.55em;
     color: var(--text-faint);
@@ -237,6 +238,8 @@ p.fm-noFound-txt {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 55%;
+    min-width: 0;
 }
 
 .fm-current-value.clickable {
